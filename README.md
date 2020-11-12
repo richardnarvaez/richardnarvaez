@@ -1,7 +1,7 @@
 ### Hi there, I'm [Richard Vinueza][website] 👋
 
 ## I'm a Sofware Student!
-- 🔭 I’m currently working on [NextPixl][website]!
+- 🔭 I’m currently working on [DarkPixl][website]!
 - 🌱 I’m currently learning everything 🚀
 - 🌎 I’m from Ecuador
 
@@ -96,7 +96,7 @@
 
 <p style="text-align: center; font-weight: bold">v.1.0.1</p>
 
-[website]: https://nextpixl.studio
+[website]: https://darkpixl.com
 [twitter]: https://twitter.com/richardvnarvaez
 [youtube]: https://youtube.com/richardvnarvaez
 [instagram]: https://instagram.com/richardvnarvaez
