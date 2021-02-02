@@ -100,7 +100,7 @@
 [twitter]: https://twitter.com/richardvnarvaez
 [youtube]: https://youtube.com/richardvnarvaez
 [instagram]: https://instagram.com/richardvnarvaez
-[linkedin]: https://linkedin.com/in/richardvnarvaez
+[linkedin]: https://www.linkedin.com/in/richard-b-vinueza-narvaez-b70ba212b/
 [webdevplaylist]: https://www.youtube.com/playlist?
 [jsplaylist]: https://www.youtube.com/playlist?
 [cssplaylist]: https://www.youtube.com/playlist?
