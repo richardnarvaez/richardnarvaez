@@ -81,8 +81,7 @@
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true" />
 </a>
 
-
-<p style="text-align: center; font-weight: bold">v.1.1.2</p>
+##### v.1.1.2
 
 </td></tr></table>
 
