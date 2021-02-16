@@ -75,26 +75,10 @@
 
 ---
 
-### 📺 Latest YouTube Videos
-<!-- YOUTUBE:START -->
-
-<!-- YOUTUBE:END -->
-
----
-
-### 📕 Latest Blog Posts
-<!-- BLOG-POST-LIST:START -->
-
-<!-- BLOG-POST-LIST:END -->
-
----
-
-<img align="left" alt="Richard V. Narvaez's Github Stats" src="https://github-readme-stats.vercel.app/api?username=richardnarvaez&show_icons=true&hide_border=true&count_private=true" />
-
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true)
 
 
-<p style="text-align: center; font-weight: bold">v.1.0.1</p>
+<p style="text-align: center; font-weight: bold">v.1.1.2</p>
 
 [website]: https://darkpixl.com
 [twitter]: https://twitter.com/richardvnarvaez
