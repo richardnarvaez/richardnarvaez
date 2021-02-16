@@ -74,11 +74,19 @@
 <br />
 
 ---
-
-![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true)
+<table align="center"><tr><td align="center" width="9999">
+  
+  ## TOP
+<a href="https://github.com/anuraghazra/github-readme-stats">
+  <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true" />
+</a>
 
 
 <p style="text-align: center; font-weight: bold">v.1.1.2</p>
+
+</td></tr></table>
+
+
 
 [website]: https://darkpixl.com
 [twitter]: https://twitter.com/richardvnarvaez
