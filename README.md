@@ -1,6 +1,5 @@
 ### Hi there, I'm [Richard Vinueza][website] 👋
 
-## I'm a Sofware Student!
 - 🔭 I’m currently working on [DarkPixl][website]!
 - 🌱 I’m currently learning everything 🚀
 - 🌎 I’m from Ecuador
