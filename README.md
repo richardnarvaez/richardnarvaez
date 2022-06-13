@@ -122,7 +122,7 @@
 [twitter]: https://twitter.com/richardvnarvaez
 [youtube]: https://youtube.com/richardvnarvaez
 [instagram]: https://instagram.com/richardvnarvaez
-[linkedin]: www.linkedin.com/in/richardvnarvaez
+[linkedin]: https://linkedin.com/in/richardvnarvaez
 [hackerrank]: https://www.hackerrank.com/richardvnarvaez
 [webdevplaylist]: https://www.youtube.com/playlist?
 [jsplaylist]: https://www.youtube.com/playlist?
