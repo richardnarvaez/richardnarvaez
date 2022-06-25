@@ -10,7 +10,7 @@
 [<img align="left" alt="Instagram"  src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" />][instagram]
 <br/>
 
-### Languages and Tools:
+<!-- ### Languages and Tools:
 
 <table align="center">
   
@@ -103,7 +103,7 @@
     </td>
   </tr>
 </table>
-
+ -->
 ---
 <table align="center"><tr><td align="center" width="9999">
   
@@ -112,7 +112,7 @@
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true" />
 </a>
 
-##### v.1.2.0
+##### v.2.0.1
 
 </td></tr></table>
 
