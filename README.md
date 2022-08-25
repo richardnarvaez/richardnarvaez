@@ -8,6 +8,8 @@
 [<img align="left" alt="HakerRank"  src="https://img.shields.io/badge/-Hackerrank-2EC866?style=for-the-badge&logo=HackerRank&logoColor=white" />][hackerrank]
 [<img align="left" alt="LinkedIn" src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />][linkedin]
 [<img align="left" alt="Instagram"  src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" />][instagram]
+[<img align="left" alt="LeetCode"  src="https://img.shields.io/badge/-LeetCode-FFA116?style=for-the-badge&logo=LeetCode&logoColor=white" />][leetcode]
+
 <br/>
 
 <!-- ### Languages and Tools:
@@ -128,3 +130,4 @@
 [jsplaylist]: https://www.youtube.com/playlist?
 [cssplaylist]: https://www.youtube.com/playlist?
 [reactplaylist]: https://www.youtube.com/playlist?
+[leetcode]: https://leetcode.com/richardnarvaez/
