@@ -1,8 +1,6 @@
 ### Hi there, I'm [Richard Vinueza][website] 👋
 
-- 🔭 I’m currently working on [DarkPixl][website]!
-- 🌱 I’m currently learning DevOps 🚀
-- 🌎 I’m from Ecuador
+<h1 align="center"> DarkPixl</>
 
 ### Connect with me:
 [<img align="left" alt="HakerRank"  src="https://img.shields.io/badge/-Hackerrank-2EC866?style=for-the-badge&logo=HackerRank&logoColor=white" />][hackerrank]
@@ -114,7 +112,7 @@
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true&langs_count=10" />
 </a>
 
-##### v.2.0.3
+##### v.2.0.5
 
 </td></tr></table>
 
