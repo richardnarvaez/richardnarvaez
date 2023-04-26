@@ -1,5 +1,3 @@
-### Hi there, I'm [Richard Vinueza][website] 👋
-
 <h1 align="center"> DarkPixl</>
 
 ### Connect with me:
