@@ -41,7 +41,7 @@ export default function Home() {
                   width={120}
                   height={120}
                />
-               <h1 className="text-3xl font-bold text-center">I'm Richard Vinueza</h1>
+               <h1 className="text-3xl font-bold text-center">I&apos;m Richard Vinueza</h1>
                <h2 style={{
                 opacity: "1",
                 background: "-webkit-radial-gradient(100% 0%, #39e5ae, #1861db)",
@@ -52,7 +52,7 @@ export default function Home() {
                   SOFTWARE ENGINEER
                </h2>
                <h3 className="flex flex-col text-center text-lg">
-                  Over the last 5 years, I've empowered 9+ companies
+                  Over the last 5 years, I&apos;ve empowered 9+ companies
                   <span className="hidden md:block opacity-70 max-w-2xl">
                      Developing user-centric interfaces that captivate and engage audiences and make
                      a real impact.
