@@ -1,4 +1,4 @@
-<h1 align="center"> DarkPixl</>
+<h1 align="center"> I'm Richard Vinueza</>
 
 ### Connect with me:
 [<img align="left" alt="HakerRank"  src="https://img.shields.io/badge/-Hackerrank-2EC866?style=for-the-badge&logo=HackerRank&logoColor=white" />][hackerrank]
@@ -105,7 +105,7 @@
 ---
 <table align="center"><tr>
   <td align="center" width="9999">
-<a href="https://github.com/anuraghazra/github-readme-stats">
+<a href="https://richard.darkpixl.com">
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=richardnarvaez&layout=compact&count_private=true&langs_count=10" />
 </a>
 
@@ -113,6 +113,14 @@
 
   </td>
 </tr>
+<td align="center" width="9999">
+<a href="https://richard.darkpixl.com">
+  <img align="center" src="./screenshots/Cover.png" />
+</a>
+
+##### PORTFOLIO - CLICK TO REDIRECT
+
+  </td>
 </table>
 
 
