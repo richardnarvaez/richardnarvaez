@@ -43,7 +43,7 @@ export async function generateMetadata({
   const url = env.NEXT_PUBLIC_APP_URL
 
   const ogUrl = new URL(`${url}/api/og`)
-  
+
   ogUrl.searchParams.set("heading", post.title)
   ogUrl.searchParams.set("type", "Blog Post")
   ogUrl.searchParams.set("mode", "dark")
@@ -98,7 +98,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
-      <Link
+      {/* <Link
         href="/blog"
         className={cn(
           buttonVariants({ variant: "ghost" }),
@@ -165,7 +165,7 @@ export default async function PostPage({ params }: PostPageProps) {
           <Icons.chevronLeft className="mr-2 h-4 w-4" />
           See all posts
         </Link>
-      </div>
+      </div> */}
     </article>
   )
 }
