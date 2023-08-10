@@ -237,24 +237,26 @@ export default async function IndexPage() {
           <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50">
             <div className="p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
-              <p className="text-3xl ">View or Download on GDrive</p>
+              <p className="text-3xl ">View or Download Resume in PDF</p>
             </div>
             <div className="flex items-center justify-between gap-3  p-2 backdrop-blur-md">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 p-2">
                 <Image
-                  className="h-16 w-16"
-                  src={"/images/memory-logo.png"}
+                  className="h-12 w-12"
+                  src={"/images/GDrive-logo.png"}
                   width={150}
                   height={150}
                   alt=""
                 />
                 <div className="w-full overflow-hidden">
-                  <p className="font-bold">{"item.name"}</p>
-                  <p className="truncate text-sm">{"item.description"}</p>
+                  <p className="font-bold">PDF Resume </p>
+                  <p className="truncate text-sm">Google Drive External Link</p>
                 </div>
               </div>
               <a
-                href="/"
+                target="_blank"
+                rel="noreferrer"
+                href="https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
                 className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold"
               >
                 Visitar
@@ -367,8 +369,7 @@ export default async function IndexPage() {
           <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
             These are the tools and frameworks with which I feel more
             comfortable without limiting myself to them because I have worked
-            with Angular, MySql, Laravel, C++ and many more... My main stack
-            is:
+            with Angular, MySql, Laravel, C++ and many more... My main stack is:
           </p>
         </div>
         <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
