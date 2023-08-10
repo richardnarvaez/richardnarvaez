@@ -365,9 +365,10 @@ export default async function IndexPage() {
             Frameworks & Tech
           </h2>
           <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            This project is an experiment to see how a modern app, with features
-            like auth, subscriptions, API routes, and static pages would work in
-            Next.js 13 app dir.
+            These are the tools and frameworks with which I feel more
+            comfortable without limiting myself to them because I have worked
+            with Angular, MySql, Laravel, C++ and many more... My main stack
+            is:
           </p>
         </div>
         <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
@@ -406,10 +407,7 @@ export default async function IndexPage() {
                 viewBox="0 0 512 512"
                 fill="currentColor"
               >
-                <g
-                  transform="translate(0,512) scale(0.1,-0.1)"
-                  stroke="none"
-                >
+                <g transform="translate(0,512) scale(0.1,-0.1)" stroke="none">
                   <path d="M1779 4380 l-30 -30 4 -587 c4 -647 3 -632 73 -848 159 -487 578 -880 1078 -1010 139 -36 237 -46 498 -53 l238 -7 31 -32 c26 -26 33 -41 36 -85 5 -65 -20 -112 -72 -134 -59 -24 -522 -17 -642 11 -15 3 -30 -2 -44 -16 -20 -20 -21 -26 -17 -352 4 -321 5 -334 28 -392 32 -82 114 -164 193 -194 117 -43 387 -37 563 14 295 86 538 314 644 603 61 167 61 176 57 999 -3 732 -4 750 -26 848 -76 340 -230 617 -472 850 -244 234 -540 379 -874 430 -80 12 -214 15 -668 15 l-569 0 -29 -30z m1792 -1571 c85 -26 148 -110 149 -200 0 -63 -40 -139 -92 -175 -37 -26 -50 -29 -118 -29 -68 0 -81 3 -118 29 -83 57 -114 174 -71 263 46 95 150 141 250 112z" />
                   <path d="M863 4204 c-57 -21 -132 -90 -168 -156 l-30 -53 -3 -950 c-3 -1026 -3 -1039 50 -1205 114 -360 399 -650 756 -770 153 -51 235 -60 553 -60 347 0 365 4 466 105 91 91 103 138 103 394 0 108 -4 201 -8 207 -4 6 -61 39 -127 73 -66 34 -163 92 -215 129 -123 86 -345 308 -433 432 -118 168 -230 412 -281 615 -46 181 -49 225 -55 710 l-6 470 -40 13 c-155 53 -475 79 -562 46z" />
                 </g>
