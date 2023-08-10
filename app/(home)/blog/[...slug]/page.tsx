@@ -98,7 +98,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
-      {/* <Link
+      <Link
         href="/blog"
         className={cn(
           buttonVariants({ variant: "ghost" }),
@@ -120,7 +120,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <h1 className="mt-2 inline-block font-heading text-4xl leading-tight lg:text-5xl">
           {post.title}
         </h1>
-        {authors?.length ? (
+       {authors?.length ? (
           <div className="mt-4 flex space-x-4">
             {authors.map((author) =>
               author ? (
@@ -148,7 +148,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
         ) : null}
       </div>
-      {post.image && (
+       {post.image && (
         <Image
           src={post.image}
           alt={post.title}
@@ -165,7 +165,7 @@ export default async function PostPage({ params }: PostPageProps) {
           <Icons.chevronLeft className="mr-2 h-4 w-4" />
           See all posts
         </Link>
-      </div> */}
+      </div> 
     </article>
   )
 }

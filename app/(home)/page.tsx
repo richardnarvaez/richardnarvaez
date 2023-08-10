@@ -274,18 +274,20 @@ export default async function IndexPage() {
               {
                 name: "Memory",
                 description: "Plataforma de aprendizaje",
-                url: "",
+                url: "/blog/memory",
                 logo: "/images/memory-logo.png",
               },
               {
                 name: "BusinessIT",
                 description: "Rediseno",
                 logo: "/images/businessit-logo.png",
+                url: "/blog/memory",
               },
               {
                 name: "Ubrand",
                 description: "Crea tu marca en linea",
                 logo: "/images/ubrand-logo.png",
+                url: "/blog/memory",
               },
             ].map((item) => {
               return (
@@ -304,7 +306,7 @@ export default async function IndexPage() {
                     </div>
                   </div>
                   <a
-                    href="/"
+                    href={item.url}
                     className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold"
                   >
                     Visitar

@@ -10,7 +10,6 @@ export const metadata = {
 }
 
 export default async function BlogPage() {
-  
   const posts = allPosts
     .filter((post) => post.published)
     .sort((a, b) => {
@@ -24,9 +23,7 @@ export default async function BlogPage() {
           <h1 className="inline-block font-heading text-4xl tracking-tight lg:text-5xl">
             Blog
           </h1>
-          <p className="text-xl text-muted-foreground">
-            A blog built using Contentlayer. Posts are written in MDX.
-          </p>
+          <p className="text-xl text-muted-foreground">Under construction</p>
         </div>
       </div>
       <hr className="my-8" />
