@@ -223,7 +223,7 @@ export default async function IndexPage() {
           </div>*/}
         </div>
       </section>
-      <section className="mx-auto grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-2">
+      <section className="mx-auto grid max-w-3xl grid-cols-1 gap-4 px-8 sm:grid-cols-2">
         <div className="relative h-96 w-full overflow-hidden rounded-xl">
           <Image
             alt=""
@@ -266,7 +266,7 @@ export default async function IndexPage() {
         </div>
         <div className="w-full rounded-xl border p-4">
           <div className="font-bold">
-            <p className="text-md text-white/75">APSS</p>
+            <p className="text-md text-white/75">APPS</p>
             <p className="text-3xl ">Ultimos lanzamientos</p>
           </div>
           <div className="mt-3 flex flex-col gap-3">
@@ -281,13 +281,13 @@ export default async function IndexPage() {
                 name: "BusinessIT",
                 description: "Rediseno",
                 logo: "/images/businessit-logo.png",
-                url: "/blog/memory",
+                url: "/blog/businessit",
               },
               {
                 name: "Ubrand",
                 description: "Crea tu marca en linea",
                 logo: "/images/ubrand-logo.png",
-                url: "/blog/memory",
+                url: "/blog/ubrand",
               },
             ].map((item) => {
               return (
