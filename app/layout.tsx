@@ -36,14 +36,16 @@ export const metadata = {
     "Tailwind CSS",
     "Server Components",
     "Radix UI",
+    "Portfolio",
+    "Richard"
   ],
   authors: [
     {
-      name: "shadcn",
-      url: "https://shadcn.com",
+      name: "Richard Vinueza",
+      url: "https://darkpixl.com",
     },
   ],
-  creator: "shadcn",
+  creator: "richardvnarvaez",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" },
@@ -61,12 +63,12 @@ export const metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [`${siteConfig.url}/og.jpg`],
-    creator: "@shadcn",
+    creator: "@richardvnarvaez",
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+    icon: "/images/logo-richard.png",
+    shortcut: "/images/logo-richard.png",
+    apple: "/images/logo-richard.png",
   },
   manifest: `${siteConfig.url}/site.webmanifest`,
 }
