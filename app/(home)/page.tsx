@@ -223,18 +223,23 @@ export default async function IndexPage() {
           </div>*/}
         </div>
       </section>
-      <section className="mx-auto grid max-w-3xl grid-cols-1 gap-4 px-8 sm:grid-cols-2">
-        <div className="relative h-96 w-full overflow-hidden rounded-xl">
+      <section className="mx-auto grid max-w-3xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 md:grid-cols-3">
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href="https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
+          className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl "
+        >
           <Image
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110"
             src={
               "https://images.unsplash.com/photo-1536104968055-4d61aa56f46a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
             }
             width={700}
             height={900}
           />
-          <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50">
+          <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50 transition-all group-hover:bg-black/70">
             <div className="p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
               <p className="text-3xl ">View or Download Resume in PDF</p>
@@ -253,18 +258,13 @@ export default async function IndexPage() {
                   <p className="truncate text-sm">Google Drive External Link</p>
                 </div>
               </div>
-              <a
-                target="_blank"
-                rel="noreferrer"
-                href="https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
-                className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold"
-              >
+              <div className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold">
                 Visitar
-              </a>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="w-full rounded-xl border p-4">
+        </a>
+        <div className="w-full rounded-xl border p-4 md:col-span-2">
           <div className="font-bold">
             <p className="text-md text-white/75">APPS</p>
             <p className="text-3xl ">Ultimos lanzamientos</p>
@@ -273,19 +273,19 @@ export default async function IndexPage() {
             {[
               {
                 name: "Memory",
-                description: "Plataforma de aprendizaje",
+                description: "Web Application",
                 url: "/blog/memory",
                 logo: "/images/memory-logo.png",
               },
               {
                 name: "BusinessIT",
-                description: "Rediseno",
+                description: "Redesign",
                 logo: "/images/businessit-logo.png",
                 url: "/blog/businessit",
               },
               {
                 name: "Ubrand",
-                description: "Crea tu marca en linea",
+                description: "Web Application",
                 logo: "/images/ubrand-logo.png",
                 url: "/blog/ubrand",
               },
@@ -317,11 +317,19 @@ export default async function IndexPage() {
           </div>
 
           <div className="mt-3 w-full text-center">
-            <a href="#apps">Ver mas</a>
+            <Link href="/blog">Ver mas</Link>
           </div>
         </div>
-        <div className="relative h-96 w-full overflow-hidden rounded-xl bg-[#23293C]">
-          <div className="p-4 font-bold">
+        <div className="relative h-96 w-full overflow-hidden rounded-xl bg-[#23293C] md:col-span-2">
+          <div
+            className="p-4 font-bold"
+            style={{
+              zIndex: 14,
+              position: "absolute",
+              background: "linear-gradient(180deg, #23293c, transparent)",
+              width: "100%",
+            }}
+          >
             <p className="text-md text-white/75">TECNOLOGIAS</p>
             <p className="text-3xl ">Herramientas y Frameworks</p>
           </div>
@@ -333,7 +341,7 @@ export default async function IndexPage() {
             height={800}
           />
         </div>
-        <div className="grid w-full grid-cols-1 gap-4">
+        <div className="grid  w-full grid-cols-1 gap-4">
           <div className="relative overflow-hidden rounded-xl border">
             <p>TECNOLOGIAS</p>
             <p>Herramientas y Frameworks favoritos</p>
