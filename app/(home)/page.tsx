@@ -223,7 +223,7 @@ export default async function IndexPage() {
           </div>*/}
         </div>
       </section>
-      <section className="mx-auto grid max-w-3xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 md:grid-cols-3">
+      <section className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:px-8 lg:grid-cols-3">
         <a
           target="_blank"
           rel="noreferrer"
@@ -264,7 +264,7 @@ export default async function IndexPage() {
             </div>
           </div>
         </a>
-        <div className="w-full rounded-xl border p-4 md:col-span-2">
+        <div className="w-full rounded-xl border p-4 lg:col-span-2">
           <div className="font-bold">
             <p className="text-md text-white/75">APPS</p>
             <p className="text-3xl ">Ultimos lanzamientos</p>
@@ -320,7 +320,7 @@ export default async function IndexPage() {
             <Link href="/blog">Ver mas</Link>
           </div>
         </div>
-        <div className="relative h-96 w-full overflow-hidden rounded-xl bg-[#23293C] md:col-span-2">
+        <div className="relative h-96 w-full overflow-hidden rounded-xl bg-[#23293C] ">
           <div
             className="p-4 font-bold"
             style={{
@@ -341,7 +341,7 @@ export default async function IndexPage() {
             height={800}
           />
         </div>
-        <div className="grid  w-full grid-cols-1 gap-4">
+        <div className="grid  w-full grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2">
           <div className="relative overflow-hidden rounded-xl border">
             <p>TECNOLOGIAS</p>
             <p>Herramientas y Frameworks favoritos</p>
