@@ -350,9 +350,9 @@ export default async function IndexPage() {
           // onClick={() => {
           //   alert("Proximamente")
           // }}
-          className="group grid w-full cursor-pointer grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2"
+          className=" grid w-full cursor-pointer grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2"
         >
-          <div className="relative flex items-center justify-center overflow-hidden rounded-xl border text-center">
+          <div className="group relative flex items-center justify-center overflow-hidden rounded-xl border text-center">
             <div className="z-20 m-auto p-4 font-bold">
               <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white">
                 <Image
@@ -381,11 +381,11 @@ export default async function IndexPage() {
             target="_blank"
             rel="noreferrer"
             href="https://www.figma.com/community/file/1270173776891030529/Portfolio---React-NextJS"
-            className="flex items-center rounded-xl border bg-white/10 p-4 font-bold hover:bg-white/20"
+            className="flex items-center rounded-xl border  p-4 font-bold hover:bg-white/10"
           >
             <div>
               <p className="text-lg text-white/75">FIGMA</p>
-              <p className="text-3xl ">Visit Portfolio</p>
+              <p className="text-3xl ">Visit Portfolio Template</p>
             </div>
           </a>
         </div>

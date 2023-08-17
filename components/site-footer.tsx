@@ -28,7 +28,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
         </div>
       </div>
 
-      <div className="my-8 flex flex-col items-center justify-center gap-2.5">
+      <div className="mb-32 mt-8 flex flex-col items-center justify-center gap-2.5">
         <div className="flex h-9 w-64 items-center justify-center gap-2 rounded-lg border border-slate-800 bg-gradient-to-b from-transparent to-black/20 text-xs font-medium text-neutral-100 text-opacity-80 shadow">
           <p>{"Cooked with love in "}</p>
           <img className="h-4 w-4" src="/images/ecuador-flag.png" />

@@ -8,7 +8,7 @@ module.exports = {
     "./ui/**/*.{ts,tsx}",
     "./content/**/*.{md,mdx}",
   ],
-  darkMode: ["class"],
+  // darkMode: ["class"],
   theme: {
     container: {
       center: true,
