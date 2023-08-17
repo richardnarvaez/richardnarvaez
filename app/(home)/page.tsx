@@ -325,7 +325,7 @@ export default async function IndexPage() {
             <Link href="/blog">Ver mas</Link>
           </div>
         </div>
-        <div className="relative h-96 w-full overflow-hidden rounded-xl bg-[#23293C] ">
+        <div className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] ">
           <div
             className="p-4 font-bold"
             style={{
@@ -340,19 +340,36 @@ export default async function IndexPage() {
           </div>
           <Image
             alt=""
-            className="absolute -bottom-8 -right-8  w-full -rotate-12 scale-125"
+            className="absolute -bottom-8 -right-8 w-full  -rotate-12 scale-125 transition-transform ease-out group-hover:scale-150"
             src={"/images/IconsTech.png"}
             width={800}
             height={800}
           />
         </div>
-        <div className="grid  w-full grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2">
-          <div className="relative overflow-hidden rounded-xl border">
-            <p>TECNOLOGIAS</p>
-            <p>Herramientas y Frameworks favoritos</p>
+        <div
+          // onClick={() => {
+          //   alert("Proximamente")
+          // }}
+          className="group grid w-full cursor-pointer grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2"
+        >
+          <div className="relative flex items-center justify-center overflow-hidden rounded-xl border text-center">
+            <div className="z-20 m-auto p-4 font-bold">
+              <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white">
+                <Image
+                  alt="Logo Richard Vinueza"
+                  src={"/images/logo-richard.png"}
+                  width={100}
+                  height={100}
+                />
+              </div>
+              <p className="text-md text-white/75">TOP</p>
+              <p className="text-3xl ">List of Best</p>
+            </div>
+            <div className="absolute top-0 z-10 h-full w-full bg-[rgba(35,41,60,0.3)]"></div>
+
             <Image
               alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110"
               src={
                 "https://images.unsplash.com/photo-1664448007527-2c49742dbb24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80"
               }
@@ -436,7 +453,7 @@ export default async function IndexPage() {
               </div>
             </div>
           </div>
-          <div className="z-20overflow-hidden relative rounded-lg border bg-background p-2">
+          <div className="z-20overflow-hidden  relative z-20 rounded-lg border bg-background p-2">
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
                 <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
@@ -450,7 +467,7 @@ export default async function IndexPage() {
               </div>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+          <div className="relative z-20  overflow-hidden rounded-lg border bg-background p-2">
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <svg
                 viewBox="0 0 24 24"
@@ -469,7 +486,7 @@ export default async function IndexPage() {
               </div>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+          <div className="relative z-20  overflow-hidden rounded-lg border bg-background p-2">
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
                 <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z" />
@@ -487,7 +504,7 @@ export default async function IndexPage() {
           <Image
             width={920}
             height={128}
-            className="z-10 max-w-lg "
+            className="z-10  md:max-w-lg "
             src={"/images/DockUsedApps.png"}
             alt="Dock Used Apps"
           />
@@ -497,7 +514,7 @@ export default async function IndexPage() {
             width={667}
             height={295}
             quality={100}
-            className="absolute -top-32 z-0 w-full"
+            className="absolute -top-10 z-0 w-full sm:-top-24 md:-top-32"
             src={"/images/teclado-mac.jpg"}
             alt="Teclado MacBook"
           />
@@ -505,7 +522,7 @@ export default async function IndexPage() {
       </section>
       <section id="open-source" className="container  py-8 md:py-12 lg:py-24">
         <div className="mx-auto  flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
-          <h2 className="z-20 font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
+          <h2 className="z-20 font-heading  text-6xl  leading-[1.1]">
             Open Source
           </h2>
           <p className="z-20 max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
