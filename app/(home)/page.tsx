@@ -491,24 +491,24 @@ export default async function IndexPage() {
             src={"/images/DockUsedApps.png"}
             alt="Dock Used Apps"
           />
-        </div>{" "}
+        </div>
         <div className="relative mx-auto flex justify-center text-center md:max-w-[58rem]">
           <Image
             width={667}
             height={295}
-            quality={90}
+            quality={100}
             className="absolute -top-32 z-0 w-full"
-            src={"/images/teclado.png"}
-            alt="Dock Used Apps"
+            src={"/images/teclado-mac.jpg"}
+            alt="Teclado MacBook"
           />
         </div>
       </section>
-      <section id="open-source" className="container py-8 md:py-12 lg:py-24">
-        <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
-          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
+      <section id="open-source" className="container  py-8 md:py-12 lg:py-24">
+        <div className="mx-auto  flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
+          <h2 className="z-20 font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
             Open Source
           </h2>
-          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
+          <p className="z-20 max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
             This Portfolio is open source and powered by open source software.{" "}
             <br /> The code is available on{" "}
             <Link
