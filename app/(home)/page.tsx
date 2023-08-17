@@ -223,7 +223,7 @@ export default async function IndexPage() {
           </div>*/}
         </div>
       </section>
-      <section className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 md:px-8 lg:grid-cols-3">
+      <section className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 lg:px-0">
         <a
           target="_blank"
           rel="noreferrer"
@@ -255,7 +255,12 @@ export default async function IndexPage() {
                 />
                 <div className="w-full overflow-hidden">
                   <p className="font-bold">PDF Resume </p>
-                  <p className="truncate text-sm">Google Drive External Link</p>
+                  <p
+                    className="truncate text-sm"
+                    title="Google Drive External Link"
+                  >
+                    Google Drive External Link
+                  </p>
                 </div>
               </div>
               <div className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold">
@@ -431,7 +436,7 @@ export default async function IndexPage() {
               </div>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
+          <div className="z-20overflow-hidden relative rounded-lg border bg-background p-2">
             <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
               <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
                 <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
@@ -478,12 +483,25 @@ export default async function IndexPage() {
             </div>
           </div>
         </div>
-        {/* <div className="mx-auto text-center md:max-w-[58rem]">
-          <p className="leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            Taxonomy also includes a blog and a full-featured documentation site
-            built using Contentlayer and MDX.
-          </p>
-        </div> */}
+        <div className="mx-auto flex justify-center text-center md:max-w-[58rem]">
+          <Image
+            width={920}
+            height={128}
+            className="z-10 max-w-lg "
+            src={"/images/DockUsedApps.png"}
+            alt="Dock Used Apps"
+          />
+        </div>{" "}
+        <div className="relative mx-auto flex justify-center text-center md:max-w-[58rem]">
+          <Image
+            width={667}
+            height={295}
+            quality={90}
+            className="absolute -top-32 z-0 w-full"
+            src={"/images/teclado.png"}
+            alt="Dock Used Apps"
+          />
+        </div>
       </section>
       <section id="open-source" className="container py-8 md:py-12 lg:py-24">
         <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
