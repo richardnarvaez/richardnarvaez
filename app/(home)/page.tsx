@@ -41,6 +41,7 @@ export default async function IndexPage() {
       <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
         <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
           <header className="z-10 w-full max-w-5xl">
+         
             <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
               <Image
                 src="/images/Perfil.jpg"
@@ -79,8 +80,9 @@ export default async function IndexPage() {
                 height={120}
               />
               <h1 className="text-center text-3xl font-bold">
-                I&apos;m Richard Vinueza
+                Richard Vinueza
               </h1>
+             
               <h2
                 style={{
                   opacity: "1",
@@ -91,8 +93,9 @@ export default async function IndexPage() {
                 }}
                 className="z-10 max-w-3xl text-center text-6xl  font-extrabold opacity-70 md:text-8xl "
               >
-                SOFTWARE ENGINEER
+                CREATIVE DEVELOPER
               </h2>
+              {/* SOFTWARE ENGINEER */}
               <h3 className="flex flex-col text-center text-lg">
                 Over the last 5 years, I&apos;ve empowered 9+ companies
                 <span className="hidden max-w-2xl opacity-70 md:block">
