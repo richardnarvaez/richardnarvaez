@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button"
 import Image from "next/image"
 import { allPosts } from "@/.contentlayer/generated"
 import { compareDesc } from "date-fns"
+import { ExternalLinkIcon } from "lucide-react"
 
 async function getGitHubStars(): Promise<string | null> {
   try {
@@ -396,12 +397,15 @@ export default async function IndexPage() {
             className="flex items-center rounded-xl border  p-4 font-bold hover:bg-white/10"
           >
             <div>
-              <p className="text-lg text-white/75">FIGMA</p>
+              <p className="flex items-center gap-2 text-lg text-white/75">
+                FIGMA{" "}
+                  <ExternalLinkIcon size={18} />
+              </p>
               <p className="text-3xl ">Visit Portfolio Template</p>
             </div>
           </a>
         </div>
-        <div className="col-span-3 mt-4">
+        <div className="col-span-full mt-4">
           <p className="text-xl font-bold">Proyectos y Productos</p>
           <p>Lista de todos los productos destacados</p>
         </div>
@@ -411,8 +415,8 @@ export default async function IndexPage() {
               <article
                 key={post._id}
                 className={
-                  "group relative flex flex-col space-y-2 " +
-                  (index % 3 == 0 ? "col-span-2" : "")
+                  "group relative flex flex-col space-y-2 col-span-full " +
+                  (index % 3 == 0 ? "lg:col-span-2" : "lg:col-span-1")
                 }
               >
                 {post.image && (
