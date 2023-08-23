@@ -2,9 +2,11 @@ import Link from "next/link"
 
 import { env } from "@/env.mjs"
 import { siteConfig } from "@/config/site"
-import { cn } from "@/lib/utils"
+import { cn, formatDate } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import Image from "next/image"
+import { allPosts } from "@/.contentlayer/generated"
+import { compareDesc } from "date-fns"
 
 async function getGitHubStars(): Promise<string | null> {
   try {
@@ -35,13 +37,20 @@ async function getGitHubStars(): Promise<string | null> {
 
 export default async function IndexPage() {
   const stars = await getGitHubStars()
+  const posts = allPosts
+    .filter((post) => post.published)
+    .sort((a, b) => {
+      return compareDesc(new Date(a.date), new Date(b.date))
+    })
 
   return (
     <>
+      <p className="fixed z-50 m-6 rounded-full bg-red-500 px-6 py-2 text-xs font-semibold text-white">
+        In Dev
+      </p>
       <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32">
         <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
           <header className="z-10 w-full max-w-5xl">
-         
             <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
               <Image
                 src="/images/Perfil.jpg"
@@ -82,7 +91,7 @@ export default async function IndexPage() {
               <h1 className="text-center text-3xl font-bold">
                 Richard Vinueza
               </h1>
-             
+
               <h2
                 style={{
                   opacity: "1",
@@ -392,6 +401,48 @@ export default async function IndexPage() {
             </div>
           </a>
         </div>
+        <div className="col-span-3 mt-4">
+          <p className="text-xl font-bold">Proyectos y Productos</p>
+          <p>Lista de todos los productos destacados</p>
+        </div>
+        {posts?.length ? (
+          <>
+            {posts.map((post, index) => (
+              <article
+                key={post._id}
+                className={
+                  "group relative flex flex-col space-y-2 " +
+                  (index % 3 == 0 ? "col-span-2" : "")
+                }
+              >
+                {post.image && (
+                  <Image
+                    src={post.image}
+                    alt={post.title}
+                    width={804}
+                    height={452}
+                    className="rounded-md border bg-muted transition-colors"
+                    priority={index <= 1}
+                  />
+                )}
+                <h2 className="text-2xl font-extrabold">{post.title}</h2>
+                {post.description && (
+                  <p className="text-muted-foreground">{post.description}</p>
+                )}
+                {post.date && (
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(post.date)}
+                  </p>
+                )}
+                <Link href={post.slug} className="absolute inset-0">
+                  <span className="sr-only">View Article</span>
+                </Link>
+              </article>
+            ))}
+          </>
+        ) : (
+          <p>No posts published.</p>
+        )}
       </section>
       <section
         id="features"
