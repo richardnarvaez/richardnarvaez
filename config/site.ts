@@ -1,7 +1,7 @@
 import { SiteConfig } from "types"
 
 export const siteConfig: SiteConfig = {
-  name: "Richard",
+  name: "Richard Vinueza",
   description:
     "Software Engineer | Portfolio",
   url: "https://richard.darkpixl.com",
