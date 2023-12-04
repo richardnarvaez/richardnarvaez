@@ -55,6 +55,13 @@ export default async function IndexPage() {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
 
+  const getColorOfStatus = {
+    building: "bg-amber-500 text-amber-800",
+    live: "bg-green-500 text-green-800",
+    dead: "bg-red-500 text-red-800",
+    "open source" : "bg-gray-500 text-gray-800",
+    proposal: "bg-blue-500 text-blue-800"
+  }
   return (
     <>
       <p className="fixed z-50 m-6 rounded-full bg-red-500 px-6 py-2 text-xs font-semibold text-white">
@@ -537,8 +544,24 @@ export default async function IndexPage() {
                     <h2 className="text-xl font-extrabold text-white md:text-2xl">
                       {post.description}
                     </h2>
-                    {post.description && (
-                      <p className="mt-2 truncate"> {post.title}</p>
+
+                    {post.title && (
+                      <p className="mt-2 flex items-center gap-2 truncate">
+                        {" "}
+                        {post.title}{" "}
+                        <span>
+                          {post.status && (
+                            <p
+                              className={
+                                " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
+                                (getColorOfStatus[post.status] || "")
+                              }
+                            >
+                              {post.status}
+                            </p>
+                          )}
+                        </span>
+                      </p>
                     )}
                     {/* {post.date && (
                     <p className="text-sm ">

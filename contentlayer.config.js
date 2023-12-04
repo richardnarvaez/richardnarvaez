@@ -69,6 +69,10 @@ export const Post = defineDocumentType(() => ({
   filePathPattern: `blog/**/*.mdx`,
   contentType: "mdx",
   fields: {
+    status:{
+      type: "string",
+      required: false
+    },
     title: {
       type: "string",
       required: true,
