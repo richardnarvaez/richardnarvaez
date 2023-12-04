@@ -12,7 +12,6 @@ import ArrowFigma from "@/components/Icons/ArrowFigma"
 
 import { Barlow } from "next/font/google"
 import {
-  Google,
   GoogleIcon,
   HackerRankIcon,
   HarvardIcon,
