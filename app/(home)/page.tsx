@@ -549,7 +549,7 @@ export default async function IndexPage() {
                     {post.title && (
                       <p className="mt-2 flex items-center gap-2 truncate">
                         {" "}
-                        {post.title}{" "}
+                        {post.title}{" - " + new Date(post.date).getFullYear()}
                         <span>
                           {post.status && (
                             <p
