@@ -59,8 +59,8 @@ export default async function IndexPage() {
     building: "bg-amber-500 text-amber-800",
     live: "bg-green-500 text-green-800",
     dead: "bg-red-500 text-red-800",
-    "open source" : "bg-gray-500 text-gray-800",
-    proposal: "bg-blue-500 text-blue-800"
+    "open source": "bg-gray-500 text-gray-800",
+    proposal: "bg-blue-500 text-blue-800",
   }
   return (
     <>
@@ -240,9 +240,10 @@ export default async function IndexPage() {
             " font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl"
           }
         >
-          To teach is to learn twice
+          {'"To teach is to learn twice"'}
           {/* SOFTWARE ENGINEER */}
         </h3>
+        <h4>Who am I?</h4>
         <h4 className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
           SOFTWARE ENGINEER with several years of experience as a Freelancer.
           Multiple certifications. Passionate about traveling and naturally
