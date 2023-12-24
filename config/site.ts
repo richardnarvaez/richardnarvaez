@@ -1,9 +1,9 @@
 import { SiteConfig } from "types"
 
 export const siteConfig: SiteConfig = {
-  name: "Richard Vinueza",
+  name: "Richard Vinueza | Portfolio NextJS",
   description:
-    "Software Engineer | Portfolio",
+    "Creative developer since 2014 and Freelance | Software Engineer",
   url: "https://richard.darkpixl.com",
   ogImage: "https://richard.darkpixl.com/og.jpg",
   links: {
