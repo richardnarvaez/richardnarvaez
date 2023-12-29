@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Analytics } from "@/components/analytics"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Viewport } from "next"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -24,6 +25,10 @@ interface RootLayoutProps {
   children: React.ReactNode
 }
 
+export const viewport: Viewport = {
+  themeColor: "black",
+}
+
 export const metadata = {
   title: {
     default: siteConfig.name,
@@ -37,7 +42,8 @@ export const metadata = {
     "Server Components",
     "Radix UI",
     "Portfolio",
-    "Richard"
+    "Richard",
+    "Richard Vinueza",
   ],
   authors: [
     {
@@ -46,10 +52,6 @@ export const metadata = {
     },
   ],
   creator: "richardvnarvaez",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -75,7 +77,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -83,7 +85,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontHeading.variable
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+        >
           {children}
           <Analytics />
           <Toaster />

@@ -1,5 +1,6 @@
 import * as React from "react"
 import Image from "next/image"
+import ImageBlog from "@/components/ImageBlog"
 import { useMDXComponent } from "next-contentlayer/hooks"
 
 import { cn } from "@/lib/utils"
@@ -97,7 +98,11 @@ const components = {
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img className={cn("rounded-md border", className)} alt={alt} {...props} />
+    <ImageBlog
+      className={cn("rounded-md border", className)}
+      alt={alt}
+      {...props}
+    />
   ),
   hr: ({ ...props }) => <hr className="my-4 md:my-8" {...props} />,
   table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
@@ -148,6 +153,7 @@ const components = {
     />
   ),
   Image,
+  ImageBlog,
   Callout,
   Card: MdxCard,
 }
