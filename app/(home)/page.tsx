@@ -9,13 +9,13 @@ import { allPosts } from "@/.contentlayer/generated"
 import { compareDesc } from "date-fns"
 import { ExternalLinkIcon } from "lucide-react"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
-
 import { Barlow } from "next/font/google"
 import {
   GoogleIcon,
   HackerRankIcon,
   HarvardIcon,
 } from "@/components/Icons/IconsBusiness"
+import HeaderImage from "@/components/Home/HeaderImage"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -207,14 +207,7 @@ export default async function IndexPage() {
               </a>
             </div>
           </div>
-          <div className="absolute inset-x-0 bottom-0  z-10 h-[50vh] w-full bg-gradient-to-t from-[#121120] to-transparent object-cover" />
-          <Image
-            src="/images/bg-header.jpg"
-            width={1920}
-            height={720}
-            alt="Background - Richard Vinueza Profile"
-            className="absolute inset-0  h-screen w-full object-cover opacity-25"
-          />
+          <HeaderImage />
         </div>
       </section>
       <section className="flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32">
@@ -316,14 +309,14 @@ export default async function IndexPage() {
         >
           <Image
             alt=""
-            className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110"
+            className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
             src={
               "https://images.unsplash.com/photo-1536104968055-4d61aa56f46a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
             }
             width={700}
             height={900}
           />
-          <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50 transition-all group-hover:bg-black/70">
+          <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50 transition-all group-hover:bg-black/70 ">
             <div className="p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
               <p className="text-3xl ">View or Download Resume in PDF</p>
@@ -457,7 +450,7 @@ export default async function IndexPage() {
 
             <Image
               alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-75 transition-transform ease-out group-hover:scale-110"
+              className="absolute inset-0 h-full w-full object-cover opacity-75 transition-all ease-out group-hover:scale-110 group-hover:blur-sm"
               src={
                 "https://images.unsplash.com/photo-1664448007527-2c49742dbb24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80"
               }
@@ -469,11 +462,11 @@ export default async function IndexPage() {
             target="_blank"
             rel="noreferrer"
             href="https://www.figma.com/community/file/1270173776891030529/Portfolio---React-NextJS"
-            className="flex items-center rounded-xl border  p-4 font-bold hover:bg-white/10"
+            className="flex items-center rounded-xl border-2 border-dashed border-[#FF512F]/50  p-4 font-bold hover:bg-[#FF512F]/5"
           >
             <div>
-              <p className="flex items-center gap-2 text-lg text-white/75">
-                FIGMA <ExternalLinkIcon size={18} />
+              <p className="mb-2 flex items-center gap-2 text-xl text-[#FF512F]">
+                FIGMA <ExternalLinkIcon size={24} />
               </p>
               <p className="text-3xl ">Visit this Portfolio Template</p>
             </div>
