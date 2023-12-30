@@ -24,7 +24,7 @@ async function getPostFromParams(params) {
   console.log("?>>>>>BLOG", params)
   const slug = params?.slug?.join("/")
   const post = allPosts.find((post) => post.slugAsParams === slug)
-  
+
   if (!post) {
     null
   }
@@ -46,8 +46,9 @@ export async function generateMetadata({
   const ogUrl = new URL(`${url}/api/og`)
 
   ogUrl.searchParams.set("heading", post.title)
-  ogUrl.searchParams.set("type", "Blog Post")
-  ogUrl.searchParams.set("mode", "dark")
+  ogUrl.searchParams.set("type", "PRODUCT")
+  ogUrl.searchParams.set("mode", "light")
+  ogUrl.searchParams.set("status", post.status || "LIVE")
 
   return {
     title: post.title,
@@ -73,7 +74,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: post.title,
       description: post.description,
-      images: [ogUrl.toString()],
+      // images: [ogUrl.toString()],
     },
   }
 }
@@ -99,7 +100,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="container relative max-w-3xl py-6 lg:py-10">
-      <GoBackButton/>
+      <GoBackButton />
       <div>
         {post.date && (
           <time
@@ -112,7 +113,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <h1 className="mt-2 inline-block font-heading text-4xl leading-tight lg:text-5xl">
           {post.title}
         </h1>
-       {authors?.length ? (
+        {authors?.length ? (
           <div className="mt-4 flex space-x-4">
             {authors.map((author) =>
               author ? (
@@ -140,7 +141,7 @@ export default async function PostPage({ params }: PostPageProps) {
           </div>
         ) : null}
       </div>
-       {post.image && (
+      {post.image && (
         <Image
           src={post.image}
           alt={post.title}
@@ -157,7 +158,7 @@ export default async function PostPage({ params }: PostPageProps) {
           <Icons.chevronLeft className="mr-2 h-4 w-4" />
           See all posts
         </Link>
-      </div> 
+      </div>
     </article>
   )
 }
