@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
 import Link from "next/link"
 
 import { siteConfig } from "@/config/site"
@@ -307,9 +308,7 @@ export default async function IndexPage() {
           <Image
             alt=""
             className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
-            src={
-              "/images/home/resume.webp"
-            }
+            src={"/images/home/resume.webp"}
             width={700}
             height={900}
           />
@@ -318,6 +317,7 @@ export default async function IndexPage() {
               <p className="text-md text-gray-300">RESUME</p>
               <p className="text-3xl ">View or Download Resume in PDF</p>
             </div>
+
             <div className="flex items-center justify-between gap-3  p-2 backdrop-blur-md">
               <div className="flex items-center gap-3 p-2">
                 <Image
@@ -341,6 +341,13 @@ export default async function IndexPage() {
                 Visitar
               </div>
             </div>
+            <Image
+              alt=""
+              className="absolute -right-[270px] h-full w-full  rotate-45 object-cover opacity-0 transition-all duration-300 ease-out group-hover:right-0 group-hover:rotate-0 group-hover:opacity-100"
+              src={"/images/home/me.webp"}
+              width={700}
+              height={900}
+            />
           </div>
         </a>
         <div className="w-full rounded-xl border p-4 lg:col-span-2">
