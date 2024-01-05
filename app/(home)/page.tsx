@@ -459,13 +459,33 @@ export default async function IndexPage() {
             target="_blank"
             rel="noreferrer"
             href="https://www.figma.com/community/file/1270173776891030529/Portfolio---React-NextJS"
-            className="flex items-center rounded-xl border-2 border-dashed border-[#FF512F]/50  p-4 font-bold hover:bg-[#FF512F]/5"
+            className="group relative flex items-center overflow-hidden rounded-xl border-2 border-dashed border-[#FF512F]/50  p-4 font-bold "
           >
             <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="100"
+                height="100"
+                viewBox="0 0 26 26"
+                fill="none"
+                className="absolute right-8 top-0 h-96 w-96 text-gray-200/5 transition-all group-hover:top-8 group-hover:h-20 group-hover:w-20 group-hover:text-gray-200/20"
+              >
+                <title>Figma</title>
+                <path
+                  d="M13 1.625H9.20829C7.11421 1.625 5.41663 3.32259 5.41663 5.41667C5.41663 7.51075 7.11421 9.20833 9.20829 9.20833M13 1.625V9.20833M13 1.625H16.7916C18.8857 1.625 20.5833 3.32259 20.5833 5.41667C20.5833 7.51075 18.8857 9.20833 16.7916 9.20833M13 9.20833H9.20829M13 9.20833V16.7917M13 9.20833H16.7916M9.20829 9.20833C7.11421 9.20833 5.41663 10.9059 5.41663 13C5.41663 15.0941 7.11421 16.7917 9.20829 16.7917M13 16.7917H9.20829M13 16.7917V20.5833C13 22.6774 11.3024 24.375 9.20829 24.375C7.11421 24.375 5.41663 22.6774 5.41663 20.5833C5.41663 18.4893 7.11421 16.7917 9.20829 16.7917M16.7916 9.20833C18.8857 9.20833 20.5833 10.9059 20.5833 13C20.5833 15.0941 18.8857 16.7917 16.7916 16.7917C14.6975 16.7917 13 15.0941 13 13C13 10.9059 14.6975 9.20833 16.7916 9.20833Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <p className="mb-2 flex items-center gap-2 text-xl text-[#FF512F]">
                 FIGMA <ExternalLinkIcon size={24} />
               </p>
               <p className="text-3xl ">Visit this Portfolio Template</p>
+              <p className="mt-3 text-lg font-normal text-gray-200/50">
+                We have Updates of this Portfolio Design in Figma Community
+              </p>
             </div>
           </a>
         </div>
