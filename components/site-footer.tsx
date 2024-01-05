@@ -1,9 +1,6 @@
 import * as React from "react"
 
-import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
-import { Icons } from "@/components/icons"
-import { ModeToggle } from "@/components/mode-toggle"
 import Image from "next/image"
 
 export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
@@ -38,16 +35,9 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
           <img className="h-4 w-4" src="/images/react-icon.png" />
         </div>
         <div className="mt-3 text-xs font-medium leading-none text-white text-opacity-30">
-          ©darkpixl 2023
+          ©darkpixl 2024
         </div>
       </div>
-
-      {/* <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          <Icons.logo />
-        </div>
-        <ModeToggle />
-      </div> */}
     </footer>
   )
 }

@@ -39,7 +39,7 @@ export default function HeaderImage() {
           "absolute inset-0 h-screen w-full object-cover transition-opacity duration-1000 " +
           (!isLoadBigImage ? "opacity-0 blur-3xl" : "opacity-25")
         }
-        onLoadingComplete={(image) => {
+        onLoad={(image) => {
           setIsLoadBigImage(true)
           //   setTimeout(() => {
           //   }, 2000)

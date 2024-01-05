@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { env } from "@/env.mjs"
 import { siteConfig } from "@/config/site"
 import { cn, formatDate } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -15,59 +14,31 @@ import {
   HackerRankIcon,
   HarvardIcon,
 } from "@/components/Icons/IconsBusiness"
+
 import HeaderImage from "@/components/Home/HeaderImage"
+import SectionFrameworksNStak from "@/components/Home/SectionFrameworksNStack"
+import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
+import SectionOpenSource from "@/components/Home/SectionOpenSource"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 
-async function getGitHubStars(): Promise<string | null> {
-  try {
-    const response = await fetch(
-      "https://api.github.com/repos/shadcn/taxonomy",
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${env.GITHUB_ACCESS_TOKEN}`,
-        },
-        next: {
-          revalidate: 60,
-        },
-      }
-    )
-
-    if (!response?.ok) {
-      return null
-    }
-
-    const json = await response.json()
-
-    return parseInt(json["stargazers_count"]).toLocaleString()
-  } catch (error) {
-    return null
-  }
-}
-
 export default async function IndexPage() {
-  const stars = await getGitHubStars()
   const posts = allPosts
     .filter((post) => post.published)
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
 
-  const getColorOfStatus = {
-    building: "bg-amber-500 text-amber-800",
-    live: "bg-green-500 text-green-800",
-    dead: "bg-red-500 text-red-800",
-    "open source": "bg-gray-500 text-gray-800",
-    proposal: "bg-blue-500 text-blue-800",
-  }
   return (
     <div>
       <p className="fixed z-50 m-6 rounded-full bg-red-500 px-6 py-2 text-xs font-semibold text-white">
         In Dev
       </p>
-      <section className="container flex h-screen max-w-[64rem] flex-col items-center justify-center gap-4 text-center">
+      <section
+        id="header"
+        className="container flex h-screen max-w-[64rem] flex-col items-center justify-center gap-4 text-center"
+      >
         <div className="z-10  w-full max-w-5xl">
           <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
             <Image
@@ -121,21 +92,27 @@ export default async function IndexPage() {
               </span>
             </h3>
             <div className="mt-8 flex gap-4">
-              <a
+            <a
                 className="rounded-lg p-2 hover:bg-white/25"
-                href="https://www.linkedin.com/in/richardvnarvaez"
+                href="https://www.figma.com/@richardvnarvaez"
                 target="_blank"
                 rel="noreferrer"
               >
                 <svg
-                  height="24px"
-                  width="24px"
-                  version="1.1"
-                  viewBox="0 0 512 512"
                   xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
+                  width="26"
+                  height="26"
+                  viewBox="0 0 26 26"
+                  fill="none"
                 >
-                  <path d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+                  <title>Figma</title>
+                  <path
+                    d="M13 1.625H9.20829C7.11421 1.625 5.41663 3.32259 5.41663 5.41667C5.41663 7.51075 7.11421 9.20833 9.20829 9.20833M13 1.625V9.20833M13 1.625H16.7916C18.8857 1.625 20.5833 3.32259 20.5833 5.41667C20.5833 7.51075 18.8857 9.20833 16.7916 9.20833M13 9.20833H9.20829M13 9.20833V16.7917M13 9.20833H16.7916M9.20829 9.20833C7.11421 9.20833 5.41663 10.9059 5.41663 13C5.41663 15.0941 7.11421 16.7917 9.20829 16.7917M13 16.7917H9.20829M13 16.7917V20.5833C13 22.6774 11.3024 24.375 9.20829 24.375C7.11421 24.375 5.41663 22.6774 5.41663 20.5833C5.41663 18.4893 7.11421 16.7917 9.20829 16.7917M16.7916 9.20833C18.8857 9.20833 20.5833 10.9059 20.5833 13C20.5833 15.0941 18.8857 16.7917 16.7916 16.7917C14.6975 16.7917 13 15.0941 13 13C13 10.9059 14.6975 9.20833 16.7916 9.20833Z"
+                    stroke="#fff"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </a>
               <a
@@ -151,6 +128,7 @@ export default async function IndexPage() {
                   viewBox="0 0 512 512"
                   fill="currentColor"
                 >
+                  <title>Twitter | X</title>
                   <rect
                     height="400"
                     style={{ fill: "none" }}
@@ -174,6 +152,7 @@ export default async function IndexPage() {
                   viewBox="0 0 512 512"
                   fill="currentColor"
                 >
+                  <title>Github</title>
                   <g>
                     <path
                       clipRule="evenodd"
@@ -183,26 +162,71 @@ export default async function IndexPage() {
                   </g>
                 </svg>
               </a>
+            </div>
+            <div className="flex gap-4">
               <a
                 className="rounded-lg p-2 hover:bg-white/25"
-                href="https://www.figma.com/@richardvnarvaez"
+                href="https://www.linkedin.com/in/richardvnarvaez"
                 target="_blank"
                 rel="noreferrer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="26"
-                  height="26"
-                  viewBox="0 0 26 26"
-                  fill="none"
+                  height="24"
+                  viewBox="0 0 252 65"
+                  fill="currentColor"
                 >
+                  <title>Linkedin</title>
                   <path
-                    d="M13 1.625H9.20829C7.11421 1.625 5.41663 3.32259 5.41663 5.41667C5.41663 7.51075 7.11421 9.20833 9.20829 9.20833M13 1.625V9.20833M13 1.625H16.7916C18.8857 1.625 20.5833 3.32259 20.5833 5.41667C20.5833 7.51075 18.8857 9.20833 16.7916 9.20833M13 9.20833H9.20829M13 9.20833V16.7917M13 9.20833H16.7916M9.20829 9.20833C7.11421 9.20833 5.41663 10.9059 5.41663 13C5.41663 15.0941 7.11421 16.7917 9.20829 16.7917M13 16.7917H9.20829M13 16.7917V20.5833C13 22.6774 11.3024 24.375 9.20829 24.375C7.11421 24.375 5.41663 22.6774 5.41663 20.5833C5.41663 18.4893 7.11421 16.7917 9.20829 16.7917M16.7916 9.20833C18.8857 9.20833 20.5833 10.9059 20.5833 13C20.5833 15.0941 18.8857 16.7917 16.7916 16.7917C14.6975 16.7917 13 15.0941 13 13C13 10.9059 14.6975 9.20833 16.7916 9.20833Z"
-                    stroke="#fff"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M10.1111 9.53333H0V54.8889H28.0222V45.9333H10.1111V9.53333Z"
                   />
+                  <path d="M37.2667 19.6444C40.2982 19.6444 42.7556 17.187 42.7556 14.1556C42.7556 11.1241 40.2982 8.66666 37.2667 8.66666C34.2353 8.66666 31.7778 11.1241 31.7778 14.1556C31.7778 17.187 34.2353 19.6444 37.2667 19.6444Z" />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M32.3556 23.9778H41.8889V54.8889H32.3556V23.9778Z"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M113.244 23.9778H101.4L91 36.6889V9.53333H81.1778V54.8889H91V39.8667L101.111 54.8889H113.244L100.822 38.1333L113.244 23.9778ZM65.2889 23.4C60.6666 23.4 57.7778 25.7111 56.3333 28.3111H56.0444V23.9778H47.0889V54.8889H56.6222V39.8667C56.6222 35.8222 57.4889 31.7778 62.4 31.7778C67.0222 31.7778 67.3111 36.6889 67.3111 40.1556V55.1778H76.8444V38.4222C76.5555 29.7556 74.8222 23.4 65.2889 23.4Z"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M128.267 23.4C118.733 23.4 111.222 29.7556 111.222 39.5778C111.222 49.4 118.733 55.7556 128.267 55.7556C133.178 55.7556 138.378 53.7333 141.267 49.6889L134.622 44.4889C132.889 46.8 130.867 48.2444 127.689 48.2444C123.933 48.2444 121.333 45.9333 120.467 42.4667H142.422V39.2889C142.422 29.4667 136.933 23.4 128.267 23.4ZM120.756 36.1111C121.044 33.2222 123.067 30.3333 127.689 30.3333C131.156 30.3333 133.467 32.9333 133.467 36.1111H120.756ZM169 27.1556C166.689 24.2667 163.222 22.8222 159.178 22.8222C150.511 22.8222 145.311 30.9111 145.311 39.2889C145.311 48.5333 151.378 55.1778 160.333 55.1778C164.667 55.1778 168.133 52.5778 169.867 50.2667H170.155V54.6H178.822V9.24445H169.289L169 27.1556ZM162.067 47.3778C157.444 47.3778 154.556 43.9111 154.556 39.2889C154.556 34.6667 157.444 31.2 162.067 31.2C166.689 31.2 169.578 34.3778 169.578 39.2889C169.578 44.2 166.978 47.3778 162.067 47.3778Z"
+                  />
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M247 0H192.689C190.089 0 188.067 2.02222 188.067 4.91111V60.0889C188.067 62.4 190.089 65 192.689 65H247C249.6 65 251.622 62.9778 251.622 60.0889V4.62222C251.911 2.02222 249.889 0 247 0ZM206.844 54.8889H197.311V23.9778H206.844V54.8889ZM202.222 19.9333C199.333 19.9333 196.733 17.6222 196.733 14.4444C196.733 11.5556 199.044 8.95555 202.222 8.95555C205.111 8.95555 207.711 11.2667 207.711 14.4444C207.711 17.6222 205.4 19.9333 202.222 19.9333ZM242.378 54.8889H232.844V39.8667C232.844 36.4 232.844 31.4889 227.933 31.4889C223.022 31.4889 222.156 35.5333 222.156 39.5778V54.6H212.911V23.9778H221.867V28.3111H222.156C223.6 26 226.489 23.4 231.111 23.4C240.644 23.4 242.378 29.7556 242.378 38.1333V54.8889Z"
+                  />
+                </svg>
+              </a>
+              
+              <a
+                className="rounded-lg p-2 hover:bg-white/25"
+                href="https://dribbble.com/RichardNarvaez"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  // width="76"
+                  height="24"
+                  viewBox="0 0 210 59"
+                  fill="none"
+                  className="fill-current"
+                >
+                  <title>Dribbble: the community for graphic design</title>
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M206.622 31.928C207.065 31.4116 207.85 31.4352 208.253 31.986H208.25L209.784 34.0834C210.075 34.4864 210.073 35.0425 209.769 35.4349C207.106 38.8893 202.44 42.2143 196.81 42.5359C192.366 42.7887 188.701 41.1051 186.706 37.9221C186.311 37.2925 185.44 37.2557 184.997 37.8511C182.63 41.0286 179.766 43.5134 176.782 43.6845C171.467 43.9876 169.966 40.4228 171.28 32.563C171.412 31.7805 170.726 31.1192 169.987 31.3141C168.885 31.6065 167.715 31.7356 166.528 31.633C166.034 31.5907 165.571 31.8912 165.422 32.3811C163.455 38.8418 158.774 44.8518 152.715 45.1997C148.847 45.421 143.069 43.205 143.647 33.9462C143.695 33.1927 143.019 32.5999 142.323 32.8106C141.11 33.1795 139.804 33.3534 138.474 33.2401C137.981 33.1979 137.52 33.4983 137.371 33.9885C135.404 40.449 130.723 46.4592 124.664 46.8068C120.796 47.0282 115.018 44.8124 115.596 35.5536C115.644 34.7998 114.968 34.207 114.272 34.418C113.059 34.7869 111.753 34.9634 110.423 34.8473C109.93 34.8053 109.469 35.1057 109.32 35.5956C107.352 42.0564 102.672 48.0664 96.6132 48.4142C93.8613 48.5723 90.1398 47.4945 88.4308 43.5264C88.1016 42.7599 87.1144 42.6438 86.6257 43.3105C84.2334 46.5751 81.3193 49.152 78.2762 49.3259C75.1571 49.505 73.4509 48.2535 72.7091 46.0216C72.4458 45.2339 71.4609 45.0467 70.9293 45.6712C68.8002 48.1744 66.3749 50.0082 63.9216 50.1479C60.1393 50.3666 57.9619 47.563 57.7823 44.1667C57.5747 40.204 59.2887 35.564 61.2025 30.4999C61.4684 29.7964 60.9873 29.0348 60.2608 29.0032C59.157 28.956 57.8963 28.8399 56.7113 28.6185C56.1771 28.5159 55.6583 28.8479 55.5063 29.3907C53.243 37.4716 49.7771 45.392 46.8529 50.074C46.5263 50.5984 45.8505 50.7381 45.3593 50.377L43.1264 48.7331C42.6682 48.393 42.5441 47.7397 42.8504 47.247C47.0759 40.478 50.8278 29.8807 52.1215 22.0421C52.2025 21.5415 52.61 21.17 53.0986 21.141L56.0683 20.9697C56.7493 20.9302 57.2861 21.5652 57.162 22.2634L57.1493 22.3372C57.0379 22.959 57.4532 23.5439 58.0532 23.6257C60.7164 23.992 64.6963 24.0366 67.3975 23.9313C68.157 23.9023 68.6938 24.6875 68.4178 25.4226C66.2507 31.1876 63.3469 39.1765 63.5139 42.3382C63.5899 43.7662 64.2204 44.5462 65.3291 44.4829C67.4508 44.3619 70.7141 40.0959 73.1876 35.3455C73.2331 35.261 73.2659 35.169 73.2862 35.0741C74.1196 31.3543 75.3565 27.2068 76.6061 23.0163L76.6837 22.7561C76.8128 22.3188 77.1901 22.0131 77.6306 21.9868L81.1876 21.7839C81.9219 21.7417 82.4712 22.4795 82.2485 23.2093C82.0654 23.8112 81.883 24.409 81.7023 25.0014C78.5723 35.2603 75.9438 43.8759 79.4838 43.6742C81.7978 43.5422 85.0764 39.6164 87.8966 34.0279C87.9421 33.9356 87.9751 33.8381 87.9954 33.7355C88.1372 33.0055 88.3092 32.2416 88.5195 31.4432C90.1639 24.8753 92.0286 18.3691 93.8955 11.855C94.4717 9.8446 95.0481 7.83341 95.6182 5.81945C95.7449 5.37417 96.1245 5.06062 96.57 5.03426L100.221 4.82611C100.963 4.78396 101.512 5.52962 101.279 6.26474C99.8208 10.8388 98.2967 15.7106 96.8487 20.4006C96.5448 21.3887 97.603 22.2107 98.4386 21.6416C99.8791 20.6562 101.545 20.0027 103.158 19.9105C107.267 19.676 110.064 23.0565 110.332 28.1496C110.347 28.4184 110.363 28.7082 110.37 29.0032C110.385 29.5673 110.808 30.023 111.348 30.0704C113.282 30.2417 115.259 29.6673 116.786 28.3051C116.943 28.1654 117.049 27.9757 117.102 27.7701C118.616 21.8916 120.287 16.0568 121.959 10.2147C122.532 8.21455 123.105 6.21353 123.672 4.20956C123.798 3.76427 124.178 3.45072 124.624 3.42438L128.274 3.21623C129.016 3.17408 129.566 3.91972 129.333 4.65484C127.874 9.22892 126.35 14.1007 124.902 18.7907C124.598 19.7788 125.657 20.6008 126.492 20.0317C127.933 19.0463 129.599 18.3929 131.211 18.3006C135.32 18.0662 138.117 21.4466 138.386 26.5399C138.401 26.8084 138.416 27.0985 138.424 27.3935C138.436 27.9573 138.862 28.4132 139.401 28.4607C141.335 28.6318 143.312 28.0573 144.839 26.6951C144.996 26.5557 145.102 26.3659 145.156 26.1604C146.67 20.2818 148.34 14.4471 150.013 8.6051C150.586 6.60484 151.158 4.60372 151.725 2.59968C151.852 2.15439 152.232 1.84085 152.677 1.8145L156.328 1.60635C157.07 1.56419 157.619 2.30985 157.386 3.04497C155.928 7.61902 154.404 12.4908 152.956 17.1808C152.652 18.1689 153.71 18.991 154.546 18.4219C155.986 17.4364 157.652 16.783 159.265 16.6908C163.374 16.4563 166.171 19.8367 166.44 24.9299C166.455 25.2013 166.47 25.4885 166.477 25.7835C166.493 26.3447 166.913 26.8032 167.452 26.8507C169.323 27.0166 171.237 26.4844 172.741 25.2171C172.908 25.0774 173.024 24.8798 173.08 24.6637C174.804 18.0187 177.336 9.31324 179.777 0.981894C179.906 0.541877 180.285 0.236236 180.726 0.209888L184.344 0.0017367C185.078 -0.0404207 185.627 0.692063 185.407 1.42191C182.047 12.5778 179.308 22.3372 177.797 28.0944C175.789 35.9039 175.711 38.1567 177.994 38.025C179.911 37.9143 182.493 35.1952 184.928 31.0847C185.025 30.924 185.075 30.7397 185.083 30.5526C185.402 22.324 190.447 14.8385 197.946 14.409C202.969 14.1218 205.721 17.916 205.918 21.6495C206.293 28.7767 199.248 33.3324 192.42 32.9107C191.625 32.8606 191.047 33.7145 191.397 34.4574C192.351 36.4967 194.359 37.6352 197.787 37.4374C201.048 37.2531 204.468 34.439 206.622 31.928ZM93.7548 33.9278C92.1345 40.4228 94.1017 42.9652 96.646 42.8203C100.823 42.5805 104.864 34.9263 104.553 29.019C104.416 26.4396 102.907 25.0958 101.145 25.1961C98.2106 25.3646 95.0512 28.745 93.7548 33.9278ZM121.808 32.3207C120.188 38.8154 122.155 41.3581 124.7 41.2131H124.697C128.874 40.9734 132.917 33.3192 132.606 27.4119C132.472 24.8324 130.96 23.4886 129.198 23.5887C126.264 23.7574 123.105 27.1379 121.808 32.3207ZM149.862 30.7133C148.242 37.2082 150.209 39.7509 152.753 39.606H152.751C156.925 39.3662 160.971 31.712 160.66 25.8047C160.525 23.2251 159.014 21.8814 157.252 21.9815C154.318 22.1501 151.158 25.5307 149.862 30.7133ZM200.584 22.2239C200.559 20.5218 199.513 19.2887 197.817 19.3862H197.815C194.483 19.5785 191.875 23.1856 191.045 27.562C190.913 28.2577 191.422 28.9058 192.103 28.8899C196.407 28.7821 200.721 25.9416 200.584 22.2239ZM44.3525 25.3837C43.9171 12.1962 35.3423 3.49339 22.6712 3.94658C17.2307 4.19426 11.0052 6.25733 6.32164 9.9461C5.88113 10.2939 5.76719 10.9315 6.06593 11.4163L8.05331 14.6519C8.39254 15.2052 9.11407 15.3185 9.60776 14.9075C13.1724 11.9459 18.0383 10.0041 22.7193 9.79855C31.403 9.43757 37.7828 14.9971 38.1551 25.7367C38.6209 38.2417 30.2157 52.5461 16.7091 53.3207C16.2382 53.3471 15.7471 53.3577 15.2559 53.3577C14.5673 53.3577 14.0585 52.6858 14.2306 51.9901C16.8357 41.4744 19.8763 30.1974 22.9776 19.7029C23.1928 18.973 22.6459 18.2458 21.9143 18.288L17.9648 18.5146C17.5218 18.5409 17.142 18.8492 17.0129 19.2918C14.0331 29.6045 11.0508 40.7895 8.36723 51.284C8.21279 51.89 7.59761 52.2379 7.02544 52.0427C5.62543 51.566 4.34693 51.0232 3.2583 50.3881C2.73677 50.0825 2.07601 50.2987 1.80765 50.8571L0.11142 54.4037C-0.139216 54.9281 0.0455967 55.5709 0.539275 55.8527C4.38489 58.0345 10.223 59.2806 16.0914 58.9462C35.4032 57.8393 44.864 40.0015 44.3525 25.3889V25.3837ZM82.3044 9.18082C79.955 9.31518 77.8713 11.9553 78.0183 14.7377C78.1143 16.5715 79.2917 17.7967 81.1195 17.694C83.4689 17.5596 85.6106 14.7798 85.4714 12.1318C85.3754 10.298 84.0005 9.08333 82.3044 9.18082Z"
+                    fill="currentColor"
+                  ></path>
                 </svg>
               </a>
             </div>
@@ -210,7 +234,10 @@ export default async function IndexPage() {
           <HeaderImage />
         </div>
       </section>
-      <section className="flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32">
+      <section
+        id="info"
+        className="flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
+      >
         <Link
           href={siteConfig.links.twitter}
           className="rounded-2xl bg-muted px-4 py-1.5 text-sm font-medium"
@@ -287,9 +314,7 @@ export default async function IndexPage() {
           >
             See on Linkedin
           </Link>
-          {/* <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
-            Get Started
-          </Link> */}
+
           <Link
             href={"https://github.com/richardnarvaez"}
             target="_blank"
@@ -300,7 +325,10 @@ export default async function IndexPage() {
           </Link>
         </div>
       </section>
-      <section className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 lg:px-0">
+      <section
+        id="main"
+        className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 lg:px-0"
+      >
         <a
           target="_blank"
           rel="noreferrer"
@@ -472,281 +500,10 @@ export default async function IndexPage() {
             </div>
           </a>
         </div>
-        <div className="col-span-full mx-auto mb-8 mt-32 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-          <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
-            Projects and Products
-          </p>
-          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            Lista de todos los productos destacados
-          </p>
-        </div>
-        {posts?.length ? (
-          <>
-            {posts.map((post, index) => (
-              <Link
-                key={"post-" + index}
-                href={post.slug}
-                className={"col-span-full cursor-pointer "}
-              >
-                <article
-                  key={post._id}
-                  className={
-                    "group relative col-span-full flex cursor-pointer flex-col items-center gap-2 space-y-2 py-12 " +
-                    (index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")
-                  }
-                >
-                  <div className=" aspect-video max-w-lg overflow-hidden rounded-xl border  bg-muted ">
-                    {post.image && (
-                      <Image
-                        src={post.image}
-                        alt={post.title}
-                        width={720}
-                        height={405}
-                        className="transition-transform ease-out group-hover:scale-110"
-                        priority={index <= 1}
-                      />
-                    )}
-                  </div>
-                  <div className="inset-x-0 bottom-0 w-full bg-gradient-to-t to-transparent p-6">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M21 2.99997C18 2.99997 14 3.99997 14 11L14 19C14 20.25 14.756 21.017 16 21L20 21C21.25 21 22 20.25 22 19.028L22 13C22 11.75 21.25 11 20 11C19 11 19 11 19 9.99997L19 8.99997C19 7.99997 20 6.99997 21 6.99997C22 6.99997 22 6.99197 22 5.96897L22 3.99997C22 2.99997 22 2.99997 21 2.99997Z"
-                        fill="white"
-                        stroke="white"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9 2.99997C6 2.99997 2 3.99997 2 11L2 19C2 20.25 2.757 21.017 4 21L8 21C9.25 21 10 20.25 10 19.028L10 13C10 11.75 9.25 11 8 11L7.25 11C7.25 8.74997 7 6.99997 10 6.99997L10 3.99997C10 2.99997 10 2.99997 9 2.99997Z"
-                        fill="white"
-                        stroke="white"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <h2 className="text-xl font-extrabold text-white md:text-2xl">
-                      {post.description}
-                    </h2>
-
-                    {post.title && (
-                      <p className="mt-2 flex items-center gap-2 truncate">
-                        {" "}
-                        {post.title}
-                        {" - " + new Date(post.date).getFullYear()}
-                        {post.status && (
-                          <span
-                            className={
-                              " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
-                              (getColorOfStatus[post.status] || "")
-                            }
-                          >
-                            {post.status}
-                          </span>
-                        )}
-                      </p>
-                    )}
-                    {/* {post.date && (
-                    <p className="text-sm ">
-                      {formatDate(post.date)}
-                    </p>
-                  )} */}
-                  </div>
-                  {/* <Link href={post.slug} className="absolute inset-0">
-                  <span className="sr-only">View Article</span>
-                </Link> */}
-                </article>
-              </Link>
-            ))}
-          </>
-        ) : (
-          <p>No posts published.</p>
-        )}
       </section>
-      <section
-        id="features"
-        className="container space-y-6 bg-slate-50 py-8 dark:bg-transparent md:py-12 lg:py-24"
-      >
-        <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
-            Frameworks & Tech
-          </h2>
-          <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            These are the tools and frameworks with which I feel more
-            comfortable without limiting myself to them because I have worked
-            with Angular, MySql, Laravel, C++ and many more... My main stack is:
-          </p>
-        </div>
-        <div className="mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3">
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                <path d="M11.572 0c-.176 0-.31.001-.358.007a19.76 19.76 0 0 1-.364.033C7.443.346 4.25 2.185 2.228 5.012a11.875 11.875 0 0 0-2.119 5.243c-.096.659-.108.854-.108 1.747s.012 1.089.108 1.748c.652 4.506 3.86 8.292 8.209 9.695.779.25 1.6.422 2.534.525.363.04 1.935.04 2.299 0 1.611-.178 2.977-.577 4.323-1.264.207-.106.247-.134.219-.158-.02-.013-.9-1.193-1.955-2.62l-1.919-2.592-2.404-3.558a338.739 338.739 0 0 0-2.422-3.556c-.009-.002-.018 1.579-.023 3.51-.007 3.38-.01 3.515-.052 3.595a.426.426 0 0 1-.206.214c-.075.037-.14.044-.495.044H7.81l-.108-.068a.438.438 0 0 1-.157-.171l-.05-.106.006-4.703.007-4.705.072-.092a.645.645 0 0 1 .174-.143c.096-.047.134-.051.54-.051.478 0 .558.018.682.154.035.038 1.337 1.999 2.895 4.361a10760.433 10760.433 0 0 0 4.735 7.17l1.9 2.879.096-.063a12.317 12.317 0 0 0 2.466-2.163 11.944 11.944 0 0 0 2.824-6.134c.096-.66.108-.854.108-1.748 0-.893-.012-1.088-.108-1.747-.652-4.506-3.859-8.292-8.208-9.695a12.597 12.597 0 0 0-2.499-.523A33.119 33.119 0 0 0 11.573 0zm4.069 7.217c.347 0 .408.005.486.047a.473.473 0 0 1 .237.277c.018.06.023 1.365.018 4.304l-.006 4.218-.744-1.14-.746-1.14v-3.066c0-1.982.01-3.097.023-3.15a.478.478 0 0 1 .233-.296c.096-.05.13-.054.5-.054z" />
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">Next.js</h3>
-                <p className="text-sm text-muted-foreground">
-                  App dir, Routing, Layouts, Loading UI and API routes.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                <path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38a2.167 2.167 0 0 0-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44a23.476 23.476 0 0 0-3.107-.534A23.892 23.892 0 0 0 12.769 4.7c1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442a22.73 22.73 0 0 0-3.113.538 15.02 15.02 0 0 1-.254-1.42c-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87a25.64 25.64 0 0 1-4.412.005 26.64 26.64 0 0 1-1.183-1.86c-.372-.64-.71-1.29-1.018-1.946a25.17 25.17 0 0 1 1.013-1.954c.38-.66.773-1.286 1.18-1.868A25.245 25.245 0 0 1 12 8.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933a25.952 25.952 0 0 0-1.345-2.32zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493a23.966 23.966 0 0 0-1.1-2.98c.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98a23.142 23.142 0 0 0-1.086 2.964c-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39a25.819 25.819 0 0 0 1.341-2.338zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143a22.005 22.005 0 0 1-2.006-.386c.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295a1.185 1.185 0 0 1-.553-.132c-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z" />
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">React</h3>
-                <p className="text-sm text-muted-foreground">
-                  Server and Client Components. Use hook.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative overflow-hidden rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg
-                version="1.0"
-                className="h-12 w-12 fill-current"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <g clipPath="url(#clip0_121_3668)">
-                  <path d="M7.14132 0.190091L6.94971 0.380183L6.97526 4.09964C7.0008 8.19928 6.99442 8.10424 7.44152 9.4729C8.45709 12.5587 11.1333 15.0489 14.3269 15.8726C15.2148 16.1008 15.8407 16.1641 17.5078 16.2085L19.0279 16.2528L19.2259 16.4556C19.392 16.6203 19.4367 16.7154 19.4559 16.9942C19.4878 17.4061 19.3281 17.7039 18.996 17.8433C18.6191 17.9953 15.6619 17.951 14.8954 17.7736C14.7996 17.7546 14.7038 17.7862 14.6144 17.8749C14.4866 18.0017 14.4802 18.0397 14.5058 20.1054C14.5313 22.1393 14.5377 22.2217 14.6846 22.5892C14.889 23.1088 15.4128 23.6284 15.9174 23.8185C16.6647 24.0909 18.3892 24.0529 19.5134 23.7298C21.3976 23.1848 22.9497 21.7401 23.6267 19.9089C24.0163 18.8507 24.0163 18.7937 23.9908 13.5789C23.9716 8.94064 23.9652 8.82658 23.8247 8.20562C23.3393 6.05125 22.3557 4.29607 20.81 2.81969C19.2515 1.33698 17.3609 0.418201 15.2275 0.0950456C14.7166 0.019009 13.8607 -1.99871e-07 10.9609 -1.99871e-07H7.32655L7.14132 0.190091ZM18.5872 10.1446C19.1301 10.3093 19.5325 10.8416 19.5389 11.4118C19.5389 11.811 19.2834 12.2926 18.9513 12.5207C18.715 12.6854 18.6319 12.7045 18.1976 12.7045C17.7633 12.7045 17.6802 12.6854 17.4439 12.5207C16.9138 12.1595 16.7158 11.4182 16.9904 10.8542C17.2842 10.2523 17.9485 9.9608 18.5872 10.1446Z" />
-                  <path d="M1.29049 1.30541C0.926416 1.43847 0.447375 1.87568 0.217436 2.29389L0.0258192 2.62971L0.00665759 8.64928C-0.012504 15.1504 -0.012504 15.2328 0.326018 16.2846C1.05416 18.5657 2.87452 20.4033 5.15475 21.1636C6.132 21.4868 6.65575 21.5438 8.68688 21.5438C10.9032 21.5438 11.0182 21.5185 11.6633 20.8785C12.2446 20.3019 12.3212 20.0041 12.3212 18.382C12.3212 17.6976 12.2957 17.1084 12.2701 17.0703C12.2446 17.0323 11.8805 16.8232 11.4589 16.6078C11.0374 16.3923 10.4178 16.0248 10.0857 15.7904C9.30005 15.2455 7.88209 13.8388 7.32002 13.0531C6.56633 11.9886 5.85096 10.4425 5.52521 9.15619C5.2314 8.00931 5.21224 7.7305 5.17391 4.65736L5.13559 1.67926L4.8801 1.59688C3.89008 1.26106 1.84617 1.09631 1.29049 1.30541Z" />
-                </g>
-                <defs>
-                  <clipPath id="clip0_121_3668">
-                    <rect width="24" height="24" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">Database</h3>
-                <p className="text-sm text-muted-foreground">
-                  ORM Prisma and Postgresql
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="z-20overflow-hidden  relative z-20 rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                <path d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.337 6.182 14.976 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.337 13.382 8.976 12 6.001 12z" />
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">Components</h3>
-                <p className="text-sm text-muted-foreground">
-                  UI components built using Radix UI and styled with Tailwind
-                  CSS.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative z-20  overflow-hidden rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                className="h-12 w-12 fill-current"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">Authentication</h3>
-                <p className="text-sm text-muted-foreground">
-                  Authentication using NextAuth.js and middlewares.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="relative z-20  overflow-hidden rounded-lg border bg-background p-2">
-            <div className="flex h-[180px] flex-col justify-between rounded-md p-6">
-              <svg viewBox="0 0 24 24" className="h-12 w-12 fill-current">
-                <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z" />
-              </svg>
-              <div className="space-y-2">
-                <h3 className="font-bold">Subscriptions</h3>
-                <p className="text-sm text-muted-foreground">
-                  Free and paid subscriptions using Stripe.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mx-auto flex justify-center text-center md:max-w-[58rem]">
-          <Image
-            width={920}
-            height={128}
-            className="z-10  md:max-w-lg "
-            src={"/images/DockUsedApps.png"}
-            alt="Dock Used Apps"
-          />
-        </div>
-        <div className="relative mx-auto flex justify-center text-center md:max-w-[58rem]">
-          <Image
-            width={667}
-            height={295}
-            quality={100}
-            className="absolute -top-10 z-0 w-full sm:-top-24 md:-top-32"
-            src={"/images/teclado-mac.jpg"}
-            alt="Teclado MacBook"
-          />
-        </div>
-      </section>
-      <section id="open-source" className="container  py-8 md:py-12 lg:py-24">
-        <div className="mx-auto  flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
-          <h2 className="z-20 font-heading  text-6xl  leading-[1.1]">
-            Open Source
-          </h2>
-          <p className="z-20 max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-            This Portfolio is open source and powered by open source software.{" "}
-            <br /> The code is available on{" "}
-            <Link
-              href={siteConfig.links.github}
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-4"
-            >
-              GitHub
-            </Link>
-            .
-          </p>
-          {stars && (
-            <Link
-              href={siteConfig.links.github}
-              target="_blank"
-              rel="noreferrer"
-              className="flex"
-            >
-              <div className="flex h-10 w-10 items-center justify-center space-x-2 rounded-md border border-muted bg-muted">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  className="h-5 w-5 text-foreground"
-                >
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
-                </svg>
-              </div>
-              <div className="flex items-center">
-                <div className="h-4 w-4 border-y-8 border-l-0 border-r-8 border-solid border-muted border-y-transparent"></div>
-                <div className="flex h-10 items-center rounded-md border border-muted bg-muted px-4 font-medium">
-                  {stars} stars on GitHub
-                </div>
-              </div>
-            </Link>
-          )}
-        </div>
-      </section>
+      <SectionListOfProjects posts={posts} />
+      <SectionFrameworksNStak />
+      <SectionOpenSource />
     </div>
   )
 }
