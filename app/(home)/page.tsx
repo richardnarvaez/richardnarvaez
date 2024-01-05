@@ -459,7 +459,7 @@ export default async function IndexPage() {
             target="_blank"
             rel="noreferrer"
             href="https://www.figma.com/community/file/1270173776891030529/Portfolio---React-NextJS"
-            className="group relative flex items-center overflow-hidden rounded-xl border-2 border-dashed border-[#FF512F]/50  p-4 font-bold "
+            className="group relative flex items-center overflow-hidden rounded-xl border-2 border-dashed border-[#FF512F]/50  p-6 font-bold "
           >
             <div>
               <svg
@@ -483,7 +483,7 @@ export default async function IndexPage() {
                 FIGMA <ExternalLinkIcon size={24} />
               </p>
               <p className="text-3xl ">Visit this Portfolio Template</p>
-              <p className="mt-3 text-lg font-normal text-gray-200/50">
+              <p className="text-md mt-3 font-normal text-gray-200/50">
                 We have Updates of this Portfolio Design in Figma Community
               </p>
             </div>
