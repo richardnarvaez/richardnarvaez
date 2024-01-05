@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata = {
-  metadataBase: new URL('https://richard.darkpixl.com'),
+  metadataBase: new URL("https://richard.darkpixl.com"),
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
@@ -85,6 +85,20 @@ export const metadata = {
   manifest: `${siteConfig.url}/site.webmanifest`,
 }
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Richard Vinueza",
+  url: siteConfig.url,
+  alumniOf: "ESCUELA SUPERIOR POLITECNICA DE CHIMBORAZO",
+  sameAs: [
+    "https://www.linkedin.com/in/richardvnarvaez/",
+    siteConfig.links.twitter,
+    siteConfig.links.github,
+    "https://dribbble.com/RichardNarvaez",
+    "https://www.figma.com/@richardvnarvaez",
+  ],
+}
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
@@ -95,6 +109,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontHeading.variable
         )}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
