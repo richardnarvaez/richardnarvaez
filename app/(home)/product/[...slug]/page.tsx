@@ -48,7 +48,7 @@ export async function generateMetadata({
   ogUrl.searchParams.set("heading", post.title)
   ogUrl.searchParams.set("type", "PRODUCT")
   ogUrl.searchParams.set("mode", "light")
-  ogUrl.searchParams.set("status", post.status || "LIVE")
+  ogUrl.searchParams.set("status", post.status ? post.status[0] : "LIVE")
 
   return {
     title: post.title,
