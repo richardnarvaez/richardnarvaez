@@ -9,7 +9,7 @@ export default function SectionOpenSource() {
           Open Source
         </h2>
         <p className="z-20 max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-          This Portfolio is open source and powered by open source software.{" "}
+          This Portfolio is Open Source and powered by open source software.{" "}
           <br /> The code is available on{" "}
           <Link
             href={siteConfig.links.github}

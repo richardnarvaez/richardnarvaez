@@ -52,7 +52,7 @@ export default function SectionListOfProjects({ posts }) {
                   )}
                 </div>
                 <div className="inset-x-0 bottom-0 w-full bg-gradient-to-t to-transparent p-6">
-                  <svg
+                  {/* <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
                     height="24"
@@ -73,7 +73,7 @@ export default function SectionListOfProjects({ posts }) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                  </svg>
+                  </svg> */}
                   <h2 className="text-xl font-extrabold text-white md:text-2xl">
                     {post.description}
                   </h2>
@@ -113,6 +113,15 @@ export default function SectionListOfProjects({ posts }) {
               </article>
             </Link>
           ))}
+
+          <div className="col-span-full flex w-full justify-center">
+            <Link
+              href={"/projects"}
+              className="rounded-md bg-white px-4 py-2 font-semibold text-slate-800"
+            >
+              See More
+            </Link>
+          </div>
         </>
       ) : (
         <p>No posts published.</p>
