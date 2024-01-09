@@ -24,7 +24,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
           <img className="h-4 w-4" src="/images/react-icon.png" />
         </div>
         <div className="mt-3 text-xs font-medium leading-none text-white text-opacity-30">
-          ©darkpixl 2024
+          © richard vinueza - 2024
         </div>
       </div>
     </footer>
