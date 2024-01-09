@@ -29,7 +29,7 @@ const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 
 export default async function IndexPage() {
   const posts = allPosts
-    .filter((post) => post.published)
+    .filter((post) => post.published && post.highlight)
     .sort((a, b) => {
       return compareDesc(new Date(a.date), new Date(b.date))
     })
