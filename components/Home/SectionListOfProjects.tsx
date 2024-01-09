@@ -7,6 +7,7 @@ const getColorOfStatus = {
   dead: "bg-red-500 text-red-800",
   "open source": "bg-gray-500 text-gray-800",
   proposal: "bg-blue-500 text-blue-800",
+  mvp: "border bg-white/10",
 }
 
 export default function SectionListOfProjects({ posts }) {
