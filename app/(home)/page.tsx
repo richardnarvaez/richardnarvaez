@@ -409,7 +409,7 @@ export default async function IndexPage() {
             <Link href="/blog">Ver mas</Link>
           </div>
         </div>
-        <div className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] ">
+        <Link href={"/#stack"} className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] ">
           <div
             className="p-4 font-bold"
             style={{
@@ -419,8 +419,8 @@ export default async function IndexPage() {
               width: "100%",
             }}
           >
-            <p className="text-md text-white/75">TECNOLOGIAS</p>
-            <p className="text-3xl ">Herramientas y Frameworks</p>
+            <p className="text-md text-white/75">TECHNOLOGIES</p>
+            <p className="text-3xl ">Tools and Frameworks</p>
           </div>
           <Image
             alt=""
@@ -429,7 +429,7 @@ export default async function IndexPage() {
             width={800}
             height={800}
           />
-        </div>
+        </Link>
         <div
           // onClick={() => {
           //   alert("Proximamente")
