@@ -21,7 +21,7 @@ export default function SectionOpenSource() {
           </Link>
           .
         </p>
-        <p>Next 14 | Tailwind | ContentLayer</p>
+        <p>Next 14 | Tailwind | ContentLayer | Framer Motion</p>
       </div>
     </section>
   )
