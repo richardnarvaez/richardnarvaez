@@ -21,6 +21,7 @@ export default function SectionOpenSource() {
           </Link>
           .
         </p>
+        <p>Next 14 | Tailwind | ContentLayer</p>
       </div>
     </section>
   )
