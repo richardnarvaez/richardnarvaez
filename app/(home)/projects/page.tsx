@@ -9,6 +9,14 @@ export const metadata = {
   title: "Blog",
 }
 
+const getColorOfStatus = {
+  building: "bg-amber-500 text-amber-800",
+  live: "bg-green-500 text-green-800",
+  dead: "bg-red-500 text-red-800",
+  "open source": "bg-gray-500 text-gray-800",
+  proposal: "bg-blue-500 text-blue-800",
+  mvp: "border bg-white/10",
+}
 export default async function BlogPage() {
   const posts = allPosts
     .filter((post) => post.published)
@@ -47,6 +55,23 @@ export default async function BlogPage() {
               <h2 className="text-2xl font-extrabold">{post.title}</h2>
               {post.description && (
                 <p className="text-muted-foreground">{post.description}</p>
+              )}
+              {post.status && (
+                <div className="flex items-center gap-3">
+                  {post.status.map((chip) => {
+                    return <span
+                    key={
+                      "status-" + post._id + "-" + index
+                    }
+                    className={
+                      " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
+                      (getColorOfStatus[chip] || "")
+                    }
+                  >
+                    {chip}
+                  </span>
+                  })}
+                </div>
               )}
               {post.date && (
                 <p className="text-sm text-muted-foreground">
