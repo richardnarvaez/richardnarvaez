@@ -68,7 +68,7 @@ export default function SectionBento() {
           height={540}
           className="absolute top-0 h-full w-full scale-105 opacity-75 blur-md transition-all  group-hover:scale-125 group-hover:blur-lg "
         />
-        <p className="z-10 rounded-full bg-white px-4 py-1 text-sm  text-black/60">
+        <p className="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm  text-black/60">
           NEW
         </p>
         <div className="z-10 m-4 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
