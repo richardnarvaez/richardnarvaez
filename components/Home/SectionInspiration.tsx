@@ -85,7 +85,7 @@ export default function SectionInspiration() {
             return (
               <HoverCard>
                 <HoverCardTrigger asChild>
-                  <div className="h-16 w-16 overflow-hidden rounded-full border-4 border-white bg-white">
+                  <div className="h-16 w-16 overflow-hidden rounded-full border-4 border-white/20 ">
                     <img src={item.image} className="h-full w-full" />
                   </div>
                 </HoverCardTrigger>
