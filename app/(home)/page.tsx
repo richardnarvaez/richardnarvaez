@@ -350,66 +350,49 @@ export default async function IndexPage() {
             />
           </div>
         </a>
-        <div className="w-full rounded-xl border p-4 lg:col-span-2">
-          <div className="font-bold">
-            <p className="text-md text-white/75">APPS</p>
-            <p className="text-3xl ">List of the Latest</p>
+        <div className="group relative flex w-full flex-col items-center justify-center overflow-hidden rounded-xl border-0 border-white p-4 font-bold lg:col-span-2">
+          <Image
+            alt="Logo Richard Vinueza"
+            src={"/images/blog/huma/huma-bg.jpg"}
+            width={960}
+            height={540}
+            className="absolute top-0 h-full w-full scale-105 opacity-75 blur-md transition-all  group-hover:scale-125 group-hover:blur-lg "
+          />
+          <p className="z-10 rounded-full bg-white px-4 py-1 text-sm  text-black/60">
+            NEW
+          </p>
+          <div className="z-10 m-4 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
+            <Image
+              alt="Logo Richard Vinueza"
+              src={"/images/blog/huma/huma-app-icon.jpg"}
+              width={100}
+              height={100}
+            />
           </div>
-          <div className="mt-3 flex flex-col gap-3">
-            {[
-              {
-                name: "Memory",
-                description: "Web Application",
-                url: "/blog/memory",
-                logo: "/images/memory-logo.png",
-              },
-              {
-                name: "BusinessIT",
-                description: "Redesign",
-                logo: "/images/businessit-logo.png",
-                url: "/blog/businessit",
-              },
-              {
-                name: "Ubrand",
-                description: "Web Application",
-                logo: "/images/ubrand-logo.png",
-                url: "/blog/ubrand",
-              },
-            ].map((item: any) => {
-              return (
-                <div
-                  key={"post-" + item.name}
-                  className="flex items-center justify-between gap-3 rounded-lg p-2 hover:bg-white/10"
-                >
-                  <div className="flex items-center gap-3">
-                    <Image
-                      className="h-16 w-16"
-                      src={item.logo}
-                      width={150}
-                      height={150}
-                      alt=""
-                    />
-                    <div className="w-full overflow-hidden">
-                      <p className="font-bold">{item.name}</p>
-                      <p className="truncate text-sm">{item.description}</p>
-                    </div>
-                  </div>
-                  <a
-                    href={item.url}
-                    className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold"
-                  >
-                    Visitar
-                  </a>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="mt-3 w-full text-center">
-            <Link href="/blog">Ver mas</Link>
+          <div className="z-10 flex-col items-center justify-center text-center">
+            <p className="text-3xl text-white">HUMA LEGENDS</p>
+            <p className="mb-4 mt-2">DOWNLOAD IN APPSTORE</p>
+            <div className="flex justify-center gap-4">
+              <Link
+                href={"https://huma.darkpixl.com"}
+                target="_blank"
+                className="rounded-md border border-white/50 bg-black/20 px-4 py-2 text-sm"
+              >
+                Visit Website
+              </Link>
+              <Link
+                href={"/projects/huma"}
+                className="rounded-md border border-white/50 bg-black/20 px-4 py-2 text-sm"
+              >
+                Visit Story
+              </Link>
+            </div>
           </div>
         </div>
-        <Link href={"/#stack"} className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] ">
+        <Link
+          href={"/#stack"}
+          className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] "
+        >
           <div
             className="p-4 font-bold"
             style={{
