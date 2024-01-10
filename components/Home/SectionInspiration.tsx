@@ -5,8 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 export default function SectionInspiration() {
   return (
-    <section id="open-source" className="container  pb-8 md:pb-12 lg:pb-24">
-      <div className="mx-auto  flex max-w-[58rem] flex-col items-center justify-center gap-4 rounded-xl border px-8 py-10 text-center">
+    <section id="open-source" className="md:pt-22 container pt-20 lg:pt-16">
+      <div className="mx-auto  flex max-w-[58rem] flex-col items-center  justify-center gap-4 rounded-xl border px-8 py-10 text-center">
         <h2 className="z-20 font-heading  text-4xl  leading-[1.1]">
           People who inspire me
         </h2>

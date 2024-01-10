@@ -128,7 +128,7 @@ export default function SectionFrameworksNStak() {
           width={667}
           height={295}
           quality={100}
-          className="absolute -top-10 z-0 w-full sm:-top-24 md:-top-32"
+          className="absolute -top-10 -z-10 w-full sm:-top-24 md:-top-32"
           src={"/images/teclado-mac.jpg"}
           alt="Teclado MacBook"
         />

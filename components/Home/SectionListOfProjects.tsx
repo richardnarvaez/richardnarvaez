@@ -21,7 +21,7 @@ export default function SectionListOfProjects({ posts }) {
           Projects and Products
         </p>
         <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-          Lista de todos los productos destacados
+          List of all the featured products or side projects I have
         </p>
       </div>
       {posts?.length ? (

@@ -300,8 +300,9 @@ export default async function IndexPage() {
       <SectionBento />
       <SectionListOfProjects posts={posts} />
       <SectionFrameworksNStak />
-      <SectionOpenSource /> 
+      
       <SectionInspiration />
+      <SectionOpenSource /> 
     </div>
   )
 }
