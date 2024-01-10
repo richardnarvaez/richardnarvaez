@@ -129,7 +129,7 @@ export default function SectionBento() {
         <Link
           target="_blank"
           rel="noreferrer"
-          href="https://www.figma.com/community/file/1270173776891030529/Portfolio---React-NextJS"
+          href="https://www.figma.com/community/file/1270173776891030529"
           className="group relative flex items-center overflow-hidden rounded-xl border-2 border-dashed border-[#FF512F]/50  p-6 font-bold "
         >
           <div>
