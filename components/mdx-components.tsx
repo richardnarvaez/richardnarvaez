@@ -93,12 +93,13 @@ const components = {
     />
   ),
   img: ({
+    src,
     className,
     alt,
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    // eslint-disable-next-line @next/next/no-img-element
     <ImageBlog
+      src={src}
       className={cn("rounded-md border", className)}
       alt={alt}
       {...props}
