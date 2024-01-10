@@ -24,6 +24,7 @@ import SectionFrameworksNStak from "@/components/Home/SectionFrameworksNStack"
 import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
 import SectionOpenSource from "@/components/Home/SectionOpenSource"
 import SectionBento from "@/components/Home/SectionBento"
+import SectionInspiration from "@/components/Home/SectionInspiration"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -40,7 +41,6 @@ export default async function IndexPage() {
       <p className="fixed z-50 m-6 rounded-full bg-red-500 px-6 py-2 text-xs font-semibold text-white">
         In Dev
       </p>
-
       <section
         id="header"
         className="container flex h-screen max-w-[64rem] flex-col items-center justify-center gap-4 text-center"
@@ -240,7 +240,6 @@ export default async function IndexPage() {
           <HeaderImage />
         </div>
       </section>
-
       <section
         id="info"
         className="flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
@@ -301,7 +300,8 @@ export default async function IndexPage() {
       <SectionBento />
       <SectionListOfProjects posts={posts} />
       <SectionFrameworksNStak />
-      <SectionOpenSource />
+      <SectionOpenSource /> 
+      <SectionInspiration />
     </div>
   )
 }

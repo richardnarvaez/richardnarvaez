@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
 import { ExternalLinkIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -7,7 +8,7 @@ export default function SectionBento() {
   return (
     <section
       id="main"
-      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 lg:px-0"
+      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 md:grid-cols-2 lg:grid-cols-3 lg:px-0"
     >
       <a
         target="_blank"
@@ -101,7 +102,7 @@ export default function SectionBento() {
       </div>
       <Link
         href={"/#stack"}
-        className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] "
+        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] sm:h-[800px] md:h-full lg:h-96 "
       >
         <div
           className="p-4 font-bold"
