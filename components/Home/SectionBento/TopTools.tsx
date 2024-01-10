@@ -255,9 +255,13 @@ export default function CardTopTools() {
                   height={100}
                 />
               </div>
-              <p className="text-md text-white/75">TOP</p>
-              <p className="text-3xl  text-white">List of Best Tools</p>{" "}
-              <p className="">My</p>
+              <p className="text-md border-b-2 border-dashed border-white/30 p-2 text-white/75">
+                TOP
+              </p>
+              <p className="mt-4 text-3xl text-white">Best Webs & Tools</p>
+              <p className="mt-2 text-lg uppercase text-white">
+                List of My Favorites
+              </p>
             </div>
             <div className="absolute top-0 z-10 h-full w-full bg-[rgba(35,41,60,0.3)]"></div>
 
