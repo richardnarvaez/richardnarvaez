@@ -119,7 +119,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem={false}
         >
           {children}
-          <Analytics />
+          {/* <Analytics /> */}
           <Toaster />
           <TailwindIndicator />
         </ThemeProvider>
