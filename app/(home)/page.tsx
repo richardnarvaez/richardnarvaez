@@ -263,7 +263,7 @@ export default async function IndexPage() {
         </h3>
         <h4>Who am I?</h4>
         <h4 className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-          SOFTWARE ENGINEER with several years of experience as a Freelancer.
+        Software Engineer with several years of experience as a Freelancer.
           Multiple certifications. Passionate about traveling and naturally
           curious. Currently, I am focused on becoming a great leader and
           continuing to share.
