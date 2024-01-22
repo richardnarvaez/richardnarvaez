@@ -23,8 +23,7 @@ export default function SectionInspiration() {
                 url: "https://www.youtube.com/c/midudev",
               },
               lang: "es",
-              image:
-                "https://yt3.googleusercontent.com/ytc/AIf8zZScNwk4VuB2XijvUaEz7Z8Wff_tvBzYaHgOXZZtFQ=s900-c-k-c0x00ffffff-no-rj",
+              image: "/images/inspiration/midu.jpg",
             },
             {
               name: "serudda",
@@ -33,8 +32,7 @@ export default function SectionInspiration() {
                 name: "YouTube | Twitch",
                 url: "https://www.youtube.com/@serudda",
               },
-              image:
-                "https://pbs.twimg.com/profile_images/1737289899168948224/eT-9dUHu_400x400.png",
+              image: "/images/inspiration/serudda.jpg",
             },
             {
               name: "Silicon Valley Girl",
@@ -43,9 +41,7 @@ export default function SectionInspiration() {
                 name: "YouTube",
                 url: "https://www.youtube.com/@SiliconValleyGirl",
               },
-              image:
-                "https://yt3.googleusercontent.com/ytc/AIf8zZS8oyVGX1r1-pGaZIaGmaTRV1rLQU7bnJqrVO5_oA=s176-c-k-c0x00ffffff-no-rj",
-            },
+              image: "/images/inspiration/svg.jpg", },
             {
               name: "levelsio",
               lang: "en",
@@ -53,9 +49,7 @@ export default function SectionInspiration() {
                 name: "Twitter",
                 url: "https://twitter.com/levelsio",
               },
-              image:
-                "https://yt3.googleusercontent.com/ytc/AIf8zZQlFSH5PN7UTWXkSmLTSJKNAHAgRc3gitgqe4VGtg=s176-c-k-c0x00ffffff-no-rj",
-            },
+              image: "/images/inspiration/levelsio.jpg", },
             // {
             //   name: "Will Paterson",
             //   image:
@@ -68,8 +62,7 @@ export default function SectionInspiration() {
                 name: "Twitter",
                 url: "https://twitter.com/oguzyagizkara",
               },
-              image:
-                "https://pbs.twimg.com/profile_images/1711676210239991808/IWNRRtNW_400x400.jpg",
+              image: "/images/inspiration/ogu.jpg",
             },
             {
               name: "Diego Fernandes", // Rocketseat
@@ -78,8 +71,7 @@ export default function SectionInspiration() {
                 name: "Youtube",
                 url: "https://www.youtube.com/@rocketseat",
               },
-              image:
-                "https://pbs.twimg.com/profile_images/1623322737836949504/fYVRjQXS_400x400.jpg",
+              image: "/images/inspiration/diego.jpg",
             },
           ].map((item, index) => {
             return (

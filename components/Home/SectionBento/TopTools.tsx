@@ -240,6 +240,35 @@ const itemsInspiration = [
   {},
 ]
 
+const goodDesign = [
+  {
+    title: "Makepill",
+    description: "Inspiration",
+    url: "https://makepill.com/",
+  },
+  {
+    title: "Stripe",
+    description: "Payments",
+    icon: <StripeColorIcon className="h-10 w-10" />,
+    theme: "ligth",
+  },
+  {
+    title: "gsap",
+    url: "https://gsap.com/",
+  },
+  {
+    url: "https://mintlify.com/",
+  },
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+]
+
 export default function CardTopTools() {
   return (
     <>
