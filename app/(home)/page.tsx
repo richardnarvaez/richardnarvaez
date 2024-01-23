@@ -44,9 +44,9 @@ export default async function IndexPage() {
       </p> */}
       <section
         id="header"
-        className="custom-cursor  container flex h-[100dvh] max-w-[64rem] flex-col items-center justify-center gap-4 text-center"
+        className="custom-cursor container flex h-[100dvh]  max-w-[64rem] flex-col items-center justify-center gap-4  text-center"
       >
-        <div className="z-10  w-full max-w-5xl">
+        <div className="w-full max-w-5xl ">
           <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
             <Image
               src="/images/aws_icon.png"
@@ -238,12 +238,13 @@ export default async function IndexPage() {
               </a>
             </div>
           </div>
-          <HeaderImage />
         </div>
+
+        <HeaderImage />
       </section>
       <section
         id="info"
-        className="flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
+        className="relative z-40 flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
       >
         <Link
           href={siteConfig.links.twitter}
@@ -264,9 +265,20 @@ export default async function IndexPage() {
         <h4>Who am I?</h4>
         <h4 className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
           Software Engineer with several years of experience as a Freelancer.
-          Multiple certifications. Passionate about traveling and naturally
-          curious. Currently, I am focused on becoming a great leader and
-          continuing to share.
+          <br />I began messing with{" "}
+          <span className="rounded-sm bg-[#FF512F] px-1 font-bold text-amber-900">
+            mobile
+          </span>{" "}
+          stuff when I was 12. Some time later Google banned me because I messed
+          up. My bad, I was young and inexperienced. So, I decided to pivot my
+          focus to{" "}
+          <span className="rounded-sm bg-[#FF512F] px-1 font-bold text-amber-900">
+            web
+          </span>{" "}
+          development.
+          <br /> <br />
+          Passionate about traveling and naturally curious. Currently, I am
+          focused on becoming a great leader and continuing to share.
         </h4>
         <h3 className="py-1.5 pt-12 text-sm font-medium">CERTIFICATIONS</h3>
         <div className="flex justify-center gap-24 pt-8 text-white">
