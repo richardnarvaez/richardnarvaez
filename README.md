@@ -36,7 +36,7 @@ v.2.1.1
 [website]: https://darkpixl.com
 [twitter]: https://twitter.com/richardvnarvaez
 [youtube]: https://youtube.com/richardvnarvaez
-[instagram]: https://instagram.com/richardvnarvaez
+[instagram]: https://instagram.com/richard.vinueza
 [linkedin]: https://linkedin.com/in/richardvnarvaez
 [hackerrank]: https://www.hackerrank.com/richardvnarvaez
 [webdevplaylist]: https://www.youtube.com/playlist?
