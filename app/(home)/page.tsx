@@ -44,7 +44,7 @@ export default async function IndexPage() {
       </p> */}
       <section
         id="header"
-        className="custom-cursor  container flex h-screen max-w-[64rem] flex-col items-center justify-center gap-4 text-center"
+        className="custom-cursor  container flex h-[100dvh] max-w-[64rem] flex-col items-center justify-center gap-4 text-center"
       >
         <div className="z-10  w-full max-w-5xl">
           <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
@@ -100,7 +100,7 @@ export default async function IndexPage() {
             </h3>
             <div className="mt-8 flex gap-4">
               <a
-                className="rounded-lg p-2 hover:bg-white/25"
+                className="rounded-lg p-2 hover:bg-white/25 "
                 href="https://www.figma.com/@richardvnarvaez"
                 target="_blank"
                 rel="noreferrer"
