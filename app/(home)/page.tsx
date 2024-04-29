@@ -105,10 +105,11 @@ export default async function IndexPage() {
             </h3>
             <div className="mt-8 flex gap-4">
               <a
+                title="Figma"
                 className="rounded-lg p-2 hover:bg-white/25 "
                 href="https://www.figma.com/@richardvnarvaez"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -128,10 +129,11 @@ export default async function IndexPage() {
                 </svg>
               </a>
               <a
+                title="Twitter"
                 className="rounded-lg p-2 hover:bg-white/25"
                 href="https://twitter.com/richardvnarvaez"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
               >
                 <svg
                   height="24px"
@@ -152,10 +154,11 @@ export default async function IndexPage() {
                 </svg>
               </a>
               <a
+                title="Github"
                 className="rounded-lg p-2 hover:bg-white/25"
                 href="https://github.com/richardnarvaez"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
               >
                 <svg
                   height="24px"
@@ -177,10 +180,11 @@ export default async function IndexPage() {
             </div>
             <div className="flex gap-4">
               <a
+                title="Linkedin"
                 className="rounded-lg p-2 hover:bg-white/25"
                 href="https://www.linkedin.com/in/richardvnarvaez"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -219,10 +223,11 @@ export default async function IndexPage() {
               </a>
 
               <a
+                title="Dribbble"
                 className="rounded-lg p-2 hover:bg-white/25"
                 href="https://dribbble.com/RichardNarvaez"
                 target="_blank"
-                rel="noreferrer"
+                rel="noreferrer noopener"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
