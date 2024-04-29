@@ -25,6 +25,11 @@ import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
 import SectionOpenSource from "@/components/Home/SectionOpenSource"
 import SectionBento from "@/components/Home/SectionBento"
 import SectionInspiration from "@/components/Home/SectionInspiration"
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -265,17 +270,72 @@ export default async function IndexPage() {
         <h4>Who am I?</h4>
         <h4 className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
           Software Engineer with several years of experience as a Freelancer.
-          <br />I began messing with{" "}
-          <span className="rounded-sm bg-[#FF512F] px-1 font-bold text-amber-900">
-            mobile
-          </span>{" "}
-          stuff when I was 12. Some time later Google banned me because I messed
-          up. My bad, I was young and inexperienced. So, I decided to pivot my
-          focus to{" "}
-          <span className="rounded-sm bg-[#FF512F] px-1 font-bold text-amber-900">
-            web
-          </span>{" "}
-          development.
+          <br />I began tinkering with{" "}
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <span className="cursor-pointer rounded-sm bg-[#FF512F] px-1 font-bold text-amber-900">
+                Mobile
+              </span>
+            </HoverCardTrigger>
+            <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+              <ul className="text-left text-sm">
+                <li>Android/iOS</li>
+                <li>React Native/Flutter</li>
+                <li>Java/Kotlin/Js&Ts/Swift</li>
+              </ul>
+            </HoverCardContent>
+          </HoverCard>{" "}
+          stuff when I was 12. Some time later I decided to pivot my focus to{" "}
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <span className="cursor-pointer rounded-sm  border px-1 font-bold ">
+                Web
+              </span>
+            </HoverCardTrigger>
+            <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+              <ul className="text-left text-sm">
+                <li>React/NextJS</li>
+                <li>Angular</li>
+                <li>HTML/CSS/JS/TS</li>
+                <li>NodeJS/API Rest/Graphql</li>
+                <li>PostgreSQL/MongoDB/MySql</li>
+              </ul>
+            </HoverCardContent>
+          </HoverCard>{" "}
+          Development,{" "}
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <span className="cursor-pointer rounded-sm bg-green-500 px-1 font-bold text-green-900">
+                UI/UX
+              </span>
+            </HoverCardTrigger>
+            <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+              <ul className="text-left text-sm">
+                <li>Figma/Adobe Suite</li>
+                <li>Wireframes</li>
+                <li>Responsive UIs</li>
+                <li>Motion & Microinteractions</li>
+                <li>Web Accessibility</li>
+              </ul>
+            </HoverCardContent>
+          </HoverCard>{" "}
+          and of course, I learned about{" "}
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <span className="cursor-pointer rounded-sm border bg-white/10 px-1 font-bold ">
+                Cloud
+              </span>
+            </HoverCardTrigger>
+            <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+              <ul className="text-left text-sm">
+                <li>AWS/GCP/Azure/DO</li>
+                <li>CI/CD/DevOps</li>
+                <li>Linux/Unix</li>
+                <li>Docker/ECS/Serverless</li>
+              </ul>
+            </HoverCardContent>
+          </HoverCard>
+          .
           <br /> <br />
           Passionate about traveling and naturally curious. Currently, I am
           focused on becoming a great leader and continuing to share.
