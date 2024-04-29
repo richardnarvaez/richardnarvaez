@@ -49,7 +49,7 @@ export default function SectionBento() {
               </div>
             </div>
             <div className="rounded-full bg-white/10 px-4 py-2  text-sm font-semibold">
-              Visitar
+              Visit
             </div>
           </div>
           <Image
