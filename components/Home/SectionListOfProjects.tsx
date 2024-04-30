@@ -75,13 +75,16 @@ export default function SectionListOfProjects({ posts }) {
                     />
                   </svg> */}
                   <h2 className="text-xl font-extrabold text-white md:text-2xl">
-                    {post.description}
+                    {post.title}
                   </h2>
+                  <h3 className="text-xl text-white  md:text-lg">
+                    {post.description}
+                  </h3>
 
-                  {post.title && (
+                  {post.name && (
                     <p className="mt-2 flex items-center gap-2 truncate">
                       {" "}
-                      {post.title}
+                      {post.name}
                       {" - " + new Date(post.date).getFullYear()}
                       {post.status &&
                         post.status.map((chip, index) => {
