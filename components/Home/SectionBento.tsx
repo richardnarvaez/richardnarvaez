@@ -61,7 +61,7 @@ export default function SectionBento() {
           />
         </div>
       </a>
-      <div className="group relative flex w-full flex-col items-center justify-center overflow-hidden rounded-xl border-0 border-white p-4 font-bold lg:col-span-2">
+      <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-xl border-0 border-white p-4 font-bold transition-transform hover:scale-95 hover:rounded-2xl lg:col-span-2">
         <Image
           alt="Logo Richard Vinueza"
           src={"/images/blog/huma/huma-bg.jpg"}

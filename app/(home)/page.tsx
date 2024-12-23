@@ -53,7 +53,7 @@ export default async function IndexPage() {
       >
         <div className="w-full max-w-5xl ">
           <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
-            <Image
+            {/* <Image
               src="/images/aws_icon.png"
               alt="Blur"
               className="absolute -right-20 bottom-32 z-0 w-24 md:bottom-32 md:right-16 "
@@ -80,11 +80,9 @@ export default async function IndexPage() {
               className="absolute -right-20 top-16 z-0 w-24 md:right-0 md:top-16 "
               width={120}
               height={120}
-            />
-            <h2 className="relative rounded-md bg-gray-50 px-4 py-2 text-center font-semibold text-black">
-              <ArrowFigma className="absolute -left-8 -top-6" />
-              <span>Richard Vinueza</span>
-            </h2>
+            /> */}
+
+            {/*  */}
 
             <h1
               className={
@@ -92,7 +90,31 @@ export default async function IndexPage() {
                 " z-10 flex max-w-3xl flex-col text-center text-6xl  font-extrabold  md:text-8xl "
               }
             >
-              <span>CREATIVE</span> <span>DEVELOPER</span> <span>SINCE</span>
+              <span>CREATIVE</span>
+              <span className="relative bg-black/30 px-4 py-1 backdrop-blur-sm">
+                <div className="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]"></div>
+                <div className="border-h absolute -left-20 bottom-[-1px] right-0 h-1 w-[130%]"></div>
+                <div className="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
+                <div className="border-v absolute -bottom-12 right-[-1px] h-[170%] w-1"></div>
+
+                <div className="absolute -left-1.5 -top-1.5  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute -right-1.5 -top-1.5  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+
+                <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+                <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-white shadow"></div>
+
+                <p className="z-10">DEVELOPER</p>
+                {/* <p className="z-10">{"*#$#*"}</p> */}
+                <h2 className="absolute -bottom-12 -right-14 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
+                  <ArrowFigma className="absolute -left-8 -top-6" />
+                  <span>Richard Vinueza</span>
+                </h2>
+              </span>
+              <span>SINCE</span>
               <span className="text-[#FF512F]">2014</span>
             </h1>
             {/* SOFTWARE ENGINEER */}
@@ -103,7 +125,7 @@ export default async function IndexPage() {
                 audiences and make a real impact.
               </span>
             </h3>
-            <div className="mt-8 flex gap-4">
+            {/* <div className="mt-8 flex gap-4">
               <a
                 title="Figma"
                 className="rounded-lg p-2 hover:bg-white/25 "
@@ -246,7 +268,7 @@ export default async function IndexPage() {
                   ></path>
                 </svg>
               </a>
-            </div>
+            </div> */}
           </div>
         </div>
 

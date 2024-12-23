@@ -10,6 +10,7 @@ export const metadata = {
 }
 
 const getColorOfStatus = {
+  sold: "bg-amber-500 text-amber-800",
   building: "bg-amber-500 text-amber-800",
   live: "bg-green-500 text-green-800",
   dead: "bg-red-500 text-red-800",
@@ -59,17 +60,17 @@ export default async function BlogPage() {
               {post.status && (
                 <div className="flex items-center gap-3">
                   {post.status.map((chip) => {
-                    return <span
-                    key={
-                      "status-" + post._id + "-" + index
-                    }
-                    className={
-                      " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
-                      (getColorOfStatus[chip] || "")
-                    }
-                  >
-                    {chip}
-                  </span>
+                    return (
+                      <span
+                        key={"status-" + post._id + "-" + index}
+                        className={
+                          " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
+                          (getColorOfStatus[chip] || "")
+                        }
+                      >
+                        {chip}
+                      </span>
+                    )
                   })}
                 </div>
               )}

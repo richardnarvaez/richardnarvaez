@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+.border-h{
+  background-image: linear-gradient(to right, white 45%, rgba(255,255,255,0) 0%);
+  background-position: bottom;
+  background-size: 18px 2px;
+  background-repeat: repeat-x;
+}
+
+.border-v{
+  background-image: linear-gradient(white 45%, rgba(255,255,255,0) 0%);
+  background-position: right;
+  background-size: 2px 18px;
+  background-repeat: repeat-y;
+}
+
 @layer base {
   :root {
     --background: 18 17 32;
@@ -40,7 +54,7 @@
     color: white;
     background: #FF512F;
   }
-  
+
   ::selection {
     color: white;
     background: #FF512F;
