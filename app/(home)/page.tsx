@@ -1,13 +1,12 @@
 /* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
 import Link from "next/link"
 
-import { siteConfig } from "@/config/site"
-import { cn, formatDate } from "@/lib/utils"
+import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import Image from "next/image"
 import { allPosts } from "@/.contentlayer/generated"
 import { compareDesc } from "date-fns"
-import { ExternalLinkIcon } from "lucide-react"
+import { ExternalLinkIcon, Flag, LaptopIcon, MapPinIcon } from "lucide-react"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
 import { Barlow } from "next/font/google"
 import {
@@ -30,6 +29,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
+import FlagEC from "@/components/Icons/flags/ec"
+import FlagES from "@/components/Icons/flags/es"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -87,7 +88,7 @@ export default async function IndexPage() {
             <h1
               className={
                 barlow.className +
-                " z-10 flex max-w-3xl flex-col text-center text-6xl  font-extrabold  md:text-8xl "
+                " z-10 flex max-w-3xl flex-col text-center text-4xl font-extrabold  md:text-6xl  lg:text-8xl "
               }
             >
               <span>CREATIVE</span>
@@ -107,7 +108,7 @@ export default async function IndexPage() {
                 <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
                 <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
 
-                <p className="z-10">DEVELOPER</p>
+                <p className="z-10 text-gray-400">DEVELOPER</p>
                 {/* <p className="z-10">{"*#$#*"}</p> */}
                 <h2 className="absolute -bottom-12 -right-14 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
                   <ArrowFigma className="absolute -left-8 -top-6" />
@@ -117,6 +118,7 @@ export default async function IndexPage() {
               <span>SINCE</span>
               <span className="text-[#FF512F]">2014</span>
             </h1>
+
             {/* SOFTWARE ENGINEER */}
             <h3 className="flex flex-col text-center text-lg">
               Over the last 5 years, I&apos;ve empowered 9+ companies
@@ -125,7 +127,7 @@ export default async function IndexPage() {
                 audiences and make a real impact.
               </span>
             </h3>
-            {/* <div className="mt-8 flex gap-4">
+            <div className=" mt-8 flex flex-wrap items-center justify-center gap-4 rounded-xl bg-white/10 p-4 ">
               <a
                 title="Figma"
                 className="rounded-lg p-2 hover:bg-white/25 "
@@ -199,8 +201,7 @@ export default async function IndexPage() {
                   </g>
                 </svg>
               </a>
-            </div>
-            <div className="flex gap-4">
+
               <a
                 title="Linkedin"
                 className="rounded-lg p-2 hover:bg-white/25"
@@ -268,7 +269,7 @@ export default async function IndexPage() {
                   ></path>
                 </svg>
               </a>
-            </div> */}
+            </div>
           </div>
         </div>
 
@@ -276,15 +277,51 @@ export default async function IndexPage() {
       </section>
       <section
         id="info"
-        className="relative z-40 flex flex-col items-center justify-center space-y-6 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
+        className="relative z-40 flex flex-col items-center justify-center space-y-6 px-4 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
       >
-        <Link
-          href={siteConfig.links.twitter}
-          className="rounded-2xl bg-muted px-4 py-1.5 text-sm font-medium"
-          target="_blank"
-        >
-          Follow along on Twitter
-        </Link>
+        <div className="relative mb-10 flex w-full max-w-3xl items-center gap-4 overflow-hidden rounded-xl bg-white/5 px-8 py-6">
+          <Image
+            src={"/images/avatars/richard.jpg"}
+            alt="Richard B. Vinueza"
+            className="h-12 w-12 rounded-full bg-white md:h-[80px] md:w-[80px]"
+            width={96}
+            height={96}
+          />
+          <div className="flex flex-col items-start justify-center">
+            <div className="flex items-center gap-2">
+              <p className="font-bold md:text-xl">Richard B. Vinueza</p>
+              <div className="flex w-fit gap-1 rounded-full bg-white p-1">
+                <FlagES width={16} />
+                <FlagEC width={16} />
+                {/* <FlagUS /> */}
+              </div>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-1">
+                <LaptopIcon size={16} />
+                Software Enginner
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPinIcon size={16} />
+                Everywhere
+              </div>
+              <div className="flex items-center gap-1 text-green-500">
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500/30">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                </div>
+                Avaliable
+              </div>
+            </div>
+          </div>
+          <Image
+            src={"/images/travel.png"}
+            alt="Richard B. Vinueza"
+            className="insert-y-0 absolute right-0"
+            width={240}
+            height={96}
+          />
+        </div>
+
         <h3
           className={
             barlow.className +
@@ -368,8 +405,7 @@ export default async function IndexPage() {
           focused on becoming a great leader and continuing to share.
         </h4>
         <h3 className="py-1.5 pt-12 text-sm font-medium">CERTIFICATIONS</h3>
-        <div className="flex justify-center gap-24 pt-8 text-white">
-          {/* TODO: Create a component each SVG */}
+        <div className="flex flex-wrap justify-center gap-24 pt-8 text-white">
           <GoogleIcon width="50" height="50" />
           <AWSIcon width="50" height="50" />
           <HarvardIcon width="50" height="50" />

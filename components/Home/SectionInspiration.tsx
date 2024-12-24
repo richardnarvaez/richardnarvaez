@@ -14,7 +14,7 @@ export default function SectionInspiration() {
           You may be interested in the following profiles. Top profiles in
           social networks that share a lot of knowledge.
         </p>
-        <div className="mt-8 flex gap-2">
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
           {[
             {
               name: "midudev",
@@ -41,7 +41,8 @@ export default function SectionInspiration() {
                 name: "YouTube",
                 url: "https://www.youtube.com/@SiliconValleyGirl",
               },
-              image: "/images/inspiration/svg.jpg", },
+              image: "/images/inspiration/svg.jpg",
+            },
             {
               name: "levelsio",
               lang: "en",
@@ -49,7 +50,8 @@ export default function SectionInspiration() {
                 name: "Twitter",
                 url: "https://twitter.com/levelsio",
               },
-              image: "/images/inspiration/levelsio.jpg", },
+              image: "/images/inspiration/levelsio.jpg",
+            },
             // {
             //   name: "Will Paterson",
             //   image:

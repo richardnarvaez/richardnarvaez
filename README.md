@@ -20,15 +20,15 @@
 </tr>
 <tr>
 <td align="center" width="9999">
-<a href="https://richard.darkpixl.com" target="_blank">
-<img align="center" src="./screenshots/Cover.png" />
+<a href="https://rbvn.vercel.app" target="_blank">
+<img align="center" src="./screenshots/Cover.jpg" />
 </a>
 PORTFOLIO - CLICK TO REDIRECT
 </td>
 </tr>
 <tr>
 <td  align="center" width="9999">
-v.2.1.1
+v.2.1.2
 </td>
 </tr>
 </table>
