@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/hover-card"
 import FlagEC from "@/components/Icons/flags/ec"
 import FlagES from "@/components/Icons/flags/es"
+import RewardBase from "@/components/ui/reward"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -277,7 +278,7 @@ export default async function IndexPage() {
       </section>
       <section
         id="info"
-        className="relative z-40 flex flex-col items-center justify-center space-y-6 px-4 pb-8 pt-6 text-center md:pb-12 md:pt-10 lg:py-32"
+        className="relative z-40 flex flex-col items-center justify-center space-y-6 px-4 pb-8 pt-6 text-center md:pt-10 lg:pt-32"
       >
         <div className="relative mb-10 flex w-full max-w-3xl items-center gap-4 overflow-hidden rounded-xl bg-white/5 px-8 py-6">
           <Image
@@ -404,7 +405,13 @@ export default async function IndexPage() {
           Passionate about traveling and naturally curious. Currently, I am
           focused on becoming a great leader and continuing to share.
         </h4>
-        <h3 className="py-1.5 pt-12 text-sm font-medium">CERTIFICATIONS</h3>
+
+        <div className="flex w-full items-center justify-center gap-4 pt-12">
+          <div className=" w-full border-b-2 border-dashed"></div>
+          <h3 className=" text-sm font-medium">CERTIFICATIONS</h3>
+          <div className="w-full border-b-2 border-dashed"></div>
+        </div>
+
         <div className="flex flex-wrap justify-center gap-24 pt-8 text-white">
           <GoogleIcon width="50" height="50" />
           <AWSIcon width="50" height="50" />
@@ -413,6 +420,7 @@ export default async function IndexPage() {
           <CiscoIcon />
           <LinkedinIcon />
         </div>
+
         <div className="space-x-4 pt-8">
           <Link
             href="https://www.linkedin.com/in/richardvnarvaez/details/certifications/"
@@ -432,7 +440,35 @@ export default async function IndexPage() {
             GitHub
           </Link>
         </div>
+
+        <div className="mb-12 flex w-full items-center justify-center gap-4 pt-8">
+          <div className=" w-full border-b-2 border-dashed"></div>
+          <h3 className=" text-sm font-medium">REWARDS</h3>
+          <div className="w-full border-b-2 border-dashed"></div>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-12 py-16">
+          <RewardBase
+            title="2023"
+            description="Hackaton AI Challenge"
+            base="1rt Place"
+          />
+          <RewardBase
+            title="2023"
+            description="Code Challenge"
+            base="1rt Place"
+          />
+          <RewardBase
+            title="2022"
+            description="UISEK Hackaton"
+            base="Finalistas"
+          />
+        </div>
+        <div className="mb-12 flex w-full items-center justify-center ">
+          <div className=" w-full border-b-2 border-dashed"></div>
+        </div>
       </section>
+
       <SectionBento />
       <SectionListOfProjects posts={posts} />
       <SectionFrameworksNStak />

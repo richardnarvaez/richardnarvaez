@@ -12,7 +12,7 @@ export default function SectionBento() {
     >
       <a
         target="_blank"
-        rel="noreferrer"
+        rel="noreferrer noopener"
         href="https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
         className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl "
       >
