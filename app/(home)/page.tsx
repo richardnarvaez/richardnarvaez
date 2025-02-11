@@ -32,6 +32,7 @@ import {
 import FlagEC from "@/components/Icons/flags/ec"
 import FlagES from "@/components/Icons/flags/es"
 import RewardBase from "@/components/ui/reward"
+import { Signature } from "@/components/signature"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
@@ -276,6 +277,10 @@ export default async function IndexPage() {
 
         <HeaderImage />
       </section>
+
+      <SectionBento />
+      <SectionListOfProjects posts={posts} />
+
       <section
         id="info"
         className="relative z-40 flex flex-col items-center justify-center space-y-6 px-4 pb-8 pt-6 text-center md:pt-10 lg:pt-32"
@@ -405,6 +410,9 @@ export default async function IndexPage() {
           Passionate about traveling and naturally curious. Currently, I am
           focused on becoming a great leader and continuing to share.
         </h4>
+        <div id="signature" className="pt-8 opacity-70">
+          <Signature />
+        </div>
 
         <div className="flex w-full items-center justify-center gap-4 pt-12">
           <div className=" w-full border-b-2 border-dashed"></div>
@@ -469,8 +477,6 @@ export default async function IndexPage() {
         </div>
       </section>
 
-      <SectionBento />
-      <SectionListOfProjects posts={posts} />
       <SectionFrameworksNStak />
 
       <SectionInspiration />

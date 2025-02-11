@@ -14,7 +14,7 @@ export default function SectionListOfProjects({ posts }) {
   return (
     <section
       id="products"
-      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-3 lg:px-0"
+      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
     >
       <div className="col-span-full mx-auto mb-8 mt-32 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
@@ -30,28 +30,28 @@ export default function SectionListOfProjects({ posts }) {
             <Link
               key={"post-" + index}
               href={post.slug}
-              className={"col-span-full cursor-pointer "}
+              className={
+                "col-span-1 cursor-pointer rounded-3xl border-2 border-dashed border-transparent transition-all hover:border-gray-400/20"
+              }
             >
               <article
                 key={post._id}
                 className={
-                  "group relative col-span-full flex cursor-pointer flex-col items-center gap-2 space-y-2 py-12 " +
-                  (index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse")
+                  "group relative col-span-1 flex cursor-pointer flex-col items-center gap-2 space-y-2 transition-all hover:scale-95 "
                 }
               >
-                <div className=" aspect-video max-w-lg overflow-hidden rounded-xl border  bg-muted ">
+                <div className=" aspect-video max-w-lg overflow-hidden rounded-3xl border bg-muted  hover:rounded-2xl ">
                   {post.image && (
                     <Image
                       src={post.image}
                       alt={post.title}
                       width={720}
                       height={405}
-                      className="transition-transform ease-out group-hover:scale-110"
                       priority={index <= 1}
                     />
                   )}
                 </div>
-                <div className="inset-x-0 bottom-0 w-full bg-gradient-to-t to-transparent p-6">
+                <div className="inset-x-0 bottom-0 w-full bg-gradient-to-t to-transparent ">
                   {/* <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -77,7 +77,7 @@ export default function SectionListOfProjects({ posts }) {
                   <h2 className="text-xl font-extrabold text-white md:text-2xl">
                     {post.title}
                   </h2>
-                  <h3 className="text-xl text-white  md:text-lg">
+                  <h3 className="line-clamp-2 text-xl text-white md:text-lg">
                     {post.description}
                   </h3>
 

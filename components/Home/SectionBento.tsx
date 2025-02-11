@@ -14,7 +14,7 @@ export default function SectionBento() {
         target="_blank"
         rel="noreferrer noopener"
         href="https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
-        className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-xl "
+        className="group relative h-96 w-full cursor-pointer overflow-hidden rounded-3xl "
       >
         <Image
           alt=""
@@ -23,7 +23,7 @@ export default function SectionBento() {
           width={700}
           height={900}
         />
-        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/50 transition-all group-hover:bg-black/70 ">
+        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/70 transition-all group-hover:bg-black/70 ">
           <div className="p-4 font-bold">
             <p className="text-md text-gray-300">RESUME</p>
             <p className="text-3xl ">View or Download Resume in PDF</p>
@@ -52,18 +52,18 @@ export default function SectionBento() {
               Visit
             </div>
           </div>
-          <Image
+          {/* <Image
             alt=""
             className="absolute -right-[270px] h-full w-full  rotate-45 object-cover opacity-0 transition-all duration-300 ease-out group-hover:right-0 group-hover:rotate-0 group-hover:opacity-100"
             src={"/images/home/me.webp"}
             width={700}
             height={900}
-          />
+          /> */}
         </div>
       </a>
-      <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-xl border-0 border-white p-4 font-bold transition-transform hover:scale-95 hover:rounded-2xl lg:col-span-2">
+      <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-0 border-white p-4 font-bold transition-transform lg:col-span-2">
         <Image
-          alt="Logo Richard Vinueza"
+          alt="Background Huma Legends"
           src={"/images/blog/huma/huma-bg.jpg"}
           width={960}
           height={540}
@@ -74,7 +74,7 @@ export default function SectionBento() {
         </p>
         <div className="z-10 m-4 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
           <Image
-            alt="Logo Richard Vinueza"
+            alt="Huma Legends App Icon"
             src={"/images/blog/huma/huma-app-icon.jpg"}
             width={100}
             height={100}
@@ -87,22 +87,23 @@ export default function SectionBento() {
             <Link
               href={"https://huma.darkpixl.com"}
               target="_blank"
-              className="rounded-md border border-white/50 bg-black/20 px-4 py-2 text-sm"
+              className="rounded-3xl border border-white/50 bg-black/20 px-4 py-2 text-sm"
             >
               Visit Website
             </Link>
             <Link
               href={"/projects/huma"}
-              className="rounded-md border border-white/50 bg-black/20 px-4 py-2 text-sm"
+              className="rounded-3xl border border-white/50 bg-black/20 px-4 py-2 text-sm"
             >
               Visit Story
             </Link>
           </div>
         </div>
+        <div className="absolute inset-0 bg-black/30" />
       </div>
       <Link
         href={"/#stack"}
-        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-xl bg-[#23293C] sm:h-[800px] md:h-full lg:h-96 "
+        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-3xl bg-[#23293C] sm:h-[800px] md:h-full lg:h-96 "
       >
         <div
           className="p-4 font-bold"
@@ -130,7 +131,7 @@ export default function SectionBento() {
           target="_blank"
           rel="noreferrer"
           href="https://www.figma.com/community/file/1270173776891030529"
-          className="group relative flex items-center overflow-hidden rounded-xl border-2 border-dashed border-[#FF512F]/50  p-6 font-bold "
+          className="group relative flex items-center overflow-hidden rounded-3xl border-2 border-dashed border-[#FF512F]/50  p-6 font-bold "
         >
           <div>
             <svg

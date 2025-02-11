@@ -274,9 +274,9 @@ export default function CardTopTools() {
     <>
       <Dialog>
         <DialogTrigger asChild>
-          <div className="group relative flex items-center justify-center overflow-hidden rounded-xl border text-center">
+          <div className="group relative flex items-center justify-center overflow-hidden rounded-3xl border text-center">
             <div className="z-20 m-auto p-4 font-bold">
-              <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-white">
+              <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl">
                 <Image
                   alt="Logo Richard Vinueza"
                   src={"/images/logo-richard.png"}
@@ -292,7 +292,7 @@ export default function CardTopTools() {
                 List of My Favorites
               </p>
             </div>
-            <div className="absolute top-0 z-10 h-full w-full bg-[rgba(35,41,60,0.3)]"></div>
+            <div className="absolute inset-0 z-10 h-full w-full bg-black/50" />
 
             <Image
               alt=""
