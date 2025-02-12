@@ -89,7 +89,7 @@ function HackerText() {
 
 function AnimatedCursor() {
   return (
-    <motion.div className="absolute relative -left-8 top-3">
+    <motion.div className="relative -left-8 top-3">
       <p className="absolute -left-10 -top-[80px] font-semibold">E</p>
       <div className="relative z-30">
         <ArrowFigma />
