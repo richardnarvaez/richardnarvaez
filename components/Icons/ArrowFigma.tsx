@@ -1,3 +1,7 @@
+"use client"
+
+import { motion } from "framer-motion"
+
 export default function ArrowFigma(props) {
   return (
     <svg
@@ -16,7 +20,7 @@ export default function ArrowFigma(props) {
         <path
           d="M34.4846 7.72252L10.2857 2.45864C7.54159 1.86171 5.24728 4.5772 6.29399 7.18318L15.3442 29.7152C16.6533 32.9743 21.4109 32.4898 22.0361 29.0338L23.9064 18.6955C23.9381 18.5203 24.0606 18.3752 24.228 18.3145L34.9336 14.4329C38.2336 13.2365 37.9145 8.46863 34.4846 7.72252L34.1658 9.18824L34.4846 7.72252Z"
           stroke="white"
-          stroke-width="3"
+          strokeWidth="4"
         />
       </g>
       <defs xmlns="http://www.w3.org/2000/svg">
@@ -27,9 +31,9 @@ export default function ArrowFigma(props) {
           width="42.2083"
           height="40.5382"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
