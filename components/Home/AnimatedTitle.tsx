@@ -110,7 +110,7 @@ export default function AnimatedTitle() {
       <h2
         className={
           barlow.className +
-          " z-10 flex max-w-3xl flex-col text-center text-4xl font-extrabold md:text-6xl lg:text-8xl"
+          " z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100"
         }
       >
         <motion.span
