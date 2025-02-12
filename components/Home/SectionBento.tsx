@@ -110,7 +110,7 @@ export default function SectionBento() {
       </div>
       <Link
         href={"/#stack"}
-        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-3xl bg-[#23293C]  md:h-full lg:h-96 "
+        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-3xl bg-[#23293C]  md:h-full lg:h-auto "
       >
         <div
           className="p-4 font-bold"
@@ -178,9 +178,18 @@ export default function SectionBento() {
           </Link>
           <Link
             href={"/#info"}
-            className="group relative flex h-[120px] items-center justify-center overflow-hidden rounded-3xl border bg-slate-800 text-center"
+            className="group relative flex h-40 items-center justify-center overflow-hidden rounded-3xl border bg-slate-800 text-center"
           >
-            <p className="font-bold">About Me</p>
+            <Image
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
+              src={"/images/speech.png"}
+              width={700}
+              height={900}
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <p className="font-bold">About Me</p>
+            </div>
           </Link>
         </div>
       </div>
