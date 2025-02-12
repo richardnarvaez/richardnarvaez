@@ -1,12 +1,22 @@
+"use client"
+
 /* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
 import Link from "next/link"
+import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import Image from "next/image"
 import { allPosts } from "@/.contentlayer/generated"
 import { compareDesc } from "date-fns"
-import { ExternalLinkIcon, Flag, LaptopIcon, MapPinIcon } from "lucide-react"
+import {
+  ChevronUpIcon,
+  ExternalLinkIcon,
+  Flag,
+  LaptopIcon,
+  MapPinIcon,
+} from "lucide-react"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
 import { Barlow } from "next/font/google"
 import {
@@ -33,11 +43,57 @@ import FlagEC from "@/components/Icons/flags/ec"
 import FlagES from "@/components/Icons/flags/es"
 import RewardBase from "@/components/ui/reward"
 import { Signature } from "@/components/signature"
+import AnimatedTitle from "@/components/Home/AnimatedTitle"
+import AnimatedDescription from "@/components/Home/AnimatedDescription"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 
-export default async function IndexPage() {
+function ScrollToTopButton() {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const toggleVisibility = () => {
+      // Mostrar el botón solo después de 100vh de scroll
+      if (window.scrollY > window.innerHeight) {
+        setIsVisible(true)
+      } else {
+        setIsVisible(false)
+      }
+    }
+
+    window.addEventListener("scroll", toggleVisibility)
+
+    return () => {
+      window.removeEventListener("scroll", toggleVisibility)
+    }
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: window.innerHeight - 32, // Scrollea hasta 100vh
+      behavior: "smooth",
+    })
+  }
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          onClick={scrollToTop}
+          className="fixed bottom-12 right-12 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white text-black/80 shadow-lg transition-transform hover:scale-110"
+        >
+          <ChevronUpIcon className="h-6 w-6" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
+export default function IndexPage() {
   const posts = allPosts
     .filter((post) => post.published && post.highlight)
     .sort((a, b) => {
@@ -46,6 +102,7 @@ export default async function IndexPage() {
 
   return (
     <div>
+      <ScrollToTopButton />
       {/* JUST IN DEV */}
       {/* <p className="fixed z-50 m-6 rounded-full bg-red-500 px-6 py-2 text-xs font-semibold text-white">
         In Dev
@@ -56,79 +113,8 @@ export default async function IndexPage() {
       >
         <div className="w-full max-w-5xl ">
           <div className="relative z-20 flex w-full flex-col  items-center justify-center gap-4">
-            {/* <Image
-              src="/images/aws_icon.png"
-              alt="Blur"
-              className="absolute -right-20 bottom-32 z-0 w-24 md:bottom-32 md:right-16 "
-              width={120}
-              height={120}
-            />
-            <Image
-              src="/images/next_icon.png"
-              alt="Blur"
-              className="absolute -left-32 bottom-32 z-0 w-32 md:bottom-32 md:left-0 "
-              width={120}
-              height={120}
-            />
-            <Image
-              src="/images/vercel_icon.png"
-              alt="Blur"
-              className="absolute -left-8 top-16 z-0 w-16 md:left-32 md:top-16 "
-              width={120}
-              height={120}
-            />
-            <Image
-              src="/images/figma_icon.png"
-              alt="Blur"
-              className="absolute -right-20 top-16 z-0 w-24 md:right-0 md:top-16 "
-              width={120}
-              height={120}
-            /> */}
-
-            {/*  */}
-
-            <h1
-              className={
-                barlow.className +
-                " z-10 flex max-w-3xl flex-col text-center text-4xl font-extrabold  md:text-6xl  lg:text-8xl "
-              }
-            >
-              <span>CREATIVE</span>
-              <span className="relative bg-black/30 px-4 py-1 backdrop-blur-sm">
-                <div className="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]"></div>
-                <div className="border-h absolute -left-20 bottom-[-1px] right-0 h-1 w-[130%]"></div>
-                <div className="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
-                <div className="border-v absolute -bottom-12 right-[-1px] h-[170%] w-1"></div>
-
-                <div className="absolute -left-1.5 -top-1.5  h-3 w-3 rounded border border-gray-600  bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3 rounded border border-gray-600 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute -right-1.5 -top-1.5  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-
-                <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-                <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-
-                <p className="z-10 text-gray-400">DEVELOPER</p>
-                {/* <p className="z-10">{"*#$#*"}</p> */}
-                <h2 className="absolute -bottom-12 -right-14 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
-                  <ArrowFigma className="absolute -left-8 -top-6" />
-                  <span>Richard Vinueza</span>
-                </h2>
-              </span>
-              <span>SINCE</span>
-              <span className="text-[#FF512F]">2014</span>
-            </h1>
-
-            {/* SOFTWARE ENGINEER */}
-            <h3 className="flex flex-col text-center text-lg">
-              Over the last 5 years, I&apos;ve empowered 9+ companies
-              <span className="hidden max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8 md:block">
-                Developing user-centric interfaces that captivate and engage
-                audiences and make a real impact.
-              </span>
-            </h3>
+            <AnimatedTitle />
+            <AnimatedDescription />
             <div className=" mt-8 flex flex-wrap items-center justify-center gap-4 rounded-xl bg-white/10 p-4 ">
               <a
                 title="Figma"
@@ -414,7 +400,7 @@ export default async function IndexPage() {
           <Signature />
         </div>
 
-        <div className="flex w-full items-center justify-center gap-4 pt-12">
+        <div className="flex w-full items-center justify-center gap-4 pt-64">
           <div className=" w-full border-b-2 border-dashed"></div>
           <h3 className=" text-sm font-medium">CERTIFICATIONS</h3>
           <div className="w-full border-b-2 border-dashed"></div>
@@ -469,7 +455,7 @@ export default async function IndexPage() {
           <RewardBase
             title="2022"
             description="UISEK Hackaton"
-            base="Finalistas"
+            base="Finalists"
           />
         </div>
         <div className="mb-12 flex w-full items-center justify-center ">

@@ -276,18 +276,18 @@ export default function CardTopTools() {
         <DialogTrigger asChild>
           <div className="group relative flex items-center justify-center overflow-hidden rounded-3xl border text-center">
             <div className="z-20 m-auto p-4 font-bold">
-              <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl">
+              {/* <div className="m-4 mx-auto flex h-24 w-24 items-center justify-center rounded-3xl">
                 <Image
                   alt="Logo Richard Vinueza"
                   src={"/images/logo-richard.png"}
                   width={100}
                   height={100}
                 />
-              </div>
-              <p className="text-md border-b-2 border-dashed border-white/30 p-2 text-white/75">
+              </div> */}
+              {/* <p className="text-md border-b-2 border-dashed border-white/30 p-2 text-white/75">
                 TOP
-              </p>
-              <p className="mt-4 text-3xl text-white">Best Webs & Tools</p>
+              </p> */}
+              <p className="text-3xl text-white">Best Webs & Tools</p>
               <p className="mt-2 text-lg uppercase text-white">
                 List of My Favorites
               </p>
