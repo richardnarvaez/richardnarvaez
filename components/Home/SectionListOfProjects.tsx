@@ -31,16 +31,21 @@ export default function SectionListOfProjects({ posts }) {
               key={"post-" + index}
               href={post.slug}
               className={
-                "col-span-1 cursor-pointer rounded-3xl border-2 border-dashed border-transparent transition-all hover:border-gray-400/20"
+                "group col-span-1 cursor-pointer rounded-3xl border-2 border-dashed border-transparent transition-all hover:border-gray-400/20"
               }
             >
               <article
                 key={post._id}
                 className={
-                  "group relative col-span-1 flex cursor-pointer flex-col items-center gap-2 space-y-2 transition-all hover:scale-95 "
+                  " relative col-span-1 flex cursor-pointer flex-col items-center gap-2 space-y-2 transition-all group-hover:hover:scale-95 "
                 }
               >
-                <div className=" aspect-video max-w-lg overflow-hidden rounded-3xl border bg-muted  hover:rounded-2xl ">
+                <div className="absolute left-4 top-6  hidden gap-1 group-hover:flex">
+                  <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                </div>
+                <div className=" aspect-video max-w-lg overflow-hidden rounded-3xl border bg-muted group-hover:rounded-2xl ">
                   {post.image && (
                     <Image
                       src={post.image}
@@ -74,10 +79,10 @@ export default function SectionListOfProjects({ posts }) {
                       strokeLinejoin="round"
                     />
                   </svg> */}
-                  <h2 className="text-xl font-extrabold text-white md:text-2xl">
+                  <h2 className="text-lg font-extrabold text-white md:text-xl">
                     {post.title}
                   </h2>
-                  <h3 className="line-clamp-2 text-xl text-white md:text-lg">
+                  <h3 className="line-clamp-2 text-sm text-white/50 md:text-base">
                     {post.description}
                   </h3>
 
@@ -110,9 +115,6 @@ export default function SectionListOfProjects({ posts }) {
                 </p>
               )} */}
                 </div>
-                {/* <Link href={post.slug} className="absolute inset-0">
-              <span className="sr-only">View Article</span>
-            </Link> */}
               </article>
             </Link>
           ))}
