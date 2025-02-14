@@ -89,10 +89,26 @@ function HackerText() {
 
 function AnimatedCursor() {
   return (
-    <motion.div className="relative -left-8 top-3">
-      <p className="absolute -left-10 -top-[80px] font-semibold">E</p>
-      <div className="relative z-30">
+    <motion.div className="relative -left-8 top-3 z-0">
+      <div className="relative z-40">
         <ArrowFigma />
+      </div>
+      <div className="absolute  -left-14 -top-20 border-2 border-blue-400 bg-blue-700/20 px-2 font-semibold">
+        <div className="absolute -left-1.5 -top-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -right-1.5 -top-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
+        <p>E</p>
+      </div>
+    </motion.div>
+  )
+}
+
+function Cursor() {
+  return (
+    <motion.div className="relative -right-10 top-6 rotate-90">
+      <div className="relative z-40">
+        <ArrowFigma color="#0c56c7" />
       </div>
     </motion.div>
   )
@@ -133,15 +149,15 @@ export default function AnimatedTitle() {
           <div className="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
           <div className="border-v absolute -bottom-12 right-[-1px] h-[170%] w-1"></div>
 
-          <div className="absolute -left-1.5 -top-1.5  h-3 w-3 rounded border border-gray-600  bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3 rounded border border-gray-600 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -right-1.5 -top-1.5  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-
-          <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3 rounded border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute -left-1.5 -top-1.5  h-3 w-3  border border-gray-600  bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3  border border-gray-600 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute -right-1.5 -top-1.5  h-3 w-3  border border-gray-400 bg-white  shadow"></div>
+          {/*
+          <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
+          <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div> */}
 
           {/* <HackerText /> */}
           <p className="opacity-80">
@@ -152,8 +168,8 @@ export default function AnimatedTitle() {
             className="absolute -bottom-12 -right-12"
             initial={{
               opacity: 1,
-              x: 200, // Comienza fuera de la pantalla a la derecha
-              y: -100, // Y un poco arriba
+              x: 200,
+              y: -100,
             }}
             animate={{
               opacity: 1,
@@ -218,8 +234,15 @@ export default function AnimatedTitle() {
             }}
           >
             <AnimatedCursor />
-            <h2 className="rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
+            <h2 className="relative z-50 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
               <span>Richard Vinueza</span>
+            </h2>
+          </motion.div>
+
+          <motion.div className="absolute -bottom-16 -left-20">
+            <Cursor />
+            <h2 className="relative z-50 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
+              <span>Jon Doe</span>
             </h2>
           </motion.div>
         </motion.span>
