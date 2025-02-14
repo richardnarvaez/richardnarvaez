@@ -149,10 +149,10 @@ export default function AnimatedTitle() {
           <div className="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
           <div className="border-v absolute -bottom-12 right-[-1px] h-[170%] w-1"></div>
 
-          <div className="absolute -left-1.5 -top-1.5  h-3 w-3  border border-gray-600  bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3  border border-gray-600 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute -right-1.5 -top-1.5  h-3 w-3  border border-gray-400 bg-white  shadow"></div>
+          <div className="absolute -left-1.5 -top-1.5  h-3 w-3  border-2 border-gray-400  bg-white "></div>
+          <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3  border-2 border-gray-400  bg-white "></div>
+          <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3  border-2 border-gray-400  bg-white "></div>
+          <div className="absolute -right-1.5 -top-1.5  h-3 w-3  border-2 border-gray-400 bg-white  shadow"></div>
           {/*
           <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
           <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
@@ -239,7 +239,7 @@ export default function AnimatedTitle() {
             </h2>
           </motion.div>
 
-          <motion.div className="absolute -bottom-16 -left-20">
+          <motion.div className="absolute -bottom-14 -left-20">
             <Cursor />
             <h2 className="relative z-50 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
               <span>Jon Doe</span>
