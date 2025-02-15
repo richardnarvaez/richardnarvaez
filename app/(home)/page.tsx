@@ -267,7 +267,10 @@ export default async function IndexPage() {
         </div>
       </section>
 
-      <section id="tools" className="flex h-[100vh] items-center p-32">
+      <section
+        id="tools"
+        className="flex min-h-[100vh] items-center p-8 md:p-32 "
+      >
         <div className="flex flex-wrap items-center justify-center gap-4">
           {favTools?.map((item, index) => {
             return (
