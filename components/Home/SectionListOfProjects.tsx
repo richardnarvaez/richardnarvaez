@@ -14,7 +14,7 @@ export default function SectionListOfProjects({ posts }) {
   return (
     <section
       id="products"
-      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
+      className="mx-auto -mt-32 grid max-w-5xl grid-cols-1 gap-4 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
     >
       <div className="col-span-full mx-auto mb-8 mt-32 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">

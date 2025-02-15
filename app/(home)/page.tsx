@@ -33,126 +33,20 @@ import { ScrollToTopButton } from "@/components/SrollTopButton"
 import { cn } from "@/lib/utils"
 
 import Header from "@/components/Home/Header"
+import { getFavTools } from "@/services/posts"
 
 // If loading a variable font, you don't need to specify the font weight
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 
-export default async function IndexPage() {
-  let favTools: {}[] = []
-  try {
-    const res = await fetch("https://.../posts")
-    const posts = await res.json()
-    favTools = posts
-  } catch (error) {
-    favTools = [
-      {
-        title: "Brandfetch",
-        description: "Brand Logos",
-        url: "https://brandfetch.com",
-        icon: "https://asset.brandfetch.io/idL0iThUh6/idXGq6SIu2.svg",
-      },
-      {
-        title: "svgl",
-        description: "Good SVG Icons",
-        url: "https://svgl.app/",
-        icon: "",
-      },
-      {
-        title: "Pinterest",
-        description: "Inspiration",
-        url: "https://www.pinterest.com/search/pins/?q=ui%20saas%20page",
-        icon: "",
-        theme: "ligth",
-      },
-      {
-        title: "Refero",
-        description: "Designs from the best products",
-        url: "https://refero.design/",
-        icon: "https://asset.brandfetch.io/idiWIi67lS/id824DNM84.png",
-      },
-      {
-        title: "Makepill",
-        description: "Inspiration",
-        url: "https://makepill.com/",
-      },
-      {
-        title: "Stripe",
-        description: "Payments",
-        icon: "",
-      },
-      {
-        title: "gsap",
-        url: "https://gsap.com/",
-      },
-      {
-        url: "https://mintlify.com/",
-      },
-      {
-        title: "RailWay",
-        description: "Backend Deployment",
-        url: "https://railway.app",
-        icon: "",
-      },
+interface Tool {
+  title?: string
+  description?: string
+  url?: string
+  icon?: string
+}
 
-      {
-        title: "Open AI",
-        description: "AI development environment",
-        icon: "",
-      },
-      {
-        title: "Figma",
-        description: "Design",
-        icon: "",
-      },
-      {
-        title: "Vercel",
-        description: "Frontend Deployment",
-        icon: "",
-      },
-      {
-        title: "AWS",
-        description: "EC2, Lambdas, ECS, S3",
-        icon: "",
-      },
-      {
-        title: "N8N",
-        description: "Automatization",
-        icon: "",
-      },
-      {
-        title: "Strapi",
-        description: "HeadLess CMS",
-        icon: "",
-      },
-      {
-        title: "Spline",
-        description: "3D Design",
-        url: "https://spline.design",
-        icon: "",
-      },
-      {
-        title: "Stripe",
-        description: "Payments",
-        icon: "",
-      },
-      {
-        title: "Medusa",
-        description: "Open Source E-Commerce",
-        url: "https://medusajs.com/",
-        icon: "",
-      },
-      {
-        title: "Framer Motion",
-        description: "Animations",
-        icon: "",
-      },
-      {
-        title: "Resend",
-        description: "Send Emails",
-        icon: "https://asset.brandfetch.io/id0BqaqET6/idwjc1TygR.jpeg",
-      },
-    ]
-  }
+export default async function IndexPage() {
+  let favTools: Tool[] = await getFavTools()
 
   const posts = allPosts
     .filter((post) => post.published && post.highlight)
@@ -167,6 +61,14 @@ export default async function IndexPage() {
       <Header />
 
       <SectionBento />
+      <div
+        id="projects-placeholder"
+        className="relative mx-auto mt-4 grid max-w-5xl grid-cols-1 gap-4 px-8 md:grid-cols-2 lg:grid-cols-4 lg:px-0"
+      >
+        <div className="absolute bottom-0 left-0 right-0 z-10 h-24 w-full bg-gradient-to-t from-[hsl(244,31%,10%)] to-transparent"></div>
+        <div className="col-span-2 h-24 w-full rounded-3xl border-2 border-dashed border-white/10"></div>
+        <div className="col-span-2 h-24 w-full rounded-3xl border-2 border-dashed border-white/10"></div>
+      </div>
       <SectionListOfProjects posts={posts} />
 
       <section
@@ -365,7 +267,7 @@ export default async function IndexPage() {
         </div>
       </section>
 
-      <section className="flex h-[100vh] items-center p-32">
+      <section id="tools" className="flex h-[100vh] items-center p-32">
         <div className="flex flex-wrap items-center justify-center gap-4">
           {favTools?.map((item, index) => {
             return (
@@ -379,8 +281,7 @@ export default async function IndexPage() {
                 <div className="flex items-center gap-4">
                   <div
                     className={
-                      "flex h-16 w-16 items-center justify-center rounded-xl p-2 " +
-                      "bg-slate-900"
+                      "flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-slate-900 "
                     }
                   >
                     <img src={item.icon} />

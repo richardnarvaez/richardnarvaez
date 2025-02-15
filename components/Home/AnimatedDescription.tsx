@@ -4,22 +4,12 @@ import { motion } from "framer-motion"
 
 export default function AnimatedDescription() {
   return (
-    <motion.h3
-      className="flex flex-col text-center text-lg"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, delay: 1.6 }} // Delay mayor que el último elemento del título
-    >
+    <h3 className="flex animate-fade-up-5 flex-col text-center text-lg opacity-0">
       Over the last 5 years, I&apos;ve empowered 9+ companies
-      <motion.span
-        className=" max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8 md:block"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.7 }} // Un poco más de delay para el subtexto
-      >
+      <span className="max-w-[42rem] animate-fade-up-6 leading-normal text-muted-foreground opacity-0 sm:text-xl sm:leading-8">
         Developing user-centric interfaces that captivate and engage audiences
         and make a real impact.
-      </motion.span>
-    </motion.h3>
+      </span>
+    </h3>
   )
 }

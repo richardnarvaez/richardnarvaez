@@ -71,16 +71,40 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
-        fadeIn: {
+        "fade-in": {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
+        },
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 20%": { transform: "translate(0, 0)" }, // Espera inicial
+          "25%": { transform: "translate(20px, -15px)" }, // Primer movimiento
+          "25.1%, 40%": { transform: "translate(20px, -15px)" }, // Pausa 1
+          "45%": { transform: "translate(-30px, 10px)" }, // Segundo movimiento
+          "45.1%, 70%": { transform: "translate(-30px, 10px)" }, // Pausa 2
+          "75%": { transform: "translate(15px, -20px)" }, // Tercer movimiento
+          "75.1%, 80%": { transform: "translate(15px, -20px)" }, // Pausa 3
+          "85%": { transform: "translate(-10px, 5px)" }, // Cuarto movimiento
+          "85.1%, 90%": { transform: "translate(-10px, 5px)" }, // Pausa 4
+          "95%": { transform: "translate(0, 0)" }, // Vuelve al centro
+          "95.1%, 100%": { transform: "translate(0, 0)" }, // Espera final
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spin-slow": "spin 15s linear infinite",
-        "fade-in": "fadeIn 0.5s ease-in-out 1s forwards",
+        "fade-in": "fade-in 0.8s ease-out 1s forwards",
+        "fade-up-1": "fade-up 0.5s ease-out 0.2s forwards",
+        "fade-up-2": "fade-up 0.5s ease-out 0.4s forwards",
+        "fade-up-3": "fade-up 0.5s ease-out 0.6s forwards",
+        "fade-up-4": "fade-up 0.5s ease-out 0.8s forwards",
+        "fade-up-5": "fade-up 0.8s ease-out 1s forwards",
+        "fade-up-6": "fade-up 0.8s ease-out 1.1s forwards",
+        float: "float 12s ease-in-out infinite",
       },
     },
   },

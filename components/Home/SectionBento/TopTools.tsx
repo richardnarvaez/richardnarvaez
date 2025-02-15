@@ -7,29 +7,27 @@ import Link from "next/link"
 export default function CardTopTools() {
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <div className="group relative flex items-center justify-center overflow-hidden rounded-3xl border text-center">
-            <div className="z-20 m-auto p-4 font-bold">
-              <p className="text-3xl text-white">Best Webs & Tools</p>
-              <p className="mt-2 text-lg uppercase text-white">
-                List of My Favorites
-              </p>
-            </div>
-            <div className="absolute inset-0 z-10 h-full w-full bg-black/50" />
-
-            <Image
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-75 transition-all ease-out group-hover:scale-110 group-hover:blur-sm"
-              src={
-                "https://images.unsplash.com/photo-1664448007527-2c49742dbb24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80"
-              }
-              width={700}
-              height={900}
-            />
+      <Link href="#tools">
+        <div className="group relative flex h-full items-center justify-center overflow-hidden rounded-3xl border text-center">
+          <div className="z-20 m-auto p-4 font-bold">
+            <p className="text-xl text-white">Best Webs & Tools</p>
+            <p className="mt-2 text-sm uppercase text-white">
+              List of My Favorites
+            </p>
           </div>
-        </DialogTrigger>
-      </Dialog>
+          <div className="absolute inset-0 z-10 h-full w-full bg-black/50" />
+
+          <Image
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover opacity-75 transition-all ease-out group-hover:scale-110 group-hover:blur-sm"
+            src={
+              "https://images.unsplash.com/photo-1664448007527-2c49742dbb24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80"
+            }
+            width={700}
+            height={900}
+          />
+        </div>
+      </Link>
     </>
   )
 }
