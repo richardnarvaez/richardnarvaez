@@ -119,7 +119,7 @@ export default function AnimatedTitle() {
     <>
       {/* SEO title - hidden visually but available to screen readers and search engines */}
       <h1 className="sr-only">
-        CREATIVE DEVELOPER - Richard Vinueza - SINCE 2014
+        Richard Vinueza - CREATIVE DEVELOPER - SINCE 2014
       </h1>
 
       {/* Visual animated title */}
@@ -168,8 +168,8 @@ export default function AnimatedTitle() {
             className="absolute -bottom-12 -right-12"
             initial={{
               opacity: 1,
-              x: 200,
-              y: -100,
+              x: 0,
+              y: 0,
             }}
             animate={{
               opacity: 1,
@@ -242,7 +242,7 @@ export default function AnimatedTitle() {
           <motion.div className="absolute -bottom-14 -left-20">
             <Cursor />
             <h2 className="relative z-50 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
-              <span>Jon Doe</span>
+              <span>John Doe</span>
             </h2>
           </motion.div>
         </motion.span>

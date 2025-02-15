@@ -53,7 +53,7 @@ export const metadata = {
       url: "https://darkpixl.com",
     },
   ],
-  creator: "richardvnarvaez",
+  creator: "richardvinueza",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -75,7 +75,7 @@ export const metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [`${siteConfig.url}/og.jpg`],
-    creator: "@richardvnarvaez",
+    creator: "@richard-vinueza",
   },
   icons: {
     icon: "/images/logo-richard.png",

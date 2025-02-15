@@ -1,3 +1,4 @@
+"use client"
 /* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
 import { ExternalLinkIcon } from "lucide-react"
 import Image from "next/image"
@@ -178,7 +179,7 @@ export default function SectionBento() {
           </Link>
           <Link
             href={"/#info"}
-            className="group relative flex h-40 items-center justify-center overflow-hidden rounded-3xl border bg-slate-800 text-center"
+            className="group relative flex h-40 items-center justify-center overflow-hidden rounded-3xl border-2 border-white bg-slate-800 text-center"
           >
             <Image
               alt=""

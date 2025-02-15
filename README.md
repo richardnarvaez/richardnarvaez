@@ -32,7 +32,7 @@
 </table>
 
 [website]: https://rbvn.vercel.app
-[twitter]: https://twitter.com/richardvnarvaez
+[twitter]: https://twitter.com/richard-vinueza
 [youtube]: https://youtube.com/richardvnarvaez
 [instagram]: https://instagram.com/richard.vinueza
 [linkedin]: https://linkedin.com/in/richardvnarvaez
