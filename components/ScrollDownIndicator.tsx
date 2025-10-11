@@ -3,6 +3,8 @@
 import { motion } from "framer-motion"
 import { ChevronDownIcon } from "lucide-react"
 
+import { cn } from "@/lib/utils"
+
 export default function ScrollDownIndicator() {
   const scrollToTop = () => {
     window.scrollTo({
@@ -13,13 +15,18 @@ export default function ScrollDownIndicator() {
   return (
     <motion.div
       onClick={scrollToTop}
-      className="p-6"
+      className="p-6 pt-12"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1 }}
     >
-      <div className="rounded-full bg-white px-4 py-2 text-xs text-black/90">
-        <p>v.3.2.42</p>
+      <div
+        className={cn(
+          "rounded-full bg-white px-4 py-2 text-xs text-black/90",
+          "hover:bg-gray-100"
+        )}
+      >
+        <p>View more</p>
       </div>
       <motion.div
         animate={{

@@ -83,12 +83,12 @@ module.exports = {
           "0%, 20%": { transform: "translate(0, 0)" }, // Espera inicial
           "25%": { transform: "translate(20px, -15px)" }, // Primer movimiento
           "25.1%, 40%": { transform: "translate(20px, -15px)" }, // Pausa 1
-          "45%": { transform: "translate(-30px, 10px)" }, // Segundo movimiento
-          "45.1%, 70%": { transform: "translate(-30px, 10px)" }, // Pausa 2
+          "45%": { transform: "translate(2px, 0px)" }, // Segundo movimiento
+          "45.1%, 70%": { transform: "translate(2px, 0px)" }, // Pausa 2
           "75%": { transform: "translate(15px, -20px)" }, // Tercer movimiento
           "75.1%, 80%": { transform: "translate(15px, -20px)" }, // Pausa 3
-          "85%": { transform: "translate(-10px, 5px)" }, // Cuarto movimiento
-          "85.1%, 90%": { transform: "translate(-10px, 5px)" }, // Pausa 4
+          "85%": { transform: "translate(10px, -15px)" }, // Cuarto movimiento
+          "85.1%, 90%": { transform: "translate(10px, -15px)" }, // Pausa 4
           "95%": { transform: "translate(0, 0)" }, // Vuelve al centro
           "95.1%, 100%": { transform: "translate(0, 0)" }, // Espera final
         },

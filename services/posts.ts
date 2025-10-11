@@ -1,14 +1,14 @@
 import { api } from "@/lib/api"
 
+const directusUrl = process.env.DIRECTUS_URL
+
 export async function getFavTools() {
   try {
     const resp = await api("/por_fav_tools")
     console.log(resp)
     return resp.data.map((item) => ({
       ...item,
-      icon: item.icon
-        ? "https://directus-production-7043.up.railway.app/assets/" + item.icon
-        : null,
+      icon: item.icon ? directusUrl + item.icon : null,
     }))
   } catch (error) {
     return [
@@ -50,9 +50,6 @@ export async function getFavTools() {
       {
         title: "gsap",
         url: "https://gsap.com/",
-      },
-      {
-        url: "https://mintlify.com/",
       },
       {
         title: "RailWay",

@@ -8,11 +8,10 @@ import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 
-import { env } from "@/env.mjs"
 import { absoluteUrl, cn, formatDate } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import GoBackButton from "@/components/GoBackButton"
+import { Icons } from "@/components/icons"
 
 interface PostPageProps {
   params: {
@@ -41,7 +40,7 @@ export async function generateMetadata({
     return {}
   }
 
-  const url = env.NEXT_PUBLIC_APP_URL
+  const url = process.env.NEXT_PUBLIC_APP_URL
 
   const ogUrl = new URL(`${url}/api/og`)
 

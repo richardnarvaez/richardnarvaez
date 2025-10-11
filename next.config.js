@@ -1,6 +1,5 @@
 const { withContentlayer } = require("next-contentlayer")
 // const withMDX = require("@next/mdx")()
-// import "./env.mjs"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

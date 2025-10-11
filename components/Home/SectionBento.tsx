@@ -1,10 +1,15 @@
 "use client"
+
 /* eslint-disable tailwindcss/enforces-negative-arbitrary-values */
-import { ExternalLinkIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import CardTopTools from "./SectionBento/TopTools"
+import { ExternalLinkIcon } from "lucide-react"
+
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+
 import LinkedIn from "../Icons/brands/Linkedin"
+import ProfileInfoModal from "./ProfileInfoModal"
+import CardTopTools from "./SectionBento/TopTools"
 
 export default function SectionBento() {
   return (
@@ -25,7 +30,7 @@ export default function SectionBento() {
           width={700}
           height={900}
         />
-        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/30 transition-all group-hover:bg-black/50 ">
+        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30 ">
           <div className="w-fit rounded-br-xl bg-red-500 px-4 py-2">
             <p className="text-xs font-bold text-gray-300 ">NOW AVALIABLE</p>
           </div>
@@ -61,13 +66,13 @@ export default function SectionBento() {
             </div>
           </div>
 
-          <Image
+          {/* <Image
             alt=""
             className="absolute -right-[270px] -top-[80px] h-full w-full  rotate-45 object-cover opacity-0 transition-all duration-300 ease-out group-hover:right-0 group-hover:rotate-0 group-hover:opacity-100"
             src={"/images/home/me.webp"}
             width={700}
             height={900}
-          />
+          /> */}
         </div>
       </a>
       <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-0 border-white/20 p-4 font-bold transition-transform lg:col-span-2">
@@ -148,6 +153,7 @@ export default function SectionBento() {
               href="https://www.figma.com/@richardvnarvaez"
               target="_blank"
               rel="noreferrer noopener"
+              className="text-black/50 hover:text-black/70 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -171,6 +177,7 @@ export default function SectionBento() {
               href="https://twitter.com/richardvnarvaez"
               target="_blank"
               rel="noreferrer noopener"
+              className="text-black/50 hover:text-black/70 transition-colors"
             >
               <svg
                 width="22px"
@@ -195,6 +202,7 @@ export default function SectionBento() {
               href="https://github.com/richardnarvaez"
               target="_blank"
               rel="noreferrer noopener"
+              className="text-black/50 hover:text-black/70 transition-colors"
             >
               <svg
                 width="22px"
@@ -219,6 +227,7 @@ export default function SectionBento() {
               href="https://www.linkedin.com/in/richard-vinueza"
               target="_blank"
               rel="noreferrer noopener"
+              className="text-black/50 hover:text-black/70 transition-colors"
             >
               <LinkedIn width={22} height={22} />
             </a>
@@ -228,6 +237,7 @@ export default function SectionBento() {
               href="https://dribbble.com/RichardNarvaez"
               target="_blank"
               rel="noreferrer noopener"
+              className="text-black/50 hover:text-black/70 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -282,21 +292,25 @@ export default function SectionBento() {
               </p>
             </div>
           </Link>
-          <Link
-            href={"/#info"}
-            className="group relative flex h-40 items-center justify-center overflow-hidden rounded-3xl border-2 border-white bg-slate-800 text-center"
-          >
-            <Image
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
-              src={"/images/speech.png"}
-              width={700}
-              height={900}
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-              <p className="font-bold">About Me</p>
-            </div>
-          </Link>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-2 border-white bg-slate-800 text-center">
+                <Image
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
+                  src={"/images/speech.png"}
+                  width={700}
+                  height={900}
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <p className="font-bold">About Me</p>
+                </div>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl rounded-3xl sm:max-w-4xl max-h-[100vh] sm:max-h-[80vh] overflow-y-auto">
+              <ProfileInfoModal />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </section>

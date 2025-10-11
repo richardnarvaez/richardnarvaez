@@ -1,9 +1,12 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Barlow, Roboto_Mono, JetBrains_Mono } from "next/font/google"
-import ArrowFigma from "@/components/Icons/ArrowFigma"
 import { useEffect, useState } from "react"
+import { Barlow, JetBrains_Mono, Roboto_Mono } from "next/font/google"
+import Image from "next/image"
+import { motion } from "framer-motion"
+
+import { cn } from "@/lib/utils"
+import ArrowFigma from "@/components/Icons/ArrowFigma"
 
 const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 const robotoMono = Roboto_Mono({ subsets: ["latin"] })
@@ -119,13 +122,38 @@ export default function AnimatedTitle() {
         Richard Vinueza - CREATIVE DEVELOPER - SINCE 2014
       </h1>
 
+      <div
+        onClick={() => {
+          window.scrollTo({
+            top: window.innerHeight - 32,
+            behavior: "smooth",
+          })
+        }}
+        className={cn(
+          "flex items-center gap-2 text-center text-2xl text-gray-400",
+          // jetbrains.className,
+          "transition-all duration-300"
+        )}
+      >
+        {`Hey, I'm <`}
+        <div className="relative h-10 w-20 overflow-hidden rounded-full border-2 border-white bg-white transition-all duration-300 hover:scale-150">
+          <Image
+            src="/images/avatars/richard.jpg"
+            alt="Richard"
+            className="mt-3 scale-[1.9] grayscale"
+            width={300}
+            height={300}
+          />
+        </div>
+        {" Richard/>"}
+      </div>
       {/* Visual animated title */}
       <h2
         className={`${barlow.className} z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100`}
       >
         <span className="animate-fade-up-1 opacity-0">CREATIVE</span>
 
-        <span className="relative z-10 animate-fade-up-2 bg-black/30 px-4 py-1 opacity-0 backdrop-blur-sm">
+        <span className="relative z-10 mt-2 animate-fade-up-2 bg-black/30 px-4 py-1 opacity-0 backdrop-blur-sm">
           {/* Bordes y decoraciones */}
           <div className="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]" />
           <div className="border-h absolute -left-20 bottom-[-1px] right-0 h-1 w-[130%]"></div>
@@ -136,11 +164,6 @@ export default function AnimatedTitle() {
           <div className="absolute -bottom-1.5 -left-1.5  h-3 w-3  border-2 border-gray-400  bg-white "></div>
           <div className="absolute -bottom-1.5 -right-1.5  h-3 w-3  border-2 border-gray-400  bg-white "></div>
           <div className="absolute -right-1.5 -top-1.5  h-3 w-3  border-2 border-gray-400 bg-white  shadow"></div>
-          {/*
-          <div className="absolute inset-x-0 -top-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-x-0 -bottom-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-y-0 -left-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div>
-          <div className="absolute inset-y-0 -right-1.5 m-auto  h-3 w-3  border border-gray-400 bg-gradient-to-br from-gray-300 to-gray-400 shadow"></div> */}
 
           {/* <HackerText /> */}
           <p className="opacity-80">
