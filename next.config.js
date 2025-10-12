@@ -18,9 +18,6 @@ const nextConfig = {
       { protocol: "https", hostname: "asset.brandfetch.io" },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client"],
-  },
 }
 
 module.exports = withContentlayer(nextConfig)
