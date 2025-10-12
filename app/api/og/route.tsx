@@ -97,7 +97,7 @@ export async function GET(req: Request) {
             width={100}
             height={100}
             alt="Logo"
-            src="https://richard.darkpixl.com/images/logo-richard.png"
+            src="https://vinueza.dev/images/logo-richard.png"
           />
           <div tw="flex flex-col flex-1 py-10">
             <div

@@ -50,7 +50,7 @@ export default function SectionListOfProjects({ posts }) {
       id="products"
       className=" mx-auto  grid  grid-cols-1 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
     >
-      <div className="col-span-full mx-auto  mt-16 mb-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+      <div className="col-span-full mx-auto  mb-16 mt-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
           Projects and Products
         </p>
@@ -65,7 +65,7 @@ export default function SectionListOfProjects({ posts }) {
               key={"post-" + post._id}
               href={post.slug}
               className={
-                "group col-span-1 cursor-pointer transition-all bg-white aspect-video "
+                "group col-span-1 aspect-video cursor-pointer bg-white transition-all "
               }
             >
               {post.image && (
@@ -75,7 +75,7 @@ export default function SectionListOfProjects({ posts }) {
                   width={720}
                   height={405}
                   priority={index <= 1}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
               )}
               <div className="absolute inset-x-0 bottom-0 hidden w-full bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12 group-hover:visible">
@@ -113,7 +113,7 @@ export default function SectionListOfProjects({ posts }) {
             </Link>
           ))}
 
-          <div className="mt-8 col-span-full flex w-full justify-center">
+          <div className="col-span-full mt-8 flex w-full justify-center">
             <Link
               href={"/projects"}
               className="rounded-md bg-white px-4 py-2 font-semibold text-slate-800"

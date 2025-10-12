@@ -153,7 +153,7 @@ export default function SectionBento() {
               href="https://www.figma.com/@richardvnarvaez"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-black/50 hover:text-black/70 transition-colors"
+              className="text-black/50 transition-colors hover:text-black/70"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +177,7 @@ export default function SectionBento() {
               href="https://twitter.com/richardvnarvaez"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-black/50 hover:text-black/70 transition-colors"
+              className="text-black/50 transition-colors hover:text-black/70"
             >
               <svg
                 width="22px"
@@ -202,7 +202,7 @@ export default function SectionBento() {
               href="https://github.com/richardnarvaez"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-black/50 hover:text-black/70 transition-colors"
+              className="text-black/50 transition-colors hover:text-black/70"
             >
               <svg
                 width="22px"
@@ -227,7 +227,7 @@ export default function SectionBento() {
               href="https://www.linkedin.com/in/richard-vinueza"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-black/50 hover:text-black/70 transition-colors"
+              className="text-black/50 transition-colors hover:text-black/70"
             >
               <LinkedIn width={22} height={22} />
             </a>
@@ -237,7 +237,7 @@ export default function SectionBento() {
               href="https://dribbble.com/RichardNarvaez"
               target="_blank"
               rel="noreferrer noopener"
-              className="text-black/50 hover:text-black/70 transition-colors"
+              className="text-black/50 transition-colors hover:text-black/70"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -307,7 +307,7 @@ export default function SectionBento() {
                 </div>
               </button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl rounded-3xl sm:max-w-4xl max-h-[100vh] sm:max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-h-[100vh] max-w-3xl overflow-y-auto rounded-3xl sm:max-h-[80vh] sm:max-w-4xl">
               <ProfileInfoModal />
             </DialogContent>
           </Dialog>

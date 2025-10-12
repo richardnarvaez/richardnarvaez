@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 }
 
 export const metadata = {
-  metadataBase: new URL("https://richard.darkpixl.com"),
+  metadataBase: new URL("https://vinueza.dev"),
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
