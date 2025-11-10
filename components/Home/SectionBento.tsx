@@ -60,7 +60,7 @@ export default function SectionBento() {
           src={"/images/blog/huma/huma-bg.jpg"}
           width={960}
           height={540}
-          className="absolute top-0 h-full w-full scale-105 opacity-75 blur-md transition-all group-hover:scale-125 group-hover:blur-lg"
+          className="absolute top-0 h-full w-full scale-105 opacity-75 blur-sm transition-all group-hover:scale-125"
         />
         <p className="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm text-black/60">
           NEW
