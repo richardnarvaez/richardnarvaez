@@ -115,7 +115,7 @@ const GradualBlur = props => {
   const isVisible = useIntersectionObserver(containerRef, config.animated === 'scroll');
 
   const blurDivs = useMemo(() => {
-    const divs = [];
+    const divs: React.ReactElement[] = [];
     const increment = 100 / config.divCount;
     const currentStrength =
       isHovered && config.hoverIntensity ? config.strength * config.hoverIntensity : config.strength;
@@ -128,7 +128,7 @@ const GradualBlur = props => {
 
       let blurValue;
       if (config.exponential) {
-        blurValue = math.pow(2, progress * 4) * 0.0625 * currentStrength;
+        blurValue = Number(math.pow(2, progress * 4)) * 0.0625 * currentStrength;
       } else {
         blurValue = 0.0625 * (progress * config.divCount + 1) * currentStrength;
       }
@@ -142,7 +142,7 @@ const GradualBlur = props => {
 
       const direction = getGradientDirection(config.position);
 
-      const divStyle = {
+      const divStyle: React.CSSProperties = {
         position: 'absolute',
         inset: '0',
         maskImage: `linear-gradient(${direction}, ${gradient})`,
@@ -215,6 +215,13 @@ const GradualBlur = props => {
 };
 const GradualBlurMemo = React.memo(GradualBlur);
 GradualBlurMemo.displayName = 'GradualBlur';
-GradualBlurMemo.PRESETS = PRESETS;
-GradualBlurMemo.CURVE_FUNCTIONS = CURVE_FUNCTIONS;
-export default GradualBlurMemo;
+
+const GradualBlurWithPresets = GradualBlurMemo as typeof GradualBlurMemo & {
+  PRESETS: typeof PRESETS;
+  CURVE_FUNCTIONS: typeof CURVE_FUNCTIONS;
+};
+
+GradualBlurWithPresets.PRESETS = PRESETS;
+GradualBlurWithPresets.CURVE_FUNCTIONS = CURVE_FUNCTIONS;
+
+export default GradualBlurWithPresets;
