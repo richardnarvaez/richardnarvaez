@@ -43,8 +43,6 @@ export default async function IndexPage() {
 
       <SectionListOfProjects posts={posts} />
 
-      {/* <SectionFavTools tools={favTools} /> */}
-
       <FeaturedSections dataList={playgroundComponents} />
 
       <SectionFrameworksNStak />
