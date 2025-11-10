@@ -412,7 +412,10 @@ const VideoLyrics: React.FC<VideoLyricsProps> = ({
         className={`w-full ${videoClassName} sticky top-0 z-10 aspect-video w-[200px] overflow-hidden rounded-lg bg-black`}
         controls
       />
-      <div ref={containerRef} className="relative my-5 min-h-[400px] p-4">
+      <div
+        ref={containerRef}
+        className="pointer-events-none relative m-5 min-h-[400px]"
+      >
         {lyrics.segments.map((segment, segmentIndex) => {
           const segmentWords = segment.words.filter((w) => w.type === "word")
           const segmentStart =
