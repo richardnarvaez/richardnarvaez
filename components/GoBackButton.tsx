@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "./ui/button"
@@ -8,7 +8,9 @@ export default function GoBackButton() {
   return (
     <button
       type="button"
-      onClick={()=> {window.history.go(-1)}}
+      onClick={() => {
+        window.history.go(-1)
+      }}
       className={cn(
         buttonVariants({ variant: "ghost" }),
         "absolute left-[-200px] top-14 hidden xl:inline-flex"

@@ -1,41 +1,15 @@
 import { ImageResponse } from "@vercel/og"
 
-import { ogImageSchema } from "@/lib/validations/og"
 import { NextRequest } from "next/server"
 
 export const runtime = "edge"
-
-// const interRegular = fetch(
-//   new URL("../../../../assets/fonts/Inter-Regular.ttf", import.meta.url)
-// ).then((res) => res.arrayBuffer())
-
-// const interBold = fetch(
-//   new URL("../../../../assets/fonts/CalSans-SemiBold.ttf", import.meta.url)
-// ).then((res) => res.arrayBuffer())
 
 export const alt = "Open Graph"
 export const contentType = "image/png"
 export const size = { width: 1200, height: 630 }
 
 export default async function Image(req: NextRequest) {
-  console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
   try {
-    // const fontRegular = await interRegular
-    // const fontBold = await interBold
-    console.log("Hola34", req)
-    // const url = new URL(req.url)
-    console.log("Hola44")
-    // const values = ogImageSchema.parse(Object.fromEntries(url.searchParams))
-    // const heading =
-    //   values.heading.length > 140
-    //     ? `${values.heading.substring(0, 140)}...`
-    //     : values.heading
-    //     console.log("Hola2")
-    // const { mode } = values
-    // const paint = mode === "dark" ? "#fff" : "#000"
-
-    // const fontSize = heading.length > 100 ? "70px" : "100px"
-    console.log("Hola")
     return new ImageResponse(
       (
         <div
@@ -88,7 +62,7 @@ export default async function Image(req: NextRequest) {
                 marginLeft: "-3px",
               }}
             >
-             HEEEEEEEE
+              HEEEEEEEE
             </div>
           </div>
           <div tw="flex items-center w-full justify-between">
@@ -126,20 +100,6 @@ export default async function Image(req: NextRequest) {
       {
         width: 1200,
         height: 630,
-        // fonts: [
-        //   {
-        //     name: "Inter",
-        //     data: fontRegular,
-        //     weight: 400,
-        //     style: "normal",
-        //   },
-        //   {
-        //     name: "Cal Sans",
-        //     data: fontBold,
-        //     weight: 700,
-        //     style: "normal",
-        //   },
-        // ],
       }
     )
   } catch (error) {

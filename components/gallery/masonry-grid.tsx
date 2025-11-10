@@ -14,20 +14,17 @@ export default function MasonryGrid({ items }: MasonryGridProps) {
 
   return (
     <>
-      <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+      <div className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3 xl:columns-4">
         {items.map((item) => (
           <div key={item.id} className="break-inside-avoid">
-            <GalleryCard 
-              item={item} 
-              onClick={() => setSelectedItem(item)}
-            />
+            <GalleryCard item={item} onClick={() => setSelectedItem(item)} />
           </div>
         ))}
       </div>
 
       {/* Modal */}
       {selectedItem && (
-        <GalleryModal 
+        <GalleryModal
           item={selectedItem}
           onClose={() => setSelectedItem(null)}
         />
