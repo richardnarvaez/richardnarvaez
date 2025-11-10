@@ -1,8 +1,6 @@
-import Link from "next/link"
 import { allPosts } from "@/.contentlayer/generated"
 import { getFavTools } from "@/services/posts"
 import { compareDesc } from "date-fns"
-import { LinkIcon } from "lucide-react"
 
 import Header from "@/components/Home/Header"
 import SectionBento from "@/components/Home/SectionBento"
@@ -10,24 +8,22 @@ import SectionFrameworksNStak from "@/components/Home/SectionFrameworksNStack"
 import SectionInspiration from "@/components/Home/SectionInspiration"
 import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
 import SectionOpenSource from "@/components/Home/SectionOpenSource"
-import ImageCustom from "@/components/ImageCustom"
+import SectionFavTools from "@/components/Home/SectionFavTools"
 import { ScrollToTopButton } from "@/components/SrollTopButton"
-
-interface Tool {
-  title?: string
-  description?: string
-  url?: string
-  icon?: string
-}
+import FeaturedSections from "@/components/featured-sections"
+import { getPhotography } from "@/lib/gallery-data"
+import { getAllPlaygroundComponents } from "@/lib/gallery-data"
 
 export default async function IndexPage() {
-  let favTools: Tool[] = await getFavTools()
+  const [favTools, photographyItems, playgroundComponents] = await Promise.all([
+    getFavTools(),
+    getPhotography(),
+    getAllPlaygroundComponents(),
+  ])
 
   const posts = allPosts
     .filter((post) => post.published && post.highlight)
-    .sort((a, b) => {
-      return compareDesc(new Date(a.date), new Date(b.date))
-    })
+    .sort((a, b) => compareDesc(new Date(a.date), new Date(b.date)))
 
   return (
     <div>
@@ -48,60 +44,31 @@ export default async function IndexPage() {
 
       <SectionListOfProjects posts={posts} />
 
-      {/* <section
-        id="tools"
-        className="flex min-h-[100vh] items-center p-8 md:p-32 "
-      >
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          {favTools?.map((item, index) => {
-            return (
-              <div
-                key={"ite-" + index}
-                className={
-                  "flex w-fit items-center justify-between gap-4 rounded-lg  bg-slate-800 p-4 " +
-                  (!item.title ? "opacity-30" : "")
-                }
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={
-                      "flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-slate-900 "
-                    }
-                  >
-                    <ImageCustom
-                      alt={item.title || ""}
-                      src={item.icon || ""}
-                      width={64}
-                      height={64}
-                    />
-                  </div>
-                  <div className="grid max-w-[132px] flex-1">
-                    <p className="font-bold">{item.title}</p>
-                    <label
-                      title={item.description}
-                      className="truncate text-white/50"
-                    >
-                      {item.description}
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  {item.url && (
-                    <Link href={item.url} target="_blank">
-                      <LinkIcon className="text-white/70" />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </section> */}
+      {/* <SectionFavTools tools={favTools} /> */}
+
+      <FeaturedSections dataList={playgroundComponents} />
 
       <SectionFrameworksNStak />
 
-      {/* <SectionInspiration /> */}
       <SectionOpenSource />
     </div>
   )
 }
+
+/**
+ * Hero
+ * The last
+ * - Mis favoritos
+ * - Huma
+ * - Link de figma
+ *    - Prueba Social perfiles y numeros.
+ * - Redes Sociales
+ *    - Github
+ *    - Linkedin
+ * Top Projects
+ * Sandbox
+ * Frameworks
+ *  - Animacion de la Mac
+ * OpenSource links
+ * Footer
+ */

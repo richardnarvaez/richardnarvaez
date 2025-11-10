@@ -81,7 +81,7 @@ export const metadata = {
     shortcut: "/images/logo-richard.png",
     apple: "/images/logo-richard.png",
   },
-  manifest: `${siteConfig.url}/site.webmanifest`,
+  manifest: "/site.webmanifest",
 }
 
 const jsonLd = {
@@ -102,6 +102,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body
+        suppressHydrationWarning
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,

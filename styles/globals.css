@@ -1,6 +1,16 @@
+/* Safari overflow fix - disable scale effect completely */
+@supports (-webkit-appearance: none) {
+  .gallery-card .group-hover\:scale-105 {
+    transform: none !important;
+    -webkit-transform: none !important;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import "./blueprint.css";
 
 .border-h {
   background-image: linear-gradient(

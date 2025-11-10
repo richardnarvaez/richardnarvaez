@@ -1,0 +1,97 @@
+"use client"
+
+import { useState } from "react"
+import { GalleryItem } from "@/lib/gallery-types"
+
+interface ImageModalProps {
+  item: GalleryItem
+  onClose: () => void
+}
+
+export default function ImageModal({ item, onClose }: ImageModalProps) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/20 bg-gray-900/95 shadow-2xl">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/20 p-4">
+        <h2 className="text-xl font-bold text-white">{item.title}</h2>
+        <button
+          onClick={onClose}
+          aria-label="Close modal"
+          className="rounded-full p-2 transition-colors hover:bg-white/10"
+        >
+          <svg
+            className="h-5 w-5 text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        {/* Media */}
+        <div className="mb-4">
+          {item.thumbnail.type === "video" ? (
+            <video className="w-full rounded-lg" controls autoPlay muted>
+              <source src={item.thumbnail.url} type="video/mp4" />
+            </video>
+          ) : (
+            <div className="relative aspect-video overflow-hidden rounded-lg">
+              <img
+                src={item.thumbnail.url}
+                alt={item.title}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="space-y-3">
+          {/* Description */}
+          {item.type === "photo" &&
+            "description" in item &&
+            item.description && (
+              <p className="text-gray-300">{item.description}</p>
+            )}
+
+          {/* Camera info for photos */}
+          {item.type === "photo" && "camera" in item && item.camera && (
+            <div className="text-sm text-gray-400">
+              <span className="font-semibold">Camera:</span> {item.camera}
+            </div>
+          )}
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            {item.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-gray-700/50 px-3 py-1 text-sm text-gray-200"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Date */}
+          <div className="text-sm text-gray-400">
+            {new Date(item.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

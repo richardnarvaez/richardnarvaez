@@ -1,11 +1,11 @@
 "use client"
 
-import { Barlow } from "next/font/google"
 import Image from "next/image"
 import Link from "next/link"
 import { LaptopIcon, MapPinIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { barlow } from "@/lib/fonts"
 import { buttonVariants } from "@/components/ui/button"
 import {
   HoverCard,
@@ -24,8 +24,6 @@ import {
 import FlagEC from "@/components/Icons/flags/ec"
 import FlagES from "@/components/Icons/flags/es"
 import { Signature } from "@/components/signature"
-
-const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
 
 export default function ProfileInfoModal() {
   return (

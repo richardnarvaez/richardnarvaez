@@ -1,0 +1,119 @@
+/* Blueprint background styles */
+.blueprint-bg {
+  background-image: radial-gradient(circle, #ff512f 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: hsl(244, 31%, 10%);
+  position: relative;
+}
+
+.blueprint-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.3;
+}
+
+.blueprint-grid {
+  background-image: radial-gradient(circle, #ff512f 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px, 20px 20px, 20px 20px;
+}
+
+.blueprint-canvas {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border: 2px dashed #ff512f;
+  border-radius: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.blueprint-canvas::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, #ff512f 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.1;
+}
+
+/* Blueprint annotation styles */
+.blueprint-annotation {
+  position: relative;
+}
+
+.blueprint-annotation::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+  opacity: 0.5;
+}
+
+.blueprint-dimension {
+  position: relative;
+}
+
+.blueprint-dimension::after {
+  content: "← 400px →";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3b82f6;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Blueprint corner decorations */
+.blueprint-corner {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #3b82f6;
+  background: white;
+}
+
+.blueprint-corner.top-left {
+  top: -6px;
+  left: -6px;
+}
+
+.blueprint-corner.top-right {
+  top: -6px;
+  right: -6px;
+}
+
+.blueprint-corner.bottom-left {
+  bottom: -6px;
+  left: -6px;
+}
+
+.blueprint-corner.bottom-right {
+  bottom: -6px;
+  right: -6px;
+}

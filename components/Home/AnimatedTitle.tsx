@@ -1,16 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Barlow, JetBrains_Mono, Roboto_Mono } from "next/font/google"
 import Image from "next/image"
 import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
+import { barlow, jetbrains, robotoMono, caveatBrush } from "@/lib/fonts"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
-
-const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })
-const robotoMono = Roboto_Mono({ subsets: ["latin"] })
-const jetbrains = JetBrains_Mono({ subsets: ["latin"] })
 
 // Caracteres más similares en ancho para reducir el salto
 const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%"
@@ -115,6 +111,10 @@ function Cursor() {
 }
 
 export default function AnimatedTitle() {
+  const START_YEAR = 2014
+  const currentYear = new Date().getFullYear()
+  const yearsOfExperience = currentYear - START_YEAR
+
   return (
     <>
       {/* SEO title - hidden visually but available to screen readers and search engines */}
@@ -131,7 +131,7 @@ export default function AnimatedTitle() {
         }}
         className={cn(
           "flex items-center gap-2 text-center text-2xl text-gray-400",
-          // jetbrains.className,
+          jetbrains.className,
           "transition-all duration-300"
         )}
       >
@@ -149,7 +149,10 @@ export default function AnimatedTitle() {
       </div>
       {/* Visual animated title */}
       <h2
-        className={`${barlow.className} z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100`}
+        className={cn(
+          barlow.className,
+          "z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100"
+        )}
       >
         <span className="animate-fade-up-1 opacity-0">CREATIVE</span>
 
