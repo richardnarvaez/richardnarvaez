@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ExternalLinkIcon } from "lucide-react"
 
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import GradualBlur from "@/components/ui/gradual-blur"
 
 import LinkedIn from "../Icons/brands/Linkedin"
 import ProfileInfoModal from "./ProfileInfoModal"
@@ -34,21 +35,23 @@ export default function SectionBento() {
           <div className="w-fit rounded-br-xl bg-white px-4 py-2">
             <p className="text-xs font-bold text-gray-500 ">NOW AVALIABLE</p>
           </div>
-          <div className="">
-            <div className="bg-gradient-to-t from-black/50 to-transparent p-4 font-bold backdrop-blur-sm">
+          <div className="relative">
+            <div className="relative z-[1010] bg-gradient-to-t from-black/50 to-transparent p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
               <p className="text-3xl ">View or Download Resume in PDF</p>
               <p className="text-sm ">{"It's free, so take a look."}</p>
             </div>
+            <GradualBlur
+              target="parent"
+              position="bottom"
+              height="10rem"
+              strength={1}
+              divCount={5}
+              curve="bezier"
+              exponential={true}
+              opacity={1}
+            />
           </div>
-
-          {/* <Image
-            alt=""
-            className="absolute -right-[270px] -top-[80px] h-full w-full  rotate-45 object-cover opacity-0 transition-all duration-300 ease-out group-hover:right-0 group-hover:rotate-0 group-hover:opacity-100"
-            src={"/images/home/me.webp"}
-            width={700}
-            height={900}
-          /> */}
         </div>
       </a>
       <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-0 border-white/20 p-4 font-bold transition-transform lg:col-span-2">
