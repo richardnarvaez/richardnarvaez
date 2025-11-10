@@ -1,11 +1,13 @@
 "use client"
 
-import { AnimatePresence, motion } from "framer-motion"
 import { useEffect, useId, useRef, useState } from "react"
-import BlurText from "./blur-text"
-import { cn } from "@/lib/utils"
-import { barlow } from "@/lib/fonts"
+import { AnimatePresence, motion } from "framer-motion"
 import { CheckIcon, ChevronDownIcon } from "lucide-react"
+
+import { barlow } from "@/lib/fonts"
+import { cn } from "@/lib/utils"
+
+import BlurText from "./blur-text"
 
 const options = ["Travel", "Bucket List"]
 
@@ -44,7 +46,7 @@ export default function DropDownBlur() {
           aria-haspopup="listbox"
           aria-label={selected}
           aria-controls={menuId}
-          className="flex  items-center gap-3 rounded-3xl border border-white/60 bg-white/80 px-7 py-4 text-black/90  transition hover:border-white focus-visible:border-black/20"
+          className="flex items-center gap-3 rounded-3xl border border-white/60 bg-white/80 px-7 py-4 text-black/90 transition hover:border-white focus-visible:border-black/20"
           onClick={() => setOpen((value) => !value)}
           type="button"
         >

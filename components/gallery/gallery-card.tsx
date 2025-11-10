@@ -3,7 +3,8 @@
 import { useRef, useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { GalleryItem, chipStyles, chipLabels } from "@/lib/gallery-types"
+
+import { GalleryItem, chipLabels, chipStyles } from "@/lib/gallery-types"
 
 interface GalleryCardProps {
   item: GalleryItem

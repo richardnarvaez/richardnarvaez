@@ -1,3 +1,8 @@
+// Convertir componentes playground a gallery items (función legacy)
+
+import { playgroundComponents } from "@/lib/gallery-data"
+import { PlaygroundItem } from "@/lib/gallery-types"
+
 // Re-exportar desde gallery-data.ts para mantener compatibilidad
 export type { PlaygroundComponent } from "@/lib/gallery-data"
 
@@ -8,10 +13,6 @@ export {
   getPlaygroundComponentsByCategory,
   searchPlaygroundComponents,
 } from "@/lib/gallery-data"
-
-// Convertir componentes playground a gallery items (función legacy)
-import { PlaygroundItem } from "@/lib/gallery-types"
-import { playgroundComponents } from "@/lib/gallery-data"
 
 export function getPlaygroundComponents(): PlaygroundItem[] {
   return playgroundComponents.map((comp) => ({

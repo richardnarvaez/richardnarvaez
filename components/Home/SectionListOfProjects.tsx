@@ -48,9 +48,9 @@ export default function SectionListOfProjects({ posts }) {
   return (
     <section
       id="products"
-      className=" mx-auto  grid  grid-cols-1 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
+      className="mx-auto grid grid-cols-1 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
     >
-      <div className="col-span-full mx-auto  my-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+      <div className="col-span-full mx-auto my-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
           Projects and Products
         </p>
@@ -65,7 +65,7 @@ export default function SectionListOfProjects({ posts }) {
               key={"post-" + post._id}
               href={post.slug}
               className={
-                "group col-span-1 aspect-video cursor-pointer bg-white transition-all "
+                "group col-span-1 aspect-video cursor-pointer bg-white transition-all"
               }
             >
               {post.image && (
@@ -99,7 +99,7 @@ export default function SectionListOfProjects({ posts }) {
                               "status-" + chip + "-" + post._id + "-" + index
                             }
                             className={
-                              " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
+                              "max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
                               (getColorOfStatus[chip] || "")
                             }
                           >

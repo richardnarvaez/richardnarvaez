@@ -1,7 +1,7 @@
 "use client"
 
-import { cn } from "@/lib/utils"
 import { barlow } from "@/lib/fonts"
+import { cn } from "@/lib/utils"
 
 export default function LyricsAnimation() {
   return (

@@ -1,5 +1,5 @@
-import { SiteFooter } from "@/components/site-footer"
 import MainNavigation from "@/components/main-navigation"
+import { SiteFooter } from "@/components/site-footer"
 
 interface MarketingLayoutProps {
   children: React.ReactNode

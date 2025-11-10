@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import Image from "next/image"
+import Link from "next/link"
+
 import { PlaygroundComponent } from "@/lib/gallery-data"
 import { PlaygroundItem } from "@/lib/gallery-types"
 import GalleryModal from "@/components/gallery/gallery-modal"
@@ -191,7 +192,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               }}
               onClick={() => handleCardClick(1)}
             >
-              <div className="relative h-[280px] w-[300px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15  backdrop-blur-sm">
+              <div className="relative h-[280px] w-[300px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 {featuredComponents[1] ? (
                   <>
                     <div className="flex h-[280px] w-[280px] items-center justify-center">

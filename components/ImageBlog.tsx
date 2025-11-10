@@ -1,4 +1,5 @@
 "use client"
+
 import Image from "next/image"
 
 export default function ImageBlog(props: any) {

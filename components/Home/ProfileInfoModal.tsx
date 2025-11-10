@@ -4,8 +4,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { LaptopIcon, MapPinIcon } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { barlow } from "@/lib/fonts"
+import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import {
   HoverCard,
@@ -27,7 +27,7 @@ import { Signature } from "@/components/signature"
 
 export default function ProfileInfoModal() {
   return (
-    <div className=" w-full items-center justify-start space-y-6 text-center">
+    <div className="w-full items-center justify-start space-y-6 text-center">
       <div className="relative mb-6 flex w-full items-center gap-4 overflow-hidden rounded-xl bg-white/5 px-8 py-6">
         <Image
           src={"/images/avatars/richard.jpg"}
@@ -87,7 +87,7 @@ export default function ProfileInfoModal() {
               Mobile
             </span>
           </HoverCardTrigger>
-          <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+          <HoverCardContent className="border-2 border-slate-700 bg-slate-900">
             <ul className="text-left text-sm">
               <li>Android/iOS</li>
               <li>React Native/Flutter</li>
@@ -98,11 +98,11 @@ export default function ProfileInfoModal() {
         stuff when I was 12. Some time later I decided to pivot my focus to{" "}
         <HoverCard>
           <HoverCardTrigger asChild>
-            <span className="cursor-pointer rounded-sm  border px-1 font-bold ">
+            <span className="cursor-pointer rounded-sm border px-1 font-bold">
               Web
             </span>
           </HoverCardTrigger>
-          <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+          <HoverCardContent className="border-2 border-slate-700 bg-slate-900">
             <ul className="text-left text-sm">
               <li>React/NextJS</li>
               <li>Angular</li>
@@ -119,7 +119,7 @@ export default function ProfileInfoModal() {
               UI/UX
             </span>
           </HoverCardTrigger>
-          <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+          <HoverCardContent className="border-2 border-slate-700 bg-slate-900">
             <ul className="text-left text-sm">
               <li>Figma/Adobe Suite</li>
               <li>Wireframes</li>
@@ -132,11 +132,11 @@ export default function ProfileInfoModal() {
         and of course I learned about{" "}
         <HoverCard>
           <HoverCardTrigger asChild>
-            <span className="cursor-pointer rounded-sm border bg-white/10 px-1 font-bold ">
+            <span className="cursor-pointer rounded-sm border bg-white/10 px-1 font-bold">
               Cloud
             </span>
           </HoverCardTrigger>
-          <HoverCardContent className=" border-2 border-slate-700 bg-slate-900">
+          <HoverCardContent className="border-2 border-slate-700 bg-slate-900">
             <ul className="text-left text-sm">
               <li>AWS/GCP/Azure/DO</li>
               <li>CI/CD/DevOps</li>
@@ -152,8 +152,8 @@ export default function ProfileInfoModal() {
       </h4>
 
       <div className="flex w-full items-center justify-center gap-4 pt-12">
-        <div className=" w-full border-b-2 border-dashed"></div>
-        <h3 className=" text-sm font-medium">CERTIFICATIONS</h3>
+        <div className="w-full border-b-2 border-dashed"></div>
+        <h3 className="text-sm font-medium">CERTIFICATIONS</h3>
         <div className="w-full border-b-2 border-dashed"></div>
       </div>
 
@@ -187,8 +187,8 @@ export default function ProfileInfoModal() {
       </div>
 
       <div className="mb-12 flex w-full items-center justify-center gap-4 pt-8">
-        <div className=" w-full border-b-2 border-dashed"></div>
-        <h3 className=" text-sm font-medium">REWARDS</h3>
+        <div className="w-full border-b-2 border-dashed"></div>
+        <h3 className="text-sm font-medium">REWARDS</h3>
         <div className="w-full border-b-2 border-dashed"></div>
       </div>
 

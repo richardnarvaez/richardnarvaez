@@ -13,21 +13,22 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.1) 1px,
-      transparent 1px
-    ),
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
   opacity: 0.3;
 }
 
 .blueprint-grid {
-  background-image: radial-gradient(circle, #ff512f 1px, transparent 1px),
+  background-image:
+    radial-gradient(circle, #ff512f 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px, 20px 20px, 20px 20px;
+  background-size:
+    20px 20px,
+    20px 20px,
+    20px 20px;
 }
 
 .blueprint-canvas {

@@ -1,6 +1,6 @@
 import { getWorkGallery } from "@/lib/gallery-data"
-import MasonryGrid from "@/components/gallery/masonry-grid"
 import GalleryFilters from "@/components/gallery/gallery-filters"
+import MasonryGrid from "@/components/gallery/masonry-grid"
 
 export const metadata = {
   title: "Gallery - Work & Projects",

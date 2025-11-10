@@ -1,7 +1,8 @@
 "use client"
 
-import { ProjectItem } from "@/lib/gallery-types"
 import Link from "next/link"
+
+import { ProjectItem } from "@/lib/gallery-types"
 
 interface ProjectModalProps {
   item: ProjectItem

@@ -1,8 +1,10 @@
 "use client"
-import { Dialog, DialogTrigger } from "@/components/ui/dialog"
-import { LinkIcon } from "lucide-react"
+
 import Image from "next/image"
 import Link from "next/link"
+import { LinkIcon } from "lucide-react"
+
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 
 export default function CardTopTools() {
   return (
@@ -36,7 +38,7 @@ const ItemTop = ({ item }: any) => {
   return (
     <div
       className={
-        "flex w-full items-center justify-between gap-4 rounded-lg  bg-slate-800 p-4 " +
+        "flex w-full items-center justify-between gap-4 rounded-lg bg-slate-800 p-4 " +
         (!item.title ? "opacity-30" : "")
       }
     >

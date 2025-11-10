@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+
 import { GalleryItem } from "@/lib/gallery-types"
+
 import GalleryCard from "./gallery-card"
 import GalleryModal from "./gallery-modal"
 

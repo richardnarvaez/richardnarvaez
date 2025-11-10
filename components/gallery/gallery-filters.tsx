@@ -25,14 +25,11 @@ export default function GalleryFilters() {
             <Link
               key={filter.id}
               href={filter.href}
-              className={`
-                rounded-xl px-6 py-3 font-semibold transition-all duration-200
-                ${
-                  activeFilter === filter.id
-                    ? "bg-[#FF512F] text-white shadow-lg"
-                    : "text-gray-300 hover:bg-white/10"
-                }
-              `}
+              className={`rounded-xl px-6 py-3 font-semibold transition-all duration-200 ${
+                activeFilter === filter.id
+                  ? "bg-[#FF512F] text-white shadow-lg"
+                  : "text-gray-300 hover:bg-white/10"
+              } `}
             >
               {filter.label}
             </Link>

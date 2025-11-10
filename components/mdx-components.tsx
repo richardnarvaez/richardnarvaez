@@ -1,9 +1,9 @@
 import * as React from "react"
 import Image from "next/image"
-import ImageBlog from "@/components/ImageBlog"
 import { useMDXComponent } from "next-contentlayer/hooks"
 
 import { cn } from "@/lib/utils"
+import ImageBlog from "@/components/ImageBlog"
 import { Callout } from "@/components/callout"
 import { MdxCard } from "@/components/mdx-card"
 

@@ -31,15 +31,15 @@ export default function SectionBento() {
           width={700}
           height={900}
         />
-        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30 ">
+        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30">
           <div className="w-fit rounded-br-xl bg-white px-4 py-2">
-            <p className="text-xs font-bold text-gray-500 ">NOW AVALIABLE</p>
+            <p className="text-xs font-bold text-gray-500">NOW AVALIABLE</p>
           </div>
           <div className="relative">
             <div className="relative z-[1010] bg-gradient-to-t from-black/50 to-transparent p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
-              <p className="text-3xl ">View or Download Resume in PDF</p>
-              <p className="text-sm ">{"It's free, so take a look."}</p>
+              <p className="text-3xl">View or Download Resume in PDF</p>
+              <p className="text-sm">{"It's free, so take a look."}</p>
             </div>
             <GradualBlur
               target="parent"
@@ -60,9 +60,9 @@ export default function SectionBento() {
           src={"/images/blog/huma/huma-bg.jpg"}
           width={960}
           height={540}
-          className="absolute top-0 h-full w-full scale-105 opacity-75 blur-md transition-all  group-hover:scale-125 group-hover:blur-lg "
+          className="absolute top-0 h-full w-full scale-105 opacity-75 blur-md transition-all group-hover:scale-125 group-hover:blur-lg"
         />
-        <p className="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm  text-black/60">
+        <p className="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm text-black/60">
           NEW
         </p>
         <div className="z-10 m-4 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
@@ -96,7 +96,7 @@ export default function SectionBento() {
       </div>
       <Link
         href={"/#stack"}
-        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-3xl bg-[#23293C]  md:h-full lg:h-auto "
+        className="group relative h-[500px] w-full cursor-pointer overflow-hidden rounded-3xl bg-[#23293C] md:h-full lg:h-auto"
       >
         <div
           className="p-4 font-bold"
@@ -108,17 +108,17 @@ export default function SectionBento() {
           }}
         >
           <p className="text-md text-white/75">TECHNOLOGIES</p>
-          <p className="text-3xl ">Tools and Frameworks</p>
+          <p className="text-3xl">Tools and Frameworks</p>
         </div>
         <Image
           alt=""
-          className="absolute -bottom-8 -right-8 w-full  -rotate-12 scale-125 transition-transform ease-out group-hover:scale-150"
+          className="absolute -bottom-8 -right-8 w-full -rotate-12 scale-125 transition-transform ease-out group-hover:scale-150"
           src={"/images/IconsTech.png"}
           width={800}
           height={800}
         />
       </Link>
-      <div className=" grid w-full cursor-pointer grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2">
+      <div className="grid w-full cursor-pointer grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2">
         <div className="grid grid-cols-1 gap-3">
           {/* <button
             onClick={() => alert("Coming soon")}
@@ -130,7 +130,7 @@ export default function SectionBento() {
           {/* <CardTopTools /> */}
           <Dialog>
             <DialogTrigger asChild>
-              <button className="group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl  bg-slate-800 text-center">
+              <button className="group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-slate-800 text-center">
                 <Image
                   alt=""
                   className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
@@ -149,10 +149,10 @@ export default function SectionBento() {
           </Dialog>
           <Link
             href="/gallery"
-            className="group relative flex h-full items-center overflow-hidden rounded-3xl border-2 border-dashed  p-6 font-bold "
+            className="group relative flex h-full items-center overflow-hidden rounded-3xl border-2 border-dashed p-6 font-bold"
           >
             <div>
-              <p className=" text-3xl">Visit Gallery</p>
+              <p className="text-3xl">Visit Gallery</p>
               <div className="text-md mt-3 font-normal text-gray-200/50">
                 Discover my latest projects and creations
               </div>
@@ -164,7 +164,7 @@ export default function SectionBento() {
             target="_blank"
             rel="noreferrer"
             href="https://www.figma.com/community/file/1270173776891030529"
-            className="group relative flex items-center overflow-hidden rounded-3xl border-2 border-dashed border-[#FF512F]/50  p-6 font-bold "
+            className="group relative flex items-center overflow-hidden rounded-3xl border-2 border-dashed border-[#FF512F]/50 p-6 font-bold"
           >
             <div>
               <svg
@@ -187,7 +187,7 @@ export default function SectionBento() {
               <p className="mb-2 flex items-center gap-2 text-xl text-[#FF512F]">
                 FIGMA <ExternalLinkIcon size={24} />
               </p>
-              <p className="mt-[100px]  text-3xl">
+              <p className="mt-[100px] text-3xl">
                 Visit this Portfolio Template
               </p>
               <div className="text-md mt-3 font-normal text-gray-200/50">
@@ -195,13 +195,13 @@ export default function SectionBento() {
               </div>
             </div>
           </Link>
-          <div className="flex w-full  items-center  gap-4 rounded-3xl   text-slate-500/40 shadow-lg">
+          <div className="flex w-full items-center gap-4 rounded-3xl text-slate-500/40 shadow-lg">
             <a
               title="Github"
               href="https://github.com/richardnarvaez"
               target="_blank"
               rel="noreferrer noopener"
-              className=" flex w-full justify-center rounded-2xl bg-white p-6 text-black/50 transition-colors hover:text-black/70"
+              className="flex w-full justify-center rounded-2xl bg-white p-6 text-black/50 transition-colors hover:text-black/70"
             >
               <svg
                 width="32px"

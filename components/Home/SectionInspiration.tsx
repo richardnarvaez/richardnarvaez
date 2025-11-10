@@ -1,13 +1,15 @@
-import { siteConfig } from "@/config/site"
 import Link from "next/link"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
+
+import { siteConfig } from "@/config/site"
+
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 
 export default function SectionInspiration() {
   return (
     <section id="open-source" className="md:pt-22 container pt-20 lg:pt-16">
-      <div className="mx-auto  flex max-w-[58rem] flex-col items-center  justify-center gap-4 rounded-xl border px-8 py-10 text-center">
-        <h2 className="z-20 font-heading  text-4xl  leading-[1.1]">
+      <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 rounded-xl border px-8 py-10 text-center">
+        <h2 className="z-20 font-heading text-4xl leading-[1.1]">
           People who inspire me
         </h2>
         <p className="z-20 leading-normal text-muted-foreground sm:text-lg sm:leading-7 md:max-w-[65%]">
@@ -82,13 +84,13 @@ export default function SectionInspiration() {
                   <Link
                     href={item.site.url}
                     target="_blank"
-                    className="h-16 w-16 cursor-pointer overflow-hidden rounded-full border-4 border-white/10 "
+                    className="h-16 w-16 cursor-pointer overflow-hidden rounded-full border-4 border-white/10"
                   >
                     <img src={item.image} className="h-full w-full" />
                   </Link>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80 border-2 border-slate-700 bg-slate-900">
-                  <div className="flex  space-x-4">
+                  <div className="flex space-x-4">
                     <Avatar>
                       <AvatarImage src={item.image} />
                       <AvatarFallback>VC</AvatarFallback>

@@ -1,8 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { buttonVariants } from "./ui/button"
+
 import { Icons } from "./icons"
+import { buttonVariants } from "./ui/button"
 
 export default function GoBackButton() {
   return (

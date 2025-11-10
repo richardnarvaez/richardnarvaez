@@ -1,7 +1,8 @@
 "use client"
 
-import { GalleryItem } from "@/lib/gallery-types"
 import Link from "next/link"
+
+import { GalleryItem } from "@/lib/gallery-types"
 
 interface DesignModalProps {
   item: GalleryItem

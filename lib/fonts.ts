@@ -1,8 +1,8 @@
 import {
   Barlow,
+  Caveat_Brush,
   JetBrains_Mono,
   Roboto_Mono,
-  Caveat_Brush,
 } from "next/font/google"
 
 export const barlow = Barlow({ subsets: ["latin"], weight: ["600"] })

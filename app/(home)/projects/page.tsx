@@ -64,7 +64,7 @@ export default async function BlogPage() {
                       <span
                         key={"status-" + post._id + "-" + index}
                         className={
-                          " max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
+                          "max-w-fit truncate rounded-full px-3 py-1 text-sm font-bold uppercase " +
                           (getColorOfStatus[chip] || "")
                         }
                       >

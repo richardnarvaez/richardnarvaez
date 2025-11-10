@@ -1,7 +1,7 @@
 "use client"
 
-import { motion, useMotionValue, animate, useTransform } from "framer-motion"
 import { useEffect, useState } from "react"
+import { animate, motion, useMotionValue, useTransform } from "framer-motion"
 
 interface MagicOrbProps {
   size?: number
@@ -145,7 +145,7 @@ const MagicOrb = ({ size = 96, blur = true }: MagicOrbProps) => {
         }}
         className="relative"
       >
-        <div className=" absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-white">
+        <div className="absolute left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 text-white">
           <SparklesIcon width={size / 2} height={size / 2} />
         </div>
         <div className="relative size-full rounded-full">

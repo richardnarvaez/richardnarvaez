@@ -1,9 +1,10 @@
 import { allPosts } from "@/.contentlayer/generated"
+
 import {
   GalleryItem,
-  ProjectItem,
-  PlaygroundItem,
   MediaItem,
+  PlaygroundItem,
+  ProjectItem,
 } from "./gallery-types"
 
 export interface PlaygroundComponent {

@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect } from "react"
+
 import { GalleryItem } from "@/lib/gallery-types"
+
 import ImageModal from "./modals/image-modal"
-import ProjectModal from "./modals/project-modal"
 import PlaygroundModal from "./modals/playground-modal"
+import ProjectModal from "./modals/project-modal"
 
 interface GalleryModalProps {
   item: GalleryItem

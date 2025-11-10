@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import { GalleryItem } from "@/lib/gallery-types"
 
 interface ImageModalProps {

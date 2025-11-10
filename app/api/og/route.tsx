@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og"
 
 import { ogImageSchema } from "@/lib/validations/og"
+
 export const runtime = "edge"
 
 const interRegular = fetch(

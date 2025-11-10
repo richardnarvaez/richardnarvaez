@@ -1,8 +1,9 @@
 "use client"
 
-import { PlaygroundItem } from "@/lib/gallery-types"
 import { Suspense, useEffect, useState } from "react"
 import { Info } from "lucide-react"
+
+import { PlaygroundItem } from "@/lib/gallery-types"
 import {
   Dialog,
   DialogContent,
