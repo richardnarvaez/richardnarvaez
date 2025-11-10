@@ -20,7 +20,6 @@ interface PostPageProps {
 }
 
 async function getPostFromParams(params) {
-  console.log("?>>>>>BLOG", params)
   const slug = params?.slug?.join("/")
   const post = allPosts.find((post) => post.slugAsParams === slug)
 

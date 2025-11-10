@@ -3,11 +3,12 @@
 import { useState } from "react"
 import Image, { ImageProps } from "next/image"
 
-export default function ImageCustom({ src, ...props }: ImageProps) {
+export default function ImageCustom({ src, alt = "", ...props }: ImageProps) {
   const [error, setError] = useState(false)
   return (
     <Image
       src={!error ? src || "" : "/images/placeholder.webp"}
+      alt={alt}
       className="my-8 rounded-md border bg-muted transition-colors"
       {...props}
       placeholder="blur"

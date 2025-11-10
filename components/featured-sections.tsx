@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { PlaygroundComponent } from "@/lib/gallery-data"
 import { PlaygroundItem } from "@/lib/gallery-types"
 import GalleryModal from "@/components/gallery/gallery-modal"
@@ -74,11 +75,13 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               }}
             >
               <div className="relative h-[380px] w-[280px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
-                <img
+                <Image
                   src={
                     "https://images.unsplash.com/photo-1761671955448-f68ca9eec238?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1035https://images.unsplash.com/photo-1761671955448-f68ca9eec238?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1035"
                   }
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={280}
+                  height={380}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>
@@ -91,12 +94,14 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                 zIndex: 10,
               }}
             >
-              <div className="relative h-[280px] w-[180px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15  backdrop-blur-sm">
-                <img
+              <div className="relative h-[280px] w-[180px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+                <Image
                   src={
                     "https://images.unsplash.com/photo-1761671955479-c1fa3e1cf1a8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1035"
                   }
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={180}
+                  height={280}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>
@@ -110,10 +115,12 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                 zIndex: 10,
               }}
             >
-              <div className="relative h-[280px] w-[180px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15  backdrop-blur-sm">
-                <img
+              <div className="relative h-[280px] w-[180px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+                <Image
                   src={"/images/apps/huma_legends.jpg"}
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={180}
+                  height={280}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>
@@ -128,9 +135,11 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               }}
             >
               <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
-                <img
+                <Image
                   src={"/images/placeholder.webp"}
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={100}
+                  height={100}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>
@@ -145,9 +154,11 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               }}
             >
               <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
-                <img
+                <Image
                   src={"/images/placeholder.webp"}
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={100}
+                  height={100}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>
@@ -161,9 +172,11 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               }}
             >
               <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
-                <img
+                <Image
                   src={"/images/apps/logo-huma.jpg"}
-                  alt={featuredComponents[0]?.title}
+                  alt={featuredComponents[0]?.title || ""}
+                  width={100}
+                  height={100}
                   className="h-full w-full rounded-xl object-cover"
                 />
               </div>

@@ -50,7 +50,7 @@ export default function SectionListOfProjects({ posts }) {
       id="products"
       className=" mx-auto  grid  grid-cols-1 px-8 sm:grid-cols-2 lg:grid-cols-2 lg:px-0"
     >
-      <div className="col-span-full mx-auto  mb-16 mt-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
+      <div className="col-span-full mx-auto  my-16 flex max-w-[58rem] flex-col items-center space-y-4 text-center">
         <p className="font-heading text-3xl leading-[1.1] sm:text-3xl md:text-6xl">
           Projects and Products
         </p>
