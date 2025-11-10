@@ -409,7 +409,7 @@ const VideoLyrics: React.FC<VideoLyricsProps> = ({
       <video
         ref={videoRef}
         src="/videos/lyrics.mp4"
-        className={`w-full ${videoClassName} sticky top-0 z-10 aspect-video w-[200px] overflow-hidden rounded-lg bg-black`}
+        className={`w-full ${videoClassName} sticky top-0 z-10 aspect-video w-[250px] overflow-hidden rounded-lg bg-black`}
         controls
       />
       <div
