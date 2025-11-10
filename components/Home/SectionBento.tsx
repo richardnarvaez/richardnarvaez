@@ -54,7 +54,7 @@ export default function SectionBento() {
           </div>
         </div>
       </a>
-      <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-0 border-white/20 p-4 font-bold transition-transform lg:col-span-2">
+      <div className="group relative z-50 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl border-0 border-white/20 bg-[#23293C] p-4 font-bold transition-transform lg:col-span-2">
         <Image
           alt="Background Huma Legends"
           src={"/images/blog/huma/huma-bg.jpg"}
