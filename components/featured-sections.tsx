@@ -69,7 +69,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
           <div className="relative h-[450px] w-[400px]">
             {/* Tarjeta 1 - Picture */}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(10deg) translate(180px, 200px)",
                 zIndex: 10,
@@ -83,13 +83,13 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                   alt={featuredComponents[0]?.title || ""}
                   width={280}
                   height={380}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
             {/* Tarjeta 2 - Picture */}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(-4deg) translate(450px, 200px)",
                 zIndex: 10,
@@ -103,14 +103,14 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                   alt={featuredComponents[0]?.title || ""}
                   width={180}
                   height={280}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
 
             {/* Tarjeta 2 - Illustration huma legends */}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(5deg) translate(-250px, 100px)",
                 zIndex: 10,
@@ -122,70 +122,70 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                   alt={featuredComponents[0]?.title || ""}
                   width={180}
                   height={280}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
 
             {/* Tarjeta 2 - Logo App */}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(0deg) translate(400px, 400px)",
                 zIndex: 10,
               }}
             >
-              <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+              <div className="relative size-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 <Image
                   src={"/images/placeholder.webp"}
                   alt={featuredComponents[0]?.title || ""}
                   width={100}
                   height={100}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
 
             {/* Tarjeta 2 - Logo App */}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(4deg) translate(0px, 430px)",
                 zIndex: 40,
               }}
             >
-              <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+              <div className="relative size-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 <Image
                   src={"/images/placeholder.webp"}
                   alt={featuredComponents[0]?.title || ""}
                   width={100}
                   height={100}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
             {/* Tarjeta 2 - Logo App  Huma Legends*/}
             <div
-              className="absolute inset-0 h-fit w-fit"
+              className="absolute inset-0 size-fit"
               style={{
                 transform: "rotate(-6deg) translate(300px, -100px)",
                 zIndex: 40,
               }}
             >
-              <div className="relative h-[100px] w-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+              <div className="relative size-[100px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 <Image
                   src={"/images/apps/logo-huma.jpg"}
                   alt={featuredComponents[0]?.title || ""}
                   width={100}
                   height={100}
-                  className="h-full w-full rounded-xl object-cover"
+                  className="size-full rounded-xl object-cover"
                 />
               </div>
             </div>
 
             {/* Tarjeta 2 - Medio */}
             <div
-              className="absolute inset-0 h-fit w-fit cursor-pointer transition-all"
+              className="absolute inset-0 size-fit cursor-pointer transition-all"
               style={{
                 transform: "rotate(-6deg) translate(-100px, 150px)",
                 zIndex: 20,
@@ -195,7 +195,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
               <div className="relative h-[280px] w-[300px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 {featuredComponents[1] ? (
                   <>
-                    <div className="flex h-[280px] w-[280px] items-center justify-center">
+                    <div className="flex size-[280px] items-center justify-center">
                       <div className="text-center">
                         {/* <div className="mb-3 text-4xl text-[#FF512F]">⚡</div> */}
                         <p className="text-sm font-semibold text-foreground">
@@ -228,7 +228,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                     </div>
                   </>
                 ) : (
-                  <div className="flex h-[280px] w-[280px] items-center justify-center bg-gray-200">
+                  <div className="flex size-[280px] items-center justify-center bg-gray-200">
                     <div className="text-center text-gray-500">
                       <div className="mb-2 text-2xl">⚡</div>
                       <p className="text-xs">Coming Soon</p>
@@ -240,17 +240,17 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
 
             {/* Tarjeta 3 - Arriba */}
             <div
-              className="absolute inset-0 h-fit w-fit cursor-pointer transition-all"
+              className="absolute inset-0 size-fit cursor-pointer transition-all"
               style={{
                 transform: "rotate(3deg) translate(230px, -60px)",
                 zIndex: 30,
               }}
               onClick={() => handleCardClick(0)}
             >
-              <div className="relative h-[280px] w-[280px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+              <div className="relative size-[280px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 {featuredComponents[0] ? (
                   <>
-                    <div className="flex h-[280px] w-[280px] items-center justify-center">
+                    <div className="flex size-[280px] items-center justify-center">
                       <div className="text-center">
                         {/* <div className="mb-3 text-4xl text-[#FF512F]">⚡</div> */}
                         <p className="text-sm font-semibold text-foreground">
@@ -283,7 +283,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                     </div>
                   </>
                 ) : (
-                  <div className="flex h-[280px] w-[280px] items-center justify-center bg-gray-200">
+                  <div className="flex size-[280px] items-center justify-center bg-gray-200">
                     <div className="text-center text-gray-500">
                       <div className="mb-2 text-2xl">⚡</div>
                       <p className="text-xs">Coming Soon</p>
@@ -295,17 +295,17 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
 
             {/* Tarjeta 4 - Superior todo */}
             <div
-              className="absolute inset-0 h-fit w-fit cursor-pointer"
+              className="absolute inset-0 size-fit cursor-pointer"
               style={{
                 transform: "rotate(-8deg) translate(-25px, -120px)",
                 zIndex: 40,
               }}
               onClick={() => handleCardClick(2)}
             >
-              <div className="relative h-[280px] w-[280px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
+              <div className="relative size-[280px] overflow-hidden rounded-3xl border-4 border-[#131221] bg-gradient-to-br from-background/90 via-[#FF512F]/15 to-purple-500/15 backdrop-blur-sm">
                 {featuredComponents[2] ? (
                   <>
-                    <div className="flex h-[280px] w-[280px] items-center justify-center">
+                    <div className="flex size-[280px] items-center justify-center">
                       <div className="text-center">
                         {/* <div className="mb-3 text-4xl text-[#FF512F]">⚡</div> */}
                         <p className="text-sm font-semibold text-foreground">
@@ -338,7 +338,7 @@ export default function FeaturedSections({ dataList }: FeaturedSectionsProps) {
                     </div>
                   </>
                 ) : (
-                  <div className="flex h-[280px] w-[280px] items-center justify-center bg-gray-200">
+                  <div className="flex size-[280px] items-center justify-center bg-gray-200">
                     <div className="text-center text-gray-500">
                       <div className="mb-2 text-2xl">⚡</div>
                       <p className="text-xs">Coming Soon</p>

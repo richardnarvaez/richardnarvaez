@@ -16,7 +16,7 @@ interface SectionFavToolsProps {
 
 export default function SectionFavTools({ tools }: SectionFavToolsProps) {
   return (
-    <section id="tools" className="flex min-h-[100vh] items-center p-8 md:p-32">
+    <section id="tools" className="flex min-h-screen items-center p-8 md:p-32">
       <div className="flex flex-wrap items-center justify-center gap-4">
         {tools?.map((item, index) => {
           return (
@@ -27,7 +27,7 @@ export default function SectionFavTools({ tools }: SectionFavToolsProps) {
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-slate-900">
+                <div className="flex size-16 items-center justify-center overflow-hidden rounded-xl bg-slate-900">
                   <ImageCustom
                     alt={item.title || ""}
                     src={item.icon || ""}

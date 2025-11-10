@@ -75,7 +75,7 @@ export default function SectionListOfProjects({ posts }) {
                   width={720}
                   height={405}
                   priority={index <= 1}
-                  className="h-full w-full object-cover"
+                  className="size-full object-cover"
                 />
               )}
               <div className="absolute inset-x-0 bottom-0 hidden w-full bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12 group-hover:visible">

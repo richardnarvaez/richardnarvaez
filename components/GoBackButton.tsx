@@ -17,7 +17,7 @@ export default function GoBackButton() {
         "absolute left-[-200px] top-14 hidden xl:inline-flex"
       )}
     >
-      <Icons.chevronLeft className="mr-2 h-4 w-4" />
+      <Icons.chevronLeft className="mr-2 size-4" />
       Go back
     </button>
   )

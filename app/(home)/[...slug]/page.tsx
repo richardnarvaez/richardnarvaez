@@ -4,6 +4,7 @@ import { allPages } from "contentlayer/generated"
 import { Mdx } from "@/components/mdx-components"
 
 import "@/styles/mdx.css"
+
 import { Metadata } from "next"
 
 import { siteConfig } from "@/config/site"

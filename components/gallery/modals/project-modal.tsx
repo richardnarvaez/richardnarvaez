@@ -28,7 +28,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
             className="rounded-full p-2 transition-colors hover:bg-white/10"
           >
             <svg
-              className="h-5 w-5 text-gray-300"
+              className="size-5 text-gray-300"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -52,7 +52,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
             <img
               src={item.thumbnail.url}
               alt={item.title}
-              className="h-full w-full object-cover"
+              className="size-full object-cover"
             />
           </div>
         </div>
@@ -91,7 +91,7 @@ export default function ProjectModal({ item, onClose }: ProjectModalProps) {
             >
               Read Full Case Study
               <svg
-                className="ml-2 h-4 w-4"
+                className="ml-2 size-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

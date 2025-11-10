@@ -209,7 +209,7 @@ const GradualBlur = props => {
       onMouseEnter={hoverIntensity ? () => setIsHovered(true) : undefined}
       onMouseLeave={hoverIntensity ? () => setIsHovered(false) : undefined}
     >
-      <div className="gradual-blur-inner relative w-full h-full">{blurDivs}</div>
+      <div className="gradual-blur-inner relative size-full">{blurDivs}</div>
     </div>
   );
 };

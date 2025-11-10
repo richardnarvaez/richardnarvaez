@@ -90,10 +90,10 @@ function AnimatedCursor() {
         <ArrowFigma />
       </div>
       <div className="absolute -left-14 -top-20 border-2 border-blue-400 bg-blue-700/20 px-2 font-semibold">
-        <div className="absolute -left-1.5 -top-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
-        <div className="absolute -right-1.5 -top-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
-        <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
-        <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -left-1.5 -top-1.5 size-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-blue-400 bg-white"></div>
+        <div className="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-blue-400 bg-white"></div>
         <p>E</p>
       </div>
     </motion.div>
@@ -159,14 +159,14 @@ export default function AnimatedTitle() {
         <span className="relative z-10 mt-2 animate-fade-up-2 bg-black/30 px-4 py-1 opacity-0 backdrop-blur-sm">
           {/* Bordes y decoraciones */}
           <div className="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]" />
-          <div className="border-h absolute -left-20 bottom-[-1px] right-0 h-1 w-[130%]"></div>
+          <div className="border-h absolute -bottom-px -left-20 right-0 h-1 w-[130%]"></div>
           <div className="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
-          <div className="border-v absolute -bottom-12 right-[-1px] h-[170%] w-1"></div>
+          <div className="border-v absolute -bottom-12 -right-px h-[170%] w-1"></div>
 
-          <div className="absolute -left-1.5 -top-1.5 h-3 w-3 border-2 border-gray-400 bg-white"></div>
-          <div className="absolute -bottom-1.5 -left-1.5 h-3 w-3 border-2 border-gray-400 bg-white"></div>
-          <div className="absolute -bottom-1.5 -right-1.5 h-3 w-3 border-2 border-gray-400 bg-white"></div>
-          <div className="absolute -right-1.5 -top-1.5 h-3 w-3 border-2 border-gray-400 bg-white shadow"></div>
+          <div className="absolute -left-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white"></div>
+          <div className="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-gray-400 bg-white"></div>
+          <div className="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-gray-400 bg-white"></div>
+          <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white shadow"></div>
 
           {/* <HackerText /> */}
           <p className="opacity-80">

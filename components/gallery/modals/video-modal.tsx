@@ -19,7 +19,7 @@ export default function VideoModal({ item, onClose }: VideoModalProps) {
           className="rounded-full p-2 transition-colors hover:bg-white/10"
         >
           <svg
-            className="h-5 w-5 text-gray-300"
+            className="size-5 text-gray-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -39,12 +39,7 @@ export default function VideoModal({ item, onClose }: VideoModalProps) {
         {/* Video */}
         <div className="mb-4">
           <div className="relative aspect-video overflow-hidden rounded-lg">
-            <video
-              className="h-full w-full object-cover"
-              controls
-              autoPlay
-              muted
-            >
+            <video className="size-full object-cover" controls autoPlay muted>
               <source src={item.thumbnail.url} type="video/mp4" />
             </video>
           </div>

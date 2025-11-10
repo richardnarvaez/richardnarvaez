@@ -39,9 +39,9 @@ export function ScrollToTopButton() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           onClick={scrollToTop}
-          className="fixed bottom-12 right-12 z-50 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white text-black/80 shadow-lg transition-transform hover:scale-110"
+          className="fixed bottom-12 right-12 z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-white text-black/80 shadow-lg transition-transform hover:scale-110"
         >
-          <ChevronUpIcon className="h-6 w-6" />
+          <ChevronUpIcon className="size-6" />
         </motion.div>
       )}
     </AnimatePresence>

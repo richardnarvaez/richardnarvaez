@@ -3,6 +3,7 @@ import { getFavTools } from "@/services/posts"
 import { compareDesc } from "date-fns"
 
 import { getAllPlaygroundComponents, getPhotography } from "@/lib/gallery-data"
+import FeaturedSections from "@/components/featured-sections"
 import Header from "@/components/Home/Header"
 import SectionBento from "@/components/Home/SectionBento"
 import SectionFavTools from "@/components/Home/SectionFavTools"
@@ -11,7 +12,6 @@ import SectionInspiration from "@/components/Home/SectionInspiration"
 import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
 import SectionOpenSource from "@/components/Home/SectionOpenSource"
 import { ScrollToTopButton } from "@/components/SrollTopButton"
-import FeaturedSections from "@/components/featured-sections"
 
 export default async function IndexPage() {
   const [favTools, photographyItems, playgroundComponents] = await Promise.all([

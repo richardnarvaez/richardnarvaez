@@ -26,12 +26,12 @@ export default function SectionBento() {
       >
         <Image
           alt=""
-          className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
+          className="absolute inset-0 size-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
           src={"/images/me.jpg"}
           width={700}
           height={900}
         />
-        <div className="absolute inset-0 z-10 flex h-full w-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30">
+        <div className="absolute inset-0 z-10 flex size-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30">
           <div className="w-fit rounded-br-xl bg-white px-4 py-2">
             <p className="text-xs font-bold text-gray-500">NOW AVALIABLE</p>
           </div>
@@ -60,12 +60,12 @@ export default function SectionBento() {
           src={"/images/blog/huma/huma-bg.jpg"}
           width={960}
           height={540}
-          className="absolute top-0 h-full w-full scale-105 opacity-75 blur-sm transition-all group-hover:scale-125"
+          className="absolute top-0 size-full scale-105 opacity-75 blur-sm transition-all group-hover:scale-125"
         />
         <p className="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm text-black/60">
           NEW
         </p>
-        <div className="z-10 m-4 mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
+        <div className="z-10 m-4 mx-auto flex size-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white">
           <Image
             alt="Huma Legends App Icon"
             src={"/images/blog/huma/huma-app-icon.jpg"}
@@ -133,7 +133,7 @@ export default function SectionBento() {
               <button className="group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-slate-800 text-center">
                 <Image
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
+                  className="absolute inset-0 size-full object-cover transition-transform ease-out group-hover:scale-110 group-hover:blur-sm"
                   src={"/images/speech.png"}
                   width={700}
                   height={900}
@@ -143,7 +143,7 @@ export default function SectionBento() {
                 </div>
               </button>
             </DialogTrigger>
-            <DialogContent className="max-h-[100vh] max-w-3xl overflow-y-auto rounded-3xl sm:max-h-[80vh] sm:max-w-4xl">
+            <DialogContent className="max-h-screen max-w-3xl overflow-y-auto rounded-3xl sm:max-h-[80vh] sm:max-w-4xl">
               <ProfileInfoModal />
             </DialogContent>
           </Dialog>
@@ -173,7 +173,7 @@ export default function SectionBento() {
                 height="100"
                 viewBox="0 0 26 26"
                 fill="none"
-                className="absolute right-8 top-0 h-96 w-96 text-gray-200/5 transition-all group-hover:top-8 group-hover:h-20 group-hover:w-20 group-hover:text-gray-200/20"
+                className="absolute right-8 top-0 size-96 text-gray-200/5 transition-all group-hover:top-8 group-hover:size-20 group-hover:text-gray-200/20"
               >
                 <title>Figma</title>
                 <path

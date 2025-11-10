@@ -4,6 +4,7 @@ import { allAuthors, allPosts } from "contentlayer/generated"
 import { Mdx } from "@/components/mdx-components"
 
 import "@/styles/mdx.css"
+
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -156,7 +157,7 @@ export default async function PostPage({ params }: PostPageProps) {
           href="/projects"
           className={cn(buttonVariants({ variant: "ghost" }))}
         >
-          <Icons.chevronLeft className="mr-2 h-4 w-4" />
+          <Icons.chevronLeft className="mr-2 size-4" />
           See all posts
         </Link>
       </div>

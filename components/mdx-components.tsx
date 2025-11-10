@@ -3,8 +3,8 @@ import Image from "next/image"
 import { useMDXComponent } from "next-contentlayer/hooks"
 
 import { cn } from "@/lib/utils"
-import ImageBlog from "@/components/ImageBlog"
 import { Callout } from "@/components/callout"
+import ImageBlog from "@/components/ImageBlog"
 import { MdxCard } from "@/components/mdx-card"
 
 const components = {

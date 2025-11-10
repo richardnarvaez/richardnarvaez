@@ -4,7 +4,7 @@ import { useRef, useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 
-import { GalleryItem, chipLabels, chipStyles } from "@/lib/gallery-types"
+import { chipLabels, chipStyles, GalleryItem } from "@/lib/gallery-types"
 
 interface GalleryCardProps {
   item: GalleryItem
@@ -104,7 +104,7 @@ export default function GalleryCard({ item, onClick }: GalleryCardProps) {
 
       {/* Content */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 backdrop-blur-sm"
+        className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-4 backdrop-blur-sm"
         initial={{ opacity: 0, y: 10 }}
         animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
         transition={{ duration: 0.3 }}

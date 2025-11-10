@@ -64,7 +64,7 @@ export default function PlaygroundModal({
             className="rounded-full p-2 transition-colors hover:bg-white/10"
           >
             <svg
-              className="h-5 w-5 text-gray-300"
+              className="size-5 text-gray-300"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

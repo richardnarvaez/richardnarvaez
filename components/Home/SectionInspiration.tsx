@@ -84,9 +84,9 @@ export default function SectionInspiration() {
                   <Link
                     href={item.site.url}
                     target="_blank"
-                    className="h-16 w-16 cursor-pointer overflow-hidden rounded-full border-4 border-white/10"
+                    className="size-16 cursor-pointer overflow-hidden rounded-full border-4 border-white/10"
                   >
-                    <img src={item.image} className="h-full w-full" />
+                    <img src={item.image} className="size-full" />
                   </Link>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80 border-2 border-slate-700 bg-slate-900">

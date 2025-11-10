@@ -13,6 +13,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card"
 import RewardBase from "@/components/ui/reward"
+import FlagEC from "@/components/Icons/flags/ec"
+import FlagES from "@/components/Icons/flags/es"
 import {
   AWSIcon,
   CiscoIcon,
@@ -21,8 +23,6 @@ import {
   HarvardIcon,
   LinkedinIcon,
 } from "@/components/Icons/IconsBusiness"
-import FlagEC from "@/components/Icons/flags/ec"
-import FlagES from "@/components/Icons/flags/es"
 import { Signature } from "@/components/signature"
 
 export default function ProfileInfoModal() {
@@ -32,7 +32,7 @@ export default function ProfileInfoModal() {
         <Image
           src={"/images/avatars/richard.jpg"}
           alt="Richard B. Vinueza"
-          className="h-12 w-12 rounded-full bg-white md:h-[80px] md:w-[80px]"
+          className="size-12 rounded-full bg-white md:size-[80px]"
           width={96}
           height={96}
         />
@@ -54,8 +54,8 @@ export default function ProfileInfoModal() {
               Everywhere
             </div>
             <div className="flex items-center gap-1 text-green-500">
-              <div className="flex h-4 w-4 items-center justify-center rounded-full bg-green-500/30">
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+              <div className="flex size-4 items-center justify-center rounded-full bg-green-500/30">
+                <div className="size-2 rounded-full bg-green-500"></div>
               </div>
               Avaliable
             </div>

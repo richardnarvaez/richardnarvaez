@@ -21,7 +21,7 @@ export default function ImageModal({ item, onClose }: ImageModalProps) {
           className="rounded-full p-2 transition-colors hover:bg-white/10"
         >
           <svg
-            className="h-5 w-5 text-gray-300"
+            className="size-5 text-gray-300"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -49,7 +49,7 @@ export default function ImageModal({ item, onClose }: ImageModalProps) {
               <img
                 src={item.thumbnail.url}
                 alt={item.title}
-                className="h-full w-full object-cover"
+                className="size-full object-cover"
               />
             </div>
           )}
