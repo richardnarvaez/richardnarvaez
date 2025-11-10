@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useRef } from "react"
 import { gsap } from "gsap"
 
+import { cn } from "@/lib/utils"
+
 import { lyrics } from "./data"
 
 interface VideoLyricsProps {
@@ -409,7 +411,10 @@ const VideoLyrics: React.FC<VideoLyricsProps> = ({
       <video
         ref={videoRef}
         src="/videos/lyrics.mp4"
-        className={`w-full ${videoClassName} sticky top-0 z-10 aspect-video w-[250px] overflow-hidden rounded-lg bg-black`}
+        className={cn(
+          videoClassName,
+          `sticky top-0 z-10 aspect-video w-[250px] overflow-hidden rounded-lg bg-black`
+        )}
         controls
       />
       <div
