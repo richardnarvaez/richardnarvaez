@@ -11,6 +11,7 @@ import SectionFrameworksNStak from "@/components/Home/SectionFrameworksNStack"
 import SectionInspiration from "@/components/Home/SectionInspiration"
 import SectionListOfProjects from "@/components/Home/SectionListOfProjects"
 import SectionOpenSource from "@/components/Home/SectionOpenSource"
+import WorldActivityMap from "@/components/Home/WorldActivityMap"
 import { ScrollToTopButton } from "@/components/SrollTopButton"
 
 export default async function IndexPage() {
@@ -44,6 +45,12 @@ export default async function IndexPage() {
       <SectionListOfProjects posts={posts} />
 
       <FeaturedSections dataList={playgroundComponents} />
+
+      <section className="relative mx-auto mt-16 w-full max-w-5xl px-5 md:px-0">
+        <div className="w-full">
+          <WorldActivityMap />
+        </div>
+      </section>
 
       <SectionFrameworksNStak />
 
