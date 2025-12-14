@@ -288,6 +288,7 @@ export const worldData: WorldData = [
 // que me gustaria vistar o estan en la lista.
 // tambien podriamos marcar lugares qeu queiro volver.
 //si son multiples otro color
+// categorias como scuba, snowboard, hiking, etc.
 
 export const getAllPlaces = (data: WorldData): Place[] => {
   const places: Place[] = []

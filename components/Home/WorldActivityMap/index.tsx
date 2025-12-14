@@ -6,6 +6,9 @@ import mapboxgl from "mapbox-gl"
 
 import "mapbox-gl/dist/mapbox-gl.css"
 
+import { Flag } from "@/components/Icons/flags"
+import FlagUnknown from "@/components/Icons/flags/unknown"
+
 import {
   getAllPlaces,
   getCountryPlaces,
@@ -400,12 +403,16 @@ export default function WorldActivityMap() {
                           setIsExpanded(true)
                         }
                       }}
-                      className={`flex size-10 items-center justify-center rounded-full border-2 border-gray-900 bg-white text-xs font-semibold text-black transition hover:bg-slate-200 ${
+                      className={`flex size-8 items-center justify-center rounded-full border-2 border-gray-900 bg-white transition hover:bg-slate-200 ${
                         index > 0 ? "-ml-2" : ""
                       }`}
                       title={country.name}
                     >
-                      {country.code}
+                      {(() => {
+                        const FlagComponent =
+                          Flag[country.code as keyof typeof Flag] || FlagUnknown
+                        return <FlagComponent className="size-8" />
+                      })()}
                     </button>
                   ))}
                 </motion.div>
