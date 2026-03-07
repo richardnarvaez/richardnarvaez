@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 
-import { barlow, caveatBrush, jetbrains, robotoMono } from "@/lib/fonts"
+import { barlow, caveatBrush, jetbrains, robotoMono, playfair } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
 
@@ -122,7 +122,7 @@ export default function AnimatedTitle() {
         Richard Vinueza - CREATIVE DEVELOPER - SINCE 2014
       </h1>
 
-      <div
+      {/* <div
         onClick={() => {
           window.scrollTo({
             top: window.innerHeight - 32,
@@ -146,7 +146,7 @@ export default function AnimatedTitle() {
           />
         </div>
         {" Richard/>"}
-      </div>
+      </div> */}
       {/* Visual animated title */}
       <h2
         className={cn(
@@ -154,9 +154,16 @@ export default function AnimatedTitle() {
           "z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100"
         )}
       >
-        <span className="animate-fade-up-1 opacity-0">CREATIVE</span>
+        <span
+          className={cn(
+            "animate-fade-up-1 opacity-0 italic font-medium tracking-normal",
+            playfair.className
+          )}
+        >
+          Creative
+        </span>
 
-        <span className="relative z-10 mt-2 animate-fade-up-2 bg-black/30 px-4 py-1 opacity-0 backdrop-blur-sm">
+        <span className="relative z-10 mt-6 animate-fade-up-2 bg-black/30 px-4 py-1 opacity-0 backdrop-blur-sm">
           {/* Bordes y decoraciones */}
           <div className="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]" />
           <div className="border-h absolute -bottom-px -left-20 right-0 h-1 w-[130%]"></div>
@@ -187,8 +194,21 @@ export default function AnimatedTitle() {
           </div>
         </span>
 
-        <span className="animate-fade-up-3 opacity-0">SINCE</span>
-        <span className="animate-fade-up-4 text-[#FF512F] opacity-0">2014</span>
+        <div
+          className={cn(
+            "animate-fade-up-3 mt-6 flex items-center justify-center gap-4 text-5xl font-light italic text-gray-400 opacity-0",
+            playfair.className
+          )}
+        >
+          <div className="h-[2px] w-12 rounded-full bg-gray-400/70" />
+          <span className="block pb-2 leading-[0.5]">since</span>
+          <div className="h-[2px] w-12 rounded-full bg-gray-400/70" />
+        </div>
+        <span
+          className="animate-fade-up-4 text-[4rem] leading-none text-[#FF512F] opacity-0 md:text-[7rem]"
+        >
+          2014
+        </span>
       </h2>
     </>
   )

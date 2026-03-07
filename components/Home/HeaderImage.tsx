@@ -3,7 +3,7 @@ import Image from "next/image"
 export default function HeaderImage() {
   return (
     <div className="animate-fade-in opacity-0">
-      <div id="bg-gradient-header" className="absolute inset-x-0 bottom-0 z-10 h-[10vh] w-full bg-gradient-to-t from-[hsl(244,31%,10%)] to-transparent" />
+      <div id="bg-gradient-header" className="absolute inset-x-0 bottom-0 z-10 h-[20vh] w-full bg-gradient-to-t from-[hsl(244,31%,10%)] via-[hsl(244,31%,10%)]/50 to-transparent" />
 
       <Image
         src="/images/home/bg-header.jpg"

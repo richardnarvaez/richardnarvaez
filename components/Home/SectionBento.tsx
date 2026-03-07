@@ -16,7 +16,7 @@ export default function SectionBento() {
   return (
     <section
       id="main"
-      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 md:grid-cols-2 lg:grid-cols-3 lg:px-0"
+      className="mx-auto grid max-w-5xl pt-6 grid-cols-1 gap-4 px-8 md:grid-cols-2 lg:grid-cols-3 lg:px-0"
     >
       <a
         target="_blank"
