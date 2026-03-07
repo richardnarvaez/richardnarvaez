@@ -188,15 +188,12 @@ export default function AnimatedTitle() {
           </div>
           <div className="absolute -bottom-14 -left-20">
             <Cursor />
-            <h2 className="relative z-50 -mt-2 mr-2 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black opacity-50">
-              <span>Jhon Doe</span>
-            </h2>
           </div>
         </span>
 
         <div
           className={cn(
-            "animate-fade-up-3 mt-6 flex items-center justify-center gap-4 text-5xl font-light italic text-gray-400 opacity-0",
+            "animate-fade-up-3 mt-6 mb-3 flex items-center justify-center gap-4 text-5xl font-light italic text-gray-400 opacity-0",
             playfair.className
           )}
         >
