@@ -12,7 +12,7 @@ export default function HeaderImage() {
         placeholder="blur"
         blurDataURL="/images/home/bg-header-blur.jpg"
         alt="Background - Richard Vinueza Profile"
-        className="absolute inset-0 h-dvh w-full object-cover opacity-25 transition-opacity duration-1000"
+        className="absolute inset-0 h-full w-full object-cover opacity-25 transition-opacity duration-1000"
         priority
       />
     </div>

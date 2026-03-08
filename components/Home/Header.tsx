@@ -13,7 +13,6 @@ export default function Header() {
         <div className="w-full max-w-5xl">
           <div className="relative z-20 flex w-full flex-col items-center justify-center gap-4">
             <AnimatedTitle />
-
           </div>
         </div>
 
