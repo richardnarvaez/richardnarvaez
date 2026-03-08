@@ -176,7 +176,7 @@ export default function AnimatedTitle() {
           <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white shadow"></div>
 
           {/* <HackerText /> */}
-          <p className="opacity-80">
+          <p className="opacity-80 pb-2">
             DEVELOP<span className="text-transparent">E</span>R
           </p>
 
