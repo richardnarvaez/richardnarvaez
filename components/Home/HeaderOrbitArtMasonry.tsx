@@ -2,7 +2,13 @@ import Image from "next/image"
 
 import { cn } from "@/lib/utils"
 
-const artItems = [
+type ArtMasonryItem = {
+  alt: string
+  aspectClassName: string
+  src: string
+}
+
+const artItems: readonly ArtMasonryItem[] = [
   {
     src: "https://images.unsplash.com/photo-1764025721609-2bd1cf185f32?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     alt: "Madeira",
@@ -30,17 +36,20 @@ const artItems = [
   },
   {
     src: "https://images.unsplash.com/photo-1764181582237-0c57598f693a?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Landscape photography",
     aspectClassName: "aspect-[4/5]",
   },
   {
     src: "https://images.unsplash.com/photo-1759424727859-7f489622313d?q=80&w=967&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Editorial photography",
     aspectClassName: "aspect-[9/16]",
   },
   {
     src: "https://images.unsplash.com/photo-1759424727855-772a29b2ee93?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    alt: "Travel photography",
     aspectClassName: "aspect-[3/4]",
   },
-] as const
+]
 
 export default function HeaderOrbitArtMasonry() {
   return (
