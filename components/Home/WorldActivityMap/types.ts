@@ -1,8 +1,10 @@
+export type PlaceStatus = "visited" | "wishlist" | "liked" | "repeat"
+
 export interface Place {
   id: string
   name: string
   coordinates: [number, number]
-  color?: string
+  status?: PlaceStatus
 }
 
 export interface Country {

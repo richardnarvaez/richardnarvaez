@@ -12,9 +12,9 @@ import FlagUnknown from "@/components/Icons/flags/unknown"
 import {
   getAllPlaces,
   getCountryPlaces,
-  getPlaceById,
   getPlaceColor,
   getPlaceCountry,
+  getPlacesColor,
   getVisitedCountries,
   mapConfig,
   worldData,
@@ -45,33 +45,33 @@ const createMarkerElement = (place: Place): HTMLDivElement => {
   const style = el.querySelector(".marker-glow") as HTMLElement
   if (style) {
     const colorMap: Record<string, { start: string; end: string }> = {
-      "from-orange-500 to-red-500": {
-        start: "#f97316",
-        end: "#ef4444",
-      },
-      "from-blue-500 to-purple-500": {
-        start: "#3b82f6",
-        end: "#a855f7",
-      },
-      "from-yellow-500 to-green-500": {
-        start: "#eab308",
+      "from-emerald-400 to-green-500": {
+        start: "#34d399",
         end: "#22c55e",
       },
-      "from-pink-500 to-rose-500": {
-        start: "#ec4899",
-        end: "#f43f5e",
+      "from-amber-400 to-orange-500": {
+        start: "#fbbf24",
+        end: "#f97316",
       },
-      "from-cyan-500 to-blue-500": {
-        start: "#06b6d4",
+      "from-rose-500 to-red-500": {
+        start: "#f43f5e",
+        end: "#ef4444",
+      },
+      "from-sky-500 to-blue-500": {
+        start: "#0ea5e9",
         end: "#3b82f6",
       },
-      "from-amber-500 to-orange-500": {
-        start: "#f59e0b",
-        end: "#f97316",
+      "from-violet-500 to-purple-500": {
+        start: "#8b5cf6",
+        end: "#a855f7",
+      },
+      "from-white to-slate-100": {
+        start: "#ffffff",
+        end: "#f1f5f9",
       },
     }
 
-    const colors = colorMap[color] || colorMap["from-orange-500 to-red-500"]
+    const colors = colorMap[color] || colorMap["from-white to-slate-100"]
     style.style.setProperty("--gradient-start", colors.start)
     style.style.setProperty("--gradient-end", colors.end)
     style.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`
@@ -82,33 +82,33 @@ const createMarkerElement = (place: Place): HTMLDivElement => {
 
 const getColorGradient = (color: string): { start: string; end: string } => {
   const colorMap: Record<string, { start: string; end: string }> = {
-    "from-orange-500 to-red-500": {
-      start: "#f97316",
-      end: "#ef4444",
-    },
-    "from-blue-500 to-purple-500": {
-      start: "#3b82f6",
-      end: "#a855f7",
-    },
-    "from-yellow-500 to-green-500": {
-      start: "#eab308",
+    "from-emerald-400 to-green-500": {
+      start: "#34d399",
       end: "#22c55e",
     },
-    "from-pink-500 to-rose-500": {
-      start: "#ec4899",
-      end: "#f43f5e",
+    "from-amber-400 to-orange-500": {
+      start: "#fbbf24",
+      end: "#f97316",
     },
-    "from-cyan-500 to-blue-500": {
-      start: "#06b6d4",
+    "from-rose-500 to-red-500": {
+      start: "#f43f5e",
+      end: "#ef4444",
+    },
+    "from-sky-500 to-blue-500": {
+      start: "#0ea5e9",
       end: "#3b82f6",
     },
-    "from-amber-500 to-orange-500": {
-      start: "#f59e0b",
-      end: "#f97316",
+    "from-violet-500 to-purple-500": {
+      start: "#8b5cf6",
+      end: "#a855f7",
+    },
+    "from-white to-slate-100": {
+      start: "#ffffff",
+      end: "#f1f5f9",
     },
   }
 
-  return colorMap[color] || colorMap["from-orange-500 to-red-500"]
+  return colorMap[color] || colorMap["from-white to-slate-100"]
 }
 
 const calculateDistance = (
@@ -172,6 +172,7 @@ const getGroupCenter = (places: Place[]): [number, number] => {
 const createGroupMarkerElement = (places: Place[]): HTMLDivElement => {
   const el = document.createElement("div")
   el.className = "marker-container"
+  const colors = getColorGradient(getPlacesColor(places))
 
   el.innerHTML = `
     <div class="marker-group" style="
@@ -200,8 +201,8 @@ const createGroupMarkerElement = (places: Place[]): HTMLDivElement => {
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #3b82f6, #a855f7);
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+        background: linear-gradient(135deg, ${colors.start}, ${colors.end});
+        box-shadow: 0 0 10px ${colors.end}99;
       "></div>
       <div style="
         position: absolute;
@@ -210,7 +211,7 @@ const createGroupMarkerElement = (places: Place[]): HTMLDivElement => {
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: rgba(59, 130, 246, 0.9);
+        background: ${colors.end};
         border: 2px solid rgba(255, 255, 255, 0.8);
         display: flex;
         align-items: center;

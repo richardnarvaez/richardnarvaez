@@ -16,7 +16,7 @@ export default function SectionBento() {
   return (
     <section
       id="main"
-      className="mx-auto grid max-w-5xl pt-6 grid-cols-1 gap-4 px-8 md:grid-cols-2 lg:grid-cols-3 lg:px-0"
+      className="mx-auto grid max-w-5xl grid-cols-1 gap-4 px-8 pt-6 md:grid-cols-2 lg:grid-cols-3 lg:px-0"
     >
       <a
         target="_blank"
@@ -32,14 +32,13 @@ export default function SectionBento() {
           height={900}
         />
         <div className="absolute inset-0 z-10 flex size-full flex-col justify-between bg-black/20 transition-all group-hover:bg-black/30">
-          <div className="w-fit rounded-br-xl bg-white px-4 py-2">
+          <div className="ml-1 mt-1 w-fit rounded-md rounded-tl-2xl bg-white px-4 py-2">
             <p className="text-xs font-bold text-gray-500">NOW AVALIABLE</p>
           </div>
           <div className="relative">
             <div className="relative z-[1010] bg-gradient-to-t from-black/50 to-transparent p-4 font-bold">
               <p className="text-md text-gray-300">RESUME</p>
               <p className="text-3xl">View or Download Resume in PDF</p>
-              <p className="text-sm">{"It's free, so take a look."}</p>
             </div>
             <GradualBlur
               target="parent"
@@ -75,15 +74,8 @@ export default function SectionBento() {
         </div>
         <div className="z-10 flex-col items-center justify-center text-center">
           <p className="text-3xl text-white">HUMA LEGENDS</p>
-          <p className="mb-4 mt-2">DOWNLOAD IN APPSTORE</p>
-          <div className="flex justify-center gap-4">
-            <Link
-              href={"https://huma.darkpixl.com"}
-              target="_blank"
-              className="rounded-3xl border border-white/50 bg-black/20 px-4 py-2 text-sm"
-            >
-              Visit Website
-            </Link>
+          {/* <p className="mb-4 mt-2">DOWNLOAD IN APPSTORE</p>  */}
+          <div className="mt-4 flex justify-center gap-4">
             <Link
               href={"/projects/huma"}
               className="rounded-3xl border border-white/50 bg-black/20 px-4 py-2 text-sm"

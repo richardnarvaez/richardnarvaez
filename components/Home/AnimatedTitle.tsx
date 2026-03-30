@@ -4,13 +4,19 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
 
-import { barlow, caveatBrush, jetbrains, robotoMono, playfair } from "@/lib/fonts"
+import {
+  barlow,
+  caveatBrush,
+  jetbrains,
+  playfair,
+  robotoMono,
+} from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import ArrowFigma from "@/components/Icons/ArrowFigma"
 
 // Caracteres más similares en ancho para reducir el salto
 const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%"
-const finalWord = "DEVELOPER"
+const finalWord = "HUMAN"
 
 function HackerText() {
   const [text, setText] = useState(hackerChars.slice(0, finalWord.length))
@@ -94,7 +100,7 @@ function AnimatedCursor() {
         <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-blue-400 bg-white"></div>
         <div className="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-blue-400 bg-white"></div>
         <div className="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-blue-400 bg-white"></div>
-        <p>E</p>
+        <p>AI</p>
       </div>
     </motion.div>
   )
@@ -118,9 +124,7 @@ export default function AnimatedTitle() {
   return (
     <>
       {/* SEO title - hidden visually but available to screen readers and search engines */}
-      <h1 className="sr-only">
-        Richard Vinueza - CREATIVE DEVELOPER - SINCE 2014
-      </h1>
+      <h1 className="sr-only">Richard Vinueza - CREATIVE HUMAN - SINCE 2014</h1>
 
       {/* <div
         onClick={() => {
@@ -151,12 +155,12 @@ export default function AnimatedTitle() {
       <h2
         className={cn(
           barlow.className,
-          "z-10 flex max-w-3xl scale-[0.60] flex-col text-center text-8xl font-extrabold md:scale-100"
+          "z-10 flex max-w-3xl origin-center scale-[0.70] flex-col text-center text-8xl font-extrabold sm:scale-[0.82] md:scale-[1.2]"
         )}
       >
         <span
           className={cn(
-            "animate-fade-up-1 opacity-0 italic font-medium tracking-normal",
+            "animate-fade-up-1 text-[0.74em] font-medium italic tracking-normal opacity-0 md:text-[0.72em]",
             playfair.className
           )}
         >
@@ -176,8 +180,8 @@ export default function AnimatedTitle() {
           <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white shadow"></div>
 
           {/* <HackerText /> */}
-          <p className="opacity-80 pb-2">
-            DEVELOP<span className="text-transparent">E</span>R
+          <p className="pb-2 text-[1.08em] opacity-80 md:text-[1.04em]">
+            HUM<span className="opacity-20">A</span>N
           </p>
 
           <div className="absolute -bottom-12 -right-12 z-50 animate-float">
@@ -193,18 +197,16 @@ export default function AnimatedTitle() {
 
         <div
           className={cn(
-            "animate-fade-up-3 mt-6 mb-3 flex items-center justify-center gap-4 text-5xl font-light italic text-gray-400 opacity-0",
+            "mb-3 mt-6 flex animate-fade-up-3 items-center justify-center gap-4 text-[2.15rem] font-light italic opacity-0 sm:text-[2.35rem] md:text-[2.3rem]",
             playfair.className
           )}
         >
           <div className="h-[2px] w-12 rounded-full bg-gray-400/70" />
-          <span className="block pb-2 leading-[0.5]">since</span>
+          <span className="block pb-2 leading-[0.5]">thinking...</span>
           <div className="h-[2px] w-12 rounded-full bg-gray-400/70" />
         </div>
-        <span
-          className="animate-fade-up-4 text-[4rem] leading-none text-[#FF512F] opacity-0 md:text-[7rem]"
-        >
-          2014
+        <span className="animate-fade-up-4 text-[4.1rem] leading-none text-[#FF512F] opacity-0 sm:text-[4.6rem] md:text-[3.4rem]">
+          -
         </span>
       </h2>
     </>

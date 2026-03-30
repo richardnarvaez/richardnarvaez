@@ -24,6 +24,7 @@ const fontHeading = localFont({
 
 interface RootLayoutProps {
   children: React.ReactNode
+  modal: React.ReactNode
 }
 
 export const viewport: Viewport = {
@@ -100,7 +101,7 @@ const jsonLd = {
     "https://www.figma.com/@richardvnarvaez",
   ],
 }
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({ children, modal }: RootLayoutProps) {
   return (
     <html lang="en">
       <body
@@ -121,6 +122,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem={false}
         >
           {children}
+          {modal}
           {/* <Analytics /> */}
           <Toaster />
           <TailwindIndicator />

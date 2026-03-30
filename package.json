@@ -55,6 +55,7 @@
     "class-variance-authority": "^0.4.0",
     "clsx": "^1.2.1",
     "cmdk": "^0.1.22",
+    "cobe": "^2.0.1",
     "concurrently": "^8.0.1",
     "contentlayer": "^0.3.4",
     "date-fns": "^2.30.0",
@@ -77,8 +78,8 @@
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "@tailwindcss/typography": "^0.5.9",
-    "@types/node": "^18.16.0",
     "@types/mapbox-gl": "^3.0.0",
+    "@types/node": "^18.16.0",
     "@types/react": "18.0.15",
     "@types/react-dom": "18.0.6",
     "autoprefixer": "^10.4.14",

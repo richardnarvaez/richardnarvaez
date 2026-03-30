@@ -1,6 +1,5 @@
-import Image from "next/image"
-
 import { AWSIcon } from "../Icons/IconsBusiness"
+import MacShowcaseStatic from "./MacShowcase/Static"
 
 export default function SectionFrameworksNStak() {
   return (
@@ -114,25 +113,7 @@ export default function SectionFrameworksNStak() {
           </div>
         </div>
       </div>
-      <div className="mx-auto flex justify-center text-center md:max-w-[58rem]">
-        <Image
-          width={920}
-          height={128}
-          className="z-10 md:max-w-lg"
-          src={"/images/DockUsedApps.png"}
-          alt="Dock Used Apps"
-        />
-      </div>
-      <div className="relative mx-auto flex justify-center text-center md:max-w-[58rem]">
-        <Image
-          width={667}
-          height={295}
-          quality={100}
-          className="absolute -top-10 -z-10 w-full sm:-top-24 md:-top-32"
-          src={"/images/teclado-mac.jpg"}
-          alt="Teclado MacBook"
-        />
-      </div>
+      <MacShowcaseStatic />
     </section>
   )
 }

@@ -153,6 +153,24 @@ const components = {
       {...props}
     />
   ),
+  video: ({
+    className,
+    controls,
+    playsInline,
+    preload,
+    ...props
+  }: React.VideoHTMLAttributes<HTMLVideoElement>) => (
+    <video
+      className={cn(
+        "my-6 w-full overflow-hidden rounded-xl border bg-black",
+        className
+      )}
+      controls={controls ?? true}
+      playsInline={playsInline ?? true}
+      preload={preload ?? "metadata"}
+      {...props}
+    />
+  ),
   Image,
   ImageBlog,
   Callout,

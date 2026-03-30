@@ -1,12 +1,11 @@
 import Image from "next/image"
 import Link from "next/link"
-import { allPosts } from "contentlayer/generated"
-import { compareDesc } from "date-fns"
 
+import { getPublishedProjectPosts } from "@/lib/project-posts"
 import { formatDate } from "@/lib/utils"
 
 export const metadata = {
-  title: "Blog",
+  title: "Projects",
 }
 
 const getColorOfStatus = {
@@ -18,12 +17,9 @@ const getColorOfStatus = {
   proposal: "bg-blue-500 text-blue-800",
   mvp: "border bg-white/10",
 }
-export default async function BlogPage() {
-  const posts = allPosts
-    .filter((post) => post.published)
-    .sort((a, b) => {
-      return compareDesc(new Date(a.date), new Date(b.date))
-    })
+
+export default async function ProjectsPage() {
+  const posts = getPublishedProjectPosts()
 
   return (
     <div className="container max-w-4xl py-6 lg:py-10">
@@ -79,7 +75,11 @@ export default async function BlogPage() {
                   {formatDate(post.date)}
                 </p>
               )}
-              <Link href={post.slug} className="absolute inset-0">
+              <Link
+                href={post.slug}
+                scroll={false}
+                className="absolute inset-0"
+              >
                 <span className="sr-only">View Article</span>
               </Link>
             </article>

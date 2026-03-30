@@ -1,23 +1,68 @@
-import AnimatedTitle from "@/components/Home/AnimatedTitle"
-import HeaderImage from "@/components/Home/HeaderImage"
+"use client"
 
-import ScrollDownIndicator from "../ScrollDownIndicator"
+import { useEffect, useRef, useState } from "react"
+
+import HeaderBottomFade from "@/components/Home/HeaderBottomFade"
+import HeaderImage from "@/components/Home/HeaderImage"
+import HeaderInteractiveLayer from "@/components/Home/HeaderInteractiveLayer"
+import HeaderTitleLayer from "@/components/Home/HeaderTitleLayer"
+import type { HeaderOrbitTab } from "@/components/Home/HeaderOrbitTabs"
 
 export default function Header() {
+  const [activeTab, setActiveTab] = useState<HeaderOrbitTab>("Dev")
+  const [isOrbitVisible, setIsOrbitVisible] = useState(false)
+  const [areOrbitTabsVisible, setAreOrbitTabsVisible] = useState(false)
+  const closeOrbitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    setIsOrbitVisible(false)
+    setAreOrbitTabsVisible(false)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (closeOrbitTimeoutRef.current) {
+        clearTimeout(closeOrbitTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  function handleOrbitToggle() {
+    if (closeOrbitTimeoutRef.current) {
+      clearTimeout(closeOrbitTimeoutRef.current)
+      closeOrbitTimeoutRef.current = null
+    }
+
+    if (isOrbitVisible) {
+      setAreOrbitTabsVisible(false)
+      closeOrbitTimeoutRef.current = setTimeout(() => {
+        setIsOrbitVisible(false)
+        closeOrbitTimeoutRef.current = null
+      }, 100)
+      return
+    }
+
+    setIsOrbitVisible(true)
+    setAreOrbitTabsVisible(true)
+  }
+
   return (
     <>
       <section
         id="header"
-        className="custom-cursor flex h-dvh w-full flex-col items-center justify-center gap-4 overflow-hidden text-center"
+        className="custom-cursor relative isolate flex h-dvh w-full flex-col items-center justify-center gap-4 overflow-hidden text-center"
       >
-        <div className="w-full max-w-5xl">
-          <div className="relative z-20 flex w-full flex-col items-center justify-center gap-4">
-            <AnimatedTitle />
-          </div>
-        </div>
+        <HeaderTitleLayer visible={!isOrbitVisible} />
 
-        {/* <ScrollDownIndicator /> */}
-        <HeaderImage />
+        <HeaderInteractiveLayer
+          activeTab={activeTab}
+          orbitVisible={isOrbitVisible}
+          orbitTabsVisible={areOrbitTabsVisible}
+          onTabSelect={setActiveTab}
+          onToggle={handleOrbitToggle}
+        />
+        <HeaderBottomFade />
+        <HeaderImage activeTab={activeTab} orbitVisible={isOrbitVisible} />
       </section>
     </>
   )
