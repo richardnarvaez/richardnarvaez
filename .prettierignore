@@ -1,6 +1,0 @@
-# Ignore UI components from external libraries
-components/ui/
-node_modules/
-.next/
-dist/
-build/
