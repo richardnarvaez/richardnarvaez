@@ -26,11 +26,9 @@ export default function HeaderOrbitArtCard({
       initial="initial"
       animate="animate"
       exit="exit"
-      className="pointer-events-auto mx-auto w-[min(94vw,64rem)]"
+      className="pointer-events-auto mx-auto w-[min(96vw,68rem)]"
     >
-      <div className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-[0_24px_70px_rgba(15,23,42,0.16)] sm:p-5">
-        <HeaderOrbitArtMasonry />
-      </div>
+      <HeaderOrbitArtMasonry />
     </motion.div>
   )
 }

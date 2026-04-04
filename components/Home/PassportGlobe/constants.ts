@@ -8,11 +8,16 @@ export const GLOBE_HEIGHT = 600
 export const GLOBE_SCALE = 1.2
 export const GLOBE_SURFACE_RADIUS = 0.8
 export const ROTATION_EASING = 0.08
+export const ROTATION_SETTLE_EPSILON = 0.0004
 export const PROJECTION_PHI_OFFSET = 0
 export const FOCUS_THETA_OFFSET = 0.3
 export const THETA_LIMIT = 1.05
 export const DRAG_PHI_SENSITIVITY = 0.01
 export const DRAG_THETA_SENSITIVITY = 0.008
+export const GLOBE_DEVICE_PIXEL_RATIO_CAP_COMPACT = 1.25
+export const GLOBE_DEVICE_PIXEL_RATIO_CAP_FULL = 1.75
+export const GLOBE_MAP_SAMPLES_COMPACT = 6000
+export const GLOBE_MAP_SAMPLES_FULL = 12000
 
 export const mixedPlacesColor = "from-violet-500 to-purple-500"
 export const neutralPlaceColor = "from-white to-slate-100"

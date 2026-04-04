@@ -10,9 +10,14 @@ import {
   DRAG_PHI_SENSITIVITY,
   DRAG_THETA_SENSITIVITY,
   FOCUS_THETA_OFFSET,
+  GLOBE_DEVICE_PIXEL_RATIO_CAP_COMPACT,
+  GLOBE_DEVICE_PIXEL_RATIO_CAP_FULL,
   GLOBE_HEIGHT,
+  GLOBE_MAP_SAMPLES_COMPACT,
+  GLOBE_MAP_SAMPLES_FULL,
   GLOBE_SCALE,
   ROTATION_EASING,
+  ROTATION_SETTLE_EPSILON,
 } from "./constants"
 import { CountryFlag } from "./CountryFlag"
 import {
@@ -43,17 +48,23 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const globeRef = useRef<Globe | null>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const resizeFrameRef = useRef<number | null>(null)
   const markerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
   const rotationRef = useRef(INITIAL_PHI)
   const targetRotationRef = useRef(INITIAL_PHI)
   const thetaRef = useRef(INITIAL_THETA)
   const targetThetaRef = useRef(INITIAL_THETA)
-  const phiVelocityRef = useRef(0)
-  const thetaVelocityRef = useRef(0)
   const dragXRef = useRef<number | null>(null)
   const dragYRef = useRef<number | null>(null)
+  const isDraggingRef = useRef(false)
   const viewportWidthRef = useRef(0)
   const viewportHeightRef = useRef(GLOBE_HEIGHT)
+  const compactRef = useRef(compact)
+  const renderedPhiRef = useRef(INITIAL_PHI)
+  const renderedThetaRef = useRef(INITIAL_THETA)
+  const renderedWidthRef = useRef(0)
+  const renderedHeightRef = useRef(GLOBE_HEIGHT)
+  const renderFrameRef = useRef<() => void>(() => {})
   const [viewportWidth, setViewportWidth] = useState(0)
   const [viewportHeight, setViewportHeight] = useState(GLOBE_HEIGHT)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -65,39 +76,77 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const visitedCountries = getVisitedCountries()
 
+  const queueRender = () => {
+    if (!globeRef.current || animationFrameRef.current !== null) return
+
+    animationFrameRef.current = window.requestAnimationFrame(() => {
+      animationFrameRef.current = null
+      renderFrameRef.current()
+    })
+  }
+
   useEffect(() => {
     if (!globeFrameRef.current) return
 
     const updateSize = () => {
-      setViewportWidth(globeFrameRef.current?.clientWidth || 0)
-      setViewportHeight(globeFrameRef.current?.clientHeight || GLOBE_HEIGHT)
+      if (!globeFrameRef.current) return
+
+      const nextWidth = globeFrameRef.current.clientWidth || 0
+      const nextHeight = globeFrameRef.current.clientHeight || GLOBE_HEIGHT
+
+      setViewportWidth((current) =>
+        current === nextWidth ? current : nextWidth
+      )
+      setViewportHeight((current) =>
+        current === nextHeight ? current : nextHeight
+      )
     }
 
-    updateSize()
+    const queueSizeUpdate = () => {
+      if (resizeFrameRef.current !== null) return
 
-    const resizeObserver = new ResizeObserver(updateSize)
+      resizeFrameRef.current = window.requestAnimationFrame(() => {
+        resizeFrameRef.current = null
+        updateSize()
+      })
+    }
+
+    queueSizeUpdate()
+
+    const resizeObserver = new ResizeObserver(queueSizeUpdate)
     resizeObserver.observe(globeFrameRef.current)
 
-    return () => resizeObserver.disconnect()
+    return () => {
+      resizeObserver.disconnect()
+
+      if (resizeFrameRef.current !== null) {
+        window.cancelAnimationFrame(resizeFrameRef.current)
+        resizeFrameRef.current = null
+      }
+    }
   }, [])
 
   useEffect(() => {
     viewportWidthRef.current = viewportWidth
     viewportHeightRef.current = viewportHeight
 
-    if (viewportWidth === 0) return
-
-    updateMarkerPositions(
-      markerEntries,
-      markerRefs.current,
-      rotationRef.current,
-      thetaRef.current,
-      viewportWidth,
-      viewportHeight
-    )
+    if (viewportWidth > 0 && globeRef.current) {
+      queueRender()
+    }
   }, [viewportHeight, viewportWidth])
 
   useEffect(() => {
+    if (globeRef.current && compactRef.current !== compact) {
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
+      }
+
+      globeRef.current.destroy()
+      globeRef.current = null
+      compactRef.current = compact
+    }
+
     if (
       !canvasRef.current ||
       viewportWidth === 0 ||
@@ -110,16 +159,25 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
     try {
       const landColor = toRgb("#8c86b7")
       const fogColor = toRgb("#1b1f2d")
+      const devicePixelRatio = Math.min(
+        window.devicePixelRatio || 1,
+        compact
+          ? GLOBE_DEVICE_PIXEL_RATIO_CAP_COMPACT
+          : GLOBE_DEVICE_PIXEL_RATIO_CAP_FULL
+      )
+      const mapSamples = compact
+        ? GLOBE_MAP_SAMPLES_COMPACT
+        : GLOBE_MAP_SAMPLES_FULL
 
       globeRef.current = createGlobe(canvasRef.current, {
-        devicePixelRatio: 2,
-        width: viewportWidth * 3,
-        height: viewportHeight * 3,
+        devicePixelRatio,
+        width: viewportWidth,
+        height: viewportHeight,
         phi: rotationRef.current,
         theta: thetaRef.current,
         dark: 1,
         diffuse: 1.9,
-        mapSamples: 20000,
+        mapSamples,
         mapBrightness: 2,
         mapBaseBrightness: 0,
         baseColor: landColor,
@@ -130,46 +188,85 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
         offset: [0, 0],
         markers: [],
       })
+      compactRef.current = compact
 
-      const renderFrame = () => {
-        rotationRef.current +=
+      renderFrameRef.current = () => {
+        if (!globeRef.current) return
+
+        const nextPhi =
+          rotationRef.current +
           (targetRotationRef.current - rotationRef.current) * ROTATION_EASING
-        thetaRef.current +=
+        const nextTheta =
+          thetaRef.current +
           (targetThetaRef.current - thetaRef.current) * ROTATION_EASING
+        const phiDelta = Math.abs(targetRotationRef.current - nextPhi)
+        const thetaDelta = Math.abs(targetThetaRef.current - nextTheta)
 
-        globeRef.current?.update({
-          phi: rotationRef.current,
-          theta: thetaRef.current,
-          width: viewportWidthRef.current * 3,
-          height: viewportHeightRef.current * 3,
-        })
+        rotationRef.current =
+          phiDelta <= ROTATION_SETTLE_EPSILON
+            ? targetRotationRef.current
+            : nextPhi
+        thetaRef.current =
+          thetaDelta <= ROTATION_SETTLE_EPSILON
+            ? targetThetaRef.current
+            : nextTheta
 
-        updateMarkerPositions(
-          markerEntries,
-          markerRefs.current,
-          rotationRef.current,
-          thetaRef.current,
-          viewportWidthRef.current,
-          viewportHeightRef.current
-        )
+        const sizeChanged =
+          renderedWidthRef.current !== viewportWidthRef.current ||
+          renderedHeightRef.current !== viewportHeightRef.current
+        const rotationChanged =
+          Math.abs(rotationRef.current - renderedPhiRef.current) >
+            ROTATION_SETTLE_EPSILON ||
+          Math.abs(thetaRef.current - renderedThetaRef.current) >
+            ROTATION_SETTLE_EPSILON
 
-        animationFrameRef.current = window.requestAnimationFrame(renderFrame)
+        if (sizeChanged || rotationChanged) {
+          globeRef.current.update({
+            phi: rotationRef.current,
+            theta: thetaRef.current,
+            width: viewportWidthRef.current,
+            height: viewportHeightRef.current,
+          })
+
+          updateMarkerPositions(
+            markerEntries,
+            markerRefs.current,
+            rotationRef.current,
+            thetaRef.current,
+            viewportWidthRef.current,
+            viewportHeightRef.current
+          )
+
+          renderedPhiRef.current = rotationRef.current
+          renderedThetaRef.current = thetaRef.current
+          renderedWidthRef.current = viewportWidthRef.current
+          renderedHeightRef.current = viewportHeightRef.current
+        }
+
+        if (
+          isDraggingRef.current ||
+          phiDelta > ROTATION_SETTLE_EPSILON ||
+          thetaDelta > ROTATION_SETTLE_EPSILON
+        ) {
+          queueRender()
+        }
       }
 
       setIsLoaded(true)
       setLoadError(null)
-      renderFrame()
+      queueRender()
     } catch (error) {
       setLoadError(
         "The Cobe globe could not be initialized locally. Check WebGL support and try again."
       )
     }
-  }, [viewportHeight, viewportWidth])
+  }, [compact, viewportHeight, viewportWidth])
 
   useEffect(() => {
     return () => {
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
       }
 
       globeRef.current?.destroy()
@@ -178,13 +275,12 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
   }, [])
 
   const handlePointerDown = (clientX: number) => {
+    isDraggingRef.current = true
     dragXRef.current = clientX
-    phiVelocityRef.current = 0
   }
 
   const handlePointerDownY = (clientY: number) => {
     dragYRef.current = clientY
-    thetaVelocityRef.current = 0
   }
 
   const handlePointerMove = (clientX: number, clientY: number) => {
@@ -198,15 +294,15 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
     targetThetaRef.current = clampTheta(
       targetThetaRef.current + deltaY * DRAG_THETA_SENSITIVITY
     )
-    phiVelocityRef.current = deltaX * 0.00015
-    thetaVelocityRef.current = deltaY * 0.00012
+
+    queueRender()
   }
 
   const handlePointerEnd = () => {
+    isDraggingRef.current = false
     dragXRef.current = null
     dragYRef.current = null
-    phiVelocityRef.current = 0
-    thetaVelocityRef.current = 0
+    queueRender()
   }
 
   const focusOnCoordinates = (coordinates: [number, number]) => {
@@ -215,13 +311,13 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
       coordinates[0]
     )
 
-    phiVelocityRef.current = 0
-    thetaVelocityRef.current = 0
     targetRotationRef.current = getClosestWrappedAngle(
       rotationRef.current,
       phiTarget
     )
     targetThetaRef.current = clampTheta(thetaTarget - FOCUS_THETA_OFFSET)
+
+    queueRender()
   }
 
   const handleMarkerClick = (entry: MarkerEntry) => {
@@ -342,7 +438,7 @@ export default function PassportGlobe({ compact = false }: PassportGlobeProps) {
                       ? `${entry.places.length} nearby places`
                       : entry.places[0].name
                   }
-                  className="pointer-events-auto absolute left-0 top-0 transition-opacity duration-150"
+                  className="pointer-events-auto absolute left-0 top-0 transition-opacity duration-150 will-change-transform"
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => {
                     event.stopPropagation()

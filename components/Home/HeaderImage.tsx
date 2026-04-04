@@ -31,11 +31,26 @@ export default function HeaderImage({
         blurDataURL="/images/home/bg-header-blur.jpg"
         alt="Background - Richard Vinueza Profile"
         className={cn(
-          "absolute inset-0 size-full object-cover opacity-25 transition-[filter,opacity,transform] duration-1000",
-          orbitVisible ? "scale-[1.2] blur-[10px]" : "scale-100 blur-0"
+          "absolute inset-0 size-full object-cover transition-[opacity,transform] duration-1000 will-change-transform",
+          orbitVisible ? "scale-[1.04] opacity-0" : "scale-100 opacity-25"
         )}
         priority
       />
+
+      <div className="absolute inset-0 overflow-hidden">
+        <Image
+          src="/images/home/bg-header.jpg"
+          width={720}
+          height={720}
+          alt=""
+          aria-hidden="true"
+          className={cn(
+            "saturate-125 absolute inset-0 size-full transform-gpu object-cover blur-[14px] transition-[opacity,transform] duration-1000",
+            orbitVisible ? "scale-[1.04] opacity-30" : "scale-100 opacity-0"
+          )}
+          priority
+        />
+      </div>
 
       <AnimatePresence>
         {orbitVisible ? (

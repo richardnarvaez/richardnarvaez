@@ -12,38 +12,35 @@ export default function Header() {
   const [activeTab, setActiveTab] = useState<HeaderOrbitTab>("Dev")
   const [isOrbitVisible, setIsOrbitVisible] = useState(false)
   const [areOrbitTabsVisible, setAreOrbitTabsVisible] = useState(false)
-  const closeOrbitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [isTitleVisible, setIsTitleVisible] = useState(true)
+  const orbitVisibleRef = useRef(isOrbitVisible)
 
   useEffect(() => {
     setIsOrbitVisible(false)
     setAreOrbitTabsVisible(false)
+    setIsTitleVisible(true)
   }, [])
 
   useEffect(() => {
-    return () => {
-      if (closeOrbitTimeoutRef.current) {
-        clearTimeout(closeOrbitTimeoutRef.current)
-      }
-    }
-  }, [])
+    orbitVisibleRef.current = isOrbitVisible
+  }, [isOrbitVisible])
 
   function handleOrbitToggle() {
-    if (closeOrbitTimeoutRef.current) {
-      clearTimeout(closeOrbitTimeoutRef.current)
-      closeOrbitTimeoutRef.current = null
-    }
-
     if (isOrbitVisible) {
       setAreOrbitTabsVisible(false)
-      closeOrbitTimeoutRef.current = setTimeout(() => {
-        setIsOrbitVisible(false)
-        closeOrbitTimeoutRef.current = null
-      }, 100)
+      setIsOrbitVisible(false)
       return
     }
 
+    setIsTitleVisible(false)
     setIsOrbitVisible(true)
     setAreOrbitTabsVisible(true)
+  }
+
+  function handleOrbitExitComplete() {
+    if (!orbitVisibleRef.current) {
+      setIsTitleVisible(true)
+    }
   }
 
   return (
@@ -52,10 +49,11 @@ export default function Header() {
         id="header"
         className="custom-cursor relative isolate flex h-dvh w-full flex-col items-center justify-center gap-4 overflow-hidden text-center"
       >
-        <HeaderTitleLayer visible={!isOrbitVisible} />
+        <HeaderTitleLayer visible={isTitleVisible} />
 
         <HeaderInteractiveLayer
           activeTab={activeTab}
+          onOrbitExitComplete={handleOrbitExitComplete}
           orbitVisible={isOrbitVisible}
           orbitTabsVisible={areOrbitTabsVisible}
           onTabSelect={setActiveTab}

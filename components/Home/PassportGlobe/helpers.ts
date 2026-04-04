@@ -267,15 +267,13 @@ export const updateMarkerPositions = (
     if (!projected.visible) {
       marker.style.opacity = "0"
       marker.style.pointerEvents = "none"
-      marker.style.transform = "translate(-50%, -50%) scale(0.85)"
+      marker.style.transform = `translate3d(${projected.x}px, ${projected.y}px, 0) translate(-50%, -50%) scale(0.85)`
       return
     }
 
-    marker.style.left = `${projected.x}px`
-    marker.style.top = `${projected.y}px`
     marker.style.opacity = `${0.36 + projected.depth * 0.64}`
     marker.style.pointerEvents = "auto"
-    marker.style.transform = `translate(-50%, -50%) scale(${
+    marker.style.transform = `translate3d(${projected.x}px, ${projected.y}px, 0) translate(-50%, -50%) scale(${
       0.82 + projected.depth * 0.28
     })`
     marker.style.zIndex = `${Math.round(projected.depth * 100)}`

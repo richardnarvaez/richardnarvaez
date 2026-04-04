@@ -6,6 +6,7 @@ import type { HeaderOrbitTab } from "./HeaderOrbitTabs"
 
 type HeaderInteractiveLayerProps = {
   activeTab: HeaderOrbitTab
+  onOrbitExitComplete: () => void
   onToggle: () => void
   onTabSelect: (tab: HeaderOrbitTab) => void
   orbitVisible: boolean
@@ -14,6 +15,7 @@ type HeaderInteractiveLayerProps = {
 
 export default function HeaderInteractiveLayer({
   activeTab,
+  onOrbitExitComplete,
   onToggle,
   onTabSelect,
   orbitVisible,
@@ -21,7 +23,11 @@ export default function HeaderInteractiveLayer({
 }: HeaderInteractiveLayerProps) {
   return (
     <>
-      <HeaderOrbitScene activeTab={activeTab} visible={orbitVisible} />
+      <HeaderOrbitScene
+        activeTab={activeTab}
+        visible={orbitVisible}
+        onExitComplete={onOrbitExitComplete}
+      />
       <HeaderOrbitToggle
         activeTab={activeTab}
         tabsVisible={orbitTabsVisible}

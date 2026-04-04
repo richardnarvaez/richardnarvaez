@@ -100,7 +100,7 @@ function AnimatedCursor() {
         <div className="absolute -right-1.5 -top-1.5 size-3 border-2 border-blue-400 bg-white"></div>
         <div className="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-blue-400 bg-white"></div>
         <div className="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-blue-400 bg-white"></div>
-        <p>AI</p>
+        <p className="text-[#FF512F]">AI</p>
       </div>
     </motion.div>
   )
