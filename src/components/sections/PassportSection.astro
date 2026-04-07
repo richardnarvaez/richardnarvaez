@@ -1,0 +1,112 @@
+<section
+  id="passport"
+  data-section-motion
+  class="border-t border-white/8 px-5 sm:px-8"
+>
+  <div class="mx-auto flex min-h-dvh max-w-6xl items-center justify-center py-24">
+    <div data-section-reveal class="passport-panel w-full max-w-[40rem]">
+      <div class="passport-panel__media">
+        <img src="/images/travel.png" alt="Passport concept preview" class="size-full object-cover" />
+        <div class="passport-panel__overlay"></div>
+        <div class="passport-panel__stamp passport-panel__stamp--top">ECUADOR</div>
+        <div class="passport-panel__stamp passport-panel__stamp--bottom">MADRID</div>
+      </div>
+
+      <div class="passport-panel__body">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="font-jetbrains text-[11px] uppercase tracking-[0.28em] text-[#f59e0b]">
+              Passport / future app
+            </p>
+            <h3 class="mt-3 text-2xl font-semibold text-white">
+              Places, stamps and memory as a separate product.
+            </h3>
+          </div>
+          <div class="rounded-full border border-white/15 bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-white/68">
+            Beta
+          </div>
+        </div>
+
+        <p class="mt-4 text-sm leading-7 text-white/72">
+          The passport layer is where trips, routes and field notes become structured memory. It stays here as part of the orbit, then branches into its own app later.
+        </p>
+
+        <div class="mt-6 flex flex-wrap gap-2">
+          <span class="passport-chip">Stamps</span>
+          <span class="passport-chip">Countries</span>
+          <span class="passport-chip">Trips</span>
+          <span class="passport-chip">Field notes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .font-jetbrains {
+    font-family: var(--font-jetbrains);
+  }
+
+  .passport-panel {
+    overflow: hidden;
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background:
+      linear-gradient(180deg, rgba(14, 18, 28, 0.72), rgba(7, 10, 18, 0.72)),
+      rgba(255, 255, 255, 0.06);
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(26px);
+  }
+
+  .passport-panel__media {
+    position: relative;
+    height: 13rem;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .passport-panel__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top right, rgba(253, 186, 116, 0.34), transparent 38%),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.06), rgba(15, 23, 42, 0.58));
+  }
+
+  .passport-panel__stamp {
+    position: absolute;
+    border: 1px solid rgba(253, 186, 116, 0.5);
+    background: rgba(15, 23, 42, 0.38);
+    padding: 0.45rem 0.7rem;
+    font-family: var(--font-jetbrains);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: rgba(255, 237, 213, 0.9);
+    backdrop-filter: blur(12px);
+  }
+
+  .passport-panel__stamp--top {
+    right: 1rem;
+    top: 1rem;
+    transform: rotate(-9deg);
+  }
+
+  .passport-panel__stamp--bottom {
+    bottom: 1rem;
+    left: 1rem;
+    transform: rotate(8deg);
+  }
+
+  .passport-panel__body {
+    padding: 1.5rem;
+  }
+
+  .passport-chip {
+    border-radius: 9999px;
+    border: 1px solid rgba(253, 186, 116, 0.26);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.4rem 0.75rem;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.76);
+  }
+</style>

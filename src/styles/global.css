@@ -1,1 +1,22 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&display=swap");
 @import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --font-barlow: "Barlow", sans-serif;
+  --font-playfair: "Playfair Display", serif;
+  --font-jetbrains: "JetBrains Mono", monospace;
+  --page-accent-surface: hsl(244 31% 10%);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: #000;
+  color: rgb(226 232 240);
+  font-feature-settings:
+    "rlig" 1,
+    "calt" 1;
+}

@@ -5,7 +5,8 @@ interface Props {
   title?: string
 }
 
-const { title = "Richard Narvaez" } = Astro.props
+const { title = "Richard Vinueza" } = Astro.props
+const browserThemeColor = "#121121"
 ---
 
 <!doctype html>
@@ -15,6 +16,9 @@ const { title = "Richard Narvaez" } = Astro.props
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content={browserThemeColor} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>

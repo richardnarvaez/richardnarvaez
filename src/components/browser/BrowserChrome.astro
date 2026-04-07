@@ -1,0 +1,155 @@
+---
+interface Props {
+  url?: string
+  width?: number | null
+  className?: string
+}
+
+const {
+  url = "richardnarvaez.dev",
+  width = null,
+  className = "",
+} = Astro.props
+---
+
+<div class:list={["browser-chrome", className]}>
+  <div class="browser-chrome__toolbar">
+    <div class="browser-chrome__traffic">
+      <div
+        class="browser-chrome__light"
+        style="background:#ED6A5E;box-shadow:inset 0px 0.75px 0.75px rgba(0, 0, 0, 0.16)"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="browser-chrome__light"
+        style="background:#F4BF4E;box-shadow:inset 0px 0.75px 0.75px rgba(0, 0, 0, 0.16)"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="browser-chrome__light"
+        style="background:#61C655;box-shadow:inset 0px 0.75px 0.75px rgba(0, 0, 0, 0.16)"
+        aria-hidden="true"
+      ></div>
+    </div>
+
+    <div class="browser-chrome__url">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+      <span>{url}</span>
+      {width != null && (
+        <>
+          <span class="browser-chrome__separator">-</span>
+          <span class="browser-chrome__width">{Math.round(width)}px</span>
+        </>
+      )}
+    </div>
+
+    <div class="browser-chrome__actions">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v12"></path>
+        <path d="m7 10 5 5 5-5"></path>
+        <path d="M5 21h14"></path>
+      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v14"></path>
+        <path d="M5 12h14"></path>
+      </svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+    </div>
+  </div>
+
+  <div class="browser-chrome__content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .browser-chrome {
+    display: flex;
+    height: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.12);
+    background: rgba(245, 245, 244, 0.98);
+    box-shadow:
+      0 32px 120px rgba(0, 0, 0, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    color: rgb(107 114 128);
+  }
+
+  .browser-chrome__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 1rem;
+  }
+
+  .browser-chrome__traffic {
+    display: flex;
+    flex: 1 1 0%;
+    gap: 0.5rem;
+  }
+
+  .browser-chrome__light {
+    width: 9px;
+    height: 9px;
+    border-radius: 9999px;
+  }
+
+  .browser-chrome__url {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: rgb(107 114 128);
+  }
+
+  .browser-chrome__url svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    color: rgb(156 163 175);
+  }
+
+  .browser-chrome__url span {
+    user-select: none;
+    font-weight: 500;
+  }
+
+  .browser-chrome__separator {
+    color: rgb(209 213 219);
+  }
+
+  .browser-chrome__width {
+    color: rgb(156 163 175);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .browser-chrome__actions {
+    display: flex;
+    flex: 1 1 0%;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  .browser-chrome__actions svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: rgb(209 213 219);
+  }
+
+  .browser-chrome__content {
+    margin: 0.5rem;
+    margin-top: 0;
+    flex: 1 1 0%;
+    overflow: auto;
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 0.375rem;
+    background: white;
+  }
+</style>

@@ -1,17 +1,24 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
+import HeroOrbit from "../components/hero/HeroOrbit.astro"
+import DevSection from "../components/sections/DevSection.astro"
+import ArtSection from "../components/sections/ArtSection.astro"
+import PassportSection from "../components/sections/PassportSection.astro"
+import OpenSourceSection from "../components/sections/OpenSourceSection.astro"
+import SiteFooter from "../components/footer/SiteFooter.astro"
 ---
 
-<BaseLayout title="Richard Narvaez | v3">
-  <main class="flex min-h-screen items-center justify-center px-6">
-    <section class="w-full max-w-3xl rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur">
-      <p class="text-xs uppercase tracking-[0.4em] text-neutral-400">v3 / astro</p>
-      <h1 class="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-6xl">
-        Orbit rebuild
-      </h1>
-      <p class="mt-4 max-w-xl text-sm leading-6 text-neutral-300 sm:text-base">
-        Empty Astro base with Tailwind 4 ready. Next steps are to rebuild the orbit-centered home from this branch.
-      </p>
-    </section>
-  </main>
+<BaseLayout title="Richard Narvaez | Orbit">
+  <HeroOrbit />
+  <DevSection />
+  <ArtSection />
+  <PassportSection />
+  <OpenSourceSection />
+  <SiteFooter />
 </BaseLayout>
+
+<script>
+  import { initSectionsMotion } from "../components/sections/sections.motion"
+
+  initSectionsMotion()
+</script>
