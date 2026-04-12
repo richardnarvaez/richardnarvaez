@@ -6,7 +6,7 @@
   --font-barlow: "Barlow", sans-serif;
   --font-playfair: "Playfair Display", serif;
   --font-jetbrains: "JetBrains Mono", monospace;
-  --page-accent-surface: hsl(244 31% 10%);
+  --page-accent-surface: #131222;
 }
 
 html {
@@ -14,7 +14,7 @@ html {
 }
 
 body {
-  background: #000;
+  background: var(--page-accent-surface);
   color: rgb(226 232 240);
   font-feature-settings:
     "rlig" 1,

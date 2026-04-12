@@ -77,21 +77,49 @@ export function initSectionsMotion() {
     )
 
     if (artTrack && artTrackViewport) {
+      const artTrackCards = Array.from(
+        artTrack.querySelectorAll<HTMLElement>("[data-art-track-card]")
+      )
+
+      const getArtTrackMetrics = () => {
+        if (artTrackCards.length === 0) {
+          return {
+            startX: 0,
+            endX: 0,
+          }
+        }
+
+        const viewportCenterX = artTrackViewport.clientWidth / 2
+        const centeredOffsets = artTrackCards.map((card) => {
+          const cardCenterX = card.offsetLeft + card.offsetWidth / 2
+          return viewportCenterX - cardCenterX
+        })
+
+        const startX = centeredOffsets[0] ?? 0
+        const endX = centeredOffsets[centeredOffsets.length - 1] ?? startX
+        const travelDistance = endX - startX
+
+        if (Math.abs(travelDistance) < 0.001) {
+          return {
+            startX,
+            endX,
+          }
+        }
+
+        return {
+          startX,
+          endX,
+        }
+      }
+
       gsap.fromTo(
         artTrack,
         {
-          x: 0,
+          x: () => getArtTrackMetrics().startX,
         },
         {
-          x: () => {
-            const maxTravel = Math.max(
-              artTrack.scrollWidth - artTrackViewport.clientWidth,
-              0
-            )
-            return -maxTravel
-          },
+          x: () => getArtTrackMetrics().endX,
           ease: "none",
-          immediateRender: false,
           scrollTrigger: {
             trigger: section,
             start: "top top",

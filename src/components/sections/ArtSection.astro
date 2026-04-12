@@ -23,11 +23,14 @@ import { artPreviewItems } from "../hero/hero.data"
       <div data-section-reveal class="art-track-wrap relative mt-6 bg-transparent">
         <div
           data-art-track-viewport
-          class="overflow-hidden px-4 py-4 md:px-6 md:py-5"
+          class="relative overflow-hidden px-4 py-4 md:px-6 md:py-5"
         >
           <ol data-art-track class="art-track-list flex w-max gap-4 md:gap-5">
             {artPreviewItems.map((item, index) => (
-              <li class="art-track-card group w-[min(76vw,20rem)] shrink-0 text-left md:w-[min(28vw,21rem)]">
+              <li
+                data-art-track-card
+                class="art-track-card group w-[min(76vw,20rem)] shrink-0 text-left md:w-[min(28vw,21rem)]"
+              >
                 <article class="overflow-hidden rounded-[1.45rem] border border-white/10 bg-white/[0.03]">
                   <div class="relative aspect-[4/5] overflow-hidden">
                     <img
@@ -54,6 +57,9 @@ import { artPreviewItems } from "../hero/hero.data"
               </li>
             ))}
           </ol>
+
+          <div aria-hidden="true" class="art-track-fade art-track-fade--left"></div>
+          <div aria-hidden="true" class="art-track-fade art-track-fade--right"></div>
         </div>
       </div>
     </div>
@@ -121,6 +127,35 @@ import { artPreviewItems } from "../hero/hero.data"
 <style>
   .art-track-card {
     will-change: transform;
+  }
+
+  .art-track-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: clamp(2.75rem, 8vw, 6rem);
+    pointer-events: none;
+  }
+
+  .art-track-fade--left {
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      var(--page-accent-surface) 0%,
+      rgba(19, 18, 34, 0.82) 35%,
+      rgba(19, 18, 34, 0) 100%
+    );
+  }
+
+  .art-track-fade--right {
+    right: 0;
+    background: linear-gradient(
+      270deg,
+      var(--page-accent-surface) 0%,
+      rgba(19, 18, 34, 0.82) 35%,
+      rgba(19, 18, 34, 0) 100%
+    );
   }
 
   .art-drawer {

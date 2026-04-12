@@ -6,7 +6,7 @@ interface Props {
 }
 
 const { title = "Richard Vinueza" } = Astro.props
-const browserThemeColor = "#121121"
+const browserThemeColor = "#131222"
 ---
 
 <!doctype html>
@@ -18,11 +18,22 @@ const browserThemeColor = "#121121"
     <meta name="viewport" content="width=device-width" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content={browserThemeColor} />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="theme-color"
+      content={browserThemeColor}
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content={browserThemeColor}
+      media="(prefers-color-scheme: light)"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class="min-h-screen bg-neutral-950 text-neutral-100 antialiased">
+  <body class="min-h-screen text-neutral-100 antialiased">
     <slot />
   </body>
 </html>
