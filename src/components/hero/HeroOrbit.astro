@@ -1,35 +1,46 @@
 ---
-import ArrowFigma from "../icons/ArrowFigma.astro"
-import VercelColorIcon from "../icons/VercelColorIcon.astro"
-import { Mail } from "lucide"
-import { heroOrbitNodes } from "./hero.data"
+import ArrowFigma from "../icons/ArrowFigma.astro";
+import VercelColorIcon from "../icons/VercelColorIcon.astro";
+import packageJson from "../../../package.json";
+import { heroOrbitNodes } from "./hero.data";
 
-const githubUrl = "https://github.com/richardnarvaez/"
-const instagramUrl = "https://www.instagram.com/richard.vinueza/"
-const linkedinUrl = "https://www.linkedin.com/in/richard-vinueza/"
+const githubUrl = "https://github.com/richardnarvaez/";
+const instagramUrl = "https://www.instagram.com/richard.vinueza/";
+const linkedinUrl = "https://www.linkedin.com/in/richard-vinueza/";
 const instagramIconSvg =
-  '<svg viewBox="0 0 24 24" width="18" height="18" class="hero-device-contact-link__svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>'
+  '<svg viewBox="0 0 24 24" width="18" height="18" class="hero-device-contact-link__svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>';
 const linkedinIconSvg =
-  '<svg viewBox="0 0 256 256" width="18" height="18" class="hero-device-contact-link__svg" fill="currentColor" aria-hidden="true"><path d="M218.123 218.127h-37.931v-59.403c0-14.165-.253-32.4-19.728-32.4-19.756 0-22.779 15.434-22.779 31.369v60.43h-37.93V95.967h36.413v16.694h.51a39.907 39.907 0 0 1 35.928-19.733c38.445 0 45.533 25.288 45.533 58.186l-.016 67.013ZM56.955 79.27c-12.157.002-22.014-9.852-22.016-22.009-.002-12.157 9.851-22.014 22.008-22.016 12.157-.003 22.014 9.851 22.016 22.008A22.013 22.013 0 0 1 56.955 79.27m18.966 138.858H37.95V95.967h37.97v122.16ZM237.033.018H18.89C8.58-.098.125 8.161-.001 18.471v219.053c.122 10.315 8.576 18.582 18.89 18.474h218.144c10.336.128 18.823-8.139 18.966-18.474V18.454c-.147-10.33-8.635-18.588-18.966-18.453"/></svg>'
+  '<svg viewBox="0 0 256 256" width="18" height="18" class="hero-device-contact-link__svg" fill="currentColor" aria-hidden="true"><path d="M218.123 218.127h-37.931v-59.403c0-14.165-.253-32.4-19.728-32.4-19.756 0-22.779 15.434-22.779 31.369v60.43h-37.93V95.967h36.413v16.694h.51a39.907 39.907 0 0 1 35.928-19.733c38.445 0 45.533 25.288 45.533 58.186l-.016 67.013ZM56.955 79.27c-12.157.002-22.014-9.852-22.016-22.009-.002-12.157 9.851-22.014 22.008-22.016 12.157-.003 22.014 9.851 22.016 22.008A22.013 22.013 0 0 1 56.955 79.27m18.966 138.858H37.95V95.967h37.97v122.16ZM237.033.018H18.89C8.58-.098.125 8.161-.001 18.471v219.053c.122 10.315 8.576 18.582 18.89 18.474h218.144c10.336.128 18.823-8.139 18.966-18.474V18.454c-.147-10.33-8.635-18.588-18.966-18.453"/></svg>';
 const githubIconSvg =
-  '<svg viewBox="0 0 512 512" width="18" height="18" class="hero-device-contact-link__svg" fill="currentColor" aria-hidden="true"><path clip-rule="evenodd" d="M296.133,354.174c49.885-5.891,102.942-24.029,102.942-110.192c0-24.49-8.624-44.448-22.67-59.869c2.266-5.89,9.515-28.114-2.734-58.947c0,0-18.139-5.898-60.759,22.669c-18.139-4.983-38.09-8.163-56.682-8.163c-19.053,0-39.011,3.18-56.697,8.163c-43.082-28.567-61.22-22.669-61.22-22.669c-12.241,30.833-4.983,53.057-2.718,58.947c-14.061,15.42-22.677,35.379-22.677,59.869c0,86.163,53.057,104.301,102.942,110.192c-6.344,5.452-12.241,15.873-14.507,30.387c-12.702,5.438-45.808,15.873-65.758-18.592c0,0-11.795-21.31-34.012-22.669c0,0-22.224-0.453-1.813,13.592c0,0,14.96,6.812,24.943,32.653c0,0,13.6,43.089,76.179,29.48v38.543c0,5.906-4.53,12.702-15.865,10.89C96.139,438.977,32.2,354.626,32.2,255.77c0-123.807,100.216-224.022,224.03-224.022c123.347,0,224.023,100.216,223.57,224.022c0,98.856-63.946,182.754-152.828,212.688c-11.342,2.266-15.873-4.53-15.873-10.89V395.45C311.1,374.577,304.288,360.985,296.133,354.174L296.133,354.174z M512,256.23C512,114.73,397.263,0,256.23,0C114.73,0,0,114.73,0,256.23C0,397.263,114.73,512,256.23,512C397.263,512,512,397.263,512,256.23L512,256.23z" fill-rule="evenodd"/></svg>'
+  '<svg viewBox="0 0 512 512" width="18" height="18" class="hero-device-contact-link__svg" fill="currentColor" aria-hidden="true"><path clip-rule="evenodd" d="M296.133,354.174c49.885-5.891,102.942-24.029,102.942-110.192c0-24.49-8.624-44.448-22.67-59.869c2.266-5.89,9.515-28.114-2.734-58.947c0,0-18.139-5.898-60.759,22.669c-18.139-4.983-38.09-8.163-56.682-8.163c-19.053,0-39.011,3.18-56.697,8.163c-43.082-28.567-61.22-22.669-61.22-22.669c-12.241,30.833-4.983,53.057-2.718,58.947c-14.061,15.42-22.677,35.379-22.677,59.869c0,86.163,53.057,104.301,102.942,110.192c-6.344,5.452-12.241,15.873-14.507,30.387c-12.702,5.438-45.808,15.873-65.758-18.592c0,0-11.795-21.31-34.012-22.669c0,0-22.224-0.453-1.813,13.592c0,0,14.96,6.812,24.943,32.653c0,0,13.6,43.089,76.179,29.48v38.543c0,5.906-4.53,12.702-15.865,10.89C96.139,438.977,32.2,354.626,32.2,255.77c0-123.807,100.216-224.022,224.03-224.022c123.347,0,224.023,100.216,223.57,224.022c0,98.856-63.946,182.754-152.828,212.688c-11.342,2.266-15.873-4.53-15.873-10.89V395.45C311.1,374.577,304.288,360.985,296.133,354.174L296.133,354.174z M512,256.23C512,114.73,397.263,0,256.23,0C114.73,0,0,114.73,0,256.23C0,397.263,114.73,512,256.23,512C397.263,512,512,397.263,512,256.23L512,256.23z" fill-rule="evenodd"/></svg>';
+const contactLinks = [
+  {
+    id: "instagram",
+    label: "Instagram",
+    href: instagramUrl,
+    iconSvg: instagramIconSvg,
+    surfaceClass: "bg-[linear-gradient(135deg,#f97316,#ec4899_56%,#7c3aed)]",
+    glyphClass: "scale-[0.94]",
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    href: linkedinUrl,
+    iconSvg: linkedinIconSvg,
+    surfaceClass: "bg-[linear-gradient(135deg,#38bdf8,#2563eb)]",
+    glyphClass: "scale-[0.72] -translate-y-[0.015rem]",
+  },
+  {
+    id: "github",
+    label: "GitHub",
+    href: githubUrl,
+    iconSvg: githubIconSvg,
+    surfaceClass: "bg-[linear-gradient(135deg,#334155,#0f172a)]",
+    glyphClass: "scale-[0.84]",
+  },
+] as const;
 
-function renderLucideIcon(
-  icon: readonly [string, Record<string, string>][],
-  className: string
-) {
-  const body = icon
-    .map(([tag, attrs]) => {
-      const attributes = Object.entries(attrs)
-        .map(([key, value]) => `${key}="${value}"`)
-        .join(" ")
-
-      return `<${tag} ${attributes}></${tag}>`
-    })
-    .join("")
-
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="${className}" aria-hidden="true">${body}</svg>`
-}
+const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`;
 
 const notchIdleRows = [
   "033300000000",
@@ -38,7 +49,7 @@ const notchIdleRows = [
   "333333333333",
   "003200003200",
   "003320003320",
-] as const
+] as const;
 
 const notchPixels = notchIdleRows.flatMap((row, rowIndex) =>
   Array.from(row).map((tone, columnIndex) => ({
@@ -47,533 +58,678 @@ const notchPixels = notchIdleRows.flatMap((row, rowIndex) =>
     tone,
     active: tone !== "0",
     delay: (rowIndex * row.length + columnIndex) * 0.028,
-  }))
-)
+  })),
+);
 
-function buildFoodPixels(rows: readonly string[]) {
-  return rows.flatMap((row, rowIndex) =>
-    Array.from(row).map((tone, columnIndex) => ({
-      row: rowIndex,
-      column: columnIndex,
-      tone,
-      active: tone !== "0",
-    }))
-  )
+function buildBoardSprite(rows: readonly string[]) {
+  return {
+    columns: rows[0]?.length ?? 0,
+    rows: rows.length,
+    pixels: rows.flatMap((row, rowIndex) =>
+      Array.from(row).map((tone, columnIndex) => ({
+        row: rowIndex,
+        column: columnIndex,
+        tone,
+        active: tone !== "0",
+      })),
+    ),
+  };
+}
+
+function buildFoodSprite(rows: readonly string[]) {
+  return {
+    columns: rows[0]?.length ?? 0,
+    rows: rows.length,
+    pixels: rows.flatMap((row, rowIndex) =>
+      Array.from(row).map((tone, columnIndex) => ({
+        row: rowIndex,
+        column: columnIndex,
+        tone,
+        active: tone !== "0",
+      })),
+    ),
+  };
 }
 
 const foodItems = [
   {
-    label: "Blue fish",
-    pixels: buildFoodPixels([
-      "00022000",
-      "00222200",
-      "22344522",
-      "23344452",
-      "22344522",
-      "00222200",
-      "00022000",
-      "00000000",
+    id: "fish",
+    label: "Fish",
+    sprite: buildFoodSprite([
+      "000111000010",
+      "001111100110",
+      "110441111111",
+      "011433113311",
+      "113111100110",
+      "001111000010",
     ]),
   },
   {
-    label: "Shrimp",
-    pixels: buildFoodPixels([
-      "00033000",
-      "00344400",
-      "03444430",
-      "34444300",
-      "03444400",
-      "00334000",
-      "00033000",
-      "00000000",
+    id: "pig",
+    label: "Pig",
+    sprite: buildFoodSprite([
+      "087777777780",
+      "877777777778",
+      "877977779778",
+      "077444444770",
+      "077494494770",
+      "007444444700",
     ]),
   },
   {
-    label: "Crab",
-    pixels: buildFoodPixels([
-      "04000040",
-      "04400440",
-      "44444444",
-      "34455443",
-      "34444443",
-      "03444430",
-      "03033030",
-      "30000003",
+    id: "goose",
+    label: "Goose",
+    sprite: buildFoodSprite([
+      "000666600000",
+      "006055560000",
+      "333556555560",
+      "333556665560",
+      "006555555600",
+      "000666660000",
     ]),
   },
-] as const
+] as const;
+
+const contactBoardCoco = buildBoardSprite([
+  "033300000000",
+  "300003330333",
+  "333343303550",
+  "333333333333",
+  "003200003200",
+  "003320003320",
+]);
+
+const contactBoardAnimals = foodItems.map((item) => ({
+  ...item,
+  columns: item.sprite.columns,
+  rows: item.sprite.rows,
+  pixels: item.sprite.pixels.map((pixel) => {
+    const ledStyle =
+      pixel.tone === "1"
+        ? "background:#38bdf8;"
+        : pixel.tone === "2"
+          ? "background:#7dd3fc;"
+          : pixel.tone === "3"
+            ? "background:#f59e0b;"
+            : pixel.tone === "4"
+              ? "background:#f472b6;"
+              : pixel.tone === "5"
+                ? "background:#f8fafc;"
+                : pixel.tone === "6"
+                  ? "background:#94a3b8;"
+                  : pixel.tone === "7"
+                    ? "background:#fbcfe8;"
+                    : pixel.tone === "8"
+                      ? "background:#fb7185;"
+                      : pixel.tone === "9"
+                        ? "background:#0f172a;"
+                        : "";
+
+    return { ...pixel, ledStyle };
+  }),
+}));
+
+const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
+  const ledStyle =
+    pixel.tone === "1"
+      ? "background:#166534;"
+      : pixel.tone === "2"
+        ? "background:#22c55e;"
+        : pixel.tone === "3"
+          ? "background:#4ade80;"
+          : pixel.tone === "4"
+            ? "background:#bbf7d0;"
+            : pixel.tone === "5"
+              ? "background:#ef4444;"
+              : pixel.tone === "8"
+                ? "background:#ef4444;"
+                : "";
+
+  return { ...pixel, ledStyle };
+});
 ---
 
-<section
-  id="header"
-  data-hero-root
-  class="relative text-center"
->
+<section id="header" data-hero-root class="relative text-center">
   <div
     data-hero-stage
     class="-mb-dvh sticky top-0 isolate z-10 flex h-dvh w-full flex-col items-center justify-center gap-4 overflow-hidden text-center"
   >
-  <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-    <img
-      data-hero-image
-      src="/images/home/bg-header.jpg"
-      width="720"
-      height="720"
-      loading="eager"
-      fetchpriority="high"
-      alt="Background - Richard Narvaez profile"
-      class="absolute inset-0 size-full transform-gpu object-cover [backface-visibility:hidden] [will-change:transform,opacity,filter]"
-      style="opacity: 0"
-    />
-  </div>
-
-  <div data-title class="w-full max-w-5xl">
-    <div
-      class="relative z-20 flex w-full flex-col items-center justify-center gap-4"
-    >
-      <h1 class="sr-only">
-        Richard Narvaez - Creative Human - software, sketches and passport
-      </h1>
-
-      <h2
-        class="font-barlow z-10 flex max-w-3xl origin-center scale-[0.70] flex-col text-center text-8xl font-extrabold sm:scale-[0.82] md:scale-[1.2]"
-      >
-        <span
-          data-title-piece
-          class="font-playfair text-[0.74em] font-medium italic tracking-normal text-white opacity-90 md:text-[0.72em]"
-          style="opacity: 0"
-        >
-          Creative
-        </span>
-
-        <span
-          data-title-piece
-          class="relative z-10 mt-6 bg-black/30 px-4 py-1 backdrop-blur-sm"
-          style="opacity: 0"
-        >
-          <div class="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]"></div>
-          <div class="border-h absolute -bottom-px -left-20 right-0 h-1 w-[130%]"></div>
-          <div class="border-v absolute -top-8 left-[-2px] h-[150%] w-1"></div>
-          <div class="border-v absolute -bottom-12 -right-px h-[170%] w-1"></div>
-
-          <div class="absolute -left-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white"></div>
-          <div class="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-gray-400 bg-white"></div>
-          <div class="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-gray-400 bg-white"></div>
-          <div class="absolute -right-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white shadow"></div>
-
-          <p class="pb-2 text-[1.08em] opacity-80 md:text-[1.04em]">
-            HUM<span class="opacity-20">A</span>N
-          </p>
-
-          <div class="absolute -bottom-6 -right-12 z-50 hidden animate-float md:block">
-            <div class="hero-ai-cursor">
-              <div class="hero-ai-cursor__arrow">
-                <ArrowFigma />
-              </div>
-              <div class="hero-ai-cursor__box">
-                <div class="hero-ai-cursor__corners">
-                  <span></span><span></span><span></span><span></span>
-                </div>
-                <p>AI</p>
-              </div>
-            </div>
-            <h3 class="relative z-50 mt-3 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black">
-              Richard Narvaez
-            </h3>
-          </div>
-        </span>
-
-        <div
-          data-title-piece
-          class="font-playfair mb-3 mt-6 flex items-center justify-center gap-4 text-[2.15rem] font-light italic text-gray-300 sm:text-[2.35rem] md:text-[2.3rem]"
-          style="opacity: 0"
-        >
-          <div class="h-[2px] w-12 rounded-full bg-gray-400/70"></div>
-          <span class="block pb-2 leading-[0.5]">thinking...</span>
-          <div class="h-[2px] w-12 rounded-full bg-gray-400/70"></div>
-        </div>
-
-        <span
-          data-title-piece
-          class="text-[4.1rem] leading-none text-[#FF512F] sm:text-[4.6rem] md:text-[3.4rem]"
-          style="opacity: 0"
-        >
-          -
-        </span>
-      </h2>
+    <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <img
+        data-hero-image
+        src="/images/home/bg-header.jpg"
+        width="720"
+        height="720"
+        loading="eager"
+        fetchpriority="high"
+        alt="Background - Richard Narvaez profile"
+        class="absolute inset-0 size-full transform-gpu object-cover [backface-visibility:hidden] [will-change:transform,opacity,filter]"
+        style="opacity: 0"
+      />
     </div>
-  </div>
 
-  <div
-    data-orbit-scene
-    aria-hidden="true"
-    class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-    style="opacity: 0"
-  >
-    <div class="absolute inset-0 flex items-center justify-center px-4">
-      <div class="hero-orbit-field">
-        <div class="absolute left-1/2 top-1/2 aspect-square h-[200%] -translate-x-1/2 -translate-y-1/2">
-          <div data-orbit-graphic class="absolute inset-0 hidden md:block">
-            <svg
-              viewBox="0 0 1251 1251"
-              class="absolute inset-0 size-full"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M625.5 910.5C782.901 910.5 910.5 782.901 910.5 625.5C910.5 468.099 782.901 340.5 625.5 340.5C468.099 340.5 340.5 468.099 340.5 625.5C340.5 782.901 468.099 910.5 625.5 910.5Z"
-                stroke="white"
-                stroke-opacity="0.06"
-              ></path>
-              <path
-                d="M625.5 1020.5C843.652 1020.5 1020.5 843.652 1020.5 625.5C1020.5 407.348 843.652 230.5 625.5 230.5C407.348 230.5 230.5 407.348 230.5 625.5C230.5 843.652 407.348 1020.5 625.5 1020.5Z"
-                stroke="white"
-                stroke-opacity="0.05"
-              ></path>
-              <path
-                d="M625.5 1130.5C904.404 1130.5 1130.5 904.404 1130.5 625.5C1130.5 346.596 904.404 120.5 625.5 120.5C346.596 120.5 120.5 346.596 120.5 625.5C120.5 904.404 346.596 1130.5 625.5 1130.5Z"
-                stroke="white"
-                stroke-opacity="0.04"
-              ></path>
-              <path
-                d="M625.5 1250.5C970.678 1250.5 1250.5 970.678 1250.5 625.5C1250.5 280.322 970.678 0.5 625.5 0.5C280.322 0.5 0.5 280.322 0.5 625.5C0.5 970.678 280.322 1250.5 625.5 1250.5Z"
-                stroke="white"
-                stroke-opacity="0.04"
-              ></path>
-              <path
-                d="M244.5 730.5C226 660 231.5 630.338 272.353 625.726C313.206 621.113 338.5 624 344 581C349.501 538.001 373 490 383.001 475.501"
-                stroke="url(#paint0_linear_hero)"
-                stroke-opacity="0.32"
-              ></path>
-              <path
-                d="M865.677 312.15C923.684 356.815 937.421 383.742 907.43 412.424C877.44 441.106 855.357 454.303 877.256 491.823C899.155 529.344 909.658 581.859 910.5 599.5"
-                stroke="url(#paint1_linear_hero)"
-                stroke-opacity="0.32"
-              ></path>
-              <path
-                d="M1069 867.999C1036.5 928.295 1011.43 946.924 980.663 928.294C949.9 909.664 927.324 887.958 894 915.5C860.677 943.041 826.238 970.579 809.501 975.5"
-                stroke="url(#paint2_linear_hero)"
-                stroke-opacity="0.32"
-              ></path>
-              <path
-                d="M475.949 142.65C541.625 123.198 572.513 127.85 580.985 162.803C589.457 197.756 585.975 225.279 629 229.5C672.025 233.721 721.712 238.597 737.001 247"
-                stroke="url(#paint3_linear_hero)"
-                stroke-opacity="0.32"
-              ></path>
-              <defs>
-                <linearGradient
-                  id="paint0_linear_hero"
-                  x1="308"
-                  y1="553"
-                  x2="255.414"
-                  y2="714.876"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0"></stop>
-                  <stop
-                    offset="0.5"
-                    stop-color="white"
-                    stop-opacity="1"
-                  ></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0"></stop>
-                </linearGradient>
-                <linearGradient
-                  id="paint1_linear_hero"
-                  x1="923.309"
-                  y1="492.016"
-                  x2="866.452"
-                  y2="331.251"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0"></stop>
-                  <stop
-                    offset="0.5"
-                    stop-color="white"
-                    stop-opacity="1"
-                  ></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0"></stop>
-                </linearGradient>
-                <linearGradient
-                  id="paint2_linear_hero"
-                  x1="906.513"
-                  y1="960.753"
-                  x2="1053.49"
-                  y2="874.153"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0"></stop>
-                  <stop
-                    offset="0.5"
-                    stop-color="white"
-                    stop-opacity="1"
-                  ></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0"></stop>
-                </linearGradient>
-                <linearGradient
-                  id="paint3_linear_hero"
-                  x1="656.279"
-                  y1="192.517"
-                  x2="491.251"
-                  y2="149.317"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stop-color="white" stop-opacity="0"></stop>
-                  <stop
-                    offset="0.5"
-                    stop-color="white"
-                    stop-opacity="1"
-                  ></stop>
-                  <stop offset="1" stop-color="white" stop-opacity="0"></stop>
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-        </div>
+    <div data-title class="w-full max-w-5xl">
+      <div
+        class="relative z-20 flex w-full flex-col items-center justify-center gap-4"
+      >
+        <h1 class="sr-only">
+          Richard Narvaez - Creative Human - software, sketches and passport
+        </h1>
 
-        {heroOrbitNodes.map((node) => (
-          <div
-            data-orbit-origin-node
-            class="hero-orbit-node"
-            data-cluster-left={node.cluster.left}
-            data-cluster-top={node.cluster.top}
-            data-cluster-scale={node.cluster.scale ?? 1}
-            style={`left:${node.origin.left}%;top:${node.origin.top}%;`}
+        <h2
+          class="font-barlow z-10 flex max-w-3xl origin-center scale-[0.70] flex-col text-center text-8xl font-extrabold sm:scale-[0.82] md:scale-[1.2]"
+        >
+          <span
+            data-title-piece
+            class="font-playfair text-[0.74em] font-medium italic tracking-normal text-white opacity-90 md:text-[0.72em]"
+            style="opacity: 0"
           >
-            <div class="hero-orbit-node__inner">
-              {node.kind === "icon" && (
-                <div class="icon-bubble">
-                  {node.key === "vercel" ? (
-                    <span class="vercel-mark-bubble">
-                      <VercelColorIcon
-                        width="14"
-                        height="14"
-                        class="size-3.5"
-                        aria-hidden="true"
+            Creative
+          </span>
+
+          <span
+            data-title-piece
+            class="relative z-10 mt-6 bg-black/30 px-4 py-1 backdrop-blur-sm"
+            style="opacity: 0"
+          >
+            <div
+              class="border-h absolute -left-10 right-0 top-[-2px] h-1 w-[124%]"
+            >
+            </div>
+            <div
+              class="border-h absolute -bottom-px -left-20 right-0 h-1 w-[130%]"
+            >
+            </div>
+            <div class="border-v absolute -top-8 left-[-2px] h-[150%] w-1">
+            </div>
+            <div class="border-v absolute -bottom-12 -right-px h-[170%] w-1">
+            </div>
+
+            <div
+              class="absolute -left-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white"
+            >
+            </div>
+            <div
+              class="absolute -bottom-1.5 -left-1.5 size-3 border-2 border-gray-400 bg-white"
+            >
+            </div>
+            <div
+              class="absolute -bottom-1.5 -right-1.5 size-3 border-2 border-gray-400 bg-white"
+            >
+            </div>
+            <div
+              class="absolute -right-1.5 -top-1.5 size-3 border-2 border-gray-400 bg-white shadow"
+            >
+            </div>
+
+            <p class="pb-2 text-[1.08em] opacity-80 md:text-[1.04em]">
+              HUM<span class="opacity-20">A</span>N
+            </p>
+
+            <div
+              class="absolute -bottom-6 -right-12 z-50 hidden animate-float md:block"
+            >
+              <div class="hero-ai-cursor">
+                <div class="hero-ai-cursor__arrow">
+                  <ArrowFigma />
+                </div>
+                <div class="hero-ai-cursor__box">
+                  <div class="hero-ai-cursor__corners">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                  <p>AI</p>
+                </div>
+              </div>
+              <h3
+                class="relative z-50 mt-3 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black"
+              >
+                Richard Narvaez
+              </h3>
+            </div>
+          </span>
+
+          <div
+            data-title-piece
+            class="font-playfair mb-3 mt-6 flex items-center justify-center gap-4 text-[2.15rem] font-light italic text-gray-300 sm:text-[2.35rem] md:text-[2.3rem]"
+            style="opacity: 0"
+          >
+            <div class="h-[2px] w-12 rounded-full bg-gray-400/70"></div>
+            <span class="block pb-2 leading-[0.5]">thinking...</span>
+            <div class="h-[2px] w-12 rounded-full bg-gray-400/70"></div>
+          </div>
+
+          <span
+            data-title-piece
+            class="text-[4.1rem] leading-none text-[#FF512F] sm:text-[4.6rem] md:text-[3.4rem]"
+            style="opacity: 0"
+          >
+            -
+          </span>
+        </h2>
+      </div>
+    </div>
+
+    <div
+      data-orbit-scene
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+      style="opacity: 0"
+    >
+      <div class="absolute inset-0 flex items-center justify-center px-4">
+        <div class="hero-orbit-field">
+          <div
+            class="absolute left-1/2 top-1/2 aspect-square h-[200%] -translate-x-1/2 -translate-y-1/2"
+          >
+            <div data-orbit-graphic class="absolute inset-0 hidden md:block">
+              <svg
+                viewBox="0 0 1251 1251"
+                class="absolute inset-0 size-full"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M625.5 910.5C782.901 910.5 910.5 782.901 910.5 625.5C910.5 468.099 782.901 340.5 625.5 340.5C468.099 340.5 340.5 468.099 340.5 625.5C340.5 782.901 468.099 910.5 625.5 910.5Z"
+                  stroke="white"
+                  stroke-opacity="0.06"></path>
+                <path
+                  d="M625.5 1020.5C843.652 1020.5 1020.5 843.652 1020.5 625.5C1020.5 407.348 843.652 230.5 625.5 230.5C407.348 230.5 230.5 407.348 230.5 625.5C230.5 843.652 407.348 1020.5 625.5 1020.5Z"
+                  stroke="white"
+                  stroke-opacity="0.05"></path>
+                <path
+                  d="M625.5 1130.5C904.404 1130.5 1130.5 904.404 1130.5 625.5C1130.5 346.596 904.404 120.5 625.5 120.5C346.596 120.5 120.5 346.596 120.5 625.5C120.5 904.404 346.596 1130.5 625.5 1130.5Z"
+                  stroke="white"
+                  stroke-opacity="0.04"></path>
+                <path
+                  d="M625.5 1250.5C970.678 1250.5 1250.5 970.678 1250.5 625.5C1250.5 280.322 970.678 0.5 625.5 0.5C280.322 0.5 0.5 280.322 0.5 625.5C0.5 970.678 280.322 1250.5 625.5 1250.5Z"
+                  stroke="white"
+                  stroke-opacity="0.04"></path>
+                <path
+                  d="M244.5 730.5C226 660 231.5 630.338 272.353 625.726C313.206 621.113 338.5 624 344 581C349.501 538.001 373 490 383.001 475.501"
+                  stroke="url(#paint0_linear_hero)"
+                  stroke-opacity="0.32"></path>
+                <path
+                  d="M865.677 312.15C923.684 356.815 937.421 383.742 907.43 412.424C877.44 441.106 855.357 454.303 877.256 491.823C899.155 529.344 909.658 581.859 910.5 599.5"
+                  stroke="url(#paint1_linear_hero)"
+                  stroke-opacity="0.32"></path>
+                <path
+                  d="M1069 867.999C1036.5 928.295 1011.43 946.924 980.663 928.294C949.9 909.664 927.324 887.958 894 915.5C860.677 943.041 826.238 970.579 809.501 975.5"
+                  stroke="url(#paint2_linear_hero)"
+                  stroke-opacity="0.32"></path>
+                <path
+                  d="M475.949 142.65C541.625 123.198 572.513 127.85 580.985 162.803C589.457 197.756 585.975 225.279 629 229.5C672.025 233.721 721.712 238.597 737.001 247"
+                  stroke="url(#paint3_linear_hero)"
+                  stroke-opacity="0.32"></path>
+                <defs>
+                  <linearGradient
+                    id="paint0_linear_hero"
+                    x1="308"
+                    y1="553"
+                    x2="255.414"
+                    y2="714.876"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="white" stop-opacity="0"></stop>
+                    <stop offset="0.5" stop-color="white" stop-opacity="1"
+                    ></stop>
+                    <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient
+                    id="paint1_linear_hero"
+                    x1="923.309"
+                    y1="492.016"
+                    x2="866.452"
+                    y2="331.251"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="white" stop-opacity="0"></stop>
+                    <stop offset="0.5" stop-color="white" stop-opacity="1"
+                    ></stop>
+                    <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient
+                    id="paint2_linear_hero"
+                    x1="906.513"
+                    y1="960.753"
+                    x2="1053.49"
+                    y2="874.153"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="white" stop-opacity="0"></stop>
+                    <stop offset="0.5" stop-color="white" stop-opacity="1"
+                    ></stop>
+                    <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+                  </linearGradient>
+                  <linearGradient
+                    id="paint3_linear_hero"
+                    x1="656.279"
+                    y1="192.517"
+                    x2="491.251"
+                    y2="149.317"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stop-color="white" stop-opacity="0"></stop>
+                    <stop offset="0.5" stop-color="white" stop-opacity="1"
+                    ></stop>
+                    <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+          </div>
+
+          {
+            heroOrbitNodes.map((node) => (
+              <div
+                data-orbit-origin-node
+                class="hero-orbit-node"
+                data-cluster-left={node.cluster.left}
+                data-cluster-top={node.cluster.top}
+                data-cluster-scale={node.cluster.scale ?? 1}
+                style={`left:${node.origin.left}%;top:${node.origin.top}%;`}
+              >
+                <div class="hero-orbit-node__inner">
+                  {node.kind === "icon" && (
+                    <div class="icon-bubble">
+                      {node.key === "vercel" ? (
+                        <span class="vercel-mark-bubble">
+                          <VercelColorIcon
+                            width="14"
+                            height="14"
+                            class="size-3.5"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      ) : (
+                        <img
+                          src={node.assets[0].src}
+                          alt={node.assets[0].alt}
+                          class={
+                            node.assets[0].className ?? "size-6 object-contain"
+                          }
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {node.kind === "cover" && (
+                    <div class="cover-logo-bubble">
+                      <img
+                        src={node.assets[0].src}
+                        alt={node.assets[0].alt}
+                        class="size-full object-cover"
                       />
-                    </span>
-                  ) : (
-                    <img
-                      src={node.assets[0].src}
-                      alt={node.assets[0].alt}
-                      class={node.assets[0].className ?? "size-6 object-contain"}
-                    />
+                    </div>
+                  )}
+
+                  {(node.kind === "brand-cycle" ||
+                    node.kind === "brand-cycle-wide") && (
+                    <div
+                      class:list={[
+                        "brand-cycle-bubble",
+                        node.kind === "brand-cycle-wide" &&
+                          "brand-cycle-bubble--wide",
+                      ]}
+                    >
+                      {node.assets.map((asset) => (
+                        <span class="brand-cycle-item">
+                          <img
+                            src={asset.src}
+                            alt={asset.alt}
+                            class={asset.className ?? "size-6 object-contain"}
+                          />
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
-              )}
+              </div>
+            ))
+          }
 
-              {node.kind === "cover" && (
-                <div class="cover-logo-bubble">
-                  <img
-                    src={node.assets[0].src}
-                    alt={node.assets[0].alt}
-                    class="size-full object-cover"
-                  />
-                </div>
-              )}
-
-              {(node.kind === "brand-cycle" ||
-                node.kind === "brand-cycle-wide") && (
-                <div
-                  class:list={[
-                    "brand-cycle-bubble",
-                    node.kind === "brand-cycle-wide" && "brand-cycle-bubble--wide",
-                  ]}
-                >
-                  {node.assets.map((asset) => (
-                    <span class="brand-cycle-item">
-                      <img
-                        src={asset.src}
-                        alt={asset.alt}
-                        class={asset.className ?? "size-6 object-contain"}
-                      />
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-
-        <div data-orbit-cluster-layer class="hero-cluster-layer">
-          <div data-orbit-cluster class="hero-cluster-shell">
-            <div data-orbit-avatar class="hero-cluster-avatar">
-              <img
-                src="/images/avatars/richard.jpg"
-                alt="Richard Narvaez"
-                class="size-full object-cover"
-              />
-            </div>
-            <div data-orbit-meta class="hero-cluster-meta">
-              <p class="hero-cluster-meta__name">Richard Vinueza</p>
-              <p class="hero-cluster-meta__role mt-6">Product Engineer, Madrid - Spain</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div
-    aria-hidden="true"
-    class="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[20vh] bg-gradient-to-t from-[hsl(244,31%,10%)] via-[hsl(244,31%,10%)]/50 to-transparent"
-  ></div>
-
-  <div data-hero-device-frame aria-hidden="true" class="hero-device-frame">
-    <div data-hero-device-notch class="hero-device-top-shell">
-      <svg
-        data-hero-device-notch-svg
-        viewBox="0 0 161 24"
-        class="hero-device-top-shell__svg"
-        preserveAspectRatio="xMidYMin meet"
-      >
-        <path
-          data-hero-device-notch-path
-          d="M0 0V2.01331H12.1115C16.5298 2.01331 20.1115 5.59504 20.1115 10.0133V15.3078C20.1115 19.7261 23.6932 23.3078 28.1115 23.3078H135.146C139.565 23.3078 143.146 19.7261 143.146 15.3078V10.0133C143.146 5.59503 146.728 2.01331 151.146 2.01331H160.892V0H0Z"
-          fill="#030303"
-        />
-      </svg>
-      <div class="hero-device-top-shell__content">
-        <div class="hero-device-top-shell__row">
-          <div class="hero-device-top-shell__lead">
-          <div
-            data-notch-sprite
-            class="hero-device-pixel-grid"
-            data-notch-mode="ambient"
-            aria-hidden="true"
-          >
-              {notchPixels.map((pixel) => (
-                <span
-                  class:list={[
-                    "hero-device-pixel",
-                    pixel.active && "hero-device-pixel--active",
-                    pixel.tone === "1" && "hero-device-pixel--tone-1",
-                    pixel.tone === "2" && "hero-device-pixel--tone-2",
-                    pixel.tone === "3" && "hero-device-pixel--tone-3",
-                    pixel.tone === "4" && "hero-device-pixel--tone-eye",
-                    pixel.tone === "5" && "hero-device-pixel--tone-tongue",
-                    pixel.tone === "8" && "hero-device-pixel--tone-eye-alert",
-                  ]}
-                  data-notch-pixel
-                  data-notch-row={pixel.row}
-                  data-notch-column={pixel.column}
-                  style={`--pixel-delay:${pixel.delay}s;`}
-                ></span>
-              ))}
-            </div>
-
-            <div class="hero-device-top-shell__identity">
-              <span class="hero-device-top-shell__identity-divider" aria-hidden="true">|</span>
-              <div class="hero-device-contact-meta">
-                <span class="hero-device-contact-name">Food for Coco </span>
-                <span>[</span>
-                <ul class="hero-device-food-list" aria-label="Seafood list">
-                  {foodItems.map((item) => (
-                    <li class="hero-device-food-item">
-                      <button
-                        type="button"
-                        class="hero-device-food-button"
-                        data-notch-food-item
-                        title={item.label}
-                        aria-label={`Feed ${item.label} to Coco`}
-                      >
-                        <div class="hero-device-food-sprite" aria-hidden="true">
-                          {item.pixels.map((pixel) => (
-                            <span
-                              class:list={[
-                                "hero-device-food-pixel",
-                                pixel.active && "hero-device-food-pixel--active",
-                                pixel.tone === "1" && "hero-device-food-pixel--tone-deep",
-                                pixel.tone === "2" && "hero-device-food-pixel--tone-sea",
-                                pixel.tone === "3" && "hero-device-food-pixel--tone-warm",
-                                pixel.tone === "4" && "hero-device-food-pixel--tone-coral",
-                                pixel.tone === "5" && "hero-device-food-pixel--tone-glint",
-                              ]}
-                              style={`grid-row:${pixel.row + 1};grid-column:${pixel.column + 1};`}
-                            ></span>
-                          ))}
-                        </div>
-                        <span class="hero-device-food-tooltip" aria-hidden="true">
-                          {item.label}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                <span>]</span>
+          <div data-orbit-cluster-layer class="hero-cluster-layer">
+            <div data-orbit-cluster class="hero-cluster-shell">
+              <div data-orbit-avatar class="hero-cluster-avatar">
+                <img
+                  src="/images/avatars/richard.jpg"
+                  alt="Richard Narvaez"
+                  class="size-full object-cover"
+                />
+              </div>
+              <div data-orbit-meta class="hero-cluster-meta">
+                <p class="hero-cluster-meta__name">Richard Vinueza</p>
+                <p class="hero-cluster-meta__role mt-6">
+                  Product Engineer, Madrid - Spain
+                </p>
               </div>
             </div>
           </div>
-
-          <button
-            type="button"
-            data-notch-contact-trigger
-            class="hero-device-contact-trigger"
-            aria-label="Open contact links"
-            aria-controls="hero-device-contact-panel"
-            aria-expanded="false"
-          >
-            <span
-              class="hero-device-contact-trigger__state hero-device-contact-trigger__state--contact"
-              aria-hidden="true"
-            >
-              <span
-                class="hero-device-contact-trigger__icon"
-                aria-hidden="true"
-                set:html={renderLucideIcon(Mail, "hero-device-contact-trigger__svg")}
-              ></span>
-              <span class="hero-device-contact-trigger__label">Contact</span>
-            </span>
-          </button>
         </div>
+      </div>
+    </div>
 
-        <div
-          id="hero-device-contact-panel"
-          data-notch-contact-panel
-          class="hero-device-contact-panel"
-          aria-hidden="true"
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[20vh] bg-gradient-to-t from-[hsl(244,31%,10%)] via-[hsl(244,31%,10%)]/50 to-transparent"
+    >
+    </div>
+
+    <div data-hero-device-frame aria-hidden="true" class="hero-device-frame">
+      <div data-hero-device-notch class="hero-device-top-shell">
+        <svg
+          data-hero-device-notch-svg
+          viewBox="0 0 161 24"
+          class="hero-device-top-shell__svg"
+          preserveAspectRatio="xMidYMin meet"
         >
-          <div class="hero-device-contact-links-row">
-            <div class="hero-device-contact-links">
-              <a
-                href={instagramUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                class="hero-device-contact-link"
-                aria-label="Instagram"
-              >
-                <span class="hero-device-contact-link__icon" set:html={instagramIconSvg}></span>
-                <span class="hero-device-contact-link__label">Instagram</span>
-              </a>
+          <path
+            data-hero-device-notch-path
+            d="M0 0V2.01331H12.1115C16.5298 2.01331 20.1115 5.59504 20.1115 10.0133V15.3078C20.1115 19.7261 23.6932 23.3078 28.1115 23.3078H135.146C139.565 23.3078 143.146 19.7261 143.146 15.3078V10.0133C143.146 5.59503 146.728 2.01331 151.146 2.01331H160.892V0H0Z"
+            fill="var(--page-accent-surface)"></path>
+        </svg>
+        <div class="hero-device-top-shell__content">
+          <div class="hero-device-top-shell__row">
+            <div class="hero-device-top-shell__lead justify-between">
+              <div class="flex items-center gap-[0.42rem]">
+                <div
+                  data-notch-sprite
+                  class="hero-device-pixel-grid"
+                  data-notch-mode="ambient"
+                  aria-hidden="true"
+                >
+                  {
+                    notchPixels.map((pixel) => (
+                      <span
+                        class:list={[
+                          "hero-device-pixel",
+                          pixel.active && "hero-device-pixel--active",
+                          pixel.tone === "1" && "hero-device-pixel--tone-1",
+                          pixel.tone === "2" && "hero-device-pixel--tone-2",
+                          pixel.tone === "3" && "hero-device-pixel--tone-3",
+                          pixel.tone === "4" && "hero-device-pixel--tone-eye",
+                          pixel.tone === "5" &&
+                            "hero-device-pixel--tone-tongue",
+                          pixel.tone === "8" &&
+                            "hero-device-pixel--tone-eye-alert",
+                        ]}
+                        data-notch-pixel
+                        data-notch-row={pixel.row}
+                        data-notch-column={pixel.column}
+                        style={`--pixel-delay:${pixel.delay}s;`}
+                      />
+                    ))
+                  }
+                </div>
+                <div class="hero-device-top-shell__identity">
+                  <span
+                    class="hero-device-top-shell__identity-divider"
+                    aria-hidden="true">|</span
+                  >
+                  <div class="hero-device-contact-meta">
+                    <span class="hero-device-contact-name"
+                      >Interactive Pet (<span data-notch-food-counter>0</span
+                      >/3)</span
+                    >
+                  </div>
+                </div>
+              </div>
 
-              <a
-                href={linkedinUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                class="hero-device-contact-link"
-                aria-label="LinkedIn"
-              >
-                <span class="hero-device-contact-link__icon" set:html={linkedinIconSvg}></span>
-                <span class="hero-device-contact-link__label">LinkedIn</span>
-              </a>
+              <div class="hero-device-food-rail pr-2">
+                {
+                  contactBoardAnimals.map((creature) => (
+                    <button
+                      type="button"
+                      class="inline-flex cursor-pointer border-0 bg-transparent p-0 items-center justify-center focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-sky-200/70"
+                      data-notch-food-item
+                      title={creature.label}
+                      aria-label={`Feed ${creature.label} to Coco`}
+                    >
+                      <div
+                        class="grid gap-[var(--hero-device-croc-pixel-gap)] [grid-template-columns:repeat(var(--contact-board-columns),var(--hero-device-croc-pixel-size))] [grid-template-rows:repeat(var(--contact-board-rows),var(--hero-device-croc-pixel-size))]"
+                        style={`--contact-board-columns:${creature.columns};--contact-board-rows:${creature.rows};`}
+                        aria-hidden="true"
+                      >
+                        {creature.pixels.map((pixel) => (
+                          <span
+                            class:list={[
+                              "rounded-full w-[var(--hero-device-croc-pixel-size)] h-[var(--hero-device-croc-pixel-size)]",
+                              pixel.active ? "" : "bg-transparent",
+                            ]}
+                            style={`grid-row:${pixel.row + 1};grid-column:${pixel.column + 1};${pixel.ledStyle}`}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  ))
+                }
+              </div>
+            </div>
 
-              <a
-                href={githubUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                class="hero-device-contact-link"
-                aria-label="GitHub"
+            <div class="ml-auto flex shrink-0 items-center gap-[0.52rem]">
+              <button
+                type="button"
+                data-notch-contact-trigger
+                class="hero-device-contact-trigger relative z-[1] inline-flex max-w-[10rem] flex-none cursor-pointer overflow-hidden whitespace-nowrap rounded-full bg-[linear-gradient(180deg,rgba(15,23,42,0.42),rgba(15,23,42,0.18)),rgba(15,23,42,0.08)] py-[3px] ps-2 pe-[3px] text-slate-50 shadow-[0_8px_18px_rgba(2,6,23,0.18)] transition-all duration-200 ease-out hover:bg-[linear-gradient(180deg,rgba(30,41,59,0.52),rgba(15,23,42,0.2)),rgba(15,23,42,0.1)] hover:text-white hover:shadow-[0_10px_22px_rgba(2,6,23,0.22)] focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-sky-200/70"
+                aria-label="Open profile links"
+                aria-controls="hero-device-contact-panel"
+                aria-expanded="false"
               >
-                <span class="hero-device-contact-link__icon" set:html={githubIconSvg}></span>
-                <span class="hero-device-contact-link__label">GitHub</span>
-              </a>
+                <span
+                  class="hero-device-contact-trigger__state relative inline-flex w-max items-center gap-[0.52rem] transition duration-200 ease-out"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="text-[0.5rem] font-[650] tracking-[0.01em] text-current md:text-[0.56rem]"
+                  >
+                    Find me on
+                  </span>
+                  <span
+                    class="inline-flex items-center -space-x-[0.24rem] pl-[0.04rem]"
+                  >
+                    {
+                      contactLinks.map((link) => (
+                        <span
+                          class:list={[
+                            "hero-device-contact-preview inline-flex size-3 items-center justify-center overflow-hidden rounded-full border-2 border-white text-slate-50 transition-transform duration-200",
+                            link.surfaceClass,
+                          ]}
+                          data-contact-preview-item
+                        />
+                      ))
+                    }
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="hero-device-contact-panel"
+            data-notch-contact-panel
+            class="hero-device-contact-panel relative block w-full overflow-hidden"
+            aria-hidden="true"
+          >
+            <div
+              class="absolute inset-0 rounded-[0.4rem] bg-[#222c42] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(255,255,255,0.05),inset_0_-30px_48px_rgba(5,10,20,0.42)] [background-image:radial-gradient(circle_at_center,rgba(11,17,31,0.98)_0_56%,rgba(84,101,132,0.18)_57%,transparent_69%)] [background-size:5px_5px]"
+            >
+            </div>
+            <!-- <div
+              class="pointer-events-none absolute inset-x-[0.7rem] top-[0.55rem] bottom-[0.55rem] rounded-[0.4rem] bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.07),transparent_28%),radial-gradient(circle_at_44%_38%,rgba(191,219,254,0.05),transparent_22%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent)]"
+            >
+            </div> -->
+
+            <!-- <span
+              class="pointer-events-none absolute left-[0.55rem] top-[0.5rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
+            ></span> -->
+            <!-- <span
+              class="pointer-events-none absolute right-[0.55rem] top-[0.5rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
+            ></span> -->
+            <!-- <span
+              class="pointer-events-none absolute bottom-[0.5rem] left-[0.55rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
+            ></span> -->
+            <!-- <span
+              class="pointer-events-none absolute bottom-[0.5rem] right-[0.55rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
+            ></span> -->
+
+            <div
+              class="relative flex h-full w-full flex-col justify-between gap-[0.8rem] px-[1rem] py-[0.8rem] md:gap-[1rem] md:px-[1.3rem] md:py-[1rem]"
+            >
+              <div
+                class="flex w-full items-start justify-start gap-[1rem] overflow-hidden"
+              >
+              </div>
+
+              <div
+                class="flex w-full flex-col items-center gap-[0.7rem] md:gap-[0.95rem]"
+              >
+                <div
+                  class="flex w-full flex-nowrap items-center justify-center gap-[0.9rem] md:gap-[1.3rem]"
+                >
+                  {
+                    contactLinks.map((link) => (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        class:list={[
+                          "hero-device-contact-link inline-flex min-w-0 flex-none items-center justify-center gap-[0.42rem] text-slate-100/88 no-underline focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-sky-200/70 md:gap-[0.56rem]",
+                        ]}
+                        aria-label={link.label}
+                        data-contact-link
+                      >
+                        <span
+                          class:list={[
+                            "hero-device-contact-link__icon inline-flex size-[1.56rem] items-center justify-center overflow-hidden rounded-full text-slate-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),inset_0_-1px_0_rgba(255,255,255,0.15)] drop-shadow-[0_6px_10px_rgba(15,23,42,0.2)] md:size-[1.9rem]",
+                            link.surfaceClass,
+                          ]}
+                        >
+                          <span
+                            class:list={[
+                              "hero-device-contact-glyph inline-flex size-[0.94rem] items-center justify-center leading-none md:size-[1.08rem]",
+                              link.glyphClass,
+                            ]}
+                            set:html={link.iconSvg}
+                          />
+                        </span>
+                        <span class="text-[0.5rem] font-[650] tracking-[0.01em] text-slate-50/78 md:text-[0.62rem]">
+                          {link.label}
+                        </span>
+                      </a>
+                    ))
+                  }
+                </div>
+
+                <div
+                  class="inline-flex items-center gap-[0.32rem] rounded-full bg-black/18 px-[0.7rem] py-[0.38rem] font-jetbrains text-[0.42rem] font-medium tracking-[0.1em] text-white/58 backdrop-blur-[2px] md:gap-[0.38rem] md:px-[0.9rem] md:py-[0.46rem] md:text-[0.48rem]"
+                >
+                  <span class="text-white/42">Version</span>
+                  <span class="text-white/82">{projectVersionLabel}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
   </div>
 
   <div class="relative z-0">
@@ -601,7 +757,8 @@ const foodItems = [
     --hero-device-notch-content-right-open: 38px;
     --hero-device-notch-content-top-open: 6px;
     --hero-device-notch-content-bottom-open: 6px;
-    --hero-device-croc-size: 2.25rem;
+    --hero-device-croc-pixel-size: 2px;
+    --hero-device-croc-pixel-gap: 1px;
     --hero-device-contact-trigger-padding-x: 0.58rem;
     --hero-device-contact-trigger-padding-y: 0.24rem;
   }
@@ -988,10 +1145,10 @@ const foodItems = [
     z-index: 40;
     pointer-events: none;
     overflow: hidden;
-    border-top: var(--hero-device-bezel) solid #030303;
-    border-left: var(--hero-device-bezel) solid #030303;
-    border-right: var(--hero-device-bezel) solid #030303;
-    border-bottom: var(--hero-device-bezel) solid #030303;
+    border-top: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-left: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-right: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-bottom: var(--hero-device-bezel) solid var(--page-accent-surface);
     border-radius: var(--hero-device-radius);
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.04),
@@ -1000,6 +1157,7 @@ const foodItems = [
 
   .hero-device-top-shell {
     --hero-device-notch-hover-scale: 1;
+    --hero-device-notch-intro-scale: 1;
     --hero-device-notch-shadow-y: 0;
     --hero-device-notch-shadow-blur: 0;
     --hero-device-notch-shadow-alpha: 0;
@@ -1011,7 +1169,13 @@ const foodItems = [
     aspect-ratio: 161 / 24;
     pointer-events: auto;
     cursor: default;
-    transform: translateX(-50%) scale(var(--hero-device-notch-hover-scale));
+    transform: translateX(-50%)
+      scale(
+        calc(
+          var(--hero-device-notch-hover-scale) *
+            var(--hero-device-notch-intro-scale)
+        )
+      );
     transform-origin: center top;
     will-change: width, height, transform;
   }
@@ -1021,10 +1185,9 @@ const foodItems = [
     width: 100%;
     height: 100%;
     filter: drop-shadow(
-      0
-      calc(var(--hero-device-notch-shadow-y) * 1px)
-      calc(var(--hero-device-notch-shadow-blur) * 1px)
-      rgba(2, 6, 23, var(--hero-device-notch-shadow-alpha))
+      0 calc(var(--hero-device-notch-shadow-y) * 1px)
+        calc(var(--hero-device-notch-shadow-blur) * 1px)
+        rgba(2, 6, 23, var(--hero-device-notch-shadow-alpha))
     );
   }
 
@@ -1048,7 +1211,8 @@ const foodItems = [
       bottom 220ms ease;
   }
 
-  .hero-device-top-shell[data-contact-open="true"] .hero-device-top-shell__content {
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-top-shell__content {
     left: var(--hero-device-notch-content-left-open);
     right: var(--hero-device-notch-content-right-open);
     top: var(--hero-device-notch-content-top-open);
@@ -1056,7 +1220,7 @@ const foodItems = [
   }
 
   .hero-device-top-shell__row {
-    margin-top: 3px;
+    margin-top: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1068,6 +1232,7 @@ const foodItems = [
     display: flex;
     align-items: center;
     gap: 0.42rem;
+    padding-left: var(--hero-device-contact-trigger-padding-x);
     min-width: 0;
     flex: 1 1 auto;
     will-change: transform, filter, opacity;
@@ -1090,7 +1255,8 @@ const foodItems = [
       transform 220ms ease;
   }
 
-  .hero-device-top-shell[data-contact-open="true"] .hero-device-top-shell__identity {
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-top-shell__identity {
     max-width: 14rem;
     opacity: 1;
     filter: blur(0);
@@ -1109,9 +1275,17 @@ const foodItems = [
     --hero-device-heart-glow: rgba(239, 68, 68, 0.18);
     --hero-device-heart-glow-strong: rgba(248, 113, 113, 0.42);
     display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 0.08rem;
-    width: var(--hero-device-croc-size);
+    grid-template-columns: repeat(12, var(--hero-device-croc-pixel-size));
+    grid-template-rows: repeat(6, var(--hero-device-croc-pixel-size));
+    gap: var(--hero-device-croc-pixel-gap);
+    width: calc(
+      12 * var(--hero-device-croc-pixel-size) + 11 *
+        var(--hero-device-croc-pixel-gap)
+    );
+    height: calc(
+      6 * var(--hero-device-croc-pixel-size) + 5 *
+        var(--hero-device-croc-pixel-gap)
+    );
     position: relative;
     z-index: 1;
     cursor: pointer;
@@ -1119,8 +1293,9 @@ const foodItems = [
   }
 
   .hero-device-pixel {
-    aspect-ratio: 1;
-    border-radius: 1px;
+    width: var(--hero-device-croc-pixel-size);
+    height: var(--hero-device-croc-pixel-size);
+    border-radius: 999px;
     background: transparent;
   }
 
@@ -1130,7 +1305,8 @@ const foodItems = [
   }
 
   .hero-device-pixel-grid[data-notch-mode="fed"] .hero-device-pixel--active,
-  .hero-device-pixel-grid[data-notch-mode="fed-amber"] .hero-device-pixel--active {
+  .hero-device-pixel-grid[data-notch-mode="fed-amber"]
+    .hero-device-pixel--active {
     animation: heroPixelPulse 1.05s ease-in-out infinite;
     animation-delay: var(--pixel-delay, 0s);
   }
@@ -1177,99 +1353,28 @@ const foodItems = [
     box-shadow: 0 0 4px var(--hero-device-heart-glow);
   }
 
-  .hero-device-pixel-grid[data-notch-mode="fed"] .hero-device-pixel--tone-tongue,
-  .hero-device-pixel-grid[data-notch-mode="fed-amber"] .hero-device-pixel--tone-tongue {
+  .hero-device-pixel-grid[data-notch-mode="fed"]
+    .hero-device-pixel--tone-tongue,
+  .hero-device-pixel-grid[data-notch-mode="fed-amber"]
+    .hero-device-pixel--tone-tongue {
     animation: heroHeartGlow 1.05s ease-in-out infinite;
   }
 
-  .hero-device-contact-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    z-index: 1;
-    color: #f8fafc;
-  }
-
-  .hero-device-contact-trigger {
-    border: 0;
-    background: transparent;
-    padding: var(--hero-device-contact-trigger-padding-y)
-      var(--hero-device-contact-trigger-padding-x);
-    flex: none;
-    border-radius: 999px;
-    cursor: pointer;
-    pointer-events: auto;
-    transition:
-      color 160ms ease,
-      background-color 160ms ease,
-      transform 180ms ease;
-  }
-
-  .hero-device-contact-trigger:hover {
-    color: #ffffff;
-    background: transparent;
-  }
-
-  .hero-device-contact-trigger__state {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.38rem;
-    width: max-content;
-    transition:
-      opacity 200ms ease,
-      filter 220ms ease,
-      transform 220ms ease;
-    will-change: opacity, filter, transform;
-  }
-
-  .hero-device-contact-trigger__state--contact {
-    position: relative;
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0) scale(1);
-  }
-
-  .hero-device-top-shell[data-contact-open="true"] .hero-device-contact-trigger__state--contact {
-    display: none;
-  }
-
-  .hero-device-top-shell[data-contact-open="true"] .hero-device-contact-trigger {
-    display: none;
-  }
-
-  .hero-device-contact-trigger__icon {
-    display: inline-flex;
-    width: 0.92rem;
-    height: 0.92rem;
-    filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.12));
-  }
-
-  .hero-device-contact-trigger__svg,
-  .hero-device-contact-link__svg {
-    width: 100%;
-    height: 100%;
-  }
-
-  .hero-device-contact-trigger__label {
-    font-family: inherit;
-    font-size: 0.52rem;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-    color: currentColor;
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-contact-trigger {
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    box-shadow: none;
   }
 
   .hero-device-contact-panel {
-    display: block;
-    width: 100%;
     height: 0;
     max-height: none;
     margin-top: 0;
     opacity: 0;
     pointer-events: none;
     transform: translateY(8px);
-    overflow: hidden;
   }
 
   .hero-device-contact-meta {
@@ -1292,89 +1397,56 @@ const foodItems = [
     white-space: nowrap;
   }
 
+  .hero-device-food-rail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translateX(6px);
+    transition:
+      max-width 220ms ease,
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  .hero-device-top-shell[data-contact-open="true"] .hero-device-food-rail {
+    max-width: 10rem;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .hero-device-food-bracket {
+    color: #60a5fa;
+    font-size: 0.86rem;
+    line-height: 1;
+    flex: none;
+  }
+
   .hero-device-food-list {
     display: inline-flex;
     align-items: center;
-    gap: 0.26rem;
-    flex: none;
+    gap: 0.32rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .hero-device-food-item {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 0.86rem;
-    height: 0.86rem;
-  }
-
-  .hero-device-food-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    pointer-events: auto;
-  }
-
-  .hero-device-food-button:focus-visible {
-    outline: 1px solid rgba(191, 219, 254, 0.6);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  .hero-device-food-tooltip {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 0.35rem);
-    transform: translateX(-50%);
-    opacity: 0;
-    padding: 0.18rem 0.34rem;
-    border-radius: 999px;
-    background: rgba(248, 250, 252, 0.96);
-    color: #020617;
-    font-size: 0.48rem;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
-    box-shadow:
-      0 6px 18px rgba(2, 6, 23, 0.24),
-      inset 0 0 0 1px rgba(148, 163, 184, 0.28);
-    pointer-events: none;
-    transition: opacity 160ms ease;
-    z-index: 2;
-  }
-
-  .hero-device-food-button:hover .hero-device-food-tooltip,
-  .hero-device-food-button:focus-visible .hero-device-food-tooltip {
-    opacity: 1;
-  }
-
   .hero-device-food-sprite {
     display: grid;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    gap: 0.03rem;
-    width: 0.86rem;
+    grid-template-columns: repeat(var(--hero-device-food-columns), 1px);
+    grid-template-rows: repeat(var(--hero-device-food-rows), 1px);
+    gap: 1px;
     flex: none;
-    filter: grayscale(1);
-    transition: filter 160ms ease;
-  }
-
-  .hero-device-food-button:hover .hero-device-food-sprite,
-  .hero-device-food-button:focus-visible .hero-device-food-sprite {
-    filter: grayscale(0);
   }
 
   .hero-device-food-pixel {
-    aspect-ratio: 1;
-    border-radius: 1px;
+    width: 1px;
+    height: 1px;
+    border-radius: 999px;
     background: transparent;
   }
 
@@ -1384,115 +1456,29 @@ const foodItems = [
 
   .hero-device-food-pixel--tone-deep {
     background: #0f766e;
-    box-shadow: 0 0 4px rgba(15, 118, 110, 0.18);
   }
 
   .hero-device-food-pixel--tone-sea {
     background: #67e8f9;
-    box-shadow: 0 0 4px rgba(103, 232, 249, 0.2);
   }
 
   .hero-device-food-pixel--tone-warm {
     background: #f59e0b;
-    box-shadow: 0 0 4px rgba(245, 158, 11, 0.18);
   }
 
   .hero-device-food-pixel--tone-coral {
     background: #fb7185;
-    box-shadow: 0 0 4px rgba(251, 113, 133, 0.18);
   }
 
   .hero-device-food-pixel--tone-glint {
     background: #f8fafc;
-    box-shadow: 0 0 4px rgba(248, 250, 252, 0.2);
   }
 
-  .hero-device-contact-links-row {
-    display: flex;
-    align-items: center;
+  .hero-device-contact-glyph .hero-device-contact-link__svg {
     width: 100%;
     height: 100%;
-  }
-
-  .hero-device-contact-links {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0;
-    width: 100%;
-    flex-wrap: nowrap;
-    margin-left: 0;
-  }
-
-  .hero-device-contact-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.34rem;
-    flex: 1 1 0;
-    padding-inline: 0.4rem;
-    min-width: 0;
-    min-height: 1rem;
-    color: #93c5fd;
-    text-decoration: none;
-    pointer-events: auto;
-    transition:
-      color 160ms ease,
-      transform 160ms ease;
-  }
-
-  .hero-device-contact-link + .hero-device-contact-link {
-    border-left: 1px solid rgba(148, 163, 184, 0.22);
-  }
-
-  .hero-device-contact-link--placeholder {
-    opacity: 0.68;
-  }
-
-  .hero-device-contact-link__svg {
-    width: 18px;
-    height: 18px;
     flex: none;
     display: block;
-  }
-
-  .hero-device-contact-link__icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
-    flex: none;
-    color: rgba(248, 250, 252, 0.65);
-    filter: drop-shadow(0 0 6px rgba(248, 250, 252, 0.14));
-    transition: color 160ms ease;
-  }
-
-  .hero-device-contact-link__label {
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-    color: rgba(219, 234, 254, 0.65);
-    white-space: nowrap;
-    transition: color 160ms ease;
-  }
-
-  .hero-device-contact-link:hover {
-    color: #e2e8f0;
-  }
-
-  .hero-device-contact-link:hover .hero-device-contact-link__icon {
-    color: #f8fafc;
-  }
-
-  .hero-device-contact-link:hover .hero-device-contact-link__label {
-    color: #dbeafe;
-  }
-
-  .hero-device-contact-link--placeholder {
-    opacity: 0.68;
   }
 
   @keyframes heroPixelPulse {
@@ -1530,7 +1516,7 @@ const foodItems = [
       --hero-device-notch-content-right-open: 30px;
       --hero-device-notch-content-top-open: 5px;
       --hero-device-notch-content-bottom-open: 5px;
-      --hero-device-croc-size: 1.95rem;
+      --hero-device-croc-pixel-size: 2px;
     }
 
     .hero-orbit-field {
@@ -1544,38 +1530,21 @@ const foodItems = [
       right: 22px;
     }
 
-    .hero-device-contact-trigger__label {
-      font-size: 0.48rem;
-    }
-
-    .hero-device-contact-panel {
-      row-gap: 0.28rem;
-    }
-
     .hero-device-contact-meta {
       gap: 0.42rem;
     }
 
-    .hero-device-top-shell[data-contact-open="true"] .hero-device-top-shell__identity {
+    .hero-device-top-shell[data-contact-open="true"]
+      .hero-device-top-shell__identity {
       max-width: 11rem;
+    }
+
+    .hero-device-top-shell[data-contact-open="true"] .hero-device-food-rail {
+      max-width: 8rem;
     }
 
     .hero-device-contact-name {
       font-size: 0.48rem;
-    }
-
-    .hero-device-food-list {
-      gap: 0.2rem;
-    }
-
-    .hero-device-food-item,
-    .hero-device-food-sprite {
-      width: 0.78rem;
-      height: 0.78rem;
-    }
-
-    .hero-device-contact-links {
-      gap: 0;
     }
 
     .hero-device-pixel-grid {
@@ -1610,7 +1579,7 @@ const foodItems = [
 </style>
 
 <script>
-  import { initHeroOrbit } from "./hero.motion"
+  import { initHeroOrbit } from "./hero.motion";
 
-  initHeroOrbit()
+  initHeroOrbit();
 </script>

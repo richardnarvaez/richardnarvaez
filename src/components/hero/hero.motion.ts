@@ -16,6 +16,7 @@ const deviceNotchBaseHeightScale = 0.75
 const deviceNotchClosedWidthScale = 1.2
 const deviceNotchClosedHeightScale = 1.1
 const deviceNotchOpenBottomRadiusScale = 2.35
+const notchIntroDelayMs = 1000
 const heartReactionDurationMs = 2000
 let retroUiAudioContext: AudioContext | null = null
 
@@ -399,16 +400,16 @@ function scheduleRetroHeartTone(
   const notes =
     variant === "snack"
       ? ([
-          { frequency: 740, duration: 0.06, gap: 0.02, gain: 0.055 },
-          { frequency: 932, duration: 0.08, gap: 0, gain: 0.05 },
-        ] as const)
+        { frequency: 740, duration: 0.06, gap: 0.02, gain: 0.055 },
+        { frequency: 932, duration: 0.08, gap: 0, gain: 0.05 },
+      ] as const)
       : variant === "fed"
-      ? ([
+        ? ([
           { frequency: 880, duration: 0.09, gap: 0.03, gain: 0.09 },
           { frequency: 1174, duration: 0.14, gap: 0.03, gain: 0.085 },
           { frequency: 1567, duration: 0.22, gap: 0, gain: 0.08 },
         ] as const)
-      : ([
+        : ([
           { frequency: 659, duration: 0.11, gap: 0.025, gain: 0.07 },
           { frequency: 932, duration: 0.16, gap: 0.03, gain: 0.068 },
           { frequency: 1244, duration: 0.26, gap: 0, gain: 0.064 },
@@ -507,11 +508,11 @@ function buildDeviceNotchPath(
   const leftBottomControlX1 =
     leftBottomStartX +
     (deviceNotchMetrics.leftBottomControlX1 - leftBottomStartX) *
-      bottomRadiusScale
+    bottomRadiusScale
   const leftBottomControlX2 =
     leftBottomStartX +
     (deviceNotchMetrics.leftBottomControlX2 - leftBottomStartX) *
-      bottomRadiusScale
+    bottomRadiusScale
   const leftBottomX =
     leftBottomStartX +
     (deviceNotchMetrics.leftBottomX - leftBottomStartX) * bottomRadiusScale
@@ -519,16 +520,16 @@ function buildDeviceNotchPath(
     rightBottomStartX -
     (deviceNotchMetrics.rightBottomControlX1Inset -
       deviceNotchMetrics.rightTopControlX2Inset) *
-      bottomRadiusScale
+    bottomRadiusScale
   const rightBottomControlX2 =
     rightBottomStartX -
     (deviceNotchMetrics.rightBottomControlX2Inset -
       deviceNotchMetrics.rightTopControlX2Inset) *
-      bottomRadiusScale
+    bottomRadiusScale
   const rightBottomX =
     rightBottomStartX -
     (deviceNotchMetrics.rightBottomInset - deviceNotchMetrics.rightTopControlX2Inset) *
-      bottomRadiusScale
+    bottomRadiusScale
 
   return [
     `M0 0`,
@@ -579,8 +580,14 @@ function initDeviceNotch(root: HTMLElement) {
   const notchTopRow = root.querySelector<HTMLElement>(".hero-device-top-shell__row")
   const notchLead = root.querySelector<HTMLElement>(".hero-device-top-shell__lead")
   const notchSprite = root.querySelector<HTMLElement>("[data-notch-sprite]")
+  const notchBoardCoco = root.querySelector<HTMLButtonElement>("[data-notch-board-coco]")
   const notchContactTrigger = root.querySelector<HTMLElement>("[data-notch-contact-trigger]")
   const notchContactPanel = root.querySelector<HTMLElement>("[data-notch-contact-panel]")
+  const notchFoodCounter = root.querySelector<HTMLElement>("[data-notch-food-counter]")
+  const contactPreviewItems = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-contact-preview-item]")
+  )
+  const contactLinks = Array.from(root.querySelectorAll<HTMLElement>("[data-contact-link]"))
   const foodButtons = Array.from(
     root.querySelectorAll<HTMLButtonElement>("[data-notch-food-item]")
   )
@@ -598,7 +605,8 @@ function initDeviceNotch(root: HTMLElement) {
     !notchSprite ||
     !notchContactTrigger ||
     !notchContactPanel ||
-    foodButtons.length === 0 ||
+    contactPreviewItems.length === 0 ||
+    contactLinks.length === 0 ||
     pixelNodes.length === 0 ||
     notch.dataset.bound === "true"
   ) {
@@ -609,7 +617,7 @@ function initDeviceNotch(root: HTMLElement) {
   let baseWidth = 0
   let baseHeight = 0
   let isHovered = false
-  let expandedMode: "none" | "fed" | "contact" = "none"
+  let expandedMode: "none" | "contact" = "none"
   let activeAnimationTimeout = 0
   let fedResetTimeout = 0
   let ambientCycleCount = 0
@@ -617,6 +625,11 @@ function initDeviceNotch(root: HTMLElement) {
   let foodFeedCount = 0
   let isFoodReactionActive = false
   let currentFacing: "right" | "left" = "right"
+
+  const updateFoodCounter = () => {
+    if (notchFoodCounter) notchFoodCounter.textContent = String(foodFeedCount)
+  }
+
   const notchState = {
     width: 0,
     height: 0,
@@ -630,16 +643,15 @@ function initDeviceNotch(root: HTMLElement) {
   }
 
   const getContactMetrics = () => {
-    const contentStyles = window.getComputedStyle(notchContent)
-    const topInset = readPixelValue(contentStyles.top)
-    const bottomInset = readPixelValue(contentStyles.bottom)
+    const topInset = isCompactViewport() ? 5 : 6
+    const bottomInset = isCompactViewport() ? 5 : 6
     const rowHeight = notchTopRow.offsetHeight
-    const panelGap = 4
-    const targetWidth = baseWidth * 1.99
-    const targetHeight = isCompactViewport() ? 80 : 86
+    const panelGap = isCompactViewport() ? 10 : 12
+    const targetWidth = baseWidth * 2.08 + (isCompactViewport() ? 72 : 160)
+    const targetHeight = isCompactViewport() ? 152 : 200
     const panelHeight = Math.max(
       0,
-      targetHeight - topInset - bottomInset - rowHeight - panelGap
+      targetHeight - topInset - bottomInset - rowHeight - (panelGap * 2)
     )
 
     return {
@@ -655,10 +667,6 @@ function initDeviceNotch(root: HTMLElement) {
       const { targetHeight, targetWidth } = getContactMetrics()
 
       return { width: targetWidth, height: targetHeight }
-    }
-
-    if (expandedMode === "fed") {
-      return { width: baseWidth * 1.28, height: baseHeight * 1.16 }
     }
 
     return {
@@ -737,53 +745,24 @@ function initDeviceNotch(root: HTMLElement) {
     })
   }
 
-  const getLeadTargetX = () => {
-    if (expandedMode !== "contact") return 0
-
-    const rowWidth = notchTopRow.clientWidth
-    const leadWidth = Math.min(notchLead.scrollWidth || notchLead.offsetWidth, rowWidth)
-    return (rowWidth - leadWidth) / 2 - notchLead.offsetLeft
-  }
-
   const applyLeadTransition = (immediate = false) => {
-    const targetX = getLeadTargetX()
-
     if (immediate) {
       gsap.set(notchLead, {
-        x: targetX,
+        x: 0,
         opacity: 1,
         filter: "blur(0px)",
       })
       return
     }
 
-    const timeline = gsap.timeline({ defaults: { overwrite: "auto" } })
-
-    timeline.to(notchLead, {
-      opacity: 0.72,
-      filter: "blur(5px)",
-      duration: 0.08,
-      ease: "power1.out",
+    gsap.to(notchLead, {
+      x: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 0.18,
+      ease: "power2.out",
+      overwrite: "auto",
     })
-    timeline.to(
-      notchLead,
-      {
-        x: targetX,
-        duration: 0.22,
-        ease: expandedMode === "contact" ? "power2.out" : "power2.inOut",
-      },
-      0.02
-    )
-    timeline.to(
-      notchLead,
-      {
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: 0.18,
-        ease: "power2.out",
-      },
-      0.08
-    )
   }
 
   const stopActiveAnimation = () => {
@@ -815,24 +794,34 @@ function initDeviceNotch(root: HTMLElement) {
     notch.dataset.contactOpen = isContactOpen ? "true" : "false"
     notchContactTrigger.setAttribute(
       "aria-label",
-      isContactOpen ? "Close contact links" : "Open contact links"
+      isContactOpen ? "Close profile links" : "Open profile links"
     )
     notchContactTrigger.setAttribute("aria-expanded", String(isContactOpen))
     notchContactPanel.setAttribute("aria-hidden", String(!isContactOpen))
 
     gsap.to(notchSprite, {
       autoAlpha: 1,
-      scale: expandedMode === "fed" ? 1.06 : 1,
+      scale: 1,
       duration: immediate ? 0 : 0.18,
       ease: "power2.out",
       overwrite: "auto",
     })
     gsap.to(notchContactTrigger, {
-      autoAlpha: 1,
-      x: 0,
-      scale: 1,
+      autoAlpha: isContactOpen ? 0 : 1,
+      x: isContactOpen ? 10 : 0,
+      scale: isContactOpen ? 0.94 : 1,
+      pointerEvents: isContactOpen ? "none" : "auto",
       duration: immediate ? 0 : 0.18,
       ease: "power2.out",
+      overwrite: "auto",
+    })
+    gsap.to(contactPreviewItems, {
+      y: isContactOpen ? -4 : 0,
+      scale: isContactOpen ? 0.9 : 1,
+      rotate: isContactOpen ? 4 : 0,
+      duration: immediate ? 0 : 0.18,
+      ease: "power2.out",
+      stagger: immediate ? 0 : 0.02,
       overwrite: "auto",
     })
     gsap.to(notchContactPanel, {
@@ -840,10 +829,16 @@ function initDeviceNotch(root: HTMLElement) {
       y: isContactOpen ? 0 : 8,
       height: panelHeight,
       marginTop: isContactOpen ? panelGap : 0,
+      marginBottom: isContactOpen ? panelGap : 0,
       pointerEvents: isContactOpen ? "auto" : "none",
       duration: immediate ? 0 : 0.22,
       ease: "power2.out",
       overwrite: "auto",
+    })
+    gsap.set(contactLinks, {
+      autoAlpha: 1,
+      y: 0,
+      scale: 1,
     })
 
     if (immediate) {
@@ -880,6 +875,7 @@ function initDeviceNotch(root: HTMLElement) {
 
     expandedMode = "none"
     foodFeedCount = 0
+    updateFoodCounter()
     isFoodReactionActive = false
     stopFedReset()
     stopActiveAnimation()
@@ -915,6 +911,7 @@ function initDeviceNotch(root: HTMLElement) {
     const openingContact = expandedMode !== "contact"
     expandedMode = openingContact ? "contact" : "none"
     foodFeedCount = 0
+    updateFoodCounter()
     isFoodReactionActive = false
     stopFedReset()
     stopActiveAnimation()
@@ -931,6 +928,7 @@ function initDeviceNotch(root: HTMLElement) {
     setSpriteMode("ambient")
     applyHoverScale()
     restoreCreatureLoop()
+    updateFoodCounter()
   }
 
   const showHeartReaction = (mode: Exclude<NotchSpriteMode, "ambient">) => {
@@ -950,6 +948,7 @@ function initDeviceNotch(root: HTMLElement) {
 
     isFoodReactionActive = true
     foodFeedCount += 1
+    updateFoodCounter()
     stopFedReset()
     stopActiveAnimation()
     setSpriteMode("ambient")
@@ -1063,7 +1062,50 @@ function initDeviceNotch(root: HTMLElement) {
   applyContentState(true)
   setSpriteMode("ambient")
   applyCreatureFrame(notchAnimationFrames.idle[0])
-  activeAnimationTimeout = window.setTimeout(scheduleAmbientLoop, 260)
+  gsap.set(notch, {
+    autoAlpha: 0,
+    pointerEvents: "none",
+    "--hero-device-notch-intro-scale": 0.04,
+  })
+  gsap.set(notchContent, {
+    autoAlpha: 0,
+    y: -2,
+    filter: "blur(10px)",
+  })
+
+  window.setTimeout(() => {
+    const introTimeline = gsap.timeline({
+      defaults: {
+        overwrite: "auto",
+      },
+      onStart: () => {
+        gsap.set(notch, { pointerEvents: "auto" })
+      },
+    })
+
+    introTimeline.to(notch, {
+      autoAlpha: 1,
+      "--hero-device-notch-intro-scale": 1,
+      duration: 0.46,
+      ease: "back.out(1.2)",
+    })
+    introTimeline.to(
+      notchContent,
+      {
+        autoAlpha: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 0.26,
+        ease: "power3.out",
+      },
+      0.16
+    )
+  }, notchIntroDelayMs)
+
+  activeAnimationTimeout = window.setTimeout(
+    scheduleAmbientLoop,
+    notchIntroDelayMs + 260
+  )
 
   notch.addEventListener("pointerenter", handlePointerEnter)
   notch.addEventListener("pointerleave", handlePointerLeave)
@@ -1074,6 +1116,7 @@ function initDeviceNotch(root: HTMLElement) {
     toggleContactState()
   })
   notchSprite.addEventListener("click", handleSpriteHeartClick)
+  notchBoardCoco?.addEventListener("click", handleSpriteHeartClick)
   foodButtons.forEach((button) => {
     button.addEventListener("click", handleFoodFeed)
   })
@@ -1319,17 +1362,17 @@ export function initHeroOrbit() {
       })
     }
 
-	    const createIntroScrub = () => {
-	      const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
-	      const {
-	        collapseStartPx,
-	        expandStartPx,
-	        introEndDistance,
-	      } = getHeroSequenceRuntime(introDistance, originNodes.length)
-	      const { intro, collapse, expand } = heroSequenceMotion
+    const createIntroScrub = () => {
+      const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
+      const {
+        collapseStartPx,
+        expandStartPx,
+        introEndDistance,
+      } = getHeroSequenceRuntime(introDistance, originNodes.length)
+      const { intro, collapse, expand } = heroSequenceMotion
 
-	      const timeline = gsap.timeline({
-	        defaults: { ease: "none", overwrite: "auto" },
+      const timeline = gsap.timeline({
+        defaults: { ease: "none", overwrite: "auto" },
         scrollTrigger: {
           id: "hero-intro-scrub",
           trigger: root,
@@ -1361,12 +1404,12 @@ export function initHeroOrbit() {
             invalidateOnRefresh: true,
             markers: debugScroll
               ? {
-                  startColor: "#f59e0b",
-                  endColor: "#f59e0b",
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  indent: 92,
-                }
+                startColor: "#f59e0b",
+                endColor: "#f59e0b",
+                fontSize: "11px",
+                fontWeight: "600",
+                indent: 92,
+              }
               : false,
           },
         }
@@ -1388,35 +1431,35 @@ export function initHeroOrbit() {
         },
         0
       )
-	      timeline.to(
-	        orbitScene,
-	        {
-	          autoAlpha: 1,
-	          duration: intro.orbitSceneInDuration,
-	        },
-	        intro.orbitSceneInAt
-	      )
-	      timeline.to(
-	        orbitGraphic,
-	        {
-	          autoAlpha: 1,
-	          scale: 1,
-	          duration: intro.orbitGraphicInDuration,
-	        },
-	        intro.orbitGraphicInAt
-	      )
-	      timeline.to(
-	        originNodes,
-	        {
-	          autoAlpha: 1,
-	          scale: 1,
-	          y: 0,
-	          filter: "blur(0px)",
-	          duration: intro.nodeInDuration,
-	          stagger: intro.nodeInStagger,
-	        },
-	        intro.nodeInStart
-	      )
+      timeline.to(
+        orbitScene,
+        {
+          autoAlpha: 1,
+          duration: intro.orbitSceneInDuration,
+        },
+        intro.orbitSceneInAt
+      )
+      timeline.to(
+        orbitGraphic,
+        {
+          autoAlpha: 1,
+          scale: 1,
+          duration: intro.orbitGraphicInDuration,
+        },
+        intro.orbitGraphicInAt
+      )
+      timeline.to(
+        originNodes,
+        {
+          autoAlpha: 1,
+          scale: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: intro.nodeInDuration,
+          stagger: intro.nodeInStagger,
+        },
+        intro.nodeInStart
+      )
 
       const activeTimelineDuration = timeline.duration()
       const introHoldDuration =
@@ -1448,14 +1491,14 @@ export function initHeroOrbit() {
         },
       })
 
-	      const collapseToCenterDuration = collapse.nodesToCenterDuration
-	      const avatarInStart = collapseToCenterDuration
+      const collapseToCenterDuration = collapse.nodesToCenterDuration
+      const avatarInStart = collapseToCenterDuration
 
-	      collapseTimeline.to(title, {
-	        autoAlpha: 0,
-	        filter: "blur(6px)",
-	        duration: collapse.titleOutDuration,
-	      })
+      collapseTimeline.to(title, {
+        autoAlpha: 0,
+        filter: "blur(6px)",
+        duration: collapse.titleOutDuration,
+      })
       collapseTimeline.to(
         clusterLayer,
         {
@@ -1467,24 +1510,24 @@ export function initHeroOrbit() {
       collapseTimeline.to(
         orbitAvatar,
         {
-	          autoAlpha: 1,
-	          scale: 0.94,
-	          y: getCenteredAvatarY(clusterShell, orbitAvatar),
-	          filter: "blur(0px)",
-	          duration: collapse.avatarInDuration,
-	          ease: "power3.out",
-	        },
-	        avatarInStart
+          autoAlpha: 1,
+          scale: 0.94,
+          y: getCenteredAvatarY(clusterShell, orbitAvatar),
+          filter: "blur(0px)",
+          duration: collapse.avatarInDuration,
+          ease: "power3.out",
+        },
+        avatarInStart
       )
       collapseTimeline.to(
         originNodes,
         {
           x: (_, node) => getCenterNodeOffsetX(node as HTMLElement, orbitField),
           y: (_, node) => getCenterNodeOffsetY(node as HTMLElement, orbitField),
-	          autoAlpha: 0.22,
-	          scale: 0.42,
-	          filter: "blur(14px)",
-	          duration: collapseToCenterDuration,
+          autoAlpha: 0.22,
+          scale: 0.42,
+          filter: "blur(14px)",
+          duration: collapseToCenterDuration,
           stagger: 0,
         },
         0
@@ -1494,23 +1537,23 @@ export function initHeroOrbit() {
         paused: true,
         defaults: {
           ease: "power3.inOut",
-	          overwrite: false,
-	        },
-	        onReverseComplete: setCollapsedCenterState,
-	      })
-	      const bubbleExpandStart = expand.bubbleInDelay
-	      const metaInStart = expand.metaInDelay
+          overwrite: false,
+        },
+        onReverseComplete: setCollapsedCenterState,
+      })
+      const bubbleExpandStart = expand.bubbleInDelay
+      const metaInStart = expand.metaInDelay
 
-	      expandTimeline.to(
-	        orbitAvatar,
-	        {
-	          scale: 1,
-	          y: getCenteredAvatarY(clusterShell, orbitAvatar),
-	          filter: "blur(0px)",
-	          duration: expand.avatarSettleDuration,
-	          ease: "power3.out",
-	        },
-	        0
+      expandTimeline.to(
+        orbitAvatar,
+        {
+          scale: 1,
+          y: getCenteredAvatarY(clusterShell, orbitAvatar),
+          filter: "blur(0px)",
+          duration: expand.avatarSettleDuration,
+          ease: "power3.out",
+        },
+        0
       )
       expandTimeline.to(
         originNodes,
@@ -1520,25 +1563,25 @@ export function initHeroOrbit() {
             getClusterNodeOffsetX(node as HTMLElement, orbitField, clusterShell),
           y: (_, node) =>
             getClusterNodeOffsetY(node as HTMLElement, orbitField, clusterShell),
-	          scale: (_, node) =>
-	            getNumericDataset(node as HTMLElement, "clusterScale", 1),
-	          filter: "blur(0px)",
-	          duration: expand.bubbleInDuration,
-	          stagger: 0,
-	          ease: "power3.inOut",
-	        },
-	        bubbleExpandStart
+          scale: (_, node) =>
+            getNumericDataset(node as HTMLElement, "clusterScale", 1),
+          filter: "blur(0px)",
+          duration: expand.bubbleInDuration,
+          stagger: 0,
+          ease: "power3.inOut",
+        },
+        bubbleExpandStart
       )
       expandTimeline.to(
         orbitMeta,
         {
-	          autoAlpha: 1,
-	          y: 0,
-	          filter: "blur(0px)",
-	          duration: expand.metaInDuration,
-	          ease: "power3.out",
-	        },
-	        metaInStart
+          autoAlpha: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: expand.metaInDuration,
+          ease: "power3.out",
+        },
+        metaInStart
       )
 
       ScrollTrigger.create({
@@ -1548,12 +1591,12 @@ export function initHeroOrbit() {
         end: () => `top+=${collapseStartPx} top`,
         markers: debugScroll
           ? {
-              startColor: "#fb7185",
-              endColor: "#fb7185",
-              fontSize: "11px",
-              fontWeight: "600",
-              indent: 44,
-            }
+            startColor: "#fb7185",
+            endColor: "#fb7185",
+            fontSize: "11px",
+            fontWeight: "600",
+            indent: 44,
+          }
           : false,
         onEnter: () => {
           freezeIntroScrub()
@@ -1575,12 +1618,12 @@ export function initHeroOrbit() {
         end: () => `top+=${expandStartPx} top`,
         markers: debugScroll
           ? {
-              startColor: "#4ade80",
-              endColor: "#4ade80",
-              fontSize: "11px",
-              fontWeight: "600",
-              indent: 68,
-            }
+            startColor: "#4ade80",
+            endColor: "#4ade80",
+            fontSize: "11px",
+            fontWeight: "600",
+            indent: 68,
+          }
           : false,
         onEnter: () => {
           freezeIntroScrub()
