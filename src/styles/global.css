@@ -11,9 +11,11 @@
 
 html {
   scrollbar-gutter: stable;
+  background: var(--page-accent-surface);
 }
 
 body {
+  margin: 0;
   background: var(--page-accent-surface);
   color: rgb(226 232 240);
   font-feature-settings:

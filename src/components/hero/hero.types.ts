@@ -11,6 +11,7 @@ export type HeroOrbitNodeKind =
   | "cover"
   | "brand-cycle"
   | "brand-cycle-wide"
+  | "interest"
 
 export interface HeroOrbitNodeAsset {
   src: string
@@ -28,6 +29,15 @@ export interface HeroOrbitNode {
   key: string
   kind: HeroOrbitNodeKind
   assets: readonly HeroOrbitNodeAsset[]
+  label?: string
+  iconSvg?: string
+  originKind?: HeroOrbitNodeKind
+  originAssets?: readonly HeroOrbitNodeAsset[]
+  originLabel?: string
+  originIconSvg?: string
   origin: HeroOrbitNodePosition
   cluster: HeroOrbitNodePosition
+  clusterMobile?: HeroOrbitNodePosition
+  clusterOffset?: HeroOrbitNodePosition
+  clusterMobileOffset?: HeroOrbitNodePosition
 }

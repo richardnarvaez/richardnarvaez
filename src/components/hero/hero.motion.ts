@@ -1,5 +1,7 @@
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import createGlobe, { type Globe } from "cobe"
+import { globeCenter } from "../passport/passportGlobeData"
 import { getHeroSequenceRuntime, heroSequenceMotion } from "./hero.sequence"
 
 gsap.registerPlugin(ScrollTrigger)
@@ -9,8 +11,6 @@ const orbitImageOpacity = 0.3
 const introImageFilter = "blur(0px) saturate(1)"
 const orbitImageFilter = "blur(14px) saturate(1.25)"
 const scrollDebugParam = "debug-scroll"
-const clusterExpandShiftX = 30
-const clusterExpandGap = 20
 const deviceNotchBaseWidthScale = 0.62
 const deviceNotchBaseHeightScale = 0.75
 const deviceNotchClosedWidthScale = 1.2
@@ -19,6 +19,84 @@ const deviceNotchOpenBottomRadiusScale = 2.35
 const notchIntroDelayMs = 1000
 const heartReactionDurationMs = 2000
 let retroUiAudioContext: AudioContext | null = null
+const passportGlobeHeight = 420
+const passportGlobeScale = 1.12
+const passportGlobeSurfaceRadius = 0.8
+const passportRotationEasing = 0.08
+const passportRotationSettleEpsilon = 0.0015
+const passportThetaLimit = 1.05
+const passportDragPhiSensitivity = 0.01
+const passportDragThetaSensitivity = 0.008
+const passportGlobeDevicePixelRatioCap = 1.35
+const passportGlobeMapSamples = 11000
+
+function degToRad(value: number) {
+  return (value * Math.PI) / 180
+}
+
+function locationToAngles(lat: number, lng: number): [number, number] {
+  return [Math.PI - (degToRad(lng) - Math.PI / 2), degToRad(lat)]
+}
+
+const [passportInitialPhi, passportInitialTheta] = locationToAngles(
+  globeCenter[1],
+  globeCenter[0]
+)
+
+function clampPassportTheta(theta: number) {
+  return Math.max(-passportThetaLimit, Math.min(passportThetaLimit, theta))
+}
+
+function getClosestWrappedAngle(current: number, target: number) {
+  let delta = target - current
+
+  while (delta > Math.PI) delta -= Math.PI * 2
+  while (delta < -Math.PI) delta += Math.PI * 2
+
+  return current + delta
+}
+
+function toRgb(hex: string): [number, number, number] {
+  const normalized = hex.replace("#", "")
+  const value = Number.parseInt(normalized, 16)
+
+  return [
+    ((value >> 16) & 255) / 255,
+    ((value >> 8) & 255) / 255,
+    (value & 255) / 255,
+  ]
+}
+
+function projectPassportMarker(
+  coordinates: [number, number],
+  phi: number,
+  theta: number,
+  width: number,
+  height: number
+) {
+  const [lng, lat] = coordinates
+  const lngRad = degToRad(lng)
+  const latRad = degToRad(lat)
+  const radius =
+    (Math.min(width, height) / 2) * passportGlobeScale * passportGlobeSurfaceRadius
+
+  const cosLat = Math.cos(latRad)
+  const sinLat = Math.sin(latRad)
+  const lngPlusPhi = lngRad + phi
+
+  const x = cosLat * Math.cos(lngPlusPhi)
+  const y =
+    sinLat * Math.cos(theta) + cosLat * Math.sin(lngPlusPhi) * Math.sin(theta)
+  const z =
+    sinLat * Math.sin(theta) - cosLat * Math.sin(lngPlusPhi) * Math.cos(theta)
+
+  return {
+    x: width / 2 + x * radius,
+    y: height / 2 - y * radius,
+    depth: z,
+    visible: z > 0.02,
+  }
+}
 
 function getPercentFromInlineStyle(
   node: HTMLElement,
@@ -36,6 +114,18 @@ function getNumericDataset(node: HTMLElement, key: string, fallback: number) {
   const parsedValue = Number.parseFloat(rawValue ?? "")
 
   return Number.isFinite(parsedValue) ? parsedValue : fallback
+}
+
+function getClusterDatasetValue(
+  node: HTMLElement,
+  desktopKey: string,
+  mobileKey: string,
+  orbitField: HTMLElement,
+  fallback: number
+) {
+  void mobileKey
+  void orbitField
+  return getNumericDataset(node, desktopKey, fallback)
 }
 
 function getMarkerConfig(enabled: boolean) {
@@ -383,6 +473,81 @@ const notchAnimationFrames = {
   ],
 } as const
 
+function initBrandCycles(root: HTMLElement) {
+  const bubbles = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-brand-cycle-bubble]")
+  )
+
+  for (const bubble of bubbles) {
+    if (bubble.dataset.brandCycleBound === "true") continue
+    bubble.dataset.brandCycleBound = "true"
+
+    const items = Array.from(
+      bubble.querySelectorAll<HTMLElement>("[data-brand-cycle-item]")
+    )
+
+    if (items.length < 2) continue
+
+    const dwellMs = getNumericDataset(bubble, "brandCycleDwell", 3200)
+    const initialDelayMs = getNumericDataset(bubble, "brandCycleInitialDelay", 0)
+    const transitionMs = getNumericDataset(bubble, "brandCycleTransitionMs", 180)
+    let activeIndex = items.findIndex(
+      (item) => item.dataset.brandCycleActive === "true"
+    )
+
+    if (activeIndex < 0) activeIndex = 0
+
+    let cycleTimer = 0
+    let shrinkTimer = 0
+    let expandTimer = 0
+
+    const applyActiveIndex = (nextIndex: number) => {
+      activeIndex = nextIndex
+
+      for (const [index, item] of items.entries()) {
+        item.dataset.brandCycleActive = String(index === activeIndex)
+      }
+    }
+
+    const clearTimers = () => {
+      window.clearTimeout(cycleTimer)
+      window.clearTimeout(shrinkTimer)
+      window.clearTimeout(expandTimer)
+    }
+
+    const scheduleNextSwap = (delayMs: number) => {
+      cycleTimer = window.setTimeout(() => {
+        bubble.dataset.brandCycleTransitioning = "true"
+
+        shrinkTimer = window.setTimeout(() => {
+          applyActiveIndex((activeIndex + 1) % items.length)
+
+          expandTimer = window.setTimeout(() => {
+            bubble.dataset.brandCycleTransitioning = "false"
+            scheduleNextSwap(dwellMs)
+          }, transitionMs)
+        }, transitionMs)
+      }, delayMs)
+    }
+
+    bubble.dataset.brandCycleTransitioning = "false"
+    applyActiveIndex(activeIndex)
+    scheduleNextSwap(initialDelayMs)
+
+    document.addEventListener("visibilitychange", () => {
+      clearTimers()
+
+      if (document.hidden) {
+        bubble.dataset.brandCycleTransitioning = "false"
+        return
+      }
+
+      bubble.dataset.brandCycleTransitioning = "false"
+      scheduleNextSwap(180)
+    })
+  }
+}
+
 function getRetroUiAudioContext() {
   if (typeof window === "undefined" || typeof window.AudioContext === "undefined") {
     return null
@@ -572,6 +737,317 @@ function applyNotchPixelFrame(
   }
 }
 
+function initPassportGlobe(root: HTMLElement) {
+  const frame = root.querySelector<HTMLElement>("[data-passport-globe-frame]")
+  const canvas = root.querySelector<HTMLCanvasElement>("[data-passport-globe-canvas]")
+  const markerNodes = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-passport-marker]")
+  )
+  const countryNodes = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-passport-country]")
+  )
+  const detail = root.querySelector<HTMLElement>("[data-passport-detail]")
+  const detailCode = root.querySelector<HTMLElement>("[data-passport-detail-code]")
+  const detailName = root.querySelector<HTMLElement>("[data-passport-detail-name]")
+  const detailCountry = root.querySelector<HTMLElement>("[data-passport-detail-country]")
+  const detailClose = root.querySelector<HTMLElement>("[data-passport-detail-close]")
+
+  if (
+    !frame ||
+    !canvas ||
+    !detail ||
+    !detailCode ||
+    !detailName ||
+    !detailCountry ||
+    !detailClose ||
+    markerNodes.length === 0 ||
+    frame.dataset.passportBound === "true"
+  ) {
+    return null
+  }
+  frame.dataset.passportBound = "true"
+
+  const globeRef = { current: null as Globe | null }
+  const animationFrameRef = { current: 0 }
+  const isQueuedRef = { current: false }
+  const isActiveRef = { current: false }
+  const isDraggingRef = { current: false }
+  const rotationRef = { current: passportInitialPhi }
+  const targetRotationRef = { current: passportInitialPhi }
+  const thetaRef = { current: passportInitialTheta }
+  const targetThetaRef = { current: passportInitialTheta }
+  const dragXRef = { current: null as number | null }
+  const dragYRef = { current: null as number | null }
+  const viewportWidthRef = { current: 0 }
+  const viewportHeightRef = { current: passportGlobeHeight }
+  const renderedWidthRef = { current: 0 }
+  const renderedHeightRef = { current: 0 }
+  const renderedPhiRef = { current: passportInitialPhi }
+  const renderedThetaRef = { current: passportInitialTheta }
+
+  const hideDetail = () => {
+    detail.hidden = true
+  }
+
+  const showDetail = (markerNode: HTMLElement) => {
+    detailCode.textContent = markerNode.dataset.placeCode ?? ""
+    detailName.textContent = markerNode.dataset.placeName ?? ""
+    detailCountry.textContent = markerNode.dataset.placeCountry ?? ""
+    detail.hidden = false
+  }
+
+  const updateMarkers = () => {
+    for (const markerNode of markerNodes) {
+      const lng = Number.parseFloat(markerNode.dataset.lng ?? "0")
+      const lat = Number.parseFloat(markerNode.dataset.lat ?? "0")
+      const projected = projectPassportMarker(
+        [lng, lat],
+        rotationRef.current,
+        thetaRef.current,
+        viewportWidthRef.current,
+        viewportHeightRef.current
+      )
+
+      if (!projected.visible) {
+        markerNode.style.opacity = "0"
+        markerNode.style.pointerEvents = "none"
+        continue
+      }
+
+      markerNode.style.left = `${projected.x}px`
+      markerNode.style.top = `${projected.y}px`
+      markerNode.style.opacity = `${0.32 + projected.depth * 0.68}`
+      markerNode.style.pointerEvents = "auto"
+      markerNode.style.transform = `translate(-50%, -50%) scale(${
+        0.84 + projected.depth * 0.28
+      })`
+      markerNode.style.zIndex = `${Math.round(projected.depth * 100)}`
+    }
+  }
+
+  const updateSize = () => {
+    viewportWidthRef.current = frame.clientWidth
+    viewportHeightRef.current = frame.clientHeight || passportGlobeHeight
+  }
+
+  const cancelQueuedFrame = () => {
+    if (animationFrameRef.current) {
+      window.cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = 0
+    }
+    isQueuedRef.current = false
+  }
+
+  const focusOnCoordinates = (lng: number, lat: number) => {
+    const [phiTarget, thetaTarget] = locationToAngles(lat, lng)
+    targetRotationRef.current = getClosestWrappedAngle(
+      rotationRef.current,
+      phiTarget
+    )
+    targetThetaRef.current = clampPassportTheta(thetaTarget - 0.24)
+    queueRender()
+  }
+
+  const renderNow = () => {
+    if (!globeRef.current) return
+
+    globeRef.current.update({
+      phi: rotationRef.current,
+      theta: thetaRef.current,
+      width: viewportWidthRef.current,
+      height: viewportHeightRef.current,
+    })
+
+    updateMarkers()
+    renderedPhiRef.current = rotationRef.current
+    renderedThetaRef.current = thetaRef.current
+    renderedWidthRef.current = viewportWidthRef.current
+    renderedHeightRef.current = viewportHeightRef.current
+  }
+
+  const renderFrame = () => {
+    animationFrameRef.current = 0
+    isQueuedRef.current = false
+
+    if (!globeRef.current) return
+
+    const nextPhi =
+      rotationRef.current +
+      (targetRotationRef.current - rotationRef.current) * passportRotationEasing
+    const nextTheta =
+      thetaRef.current +
+      (targetThetaRef.current - thetaRef.current) * passportRotationEasing
+    const phiDelta = Math.abs(targetRotationRef.current - nextPhi)
+    const thetaDelta = Math.abs(targetThetaRef.current - nextTheta)
+
+    rotationRef.current =
+      phiDelta <= passportRotationSettleEpsilon
+        ? targetRotationRef.current
+        : nextPhi
+    thetaRef.current =
+      thetaDelta <= passportRotationSettleEpsilon
+        ? targetThetaRef.current
+        : nextTheta
+
+    const sizeChanged =
+      renderedWidthRef.current !== viewportWidthRef.current ||
+      renderedHeightRef.current !== viewportHeightRef.current
+    const rotationChanged =
+      Math.abs(rotationRef.current - renderedPhiRef.current) >
+        passportRotationSettleEpsilon ||
+      Math.abs(thetaRef.current - renderedThetaRef.current) >
+        passportRotationSettleEpsilon
+
+    if (sizeChanged || rotationChanged) {
+      renderNow()
+    }
+
+    if (
+      isDraggingRef.current ||
+      (isActiveRef.current &&
+        (sizeChanged ||
+          phiDelta > passportRotationSettleEpsilon ||
+          thetaDelta > passportRotationSettleEpsilon))
+    ) {
+      queueRender()
+    }
+  }
+
+  function queueRender() {
+    if (!globeRef.current || isQueuedRef.current) return
+    if (!isActiveRef.current && !isDraggingRef.current) return
+
+    isQueuedRef.current = true
+    animationFrameRef.current = window.requestAnimationFrame(renderFrame)
+  }
+
+  const resizeObserver = new ResizeObserver(() => {
+    updateSize()
+    queueRender()
+  })
+  resizeObserver.observe(frame)
+  updateSize()
+
+  try {
+    const devicePixelRatio = Math.min(
+      window.devicePixelRatio || 1,
+      passportGlobeDevicePixelRatioCap
+    )
+
+    globeRef.current = createGlobe(canvas, {
+      devicePixelRatio,
+      width: viewportWidthRef.current,
+      height: viewportHeightRef.current,
+      phi: rotationRef.current,
+      theta: thetaRef.current,
+      dark: 1,
+      diffuse: 1.7,
+      mapSamples: passportGlobeMapSamples,
+      mapBrightness: 2,
+      mapBaseBrightness: 0,
+      baseColor: toRgb("#8c86b7"),
+      markerColor: [1, 1, 1],
+      glowColor: toRgb("#1b1f2d"),
+      opacity: 0.64,
+      scale: passportGlobeScale,
+      offset: [0, 0],
+      markers: [],
+    })
+    renderNow()
+  } catch {
+    // If WebGL/canvas init fails, keep the static layout without breaking hero init.
+  }
+
+  frame.addEventListener("pointerdown", (event) => {
+    isDraggingRef.current = true
+    isActiveRef.current = true
+    dragXRef.current = event.clientX
+    dragYRef.current = event.clientY
+    frame.setPointerCapture(event.pointerId)
+    queueRender()
+  })
+
+  frame.addEventListener("pointermove", (event) => {
+    if (dragXRef.current === null || dragYRef.current === null) return
+
+    const deltaX = event.clientX - dragXRef.current
+    const deltaY = event.clientY - dragYRef.current
+    dragXRef.current = event.clientX
+    dragYRef.current = event.clientY
+    targetRotationRef.current += deltaX * passportDragPhiSensitivity
+    targetThetaRef.current = clampPassportTheta(
+      targetThetaRef.current + deltaY * passportDragThetaSensitivity
+    )
+    queueRender()
+  })
+
+  const endDrag = () => {
+    isDraggingRef.current = false
+    dragXRef.current = null
+    dragYRef.current = null
+    queueRender()
+  }
+
+  frame.addEventListener("pointerup", (event) => {
+    endDrag()
+    if (frame.hasPointerCapture(event.pointerId)) {
+      frame.releasePointerCapture(event.pointerId)
+    }
+  })
+  frame.addEventListener("pointercancel", endDrag)
+  frame.addEventListener("pointerleave", endDrag)
+
+  for (const markerNode of markerNodes) {
+    markerNode.addEventListener("pointerdown", (event) => event.stopPropagation())
+    markerNode.addEventListener("click", (event) => {
+      event.stopPropagation()
+      const lng = Number.parseFloat(markerNode.dataset.lng ?? "0")
+      const lat = Number.parseFloat(markerNode.dataset.lat ?? "0")
+      focusOnCoordinates(lng, lat)
+      showDetail(markerNode)
+    })
+  }
+
+  for (const countryNode of countryNodes) {
+    countryNode.addEventListener("click", () => {
+      const lng = Number.parseFloat(countryNode.dataset.lng ?? "0")
+      const lat = Number.parseFloat(countryNode.dataset.lat ?? "0")
+      focusOnCoordinates(lng, lat)
+    })
+  }
+
+  detailClose.addEventListener("click", hideDetail)
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelQueuedFrame()
+    } else if (isActiveRef.current) {
+      queueRender()
+    }
+  })
+
+  return {
+    setActive(nextActive: boolean) {
+      isActiveRef.current = nextActive
+
+      if (nextActive) {
+        targetRotationRef.current = rotationRef.current
+        targetThetaRef.current = thetaRef.current
+        renderNow()
+        queueRender()
+        return
+      }
+
+      rotationRef.current = targetRotationRef.current
+      thetaRef.current = targetThetaRef.current
+
+      if (!isDraggingRef.current) {
+        cancelQueuedFrame()
+      }
+    },
+  }
+}
+
 function initDeviceNotch(root: HTMLElement) {
   const notch = root.querySelector<HTMLElement>("[data-hero-device-notch]")
   const notchSvg = root.querySelector<SVGSVGElement>("[data-hero-device-notch-svg]")
@@ -711,7 +1187,7 @@ function initDeviceNotch(root: HTMLElement) {
     const ease = immediate
       ? "none"
       : isOpeningContact
-        ? "back.out(1.35)"
+        ? "power3.out"
         : expandedMode === "none"
           ? "power2.out"
           : "power3.out"
@@ -1087,7 +1563,7 @@ function initDeviceNotch(root: HTMLElement) {
       autoAlpha: 1,
       "--hero-device-notch-intro-scale": 1,
       duration: 0.46,
-      ease: "back.out(1.2)",
+      ease: "power3.out",
     })
     introTimeline.to(
       notchContent,
@@ -1153,23 +1629,16 @@ function getClusterNodeOffsetX(
   orbitField: HTMLElement,
   clusterShell: HTMLElement
 ) {
+  void clusterShell
   const originLeft = getPercentFromInlineStyle(node, "left", 50)
-  const clusterLeft = getNumericDataset(node, "clusterLeft", 50)
-  const clusterOffsetLeft = (orbitField.clientWidth - clusterShell.clientWidth) / 2
-  const baseTargetLeft =
-    clusterOffsetLeft +
-    clusterExpandShiftX +
-    (clusterLeft / 100) * clusterShell.clientWidth
-  const clusterCenterX = clusterOffsetLeft + clusterShell.clientWidth / 2
-  const clusterOffsetTop = (orbitField.clientHeight - clusterShell.clientHeight) / 2
-  const clusterTop = getNumericDataset(node, "clusterTop", 50)
-  const baseTargetTop =
-    clusterOffsetTop + (clusterTop / 100) * clusterShell.clientHeight
-  const clusterCenterY = clusterOffsetTop + clusterShell.clientHeight / 2
-  const deltaX = baseTargetLeft - clusterCenterX
-  const deltaY = baseTargetTop - clusterCenterY
-  const length = Math.hypot(deltaX, deltaY) || 1
-  const targetLeft = baseTargetLeft + (deltaX / length) * clusterExpandGap
+  const offsetLeft = getClusterDatasetValue(
+    node,
+    "clusterOffsetLeft",
+    "clusterMobileOffsetLeft",
+    orbitField,
+    0
+  )
+  const targetLeft = orbitField.clientWidth / 2 + offsetLeft
 
   return targetLeft - (originLeft / 100) * orbitField.clientWidth
 }
@@ -1179,23 +1648,16 @@ function getClusterNodeOffsetY(
   orbitField: HTMLElement,
   clusterShell: HTMLElement
 ) {
+  void clusterShell
   const originTop = getPercentFromInlineStyle(node, "top", 50)
-  const clusterTop = getNumericDataset(node, "clusterTop", 50)
-  const clusterOffsetTop = (orbitField.clientHeight - clusterShell.clientHeight) / 2
-  const baseTargetTop =
-    clusterOffsetTop + (clusterTop / 100) * clusterShell.clientHeight
-  const clusterOffsetLeft = (orbitField.clientWidth - clusterShell.clientWidth) / 2
-  const clusterLeft = getNumericDataset(node, "clusterLeft", 50)
-  const baseTargetLeft =
-    clusterOffsetLeft +
-    clusterExpandShiftX +
-    (clusterLeft / 100) * clusterShell.clientWidth
-  const clusterCenterX = clusterOffsetLeft + clusterShell.clientWidth / 2
-  const clusterCenterY = clusterOffsetTop + clusterShell.clientHeight / 2
-  const deltaX = baseTargetLeft - clusterCenterX
-  const deltaY = baseTargetTop - clusterCenterY
-  const length = Math.hypot(deltaX, deltaY) || 1
-  const targetTop = baseTargetTop + (deltaY / length) * clusterExpandGap
+  const offsetTop = getClusterDatasetValue(
+    node,
+    "clusterOffsetTop",
+    "clusterMobileOffsetTop",
+    orbitField,
+    0
+  )
+  const targetTop = orbitField.clientHeight / 2 + offsetTop
 
   return targetTop - (originTop / 100) * orbitField.clientHeight
 }
@@ -1210,6 +1672,8 @@ export function initHeroOrbit() {
     if (root.dataset.bound === "true") continue
     root.dataset.bound = "true"
 
+    initBrandCycles(root)
+    const passportGlobeController = initPassportGlobe(root)
     initDeviceNotch(root)
 
     const title = root.querySelector<HTMLElement>("[data-title]")
@@ -1221,11 +1685,49 @@ export function initHeroOrbit() {
     const originNodes = Array.from(
       root.querySelectorAll<HTMLElement>("[data-orbit-origin-node]")
     )
+    const originFaces = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-node-face-origin]")
+    )
+    const clusterFaces = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-node-face-cluster]")
+    )
+    const interestTriggers = Array.from(
+      root.querySelectorAll<HTMLButtonElement>("[data-interest-trigger]")
+    )
     const clusterShell = root.querySelector<HTMLElement>("[data-orbit-cluster]")
     const clusterLayer = root.querySelector<HTMLElement>("[data-orbit-cluster-layer]")
     const orbitAvatar = root.querySelector<HTMLElement>("[data-orbit-avatar]")
     const orbitMeta = root.querySelector<HTMLElement>("[data-orbit-meta]")
+    const passportLayer = root.querySelector<HTMLElement>("[data-orbit-passport-layer]")
+    const passportGlobe = root.querySelector<HTMLElement>("[data-orbit-passport-globe]")
+    const passportFrame = root.querySelector<HTMLElement>("[data-passport-globe-frame]")
+    const passportToolbar = root.querySelector<HTMLElement>(".hero-passport-toolbar")
+    const passportDetail = root.querySelector<HTMLElement>("[data-passport-detail]")
+    const footerLayer = root.querySelector<HTMLElement>("[data-orbit-footer-layer]")
+    const footerShell = root.querySelector<HTMLElement>("[data-orbit-footer-shell]")
     const introStep = root.querySelector<HTMLElement>('[data-story-step="Intro"]')
+
+    for (const trigger of interestTriggers) {
+      trigger.addEventListener("click", () => {
+        const label =
+          trigger.closest<HTMLElement>("[data-orbit-origin-node]")?.dataset
+            .interestLabel ?? "Interest"
+        window.alert(label)
+      })
+    }
+
+    const setNodeFaceMode = (mode: "origin" | "cluster") => {
+      const showOrigin = mode === "origin"
+
+      gsap.set(originFaces, {
+        autoAlpha: showOrigin ? 1 : 0,
+        pointerEvents: showOrigin ? "auto" : "none",
+      })
+      gsap.set(clusterFaces, {
+        autoAlpha: showOrigin ? 0 : 1,
+        pointerEvents: showOrigin ? "none" : "auto",
+      })
+    }
 
     if (
       !title ||
@@ -1237,6 +1739,13 @@ export function initHeroOrbit() {
       !clusterLayer ||
       !orbitAvatar ||
       !orbitMeta ||
+      !passportLayer ||
+      !passportGlobe ||
+      !passportFrame ||
+      !passportToolbar ||
+      !passportDetail ||
+      !footerLayer ||
+      !footerShell ||
       !introStep
     ) {
       continue
@@ -1260,6 +1769,7 @@ export function initHeroOrbit() {
         y: 12,
         filter: "blur(10px)",
       })
+      setNodeFaceMode("origin")
       gsap.set(clusterLayer, { autoAlpha: 0 })
       gsap.set(orbitAvatar, {
         autoAlpha: 0,
@@ -1271,6 +1781,42 @@ export function initHeroOrbit() {
         autoAlpha: 0,
         y: 10,
         filter: "blur(10px)",
+      })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      passportGlobeController?.setActive(false)
+      gsap.set(passportGlobe, {
+        autoAlpha: 1,
+        scale: 1,
+        rotate: 0,
+        y: 0,
+        filter: "blur(0px)",
+        transformOrigin: "50% 50%",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.82,
+        filter: "blur(18px)",
+        transformOrigin: "50% 50%",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
+        transformOrigin: "50% 50%",
       })
       gsap.set(title, {
         autoAlpha: 1,
@@ -1311,6 +1857,7 @@ export function initHeroOrbit() {
     }
 
     const setIntroNodeState = () => {
+      setNodeFaceMode("origin")
       gsap.set(originNodes, {
         autoAlpha: 1,
         x: 0,
@@ -1330,6 +1877,38 @@ export function initHeroOrbit() {
         y: 10,
         filter: "blur(10px)",
       })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(passportGlobe, {
+        autoAlpha: 1,
+        scale: 1,
+        rotate: 0,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.82,
+        filter: "blur(18px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
+      })
       gsap.set(title, {
         autoAlpha: 1,
         filter: "blur(0px)",
@@ -1337,6 +1916,7 @@ export function initHeroOrbit() {
     }
 
     const setCollapsedCenterState = () => {
+      setNodeFaceMode("origin")
       gsap.set(title, {
         autoAlpha: 0,
         filter: "blur(6px)",
@@ -1353,6 +1933,38 @@ export function initHeroOrbit() {
         y: 10,
         filter: "blur(10px)",
       })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(passportGlobe, {
+        autoAlpha: 1,
+        scale: 1,
+        rotate: 0,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.82,
+        filter: "blur(18px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
+      })
       gsap.set(originNodes, {
         x: (_, node) => getCenterNodeOffsetX(node as HTMLElement, orbitField),
         y: (_, node) => getCenterNodeOffsetY(node as HTMLElement, orbitField),
@@ -1362,14 +1974,186 @@ export function initHeroOrbit() {
       })
     }
 
+    const setExpandedProfileState = () => {
+      setNodeFaceMode("cluster")
+      gsap.set(title, {
+        autoAlpha: 0,
+        filter: "blur(6px)",
+      })
+      gsap.set(clusterLayer, { autoAlpha: 1 })
+      gsap.set(orbitAvatar, {
+        autoAlpha: 1,
+        scale: 1,
+        y: getCenteredAvatarY(clusterShell, orbitAvatar),
+        filter: "blur(0px)",
+      })
+      gsap.set(orbitMeta, {
+        autoAlpha: 1,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(passportGlobe, {
+        autoAlpha: 1,
+        scale: 1,
+        rotate: 0,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.82,
+        filter: "blur(18px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
+      })
+      gsap.set(originNodes, {
+        autoAlpha: 1,
+        x: (_, node) =>
+          getClusterNodeOffsetX(node as HTMLElement, orbitField, clusterShell),
+        y: (_, node) =>
+          getClusterNodeOffsetY(node as HTMLElement, orbitField, clusterShell),
+        scale: (_, node) =>
+          getClusterDatasetValue(
+            node as HTMLElement,
+            "clusterOffsetScale",
+            "clusterMobileOffsetScale",
+            orbitField,
+            1
+          ),
+        filter: "blur(0px)",
+      })
+    }
+
+    const setPassportState = () => {
+      gsap.set(clusterLayer, {
+        autoAlpha: 0,
+      })
+      gsap.set(originNodes, {
+        autoAlpha: 0,
+      })
+      gsap.set(orbitAvatar, {
+        autoAlpha: 0,
+        y: getCenteredAvatarY(clusterShell, orbitAvatar) - 40,
+        filter: "blur(12px)",
+      })
+      gsap.set(orbitMeta, {
+        autoAlpha: 0,
+        y: -28,
+        filter: "blur(12px)",
+      })
+      gsap.set(passportLayer, {
+        autoAlpha: 1,
+        pointerEvents: "auto",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 1,
+        scale: 1,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 1,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: passportDetail.hidden ? 0 : 1,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
+      })
+    }
+
+    const setFooterState = () => {
+      passportGlobeController?.setActive(false)
+      gsap.set(clusterLayer, {
+        autoAlpha: 0,
+      })
+      gsap.set(originNodes, {
+        autoAlpha: 0,
+      })
+      gsap.set(orbitAvatar, {
+        autoAlpha: 0,
+      })
+      gsap.set(orbitMeta, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.92,
+        filter: "blur(14px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 1,
+        pointerEvents: "auto",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 1,
+        scale: 1,
+        y: 0,
+        filter: "blur(0px)",
+      })
+    }
+
     const createIntroScrub = () => {
       const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
       const {
         collapseStartPx,
         expandStartPx,
+        passportStartPx,
+        footerStartPx,
         introEndDistance,
       } = getHeroSequenceRuntime(introDistance, originNodes.length)
-      const { intro, collapse, expand } = heroSequenceMotion
+      const { intro, collapse, expand, passport, footer } = heroSequenceMotion
+
+      const syncNavPoints = () => {
+        const rootTop = root.getBoundingClientRect().top + window.scrollY
+
+        root.dataset.navHomeY = String(Math.round(rootTop))
+        root.dataset.navDevY = String(Math.round(rootTop + expandStartPx))
+        root.dataset.navPassportY = String(Math.round(rootTop + passportStartPx))
+        root.dataset.navFooterY = String(Math.round(rootTop + footerStartPx))
+        window.dispatchEvent(new CustomEvent("hero-nav-points"))
+      }
+
+      syncNavPoints()
 
       const timeline = gsap.timeline({
         defaults: { ease: "none", overwrite: "auto" },
@@ -1461,6 +2245,18 @@ export function initHeroOrbit() {
         intro.nodeInStart
       )
 
+      const nodeHoldDuration = Math.max(
+        intro.targetNodesCompleteAt -
+          (intro.nodeInStart +
+            intro.nodeInDuration +
+            Math.max(originNodes.length - 1, 0) * intro.nodeInStagger),
+        0
+      )
+
+      if (nodeHoldDuration > 0) {
+        timeline.to({}, { duration: nodeHoldDuration })
+      }
+
       const activeTimelineDuration = timeline.duration()
       const introHoldDuration =
         activeTimelineDuration * ((introEndDistance - introDistance) / introDistance)
@@ -1491,13 +2287,13 @@ export function initHeroOrbit() {
         },
       })
 
-      const collapseToCenterDuration = collapse.nodesToCenterDuration
+      const collapseToCenterDuration = collapse.nodeCollapseToCenterDuration
       const avatarInStart = collapseToCenterDuration
 
       collapseTimeline.to(title, {
         autoAlpha: 0,
         filter: "blur(6px)",
-        duration: collapse.titleOutDuration,
+        duration: collapse.titleFadeOutDuration,
       })
       collapseTimeline.to(
         clusterLayer,
@@ -1514,7 +2310,7 @@ export function initHeroOrbit() {
           scale: 0.94,
           y: getCenteredAvatarY(clusterShell, orbitAvatar),
           filter: "blur(0px)",
-          duration: collapse.avatarInDuration,
+          duration: collapse.centeredAvatarRevealDuration,
           ease: "power3.out",
         },
         avatarInStart
@@ -1541,8 +2337,8 @@ export function initHeroOrbit() {
         },
         onReverseComplete: setCollapsedCenterState,
       })
-      const bubbleExpandStart = expand.bubbleInDelay
-      const metaInStart = expand.metaInDelay
+      const bubbleExpandStart = expand.clusterBubbleRevealDelay
+      const metaInStart = expand.profileMetaRevealDelay
 
       expandTimeline.to(
         orbitAvatar,
@@ -1564,26 +2360,159 @@ export function initHeroOrbit() {
           y: (_, node) =>
             getClusterNodeOffsetY(node as HTMLElement, orbitField, clusterShell),
           scale: (_, node) =>
-            getNumericDataset(node as HTMLElement, "clusterScale", 1),
+            getClusterDatasetValue(
+              node as HTMLElement,
+              "clusterOffsetScale",
+              "clusterMobileOffsetScale",
+              orbitField,
+              1
+            ),
           filter: "blur(0px)",
-          duration: expand.bubbleInDuration,
+          duration: expand.clusterBubbleRevealDuration,
           stagger: 0,
           ease: "power3.inOut",
         },
         bubbleExpandStart
       )
+      expandTimeline.call(() => {
+        setNodeFaceMode("cluster")
+      }, [], bubbleExpandStart)
       expandTimeline.to(
         orbitMeta,
         {
           autoAlpha: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: expand.metaInDuration,
+          duration: expand.profileMetaRevealDuration,
           ease: "power3.out",
         },
         metaInStart
       )
 
+      const passportTimeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: "power3.inOut",
+          overwrite: false,
+        },
+        onReverseComplete: () => {
+          passportGlobeController?.setActive(false)
+          setExpandedProfileState()
+        },
+      })
+
+      passportTimeline.to(
+        [clusterLayer, originNodes],
+        {
+          autoAlpha: 0,
+          duration: passport.layerInDuration,
+          stagger: 0,
+        },
+        0
+      )
+      passportTimeline.to(
+        orbitAvatar,
+        {
+          autoAlpha: 0,
+          y: getCenteredAvatarY(clusterShell, orbitAvatar) - 40,
+          filter: "blur(12px)",
+          duration: passport.layerInDuration,
+        },
+        0
+      )
+      passportTimeline.to(
+        orbitMeta,
+        {
+          autoAlpha: 0,
+          y: -28,
+          filter: "blur(12px)",
+          duration: passport.layerInDuration,
+        },
+        0
+      )
+      passportTimeline.to(
+        passportLayer,
+        {
+          autoAlpha: 1,
+          pointerEvents: "auto",
+          duration: 0.01,
+        },
+        0
+      )
+      passportTimeline.to(
+        passportFrame,
+        {
+          autoAlpha: 1,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: passport.globeInDuration,
+          ease: "power3.out",
+        },
+        0
+      )
+      passportTimeline.to(
+        passportToolbar,
+        {
+          autoAlpha: 1,
+          duration: 0.2,
+          ease: "power2.out",
+        },
+        0.08
+      )
+
+      const footerTimeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: "power3.inOut",
+          overwrite: false,
+        },
+        onReverseComplete: () => {
+          setPassportState()
+          passportGlobeController?.setActive(true)
+        },
+      })
+
+      footerTimeline.to(
+        passportLayer,
+        {
+          autoAlpha: 0,
+          pointerEvents: "none",
+          duration: footer.layerInDuration,
+        },
+        0
+      )
+      footerTimeline.to(
+        [passportFrame, passportToolbar, passportDetail],
+        {
+          autoAlpha: 0,
+          y: (_index, target) => (target === passportFrame ? -16 : 8),
+          filter: "blur(12px)",
+          duration: footer.layerInDuration,
+          stagger: 0,
+        },
+        0
+      )
+      footerTimeline.to(
+        footerLayer,
+        {
+          autoAlpha: 1,
+          pointerEvents: "auto",
+          duration: 0.01,
+        },
+        0
+      )
+      footerTimeline.to(
+        footerShell,
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          filter: "blur(0px)",
+          duration: footer.contentInDuration,
+          ease: "power3.out",
+        },
+        0.04
+      )
       ScrollTrigger.create({
         id: "hero-collapse-trigger",
         trigger: root,
@@ -1601,6 +2530,7 @@ export function initHeroOrbit() {
         onEnter: () => {
           freezeIntroScrub()
           collapseTimeline.pause(0)
+          passportGlobeController?.setActive(false)
           collapseTimeline.play(0)
         },
         onLeaveBack: () => {
@@ -1629,9 +2559,65 @@ export function initHeroOrbit() {
           freezeIntroScrub()
           collapseTimeline.pause().progress(1)
           setCollapsedCenterState()
+          passportGlobeController?.setActive(false)
           expandTimeline.play(0)
         },
         onLeaveBack: () => expandTimeline.reverse(),
+        onRefresh: syncNavPoints,
+      })
+
+      ScrollTrigger.create({
+        id: "hero-passport-trigger",
+        trigger: root,
+        start: () => `top+=${passportStartPx} top`,
+        end: () => `top+=${passportStartPx} top`,
+        markers: debugScroll
+          ? {
+            startColor: "#60a5fa",
+            endColor: "#60a5fa",
+            fontSize: "11px",
+            fontWeight: "600",
+            indent: 92,
+          }
+          : false,
+        onEnter: () => {
+          freezeIntroScrub()
+          collapseTimeline.pause().progress(1)
+          expandTimeline.pause().progress(1)
+          footerTimeline.pause(0)
+          setExpandedProfileState()
+          passportGlobeController?.setActive(true)
+          passportTimeline.play(0)
+        },
+        onLeaveBack: () => passportTimeline.reverse(),
+        onRefresh: syncNavPoints,
+      })
+
+      ScrollTrigger.create({
+        id: "hero-footer-trigger",
+        trigger: root,
+        start: () => `top+=${footerStartPx} top`,
+        end: () => `top+=${footerStartPx} top`,
+        markers: debugScroll
+          ? {
+            startColor: "#f9fafb",
+            endColor: "#f9fafb",
+            fontSize: "11px",
+            fontWeight: "600",
+            indent: 116,
+          }
+          : false,
+        onEnter: () => {
+          freezeIntroScrub()
+          collapseTimeline.pause().progress(1)
+          expandTimeline.pause().progress(1)
+          passportTimeline.pause().progress(1)
+          setPassportState()
+          passportGlobeController?.setActive(false)
+          footerTimeline.play(0)
+        },
+        onLeaveBack: () => footerTimeline.reverse(),
+        onRefresh: syncNavPoints,
       })
     }
 

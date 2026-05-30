@@ -1,24 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
 import HeroOrbit from "../components/hero/HeroOrbit.astro"
-import DevSection from "../components/sections/DevSection.astro"
-import ArtSection from "../components/sections/ArtSection.astro"
-import PassportSection from "../components/sections/PassportSection.astro"
-import OpenSourceSection from "../components/sections/OpenSourceSection.astro"
-import SiteFooter from "../components/footer/SiteFooter.astro"
 ---
 
 <BaseLayout title="Richard Narvaez | Orbit">
   <HeroOrbit />
-  <DevSection />
-  <ArtSection />
-  <PassportSection />
-  <OpenSourceSection />
-  <SiteFooter />
 </BaseLayout>
-
-<script>
-  import { initSectionsMotion } from "../components/sections/sections.motion"
-
-  initSectionsMotion()
-</script>

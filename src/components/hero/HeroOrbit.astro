@@ -1,7 +1,15 @@
 ---
 import ArrowFigma from "../icons/ArrowFigma.astro";
 import VercelColorIcon from "../icons/VercelColorIcon.astro";
+import SiteFooter from "../footer/SiteFooter.astro";
 import packageJson from "../../../package.json";
+import {
+  getPlaceGradient,
+  getVisitedCountries,
+  globeCenter,
+  places as passportPlaces,
+} from "../passport/passportGlobeData";
+import { passportFlagSvgs } from "../passport/passportFlagSvgs";
 import { heroOrbitNodes } from "./hero.data";
 
 const githubUrl = "https://github.com/richardnarvaez/";
@@ -187,6 +195,30 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
 
   return { ...pixel, ledStyle };
 });
+
+function getStableBrandCycleMotion(seed: string, index: number) {
+  const source = `${seed}:${index}`;
+  let hash = 0;
+
+  for (const char of source) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+
+  const dwellMs = 3000 + (hash % 700);
+  const initialDelayMs = hash % 2400;
+  const transitionMs = 180 + (hash % 80);
+
+  return {
+    bubbleStyle:
+      `--brand-cycle-transition:${transitionMs}ms;` +
+      `--brand-cycle-dwell:${dwellMs}ms;`,
+    dwellMs,
+    initialDelayMs,
+    transitionMs,
+  };
+}
+
+const passportCountries = getVisitedCountries();
 ---
 
 <section id="header" data-hero-root class="relative text-center">
@@ -263,11 +295,11 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
             </div>
 
             <p class="pb-2 text-[1.08em] opacity-80 md:text-[1.04em]">
-              HUM<span class="opacity-20">A</span>N
+              HUM<span class="opacity-35 md:opacity-20">A</span>N
             </p>
 
             <div
-              class="absolute -bottom-6 -right-12 z-50 hidden animate-float md:block"
+              class="absolute -bottom-3 -right-10 z-50 block animate-float md:-bottom-6 md:-right-12"
             >
               <div class="hero-ai-cursor">
                 <div class="hero-ai-cursor__arrow">
@@ -281,9 +313,9 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
                 </div>
               </div>
               <h3
-                class="relative z-50 mt-3 rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black"
+                class="relative z-50 mt-3 hidden rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black md:block"
               >
-                Richard Narvaez
+                Richard Vinueza
               </h3>
             </div>
           </span>
@@ -418,72 +450,122 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
           </div>
 
           {
-            heroOrbitNodes.map((node) => (
-              <div
-                data-orbit-origin-node
-                class="hero-orbit-node"
-                data-cluster-left={node.cluster.left}
-                data-cluster-top={node.cluster.top}
-                data-cluster-scale={node.cluster.scale ?? 1}
-                style={`left:${node.origin.left}%;top:${node.origin.top}%;`}
-              >
-                <div class="hero-orbit-node__inner">
-                  {node.kind === "icon" && (
-                    <div class="icon-bubble">
-                      {node.key === "vercel" ? (
-                        <span class="vercel-mark-bubble">
-                          <VercelColorIcon
-                            width="14"
-                            height="14"
-                            class="size-3.5"
-                            aria-hidden="true"
+            heroOrbitNodes.map((node, nodeIndex) => {
+              const brandCycleMotion = getStableBrandCycleMotion(node.key, nodeIndex);
+
+              return (
+                <div
+                  data-orbit-origin-node
+                  class="hero-orbit-node"
+                  data-cluster-left={node.cluster.left}
+                  data-cluster-top={node.cluster.top}
+                  data-cluster-scale={node.cluster.scale ?? 1}
+                  data-cluster-mobile-left={node.clusterMobile?.left ?? node.cluster.left}
+                  data-cluster-mobile-top={node.clusterMobile?.top ?? node.cluster.top}
+                  data-cluster-mobile-scale={node.clusterMobile?.scale ?? node.cluster.scale ?? 1}
+                  data-cluster-offset-left={node.clusterOffset?.left ?? 0}
+                  data-cluster-offset-top={node.clusterOffset?.top ?? 0}
+                  data-cluster-offset-scale={node.clusterOffset?.scale ?? node.cluster.scale ?? 1}
+                  data-cluster-mobile-offset-left={node.clusterMobileOffset?.left ?? node.clusterOffset?.left ?? 0}
+                  data-cluster-mobile-offset-top={node.clusterMobileOffset?.top ?? node.clusterOffset?.top ?? 0}
+                  data-cluster-mobile-offset-scale={node.clusterMobileOffset?.scale ?? node.clusterOffset?.scale ?? node.cluster.scale ?? 1}
+                  data-interest-label={node.label}
+                  style={`left:${node.origin.left}%;top:${node.origin.top}%;`}
+                >
+                  <div class="hero-orbit-node__inner">
+                    <div data-node-face-origin class="hero-orbit-node__face">
+                      {node.originKind === "icon" && node.originAssets && (
+                        <div class="icon-bubble">
+                          {node.originAssets[0].src === "/images/vercel.svg" ? (
+                            <span class="vercel-mark-bubble">
+                              <VercelColorIcon
+                                width="14"
+                                height="14"
+                                class="size-3.5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          ) : (
+                            <img
+                              src={node.originAssets[0].src}
+                              alt={node.originAssets[0].alt}
+                              class={
+                                node.originAssets[0].className ??
+                                "size-6 object-contain"
+                              }
+                            />
+                          )}
+                        </div>
+                      )}
+
+                      {node.originKind === "cover" && node.originAssets && (
+                        <div class="cover-logo-bubble">
+                          <img
+                            src={node.originAssets[0].src}
+                            alt={node.originAssets[0].alt}
+                            class="size-full object-cover"
                           />
-                        </span>
-                      ) : (
-                        <img
-                          src={node.assets[0].src}
-                          alt={node.assets[0].alt}
-                          class={
-                            node.assets[0].className ?? "size-6 object-contain"
-                          }
-                        />
+                        </div>
+                      )}
+
+                      {(node.originKind === "brand-cycle" ||
+                        node.originKind === "brand-cycle-wide") &&
+                        node.originAssets && (
+                          <div
+                            class:list={[
+                              "brand-cycle-bubble",
+                              node.originKind === "brand-cycle-wide" &&
+                                "brand-cycle-bubble--wide",
+                            ]}
+                            data-brand-cycle-bubble
+                            data-brand-cycle-dwell={String(brandCycleMotion.dwellMs)}
+                            data-brand-cycle-initial-delay={String(
+                              brandCycleMotion.initialDelayMs,
+                            )}
+                            data-brand-cycle-transition-ms={String(
+                              brandCycleMotion.transitionMs,
+                            )}
+                            style={brandCycleMotion.bubbleStyle}
+                          >
+                            {node.originAssets.map((asset, assetIndex) => (
+                              <span
+                                class="brand-cycle-item"
+                                data-brand-cycle-item
+                                data-brand-cycle-active={assetIndex === 0
+                                  ? "true"
+                                  : "false"}
+                              >
+                                <img
+                                  src={asset.src}
+                                  alt={asset.alt}
+                                  class={asset.className ?? "size-6 object-contain"}
+                                />
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+
+                    <div data-node-face-cluster class="hero-orbit-node__face">
+                      {node.kind === "interest" && (
+                        <button
+                          type="button"
+                          class="interest-bubble"
+                          data-interest-trigger
+                          aria-label={node.label}
+                          title={node.label}
+                        >
+                          <span
+                            class="interest-bubble__icon"
+                            set:html={node.iconSvg ?? ""}
+                          />
+                        </button>
                       )}
                     </div>
-                  )}
-
-                  {node.kind === "cover" && (
-                    <div class="cover-logo-bubble">
-                      <img
-                        src={node.assets[0].src}
-                        alt={node.assets[0].alt}
-                        class="size-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {(node.kind === "brand-cycle" ||
-                    node.kind === "brand-cycle-wide") && (
-                    <div
-                      class:list={[
-                        "brand-cycle-bubble",
-                        node.kind === "brand-cycle-wide" &&
-                          "brand-cycle-bubble--wide",
-                      ]}
-                    >
-                      {node.assets.map((asset) => (
-                        <span class="brand-cycle-item">
-                          <img
-                            src={asset.src}
-                            alt={asset.alt}
-                            class={asset.className ?? "size-6 object-contain"}
-                          />
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           }
 
           <div data-orbit-cluster-layer class="hero-cluster-layer">
@@ -501,6 +583,100 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
                   Product Engineer, Madrid - Spain
                 </p>
               </div>
+            </div>
+          </div>
+
+          <div data-orbit-passport-layer class="hero-passport-layer">
+            <div data-orbit-passport-globe class="hero-passport-globe-shell">
+              <div
+                data-passport-globe-frame
+                class="hero-passport-globe-frame"
+                data-passport-center-lng={String(globeCenter[0])}
+                data-passport-center-lat={String(globeCenter[1])}
+              >
+                <canvas
+                  data-passport-globe-canvas
+                  class="hero-passport-globe-canvas"
+                ></canvas>
+                <div class="hero-passport-markers">
+                  {
+                    passportPlaces.map((place) => {
+                      const gradient = getPlaceGradient(place);
+
+                      return (
+                        <button
+                          type="button"
+                          class="hero-passport-marker"
+                          data-passport-marker
+                          data-place-id={place.id}
+                          data-lng={String(place.coordinates[0])}
+                          data-lat={String(place.coordinates[1])}
+                          data-place-name={place.name}
+                          data-place-country={place.country}
+                          data-place-code={place.code}
+                          title={place.name}
+                          style={`--marker-start:${gradient.start};--marker-end:${gradient.end};`}
+                        ></button>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+
+              <div class="hero-passport-toolbar">
+                {
+                  passportCountries.map((country, index) => (
+                    <button
+                      type="button"
+                      class="hero-passport-country"
+                      data-passport-country
+                      data-lng={String(country.coordinates[0])}
+                      data-lat={String(country.coordinates[1])}
+                      title={country.name}
+                      style={`z-index:${index + 1};`}
+                    >
+                      <span
+                        class="hero-passport-country__flag"
+                        set:html={passportFlagSvgs[country.code] ?? country.code}
+                      />
+                    </button>
+                  ))
+                }
+              </div>
+
+              <div
+                data-passport-detail
+                class="hero-passport-detail"
+                hidden
+              >
+                <div>
+                  <p
+                    data-passport-detail-code
+                    class="hero-passport-detail__code"
+                  ></p>
+                  <p
+                    data-passport-detail-name
+                    class="hero-passport-detail__name"
+                  ></p>
+                  <p
+                    data-passport-detail-country
+                    class="hero-passport-detail__country"
+                  ></p>
+                </div>
+                <button
+                  type="button"
+                  data-passport-detail-close
+                  class="hero-passport-detail__close"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div data-orbit-footer-layer class="hero-footer-layer">
+            <div data-orbit-footer-shell class="hero-footer-shell">
+              <SiteFooter compact={true} />
             </div>
           </div>
         </div>
@@ -620,7 +796,7 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
                   <span
                     class="text-[0.5rem] font-[650] tracking-[0.01em] text-current md:text-[0.56rem]"
                   >
-                    Find me on
+                    Click here
                   </span>
                   <span
                     class="inline-flex items-center -space-x-[0.24rem] pl-[0.04rem]"
@@ -649,7 +825,7 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
             aria-hidden="true"
           >
             <div
-              class="absolute inset-0 rounded-[0.4rem] bg-[#222c42] shadow-[inset_0_1px_0_rgba(255,255,255,0.05),inset_0_-1px_0_rgba(255,255,255,0.05),inset_0_-30px_48px_rgba(5,10,20,0.42)] [background-image:radial-gradient(circle_at_center,rgba(11,17,31,0.98)_0_56%,rgba(84,101,132,0.18)_57%,transparent_69%)] [background-size:5px_5px]"
+              class="absolute inset-0 rounded-[0.4rem] bg-transparent"
             >
             </div>
             <!-- <div
@@ -736,7 +912,7 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     <section
       data-story-step="Intro"
       aria-label="Header intro"
-      class="hero-scroll-step h-[160dvh] md:h-[175dvh]"
+      class="hero-scroll-step h-[470dvh] md:h-[520dvh]"
     >
       <h2 class="sr-only">Header intro</h2>
     </section>
@@ -874,6 +1050,53 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
   }
 
+  .interest-bubble {
+    display: flex;
+    width: 3rem;
+    height: 3rem;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(226, 232, 240, 0.92);
+    border-radius: 9999px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.92)),
+      white;
+    color: #172033;
+    box-shadow:
+      0 12px 28px rgba(15, 23, 42, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .interest-bubble:hover {
+    border-color: rgba(255, 255, 255, 1);
+    box-shadow:
+      0 16px 34px rgba(15, 23, 42, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+  }
+
+  .interest-bubble__icon {
+    display: inline-flex;
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .interest-bubble__icon :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .avatar-node {
     display: flex;
     width: 2.5rem;
@@ -937,6 +1160,17 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     border: 2px solid rgba(226, 232, 240, 1);
     background: white;
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    transform: scale(1);
+    filter: blur(0px);
+    transition:
+      transform var(--brand-cycle-transition, 180ms) ease,
+      filter var(--brand-cycle-transition, 180ms) ease;
+    will-change: transform, filter;
+  }
+
+  .brand-cycle-bubble[data-brand-cycle-transitioning="true"] {
+    transform: scale(0.5);
+    filter: blur(8px);
   }
 
   .brand-cycle-bubble--wide {
@@ -951,12 +1185,11 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transform: scale(0.88);
-    animation: heroBrandCycle 4.6s infinite;
+    transition: opacity var(--brand-cycle-transition, 180ms) ease;
   }
 
-  .brand-cycle-item:nth-child(2) {
-    animation-delay: 2.3s;
+  .brand-cycle-item[data-brand-cycle-active="true"] {
+    opacity: 1;
   }
 
   .vercel-mark-bubble {
@@ -991,6 +1224,21 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     position: absolute;
     z-index: 10;
     transform: translate(-50%, -50%);
+  }
+
+  .hero-orbit-node__inner {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.35rem;
+    height: 3.35rem;
+  }
+
+  .hero-orbit-node__face {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero-cluster-layer {
@@ -1061,6 +1309,187 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     color: rgba(226, 232, 240, 0.88);
   }
 
+  .hero-passport-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding-inline: 1rem;
+  }
+
+  .hero-passport-globe-shell {
+    position: relative;
+    width: min(92vw, 38rem);
+    pointer-events: auto;
+  }
+
+  .hero-passport-globe-frame {
+    position: relative;
+    height: 390px;
+    width: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .hero-passport-globe-frame:active {
+    cursor: grabbing;
+  }
+
+  .hero-passport-globe-canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero-passport-markers {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-passport-marker {
+    pointer-events: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--marker-start), var(--marker-end));
+    box-shadow:
+      0 0 12px rgba(255, 255, 255, 0.55),
+      0 0 28px rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-passport-toolbar {
+    position: absolute;
+    left: 50%;
+    bottom: 0.5rem;
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    transform: translateX(-50%);
+  }
+
+  .hero-passport-country {
+    position: relative;
+    margin-left: -0.5rem;
+    display: flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: white;
+    color: #0f172a;
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  }
+
+  .hero-passport-country:first-child {
+    margin-left: 0;
+  }
+
+  .hero-passport-country__flag {
+    display: inline-flex;
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .hero-passport-country__flag :global(svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .hero-passport-detail {
+    position: absolute;
+    left: 50%;
+    bottom: -1.25rem;
+    z-index: 6;
+    display: flex;
+    width: min(100%, 22rem);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.72);
+    padding: 0.85rem 1rem;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(18px);
+    transform: translateX(-50%);
+  }
+
+  .hero-passport-detail__code {
+    font-family: var(--font-jetbrains);
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(186, 230, 253, 0.82);
+  }
+
+  .hero-passport-detail__name {
+    margin-top: 0.2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .hero-passport-detail__country {
+    font-size: 0.88rem;
+    color: rgba(226, 232, 240, 0.64);
+  }
+
+  .hero-passport-detail__close {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.4rem 0.8rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-family: var(--font-jetbrains);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .hero-footer-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    padding-inline: 1rem;
+  }
+
+  .hero-footer-shell {
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    max-width: min(92vw, 34rem);
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+
+  .hero-footer-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 1.75rem;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+      rgba(15, 23, 42, 0.34);
+    box-shadow:
+      0 28px 54px rgba(15, 23, 42, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px);
+  }
+
   .hero-cluster-node {
     position: absolute;
     z-index: 10;
@@ -1070,26 +1499,6 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
   .hero-cluster-node__inner {
     transform: scale(var(--cluster-scale, 1));
     transform-origin: center;
-  }
-
-  @keyframes heroBrandCycle {
-    0%,
-    8% {
-      opacity: 0;
-      transform: scale(0.88);
-    }
-
-    14%,
-    42% {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    50%,
-    100% {
-      opacity: 0;
-      transform: scale(1.05);
-    }
   }
 
   @keyframes animate-float {
@@ -1150,9 +1559,7 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     border-right: var(--hero-device-bezel) solid var(--page-accent-surface);
     border-bottom: var(--hero-device-bezel) solid var(--page-accent-surface);
     border-radius: var(--hero-device-radius);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
-      0 18px 42px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
   }
 
   .hero-device-top-shell {
@@ -1556,10 +1963,42 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
       height: 0.82rem;
     }
 
+    .hero-ai-cursor {
+      left: -1.35rem;
+      top: calc(0.62rem + 6px);
+      transform: scale(1.08);
+      transform-origin: center;
+    }
+
+    .hero-ai-cursor__arrow {
+      width: 2.35rem;
+      height: 2.35rem;
+      transform: translate(-3.5rem, -2rem) rotate(-6deg);
+    }
+
+    .hero-ai-cursor__box {
+      left: -9.9rem;
+      top: -5.8rem;
+      border-width: 2.5px;
+      padding: 0.5rem 0.78rem;
+      font-size: 1em;
+      line-height: 1;
+    }
+
+    .hero-ai-cursor__corners span {
+      width: 0.95rem;
+      height: 0.95rem;
+      border-width: 2.5px;
+    }
+
     .hero-cluster-shell {
       --cluster-avatar-size: 5.75rem;
       width: min(100%, 20.5rem);
       height: 10.5rem;
+    }
+
+    .hero-cluster-avatar {
+      bottom: -16px;
     }
 
     .hero-cluster-meta {
@@ -1575,6 +2014,28 @@ const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
     .hero-cluster-meta__location {
       font-size: 0.65rem;
     }
+
+    .hero-passport-globe-shell {
+      width: min(94vw, 26rem);
+    }
+
+    .hero-passport-globe-frame {
+      height: 330px;
+    }
+
+    .hero-passport-toolbar {
+      bottom: -0.45rem;
+    }
+
+    .hero-passport-detail {
+      bottom: -1.8rem;
+      width: min(100%, 20rem);
+    }
+
+    .hero-footer-shell {
+      max-width: min(94vw, 22rem);
+    }
+
   }
 </style>
 
