@@ -10,6 +10,7 @@ const introImageOpacity = 0.25
 const orbitImageOpacity = 0.3
 const introImageFilter = "blur(0px) saturate(1)"
 const orbitImageFilter = "blur(14px) saturate(1.25)"
+const heroPassportEnabled = false
 const scrollDebugParam = "debug-scroll"
 const deviceNotchBaseWidthScale = 0.62
 const deviceNotchBaseHeightScale = 0.75
@@ -1673,7 +1674,7 @@ export function initHeroOrbit() {
     root.dataset.bound = "true"
 
     initBrandCycles(root)
-    const passportGlobeController = initPassportGlobe(root)
+    const passportGlobeController = heroPassportEnabled ? initPassportGlobe(root) : null
     initDeviceNotch(root)
 
     const title = root.querySelector<HTMLElement>("[data-title]")
@@ -1857,9 +1858,9 @@ export function initHeroOrbit() {
     }
 
     const setIntroNodeState = () => {
-      setNodeFaceMode("origin")
-      gsap.set(originNodes, {
-        autoAlpha: 1,
+        setNodeFaceMode("origin")
+        gsap.set(originNodes, {
+          autoAlpha: 1,
         x: 0,
         y: 0,
         scale: 1,
@@ -1965,19 +1966,58 @@ export function initHeroOrbit() {
         y: 18,
         filter: "blur(18px)",
       })
-      gsap.set(originNodes, {
-        x: (_, node) => getCenterNodeOffsetX(node as HTMLElement, orbitField),
-        y: (_, node) => getCenterNodeOffsetY(node as HTMLElement, orbitField),
-        autoAlpha: 0.22,
-        scale: 0.42,
-        filter: "blur(14px)",
+    }
+
+    const syncCollapsedCenterLayers = () => {
+      setNodeFaceMode("origin")
+      gsap.set(title, {
+        autoAlpha: 0,
+        filter: "blur(6px)",
+      })
+      gsap.set(clusterLayer, { autoAlpha: 1 })
+      gsap.set(orbitMeta, {
+        autoAlpha: 0,
+        y: 10,
+        filter: "blur(10px)",
+      })
+      gsap.set(passportLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(passportGlobe, {
+        autoAlpha: 1,
+        scale: 1,
+        rotate: 0,
+        y: 0,
+        filter: "blur(0px)",
+      })
+      gsap.set(passportFrame, {
+        autoAlpha: 0,
+        scale: 0.82,
+        filter: "blur(18px)",
+      })
+      gsap.set(passportToolbar, {
+        autoAlpha: 0,
+      })
+      gsap.set(passportDetail, {
+        autoAlpha: 0,
+      })
+      gsap.set(footerLayer, {
+        autoAlpha: 0,
+        pointerEvents: "none",
+      })
+      gsap.set(footerShell, {
+        autoAlpha: 0,
+        scale: 0.9,
+        y: 18,
+        filter: "blur(18px)",
       })
     }
 
     const setExpandedProfileState = () => {
-      setNodeFaceMode("cluster")
-      gsap.set(title, {
-        autoAlpha: 0,
+        setNodeFaceMode("cluster")
+        gsap.set(title, {
+          autoAlpha: 0,
         filter: "blur(6px)",
       })
       gsap.set(clusterLayer, { autoAlpha: 1 })
@@ -2043,9 +2083,9 @@ export function initHeroOrbit() {
     }
 
     const setPassportState = () => {
-      gsap.set(clusterLayer, {
-        autoAlpha: 0,
-      })
+        gsap.set(clusterLayer, {
+          autoAlpha: 0,
+        })
       gsap.set(originNodes, {
         autoAlpha: 0,
       })
@@ -2092,9 +2132,9 @@ export function initHeroOrbit() {
     }
 
     const setFooterState = () => {
-      passportGlobeController?.setActive(false)
-      gsap.set(clusterLayer, {
-        autoAlpha: 0,
+        passportGlobeController?.setActive(false)
+        gsap.set(clusterLayer, {
+          autoAlpha: 0,
       })
       gsap.set(originNodes, {
         autoAlpha: 0,
@@ -2142,14 +2182,22 @@ export function initHeroOrbit() {
         introEndDistance,
       } = getHeroSequenceRuntime(introDistance, originNodes.length)
       const { intro, collapse, expand, passport, footer } = heroSequenceMotion
+      const footerTriggerPx = heroPassportEnabled ? footerStartPx : passportStartPx
+      const heroIntroEndDistance = heroPassportEnabled
+        ? introEndDistance
+        : Math.max(introDistance, footerTriggerPx + footer.tailPx + intro.tailPx)
 
       const syncNavPoints = () => {
         const rootTop = root.getBoundingClientRect().top + window.scrollY
 
         root.dataset.navHomeY = String(Math.round(rootTop))
         root.dataset.navDevY = String(Math.round(rootTop + expandStartPx))
-        root.dataset.navPassportY = String(Math.round(rootTop + passportStartPx))
-        root.dataset.navFooterY = String(Math.round(rootTop + footerStartPx))
+        if (heroPassportEnabled) {
+          root.dataset.navPassportY = String(Math.round(rootTop + passportStartPx))
+        } else {
+          delete root.dataset.navPassportY
+        }
+        root.dataset.navFooterY = String(Math.round(rootTop + footerTriggerPx))
         window.dispatchEvent(new CustomEvent("hero-nav-points"))
       }
 
@@ -2161,7 +2209,7 @@ export function initHeroOrbit() {
           id: "hero-intro-scrub",
           trigger: root,
           start: "top top",
-          end: () => `+=${introEndDistance}`,
+          end: () => `+=${heroIntroEndDistance}`,
           scrub: true,
           markers: getMarkerConfig(debugScroll),
           invalidateOnRefresh: true,
@@ -2200,7 +2248,7 @@ export function initHeroOrbit() {
       )
 
       timeline.set(orbitScene, { pointerEvents: "auto" }, 0)
-      timeline.fromTo(
+      gsap.fromTo(
         heroImage,
         {
           autoAlpha: introImageOpacity,
@@ -2212,8 +2260,26 @@ export function initHeroOrbit() {
           scale: 1.04,
           filter: orbitImageFilter,
           immediateRender: false,
+          ease: "none",
+          scrollTrigger: {
+            id: "hero-image-scrub",
+            trigger: root,
+            start: "top top",
+            end: () => `+=${collapseStartPx}`,
+            scrub: true,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+            markers: debugScroll
+              ? {
+                  startColor: "#38bdf8",
+                  endColor: "#38bdf8",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  indent: 20,
+                }
+              : false,
+          },
         },
-        0
       )
       timeline.to(
         orbitScene,
@@ -2259,7 +2325,7 @@ export function initHeroOrbit() {
 
       const activeTimelineDuration = timeline.duration()
       const introHoldDuration =
-        activeTimelineDuration * ((introEndDistance - introDistance) / introDistance)
+        activeTimelineDuration * ((heroIntroEndDistance - introDistance) / introDistance)
 
       if (introHoldDuration > 0) {
         timeline.to({}, { duration: introHoldDuration })
@@ -2335,7 +2401,7 @@ export function initHeroOrbit() {
           ease: "power3.inOut",
           overwrite: false,
         },
-        onReverseComplete: setCollapsedCenterState,
+        onReverseComplete: syncCollapsedCenterLayers,
       })
       const bubbleExpandStart = expand.clusterBubbleRevealDelay
       const metaInStart = expand.profileMetaRevealDelay
@@ -2467,31 +2533,67 @@ export function initHeroOrbit() {
           overwrite: false,
         },
         onReverseComplete: () => {
-          setPassportState()
-          passportGlobeController?.setActive(true)
+          if (heroPassportEnabled) {
+            setPassportState()
+            passportGlobeController?.setActive(true)
+            return
+          }
+          setExpandedProfileState()
         },
       })
 
-      footerTimeline.to(
-        passportLayer,
-        {
-          autoAlpha: 0,
-          pointerEvents: "none",
-          duration: footer.layerInDuration,
-        },
-        0
-      )
-      footerTimeline.to(
-        [passportFrame, passportToolbar, passportDetail],
-        {
-          autoAlpha: 0,
-          y: (_index, target) => (target === passportFrame ? -16 : 8),
-          filter: "blur(12px)",
-          duration: footer.layerInDuration,
-          stagger: 0,
-        },
-        0
-      )
+      if (heroPassportEnabled) {
+        footerTimeline.to(
+          passportLayer,
+          {
+            autoAlpha: 0,
+            pointerEvents: "none",
+            duration: footer.layerInDuration,
+          },
+          0
+        )
+        footerTimeline.to(
+          [passportFrame, passportToolbar, passportDetail],
+          {
+            autoAlpha: 0,
+            y: (_index, target) => (target === passportFrame ? -16 : 8),
+            filter: "blur(12px)",
+            duration: footer.layerInDuration,
+            stagger: 0,
+          },
+          0
+        )
+      } else {
+        footerTimeline.to(
+          [clusterLayer, originNodes],
+          {
+            autoAlpha: 0,
+            duration: footer.layerInDuration,
+            stagger: 0,
+          },
+          0
+        )
+        footerTimeline.to(
+          orbitAvatar,
+          {
+            autoAlpha: 0,
+            y: getCenteredAvatarY(clusterShell, orbitAvatar) - 24,
+            filter: "blur(12px)",
+            duration: footer.layerInDuration,
+          },
+          0
+        )
+        footerTimeline.to(
+          orbitMeta,
+          {
+            autoAlpha: 0,
+            y: 20,
+            filter: "blur(12px)",
+            duration: footer.layerInDuration,
+          },
+          0
+        )
+      }
       footerTimeline.to(
         footerLayer,
         {
@@ -2513,6 +2615,7 @@ export function initHeroOrbit() {
         },
         0.04
       )
+
       ScrollTrigger.create({
         id: "hero-collapse-trigger",
         trigger: root,
@@ -2566,38 +2669,40 @@ export function initHeroOrbit() {
         onRefresh: syncNavPoints,
       })
 
-      ScrollTrigger.create({
-        id: "hero-passport-trigger",
-        trigger: root,
-        start: () => `top+=${passportStartPx} top`,
-        end: () => `top+=${passportStartPx} top`,
-        markers: debugScroll
-          ? {
-            startColor: "#60a5fa",
-            endColor: "#60a5fa",
-            fontSize: "11px",
-            fontWeight: "600",
-            indent: 92,
-          }
-          : false,
-        onEnter: () => {
-          freezeIntroScrub()
-          collapseTimeline.pause().progress(1)
-          expandTimeline.pause().progress(1)
-          footerTimeline.pause(0)
-          setExpandedProfileState()
-          passportGlobeController?.setActive(true)
-          passportTimeline.play(0)
-        },
-        onLeaveBack: () => passportTimeline.reverse(),
-        onRefresh: syncNavPoints,
-      })
+      if (heroPassportEnabled) {
+        ScrollTrigger.create({
+          id: "hero-passport-trigger",
+          trigger: root,
+          start: () => `top+=${passportStartPx} top`,
+          end: () => `top+=${passportStartPx} top`,
+          markers: debugScroll
+            ? {
+                startColor: "#60a5fa",
+                endColor: "#60a5fa",
+                fontSize: "11px",
+                fontWeight: "600",
+                indent: 92,
+              }
+            : false,
+          onEnter: () => {
+            freezeIntroScrub()
+            collapseTimeline.pause().progress(1)
+            expandTimeline.pause().progress(1)
+            footerTimeline.pause(0)
+            setExpandedProfileState()
+            passportGlobeController?.setActive(true)
+            passportTimeline.play(0)
+          },
+          onLeaveBack: () => passportTimeline.reverse(),
+          onRefresh: syncNavPoints,
+        })
+      }
 
       ScrollTrigger.create({
         id: "hero-footer-trigger",
         trigger: root,
-        start: () => `top+=${footerStartPx} top`,
-        end: () => `top+=${footerStartPx} top`,
+        start: () => `top+=${footerTriggerPx} top`,
+        end: () => `top+=${footerTriggerPx} top`,
         markers: debugScroll
           ? {
             startColor: "#f9fafb",
@@ -2611,9 +2716,13 @@ export function initHeroOrbit() {
           freezeIntroScrub()
           collapseTimeline.pause().progress(1)
           expandTimeline.pause().progress(1)
-          passportTimeline.pause().progress(1)
-          setPassportState()
-          passportGlobeController?.setActive(false)
+          if (heroPassportEnabled) {
+            passportTimeline.pause().progress(1)
+            setPassportState()
+            passportGlobeController?.setActive(false)
+          } else {
+            setExpandedProfileState()
+          }
           footerTimeline.play(0)
         },
         onLeaveBack: () => footerTimeline.reverse(),

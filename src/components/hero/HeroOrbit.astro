@@ -1,5 +1,5 @@
 ---
-import ArrowFigma from "../icons/ArrowFigma.astro";
+import ArrowFigma from "../icons/ArrowFigma";
 import VercelColorIcon from "../icons/VercelColorIcon.astro";
 import SiteFooter from "../footer/SiteFooter.astro";
 import packageJson from "../../../package.json";
@@ -586,7 +586,13 @@ const passportCountries = getVisitedCountries();
             </div>
           </div>
 
-          <div data-orbit-passport-layer class="hero-passport-layer">
+          <div
+            data-orbit-passport-layer
+            data-passport-reserved
+            class="hero-passport-layer"
+            hidden
+            aria-hidden="true"
+          >
             <div data-orbit-passport-globe class="hero-passport-globe-shell">
               <div
                 data-passport-globe-frame
