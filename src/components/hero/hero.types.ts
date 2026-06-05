@@ -6,12 +6,13 @@ export interface ArtPreviewItem {
   description: string
 }
 
-export type HeroOrbitNodeKind =
+export type HeroOrbitOriginKind =
   | "icon"
   | "cover"
   | "brand-cycle"
   | "brand-cycle-wide"
-  | "interest"
+
+export type HeroOrbitClusterKind = "interest"
 
 export interface HeroOrbitNodeAsset {
   src: string
@@ -25,19 +26,33 @@ export interface HeroOrbitNodePosition {
   scale?: number
 }
 
-export interface HeroOrbitNode {
-  key: string
-  kind: HeroOrbitNodeKind
+export interface HeroOrbitOriginNode {
+  kind: HeroOrbitOriginKind
   assets: readonly HeroOrbitNodeAsset[]
-  label?: string
-  iconSvg?: string
-  originKind?: HeroOrbitNodeKind
-  originAssets?: readonly HeroOrbitNodeAsset[]
-  originLabel?: string
-  originIconSvg?: string
+}
+
+export interface HeroOrbitClusterNode {
+  kind: HeroOrbitClusterKind
+  label: string
+  iconSvg: string
+}
+
+export interface HeroOrbitProfilePlacement {
+  angle: number
+  radiusDesktop: number
+  radiusMobile: number
+  scaleDesktop?: number
+  scaleMobile?: number
+}
+
+export interface HeroOrbitOriginEntry {
+  key: string
+  originNode: HeroOrbitOriginNode
   origin: HeroOrbitNodePosition
-  cluster: HeroOrbitNodePosition
-  clusterMobile?: HeroOrbitNodePosition
-  clusterOffset?: HeroOrbitNodePosition
-  clusterMobileOffset?: HeroOrbitNodePosition
+}
+
+export interface HeroOrbitProfileEntry {
+  key: string
+  clusterNode: HeroOrbitClusterNode
+  profilePlacement: HeroOrbitProfilePlacement
 }

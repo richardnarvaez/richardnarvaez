@@ -86,17 +86,17 @@ export const heroSequenceMotion = {
       nodeInStagger: 0.012,
 
       // Fraction of the intro scrub where node reveal should feel complete.
-      targetNodesCompleteAt: 0.46,
+      targetNodesCompleteAt: 0.24,
       // Extra scroll distance after the last node appears.
-      holdAfterNodesPx: 56,
-      maxHoldAfterNodesProgress: 0.1,
+      holdAfterNodesPx: 28,
+      maxHoldAfterNodesProgress: 0.05,
       // Local spacing between intro completion and collapse.
-      collapseHoldPx: 60,
+      collapseHoldPx: 30,
       // Direct knob for the collapse marker.
       // Negative = earlier, positive = later.
-      collapseTriggerOffsetPx: -200,
+      collapseTriggerOffsetPx: -260,
       // Scroll distance between collapse and expanded profile.
-      expandHoldPx: 52,
+      expandHoldPx: 360,
       // Breathing room after passport trigger calculation.
       tailPx: 110,
    },

@@ -1,4 +1,8 @@
-import type { ArtPreviewItem, HeroOrbitNode } from './hero.types'
+import type {
+   ArtPreviewItem,
+   HeroOrbitOriginEntry,
+   HeroOrbitProfileEntry,
+} from './hero.types'
 import { lucideInterestIcons } from '../icons/lucideInterestIcons'
 
 export const artPreviewItems = [
@@ -60,194 +64,331 @@ export const artPreviewItems = [
    },
 ] as const satisfies readonly ArtPreviewItem[]
 
-export const heroOrbitNodes = [
+export const illustrationPreviewItems = [
+   { src: '/images/illustration/pic_1.jpg', alt: 'Illustration 1' },
+   { src: '/images/illustration/pic_2.jpg', alt: 'Illustration 2' },
+   { src: '/images/illustration/pic_3.jpg', alt: 'Illustration 3' },
+   { src: '/images/illustration/pic_4.jpg', alt: 'Illustration 4' },
+   { src: '/images/illustration/pic_5.jpg', alt: 'Illustration 5' },
+] as const
+
+export const heroOrbitOriginNodes = [
    {
       key: 'photography',
-      kind: 'interest',
-      label: 'Fotografia',
-      iconSvg: lucideInterestIcons.photography,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/figma-color.svg',
-            alt: 'Figma',
-            className: 'size-6 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/figma-color.svg',
+               alt: 'Figma',
+               className: 'size-6 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Fotografia',
+         iconSvg: lucideInterestIcons.photography,
+      },
       origin: { left: 5.5, top: 29.5 },
-      cluster: { left: 22, top: 58, scale: 0.88 },
-      clusterMobile: { left: 28, top: 57, scale: 0.76 },
-      clusterOffset: { left: -148, top: 50, scale: 0.9 },
-      clusterMobileOffset: { left: -96, top: 38, scale: 0.74 },
    },
    {
       key: 'illustration',
-      kind: 'interest',
-      label: 'Ilustracion',
-      iconSvg: lucideInterestIcons.illustration,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/convex.svg',
-            alt: 'Convex',
-            className: 'size-6 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/convex.svg',
+               alt: 'Convex',
+               className: 'size-6 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Ilustracion',
+         iconSvg: lucideInterestIcons.illustration,
+      },
       origin: { left: 28, top: 0 },
-      cluster: { left: 28, top: 34, scale: 0.92 },
-      clusterMobile: { left: 34, top: 22, scale: 0.78 },
-      clusterOffset: { left: -112, top: -72, scale: 0.9 },
-      clusterMobileOffset: { left: -70, top: -48, scale: 0.74 },
    },
    {
       key: 'experiments',
-      kind: 'interest',
-      label: 'Experimentos',
-      iconSvg: lucideInterestIcons.experiments,
-      assets: [],
-      originKind: 'brand-cycle',
-      originAssets: [
-         {
-            src: '/images/codex.svg',
-            alt: 'Codex',
-            className: 'size-6 object-contain',
-         },
-         {
-            src: '/images/claudecode-color.svg',
-            alt: 'Claude Code',
-            className: 'size-6 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'brand-cycle',
+         assets: [
+            {
+               src: '/images/codex.svg',
+               alt: 'Codex',
+               className: 'size-6 object-contain',
+            },
+            {
+               src: '/images/claudecode-color.svg',
+               alt: 'Claude Code',
+               className: 'size-6 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Experimentos',
+         iconSvg: lucideInterestIcons.experiments,
+      },
       origin: { left: 14, top: 50 },
-      cluster: { left: 29, top: 5, scale: 0.75 },
-      clusterMobile: { left: 84, top: 43, scale: 0.7 },
-      clusterOffset: { left: -88, top: -150, scale: 0.78 },
-      clusterMobileOffset: { left: -38, top: -104, scale: 0.68 },
    },
    {
       key: 'apps',
-      kind: 'interest',
-      label: 'Apps',
-      iconSvg: lucideInterestIcons.apps,
-      assets: [],
-      originKind: 'brand-cycle-wide',
-      originAssets: [
-         {
-            src: '/images/gemini-color.svg',
-            alt: 'Gemini',
-            className: 'size-8 object-contain',
-         },
-         {
-            src: '/images/googlecloud-color.svg',
-            alt: 'Google Cloud',
-            className: 'size-8 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'brand-cycle-wide',
+         assets: [
+            {
+               src: '/images/gemini-color.svg',
+               alt: 'Gemini',
+               className: 'size-8 object-contain',
+            },
+            {
+               src: '/images/googlecloud-color.svg',
+               alt: 'Google Cloud',
+               className: 'size-8 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Apps',
+         iconSvg: lucideInterestIcons.apps,
+      },
       origin: { left: 32, top: 84 },
-      cluster: { left: 42, top: 16, scale: 1 },
-      clusterMobile: { left: 56, top: 14, scale: 0.88 },
-      clusterOffset: { left: -18, top: -118, scale: 1 },
-      clusterMobileOffset: { left: 0, top: -82, scale: 0.86 },
    },
    {
       key: 'travel',
-      kind: 'interest',
-      label: 'Viajes',
-      iconSvg: lucideInterestIcons.travel,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/cloudflare-color.svg',
-            alt: 'Cloudflare',
-            className: 'size-6 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/cloudflare-color.svg',
+               alt: 'Cloudflare',
+               className: 'size-6 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Viajes',
+         iconSvg: lucideInterestIcons.travel,
+      },
       origin: { left: 60, top: 8 },
-      cluster: { left: 55, top: 0, scale: 0.8 },
-      clusterMobile: { left: 71, top: 19, scale: 0.72 },
-      clusterOffset: { left: 78, top: -146, scale: 0.82 },
-      clusterMobileOffset: { left: 70, top: -96, scale: 0.7 },
    },
    {
       key: 'development',
-      kind: 'interest',
-      label: 'Desarrollo',
-      iconSvg: lucideInterestIcons.development,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/vercel.svg',
-            alt: 'Vercel',
-            className: 'size-3.5 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/vercel.svg',
+               alt: 'Vercel',
+               className: 'size-3.5 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Desarrollo',
+         iconSvg: lucideInterestIcons.development,
+      },
       origin: { left: 96, top: 41 },
-      cluster: { left: 58, top: 30, scale: 1 },
-      clusterMobile: { left: 76, top: 37, scale: 0.88 },
-      clusterOffset: { left: 112, top: -68, scale: 1 },
-      clusterMobileOffset: { left: 90, top: -38, scale: 0.84 },
    },
    {
       key: 'writing',
-      kind: 'interest',
-      label: 'Notas',
-      iconSvg: lucideInterestIcons.writing,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/railway.svg',
-            alt: 'Railway',
-            className: 'size-7 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/railway.svg',
+               alt: 'Railway',
+               className: 'size-7 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Notas',
+         iconSvg: lucideInterestIcons.writing,
+      },
       origin: { left: 86, top: 61 },
-      cluster: { left: 74, top: 39, scale: 0.8 },
-      clusterMobile: { left: 20, top: 44, scale: 0.72 },
-      clusterOffset: { left: 170, top: -8, scale: 0.82 },
-      clusterMobileOffset: { left: -116, top: -6, scale: 0.7 },
    },
    {
       key: 'routes',
-      kind: 'interest',
-      label: 'Rutas',
-      iconSvg: lucideInterestIcons.routes,
-      assets: [],
-      originKind: 'icon',
-      originAssets: [
-         {
-            src: '/images/googlecloud-color.svg',
-            alt: 'Google Cloud',
-            className: 'size-6 object-contain',
-         },
-      ],
+      originNode: {
+         kind: 'icon',
+         assets: [
+            {
+               src: '/images/googlecloud-color.svg',
+               alt: 'Google Cloud',
+               className: 'size-6 object-contain',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Rutas',
+         iconSvg: lucideInterestIcons.routes,
+      },
       origin: { left: 84, top: 27 },
-      cluster: { left: 14, top: 38, scale: 0.65 },
-      clusterMobile: { left: 10, top: 31, scale: 0.56 },
-      clusterOffset: { left: -205, top: -20, scale: 0.68 },
-      clusterMobileOffset: { left: -132, top: -44, scale: 0.58 },
    },
    {
       key: 'video',
-      kind: 'interest',
-      label: 'Video',
-      iconSvg: lucideInterestIcons.video,
-      assets: [],
-      originKind: 'cover',
-      originAssets: [
-         {
-            src: '/images/logos/procreate.jpeg',
-            alt: 'Procreate',
-         },
-      ],
+      originNode: {
+         kind: 'cover',
+         assets: [
+            {
+               src: '/images/logos/procreate.jpeg',
+               alt: 'Procreate',
+            },
+         ],
+      },
+      clusterNode: {
+         kind: 'interest',
+         label: 'Video',
+         iconSvg: lucideInterestIcons.video,
+      },
       origin: { left: 74, top: 98 },
-      cluster: { left: 62, top: 54, scale: 0.88 },
-      clusterMobile: { left: 57, top: 73, scale: 0.78 },
-      clusterOffset: { left: 118, top: 62, scale: 0.9 },
-      clusterMobileOffset: { left: 62, top: 70, scale: 0.76 },
    },
-] as const satisfies readonly HeroOrbitNode[]
+] as const satisfies readonly HeroOrbitOriginEntry[]
+
+export const heroOrbitProfileNodes = [
+   {
+      key: 'photography',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Fotografia',
+         iconSvg: lucideInterestIcons.photography,
+      },
+      profilePlacement: {
+         angle: 180,
+         radiusDesktop: 130,
+         radiusMobile: 103.2,
+         scaleDesktop: 0.9,
+         scaleMobile: 0.74,
+      },
+   },
+   {
+      key: 'illustration',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Ilustracion',
+         iconSvg: lucideInterestIcons.illustration,
+      },
+      profilePlacement: {
+         angle: 212.7,
+         radiusDesktop: 133.1,
+         radiusMobile: 84.9,
+         scaleDesktop: 0.9,
+         scaleMobile: 0.74,
+      },
+   },
+   {
+      key: 'experiments',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Experimentos',
+         iconSvg: lucideInterestIcons.experiments,
+      },
+      profilePlacement: {
+         angle: 239.6,
+         radiusDesktop: 173.9,
+         radiusMobile: 110.7,
+         scaleDesktop: 0.78,
+         scaleMobile: 0.68,
+      },
+   },
+   {
+      key: 'apps',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Apps',
+         iconSvg: lucideInterestIcons.apps,
+      },
+      profilePlacement: {
+         angle: 261,
+         radiusDesktop: 110,
+         radiusMobile: 80,
+         scaleDesktop: 1,
+         scaleMobile: 0.86,
+      },
+   },
+   {
+      key: 'travel',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Viajes',
+         iconSvg: lucideInterestIcons.travel,
+      },
+      profilePlacement: {
+         angle: 290,
+         radiusDesktop: 165.5,
+         radiusMobile: 100,
+         scaleDesktop: 0.82,
+         scaleMobile: 0.7,
+      },
+   },
+   {
+      key: 'development',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Desarrollo',
+         iconSvg: lucideInterestIcons.development,
+      },
+      profilePlacement: {
+         angle: 320,
+         radiusDesktop: 125,
+         radiusMobile: 90,
+         scaleDesktop: 1,
+         scaleMobile: 0.84,
+      },
+   },
+   {
+      key: 'writing',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Notas',
+         iconSvg: lucideInterestIcons.writing,
+      },
+      profilePlacement: {
+         angle: 340,
+         radiusDesktop: 170.2,
+         radiusMobile: 125,
+         scaleDesktop: 0.82,
+         scaleMobile: 0.7,
+      },
+   },
+   {
+      key: 'routes',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Rutas',
+         iconSvg: lucideInterestIcons.routes,
+      },
+      profilePlacement: {
+         angle: 200,
+         radiusDesktop: 195,
+         radiusMobile: 130,
+         scaleDesktop: 0.68,
+         scaleMobile: 0.58,
+      },
+   },
+   {
+      key: 'video',
+      clusterNode: {
+         kind: 'interest',
+         label: 'Video',
+         iconSvg: lucideInterestIcons.video,
+      },
+      profilePlacement: {
+         angle: 0,
+         radiusDesktop: 100,
+         radiusMobile: 93.5,
+         scaleDesktop: 0.9,
+         scaleMobile: 0.76,
+      },
+   },
+] as const satisfies readonly HeroOrbitProfileEntry[]
