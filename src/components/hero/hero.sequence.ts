@@ -131,6 +131,9 @@ export const heroSequenceMotion = {
       layerInDuration: 0.22,
       contentInDuration: 0.34,
       tailPx: 180,
+      // Final scroll where the signature stays visible while the orbit keeps rotating.
+      orbitTailPx: 350,
+      orbitTailRotation: 24,
    },
 } as const
 

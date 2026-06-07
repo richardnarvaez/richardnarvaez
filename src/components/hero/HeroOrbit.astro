@@ -16,6 +16,7 @@ import {
   heroOrbitProfileNodes,
   illustrationPreviewItems,
 } from "./hero.data";
+import { heroSequenceMotion } from "./hero.sequence";
 
 const githubUrl = "https://github.com/richardnarvaez/";
 const instagramUrl = "https://www.instagram.com/richard.vinueza/";
@@ -778,7 +779,7 @@ const passportCountries = getVisitedCountries();
 
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[20vh] bg-gradient-to-t from-[hsl(244,31%,10%)] via-[hsl(244,31%,10%)]/50 to-transparent"
+      class="hero-bottom-fade pointer-events-none absolute z-[15] h-[20vh]"
     >
     </div>
 
@@ -1005,7 +1006,8 @@ const passportCountries = getVisitedCountries();
     <section
       data-story-step="Intro"
       aria-label="Header intro"
-      class="hero-scroll-step h-[470dvh] md:h-[520dvh]"
+      class="hero-scroll-step"
+      style={`--hero-orbit-tail-px:${heroSequenceMotion.footer.orbitTailPx}px;`}
     >
       <h2 class="sr-only">Header intro</h2>
     </section>
@@ -1015,7 +1017,7 @@ const passportCountries = getVisitedCountries();
 <style>
   :root {
     --hero-device-bezel: 5px;
-    --hero-device-radius: 20px;
+    --hero-device-radius: 28px;
     --hero-device-top-shell-height: clamp(2.35rem, 5.4vw, 2.95rem);
     --hero-device-notch-overlap: 4px;
     --hero-device-notch-content-left: 28px;
@@ -1837,6 +1839,7 @@ const passportCountries = getVisitedCountries();
 
   .hero-scroll-step {
     position: relative;
+    height: calc(470dvh + var(--hero-orbit-tail-px));
   }
 
   [data-hero-stage] {
@@ -1844,6 +1847,22 @@ const passportCountries = getVisitedCountries();
     border-radius: var(--hero-device-radius);
     clip-path: inset(0 round var(--hero-device-radius));
     overflow: hidden;
+  }
+
+  .hero-bottom-fade {
+    display: none;
+    left: var(--hero-device-bezel);
+    right: var(--hero-device-bezel);
+    bottom: var(--hero-device-bezel);
+    border-radius: 0 0
+      calc(var(--hero-device-radius) - var(--hero-device-bezel))
+      calc(var(--hero-device-radius) - var(--hero-device-bezel));
+    background: linear-gradient(
+      to top,
+      rgb(19 18 34 / 88%),
+      rgb(19 18 34 / 50%),
+      transparent
+    );
   }
 
   .hero-device-frame {
@@ -2214,7 +2233,7 @@ const passportCountries = getVisitedCountries();
 
   @media (max-width: 767px) {
     :root {
-      --hero-device-radius: 20px;
+      --hero-device-radius: 28px;
       --hero-device-top-shell-height: 2.45rem;
       --hero-device-notch-overlap: 4px;
       --hero-device-notch-content-left-open: 30px;
@@ -2362,6 +2381,12 @@ const passportCountries = getVisitedCountries();
       min-height: 0;
     }
 
+  }
+
+  @media (min-width: 768px) {
+    .hero-scroll-step {
+      height: calc(520dvh + var(--hero-orbit-tail-px));
+    }
   }
 </style>
 

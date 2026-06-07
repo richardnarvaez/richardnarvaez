@@ -1118,6 +1118,8 @@ function initDeviceNotch(root: HTMLElement) {
   }
 
   const isCompactViewport = () => window.matchMedia("(max-width: 767px)").matches
+  const hoverCapability = window.matchMedia("(hover: hover) and (pointer: fine)")
+  const canHover = () => hoverCapability.matches
 
   const readPixelValue = (value: string) => {
     const parsed = Number.parseFloat(value)
@@ -1338,7 +1340,7 @@ function initDeviceNotch(root: HTMLElement) {
   }
 
   const restoreCreatureLoop = () => {
-    const hovered = notch.matches(":hover")
+    const hovered = canHover() && notch.matches(":hover")
     isHovered = hovered
     setSpriteMode("ambient")
 
@@ -1367,7 +1369,9 @@ function initDeviceNotch(root: HTMLElement) {
     restoreCreatureLoop()
   }
 
-  const handlePointerEnter = () => {
+  const handlePointerEnter = (event: PointerEvent) => {
+    if (!canHover() || event.pointerType === "touch") return
+
     isHovered = true
     if (isFoodReactionActive) return
     if (expandedMode === "none") {
@@ -1378,7 +1382,9 @@ function initDeviceNotch(root: HTMLElement) {
     applyHoverScale()
   }
 
-  const handlePointerLeave = () => {
+  const handlePointerLeave = (event: PointerEvent) => {
+    if (!canHover() || event.pointerType === "touch") return
+
     isHovered = false
     if (isFoodReactionActive) return
     stopActiveAnimation()
@@ -1467,6 +1473,16 @@ function initDeviceNotch(root: HTMLElement) {
     if (expandedMode === "none") return
 
     closeFedState()
+  }
+
+  const resetUnsupportedHover = () => {
+    if (canHover()) return
+
+    isHovered = false
+    stopActiveAnimation()
+    applyState(true)
+    applyHoverScale(true)
+    restoreCreatureLoop()
   }
 
   const playAnimation = (
@@ -1604,8 +1620,10 @@ function initDeviceNotch(root: HTMLElement) {
   })
   document.addEventListener("pointerdown", handleDocumentPointerDown)
   window.addEventListener("scroll", handleScrollClose, { passive: true })
+  hoverCapability.addEventListener("change", resetUnsupportedHover)
 
   window.addEventListener("resize", () => {
+    resetUnsupportedHover()
     measureBaseSize()
     applyState(true)
     applyHoverScale(true)
@@ -2715,18 +2733,22 @@ export function initHeroOrbit() {
 
     const createIntroScrub = () => {
       const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
+      const sequenceDistance = Math.max(
+        introDistance - heroSequenceMotion.footer.orbitTailPx,
+        window.innerHeight
+      )
       const {
         collapseStartPx,
         expandStartPx,
         passportStartPx,
         footerStartPx,
         introEndDistance,
-      } = getHeroSequenceRuntime(introDistance, originNodes.length)
+      } = getHeroSequenceRuntime(sequenceDistance, originNodes.length)
       const { intro, footer } = heroSequenceMotion
       const footerTriggerPx = heroPassportEnabled ? footerStartPx : passportStartPx
       const heroFlowEndPx = heroPassportEnabled
         ? introEndDistance
-        : Math.max(introDistance, footerTriggerPx + footer.tailPx + intro.tailPx)
+        : Math.max(sequenceDistance, footerTriggerPx + footer.tailPx + intro.tailPx)
 
       const syncNavPoints = () => {
         const rootTop = root.getBoundingClientRect().top + window.scrollY
@@ -2759,35 +2781,43 @@ export function initHeroOrbit() {
         },
       })
 
-      gsap.fromTo(
-        orbitGraphic,
-        {
-          rotate: -45,
+      const orbitRotationTimeline = gsap.timeline({
+        scrollTrigger: {
+          id: "hero-orbit-rotation",
+          trigger: root,
+          start: "top top",
+          end: () =>
+            `top+=${heroFlowEndPx + footer.orbitTailPx} top`,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          fastScrollEnd: true,
+          markers: debugScroll
+            ? {
+                startColor: "#f59e0b",
+                endColor: "#f59e0b",
+                fontSize: "11px",
+                fontWeight: "600",
+                indent: 92,
+              }
+            : false,
         },
+      })
+
+      orbitRotationTimeline.fromTo(
+        orbitGraphic,
+        { rotate: -45 },
         {
           rotate: 135,
+          duration: heroFlowEndPx,
           ease: "none",
           immediateRender: false,
-          scrollTrigger: {
-            id: "hero-orbit-rotation",
-            trigger: root,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-            invalidateOnRefresh: true,
-            fastScrollEnd: true,
-            markers: debugScroll
-              ? {
-                  startColor: "#f59e0b",
-                  endColor: "#f59e0b",
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  indent: 92,
-                }
-              : false,
-          },
         }
       )
+      orbitRotationTimeline.to(orbitGraphic, {
+        rotate: 135 + footer.orbitTailRotation,
+        duration: footer.orbitTailPx,
+        ease: "none",
+      })
 
       introTimeline.set(orbitScene, { pointerEvents: "auto" }, 0)
       gsap.fromTo(
