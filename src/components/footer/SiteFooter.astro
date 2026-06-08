@@ -1,8 +1,10 @@
 ---
 import FooterSignature from "./FooterSignature.astro"
+import packageJson from "../../../package.json"
 
 const { compact = false } = Astro.props
 const Tag = compact ? "div" : "footer"
+const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`
 ---
 
 <Tag
@@ -77,7 +79,7 @@ const Tag = compact ? "div" : "footer"
     </div>
 
     <div class:list={[compact ? "mt-3 text-xs font-medium leading-none text-white/42" : "mt-3 text-xs font-medium leading-none text-white/30"]}>
-      © richard vinueza - 2024
+      © richard vinueza - 2024 · {projectVersionLabel}
     </div>
   </div>
 </Tag>
