@@ -1102,6 +1102,7 @@ function initDeviceNotch(root: HTMLElement) {
   let expandedMode: "none" | "contact" = "none"
   let activeAnimationTimeout = 0
   let fedResetTimeout = 0
+  let introStartTimeout = 0
   let ambientCycleCount = 0
   let animationSession = 0
   let foodFeedCount = 0
@@ -1160,9 +1161,25 @@ function initDeviceNotch(root: HTMLElement) {
   }
 
   const measureBaseSize = () => {
-    gsap.set(notch, { clearProps: "width,height" })
-    baseWidth = notch.offsetWidth * deviceNotchBaseWidthScale
-    baseHeight = notch.offsetHeight * deviceNotchBaseHeightScale
+    const probe = notch.cloneNode(false) as HTMLElement
+
+    probe.removeAttribute("data-hero-device-notch")
+    probe.removeAttribute("data-bound")
+    probe.removeAttribute("style")
+    probe.dataset.contactOpen = "false"
+    probe.style.visibility = "hidden"
+    probe.style.pointerEvents = "none"
+    probe.style.transition = "none"
+    notch.parentElement?.append(probe)
+
+    const measuredWidth = probe.offsetWidth
+    const measuredHeight = probe.offsetHeight
+    probe.remove()
+
+    if (measuredWidth > 0 && measuredHeight > 0) {
+      baseWidth = measuredWidth * deviceNotchBaseWidthScale
+      baseHeight = measuredHeight * deviceNotchBaseHeightScale
+    }
   }
 
   const renderNotchShape = () => {
@@ -1258,6 +1275,12 @@ function initDeviceNotch(root: HTMLElement) {
   const stopFedReset = () => {
     window.clearTimeout(fedResetTimeout)
     fedResetTimeout = 0
+  }
+
+  const stopIntroAnimation = () => {
+    window.clearTimeout(introStartTimeout)
+    introStartTimeout = 0
+    gsap.killTweensOf([notch, notchContent])
   }
 
   const setSpriteMode = (mode: NotchSpriteMode) => {
@@ -1551,59 +1574,76 @@ function initDeviceNotch(root: HTMLElement) {
     })
   }
 
-  measureBaseSize()
-  gsap.set(notch, { clearProps: "transform" })
-  notchState.width = baseWidth
-  notchState.height = baseHeight
-  applyState(true)
-  applyHoverScale(true)
-  applyContentState(true)
-  setSpriteMode("ambient")
-  applyCreatureFrame(notchAnimationFrames.idle[0])
-  gsap.set(notch, {
-    autoAlpha: 0,
-    pointerEvents: "none",
-    "--hero-device-notch-intro-scale": 0.04,
-  })
-  gsap.set(notchContent, {
-    autoAlpha: 0,
-    y: -2,
-    filter: "blur(10px)",
-  })
+  const resetNotchFromZero = () => {
+    expandedMode = "none"
+    isHovered = false
+    isFoodReactionActive = false
+    foodFeedCount = 0
+    updateFoodCounter()
+    stopFedReset()
+    stopActiveAnimation()
+    stopIntroAnimation()
+    gsap.killTweensOf(notchState)
 
-  window.setTimeout(() => {
-    const introTimeline = gsap.timeline({
-      defaults: {
-        overwrite: "auto",
-      },
-      onStart: () => {
-        gsap.set(notch, { pointerEvents: "auto" })
-      },
+    measureBaseSize()
+    const closedSize = getTargetSize()
+    notchState.width = closedSize.width
+    notchState.height = closedSize.height
+    renderNotchShape()
+    applyHoverScale(true)
+    applyContentState(true)
+    setSpriteMode("ambient")
+    currentFacing = "right"
+    applyCreatureFrame(notchAnimationFrames.idle[0])
+
+    gsap.set(notch, {
+      clearProps: "transform",
+      autoAlpha: 0,
+      pointerEvents: "none",
+      "--hero-device-notch-intro-scale": 0,
+    })
+    gsap.set(notchContent, {
+      autoAlpha: 0,
+      y: -2,
+      filter: "blur(10px)",
     })
 
-    introTimeline.to(notch, {
-      autoAlpha: 1,
-      "--hero-device-notch-intro-scale": 1,
-      duration: 0.46,
-      ease: "power3.out",
-    })
-    introTimeline.to(
-      notchContent,
-      {
+    introStartTimeout = window.setTimeout(() => {
+      const introTimeline = gsap.timeline({
+        defaults: {
+          overwrite: "auto",
+        },
+        onStart: () => {
+          gsap.set(notch, { pointerEvents: "auto" })
+        },
+      })
+
+      introTimeline.to(notch, {
         autoAlpha: 1,
-        y: 0,
-        filter: "blur(0px)",
-        duration: 0.26,
+        "--hero-device-notch-intro-scale": 1,
+        duration: 0.46,
         ease: "power3.out",
-      },
-      0.16
-    )
-  }, notchIntroDelayMs)
+      })
+      introTimeline.to(
+        notchContent,
+        {
+          autoAlpha: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.26,
+          ease: "power3.out",
+        },
+        0.16
+      )
+    }, notchIntroDelayMs)
 
-  activeAnimationTimeout = window.setTimeout(
-    scheduleAmbientLoop,
-    notchIntroDelayMs + 260
-  )
+    activeAnimationTimeout = window.setTimeout(
+      scheduleAmbientLoop,
+      notchIntroDelayMs + 260
+    )
+  }
+
+  resetNotchFromZero()
 
   notch.addEventListener("pointerenter", handlePointerEnter)
   notch.addEventListener("pointerleave", handlePointerLeave)
@@ -1621,6 +1661,10 @@ function initDeviceNotch(root: HTMLElement) {
   document.addEventListener("pointerdown", handleDocumentPointerDown)
   window.addEventListener("scroll", handleScrollClose, { passive: true })
   hoverCapability.addEventListener("change", resetUnsupportedHover)
+  window.addEventListener("pageshow", (event) => {
+    if (!event.persisted) return
+    resetNotchFromZero()
+  })
 
   window.addEventListener("resize", () => {
     resetUnsupportedHover()
