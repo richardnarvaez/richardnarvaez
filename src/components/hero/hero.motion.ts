@@ -6,11 +6,34 @@ import { getHeroSequenceRuntime, heroSequenceMotion } from "./hero.sequence"
 
 gsap.registerPlugin(ScrollTrigger)
 
+type HeroCleanupTask = () => void
+
+let heroCleanupTasks: HeroCleanupTask[] = []
+let heroAbortController: AbortController | null = null
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+/**
+ * Tears down every ScrollTrigger, timeline, listener, timer, observer and the
+ * WebGL globe created by initHeroOrbit. Safe to call multiple times.
+ */
+export function destroyHeroOrbit() {
+  for (const task of heroCleanupTasks.splice(0)) task()
+  heroAbortController?.abort()
+  heroAbortController = null
+
+  if (retroUiAudioContext) {
+    void retroUiAudioContext.close().catch(() => {})
+    retroUiAudioContext = null
+  }
+}
+
 const introImageOpacity = 0.25
 const orbitImageOpacity = 0.2
 const introImageFilter = "blur(0px) saturate(1)"
 const orbitImageFilter = "blur(14px) saturate(1.25)"
-const heroPassportEnabled = false
 const scrollDebugParam = "debug-scroll"
 const deviceNotchBaseWidthScale = 0.62
 const deviceNotchBaseHeightScale = 0.75
@@ -134,20 +157,22 @@ function getProfileDatasetValue(
   )
 }
 
-function getMarkerConfig(enabled: boolean) {
+function getMarkerConfig(
+  enabled: boolean,
+  overrides?: { startColor?: string; endColor?: string; indent?: number }
+) {
   if (!enabled) return false
 
   return {
-    startColor: "#38bdf8",
-    endColor: "#38bdf8",
+    startColor: overrides?.startColor ?? "#38bdf8",
+    endColor: overrides?.endColor ?? "#38bdf8",
     fontSize: "11px",
     fontWeight: "600",
-    indent: 20,
+    indent: overrides?.indent ?? 20,
   }
 }
 
 const deviceNotchMetrics = {
-  baseWidth: 160.892,
   baseHeight: 24,
   leftTopInnerX: 12.1115,
   leftTopControlX1: 16.5298,
@@ -207,40 +232,6 @@ const notchAnimationFrames = {
       "333333333333",
       "003200003200",
       "003320003320",
-    ],
-  ],
-  walk: [
-    [
-      "033300000000",
-      "300003330000",
-      "333343303333",
-      "333333333333",
-      "003200003200",
-      "003320003320",
-    ],
-    [
-      "303300000000",
-      "030003330000",
-      "333343303333",
-      "333333333333",
-      "000320000320",
-      "003203003203",
-    ],
-    [
-      "003300000000",
-      "330003330000",
-      "333343303333",
-      "333333333333",
-      "003000003000",
-      "000323000323",
-    ],
-    [
-      "303300000000",
-      "030003330000",
-      "333343303333",
-      "333333333333",
-      "000320000320",
-      "003203003203",
     ],
   ],
   bite: [
@@ -479,7 +470,9 @@ const notchAnimationFrames = {
   ],
 } as const
 
-function initBrandCycles(root: HTMLElement) {
+function initBrandCycles(root: HTMLElement, signal: AbortSignal) {
+  if (prefersReducedMotion()) return
+
   const bubbles = Array.from(
     root.querySelectorAll<HTMLElement>("[data-brand-cycle-bubble]")
   )
@@ -540,17 +533,22 @@ function initBrandCycles(root: HTMLElement) {
     applyActiveIndex(activeIndex)
     scheduleNextSwap(initialDelayMs)
 
-    document.addEventListener("visibilitychange", () => {
-      clearTimers()
+    signal.addEventListener("abort", clearTimers, { once: true })
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        clearTimers()
 
-      if (document.hidden) {
+        if (document.hidden) {
+          bubble.dataset.brandCycleTransitioning = "false"
+          return
+        }
+
         bubble.dataset.brandCycleTransitioning = "false"
-        return
-      }
-
-      bubble.dataset.brandCycleTransitioning = "false"
-      scheduleNextSwap(180)
-    })
+        scheduleNextSwap(180)
+      },
+      { signal }
+    )
   }
 }
 
@@ -647,10 +645,13 @@ function playRetroHeartTone(variant: RetroUiToneVariant) {
     return
   }
 
-  void audioContext.resume().then(() => {
-    if (audioContext.state !== "running") return
-    scheduleRetroHeartTone(audioContext, variant)
-  })
+  void audioContext
+    .resume()
+    .then(() => {
+      if (audioContext.state !== "running") return
+      scheduleRetroHeartTone(audioContext, variant)
+    })
+    .catch(() => {})
 }
 
 function buildDeviceNotchPath(
@@ -743,7 +744,7 @@ function applyNotchPixelFrame(
   }
 }
 
-function initPassportGlobe(root: HTMLElement) {
+function initPassportGlobe(root: HTMLElement, signal: AbortSignal) {
   const frame = root.querySelector<HTMLElement>("[data-passport-globe-frame]")
   const canvas = root.querySelector<HTMLCanvasElement>("[data-passport-globe-canvas]")
   const markerNodes = Array.from(
@@ -964,14 +965,29 @@ function initPassportGlobe(root: HTMLElement) {
     // If WebGL/canvas init fails, keep the static layout without breaking hero init.
   }
 
-  frame.addEventListener("pointerdown", (event) => {
-    isDraggingRef.current = true
-    isActiveRef.current = true
-    dragXRef.current = event.clientX
-    dragYRef.current = event.clientY
-    frame.setPointerCapture(event.pointerId)
-    queueRender()
-  })
+  signal.addEventListener(
+    "abort",
+    () => {
+      cancelQueuedFrame()
+      resizeObserver.disconnect()
+      globeRef.current?.destroy()
+      globeRef.current = null
+    },
+    { once: true }
+  )
+
+  frame.addEventListener(
+    "pointerdown",
+    (event) => {
+      isDraggingRef.current = true
+      isActiveRef.current = true
+      dragXRef.current = event.clientX
+      dragYRef.current = event.clientY
+      frame.setPointerCapture(event.pointerId)
+      queueRender()
+    },
+    { signal }
+  )
 
   frame.addEventListener("pointermove", (event) => {
     if (dragXRef.current === null || dragYRef.current === null) return
@@ -985,7 +1001,7 @@ function initPassportGlobe(root: HTMLElement) {
       targetThetaRef.current + deltaY * passportDragThetaSensitivity
     )
     queueRender()
-  })
+  }, { signal })
 
   const endDrag = () => {
     isDraggingRef.current = false
@@ -999,38 +1015,54 @@ function initPassportGlobe(root: HTMLElement) {
     if (frame.hasPointerCapture(event.pointerId)) {
       frame.releasePointerCapture(event.pointerId)
     }
-  })
-  frame.addEventListener("pointercancel", endDrag)
-  frame.addEventListener("pointerleave", endDrag)
+  }, { signal })
+  frame.addEventListener("pointercancel", endDrag, { signal })
+  frame.addEventListener("pointerleave", endDrag, { signal })
 
   for (const markerNode of markerNodes) {
-    markerNode.addEventListener("pointerdown", (event) => event.stopPropagation())
-    markerNode.addEventListener("click", (event) => {
-      event.stopPropagation()
-      const lng = Number.parseFloat(markerNode.dataset.lng ?? "0")
-      const lat = Number.parseFloat(markerNode.dataset.lat ?? "0")
-      focusOnCoordinates(lng, lat)
-      showDetail(markerNode)
-    })
+    markerNode.addEventListener(
+      "pointerdown",
+      (event) => event.stopPropagation(),
+      { signal }
+    )
+    markerNode.addEventListener(
+      "click",
+      (event) => {
+        event.stopPropagation()
+        const lng = Number.parseFloat(markerNode.dataset.lng ?? "0")
+        const lat = Number.parseFloat(markerNode.dataset.lat ?? "0")
+        focusOnCoordinates(lng, lat)
+        showDetail(markerNode)
+      },
+      { signal }
+    )
   }
 
   for (const countryNode of countryNodes) {
-    countryNode.addEventListener("click", () => {
-      const lng = Number.parseFloat(countryNode.dataset.lng ?? "0")
-      const lat = Number.parseFloat(countryNode.dataset.lat ?? "0")
-      focusOnCoordinates(lng, lat)
-    })
+    countryNode.addEventListener(
+      "click",
+      () => {
+        const lng = Number.parseFloat(countryNode.dataset.lng ?? "0")
+        const lat = Number.parseFloat(countryNode.dataset.lat ?? "0")
+        focusOnCoordinates(lng, lat)
+      },
+      { signal }
+    )
   }
 
-  detailClose.addEventListener("click", hideDetail)
+  detailClose.addEventListener("click", hideDetail, { signal })
 
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      cancelQueuedFrame()
-    } else if (isActiveRef.current) {
-      queueRender()
-    }
-  })
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.hidden) {
+        cancelQueuedFrame()
+      } else if (isActiveRef.current) {
+        queueRender()
+      }
+    },
+    { signal }
+  )
 
   return {
     setActive(nextActive: boolean) {
@@ -1054,7 +1086,7 @@ function initPassportGlobe(root: HTMLElement) {
   }
 }
 
-function initDeviceNotch(root: HTMLElement) {
+function initDeviceNotch(root: HTMLElement, signal: AbortSignal) {
   const notch = root.querySelector<HTMLElement>("[data-hero-device-notch]")
   const notchSvg = root.querySelector<SVGSVGElement>("[data-hero-device-notch-svg]")
   const notchPath = root.querySelector<SVGPathElement>("[data-hero-device-notch-path]")
@@ -1062,7 +1094,6 @@ function initDeviceNotch(root: HTMLElement) {
   const notchTopRow = root.querySelector<HTMLElement>(".hero-device-top-shell__row")
   const notchLead = root.querySelector<HTMLElement>(".hero-device-top-shell__lead")
   const notchSprite = root.querySelector<HTMLElement>("[data-notch-sprite]")
-  const notchBoardCoco = root.querySelector<HTMLButtonElement>("[data-notch-board-coco]")
   const notchContactTrigger = root.querySelector<HTMLElement>("[data-notch-contact-trigger]")
   const notchContactPanel = root.querySelector<HTMLElement>("[data-notch-contact-panel]")
   const notchFoodCounter = root.querySelector<HTMLElement>("[data-notch-food-counter]")
@@ -1118,14 +1149,9 @@ function initDeviceNotch(root: HTMLElement) {
     height: 0,
   }
 
-  const isCompactViewport = () => window.matchMedia("(max-width: 767px)").matches
+  const isCompactViewport = isMobileOrbitViewport
   const hoverCapability = window.matchMedia("(hover: hover) and (pointer: fine)")
   const canHover = () => hoverCapability.matches
-
-  const readPixelValue = (value: string) => {
-    const parsed = Number.parseFloat(value)
-    return Number.isFinite(parsed) ? parsed : 0
-  }
 
   const getContactMetrics = () => {
     const topInset = isCompactViewport() ? 5 : 6
@@ -1608,6 +1634,16 @@ function initDeviceNotch(root: HTMLElement) {
       filter: "blur(10px)",
     })
 
+    if (prefersReducedMotion()) {
+      gsap.set(notch, {
+        autoAlpha: 1,
+        pointerEvents: "auto",
+        "--hero-device-notch-intro-scale": 1,
+      })
+      gsap.set(notchContent, { autoAlpha: 1, y: 0, filter: "blur(0px)" })
+      return
+    }
+
     introStartTimeout = window.setTimeout(() => {
       const introTimeline = gsap.timeline({
         defaults: {
@@ -1645,38 +1681,56 @@ function initDeviceNotch(root: HTMLElement) {
 
   resetNotchFromZero()
 
-  notch.addEventListener("pointerenter", handlePointerEnter)
-  notch.addEventListener("pointerleave", handlePointerLeave)
-  notchContactTrigger.addEventListener("click", toggleContactState)
-  notchContactTrigger.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" && event.key !== " ") return
-    event.preventDefault()
-    toggleContactState()
-  })
-  notchSprite.addEventListener("click", handleSpriteHeartClick)
-  notchBoardCoco?.addEventListener("click", handleSpriteHeartClick)
+  signal.addEventListener(
+    "abort",
+    () => {
+      stopFedReset()
+      stopActiveAnimation()
+      stopIntroAnimation()
+      gsap.killTweensOf(notchState)
+    },
+    { once: true }
+  )
+
+  notch.addEventListener("pointerenter", handlePointerEnter, { signal })
+  notch.addEventListener("pointerleave", handlePointerLeave, { signal })
+  notchContactTrigger.addEventListener("click", toggleContactState, { signal })
+  notchContactTrigger.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return
+      event.preventDefault()
+      toggleContactState()
+    },
+    { signal }
+  )
+  notchSprite.addEventListener("click", handleSpriteHeartClick, { signal })
   foodButtons.forEach((button) => {
-    button.addEventListener("click", handleFoodFeed)
+    button.addEventListener("click", handleFoodFeed, { signal })
   })
-  document.addEventListener("pointerdown", handleDocumentPointerDown)
-  window.addEventListener("scroll", handleScrollClose, { passive: true })
-  hoverCapability.addEventListener("change", resetUnsupportedHover)
-  window.addEventListener("pageshow", (event) => {
-    if (!event.persisted) return
-    resetNotchFromZero()
-  })
+  document.addEventListener("pointerdown", handleDocumentPointerDown, { signal })
+  window.addEventListener("scroll", handleScrollClose, { passive: true, signal })
+  hoverCapability.addEventListener("change", resetUnsupportedHover, { signal })
+  window.addEventListener(
+    "pageshow",
+    (event) => {
+      if (!event.persisted) return
+      resetNotchFromZero()
+    },
+    { signal }
+  )
 
-  window.addEventListener("resize", () => {
-    resetUnsupportedHover()
-    measureBaseSize()
-    applyState(true)
-    applyHoverScale(true)
-    applyContentState(true)
-  })
-}
-
-function getCenteredAvatarY(clusterShell: HTMLElement, orbitAvatar: HTMLElement) {
-  return 0
+  window.addEventListener(
+    "resize",
+    () => {
+      resetUnsupportedHover()
+      measureBaseSize()
+      applyState(true)
+      applyHoverScale(true)
+      applyContentState(true)
+    },
+    { signal }
+  )
 }
 
 function getCenterNodeOffsetX(node: HTMLElement, orbitField: HTMLElement) {
@@ -1733,13 +1787,16 @@ export function initHeroOrbit() {
     scrollDebugParam
   )
 
+  heroAbortController ??= new AbortController()
+  const heroSignal = heroAbortController.signal
+
   for (const root of roots) {
     if (root.dataset.bound === "true") continue
     root.dataset.bound = "true"
 
-    initBrandCycles(root)
+    initBrandCycles(root, heroSignal)
     let passportGlobeController: ReturnType<typeof initPassportGlobe> = null
-    initDeviceNotch(root)
+    initDeviceNotch(root, heroSignal)
 
     const title = root.querySelector<HTMLElement>("[data-title]")
     const titlePieces = root.querySelectorAll<HTMLElement>("[data-title-piece]")
@@ -1791,10 +1848,13 @@ export function initHeroOrbit() {
     const initOrbitNodeMagnetism = () => {
       if (
         typeof window === "undefined" ||
+        !orbitField ||
+        prefersReducedMotion() ||
         !window.matchMedia("(hover: hover) and (pointer: fine)").matches
       ) {
         return
       }
+      const magnetismField = orbitField
 
       const nodeEntries = profileNodes
         .map((node) => {
@@ -1838,8 +1898,17 @@ export function initHeroOrbit() {
         }
       }
 
-      orbitField.addEventListener("pointermove", (event) => {
-        const fieldRect = orbitField.getBoundingClientRect()
+      // Coalesced to one rAF per frame: pointermove can fire far more often
+      // than the display refreshes, and each pass reads layout (rects).
+      let pointerFrame = 0
+      let lastPointerEvent: PointerEvent | null = null
+
+      const processPointerFrame = () => {
+        pointerFrame = 0
+        const event = lastPointerEvent
+        if (!event) return
+
+        const fieldRect = magnetismField.getBoundingClientRect()
         const pointerX = event.clientX
         const pointerY = event.clientY
 
@@ -1883,34 +1952,64 @@ export function initHeroOrbit() {
           entry.yTo(offsetY)
           entry.scaleTo((entry.hovered ? hoverScale : 1) + strength * 0.04)
         }
+      }
+
+      magnetismField.addEventListener(
+        "pointermove",
+        (event) => {
+          lastPointerEvent = event
+          pointerFrame ||= window.requestAnimationFrame(processPointerFrame)
+        },
+        { signal: heroSignal }
+      )
+
+      heroCleanupTasks.push(() => {
+        if (pointerFrame) window.cancelAnimationFrame(pointerFrame)
       })
 
-      orbitField.addEventListener("pointerleave", () => {
-        applyRestingState()
-      })
+      magnetismField.addEventListener(
+        "pointerleave",
+        () => {
+          applyRestingState()
+        },
+        { signal: heroSignal }
+      )
 
       for (const entry of nodeEntries) {
-        entry.node.addEventListener("mouseenter", () => {
-          entry.hovered = true
-          entry.xTo(0)
-          entry.yTo(0)
-          entry.scaleTo(hoverScale)
-        })
+        entry.node.addEventListener(
+          "mouseenter",
+          () => {
+            entry.hovered = true
+            entry.xTo(0)
+            entry.yTo(0)
+            entry.scaleTo(hoverScale)
+          },
+          { signal: heroSignal }
+        )
 
-        entry.node.addEventListener("mouseleave", () => {
-          entry.hovered = false
-          entry.scaleTo(1)
-        })
+        entry.node.addEventListener(
+          "mouseleave",
+          () => {
+            entry.hovered = false
+            entry.scaleTo(1)
+          },
+          { signal: heroSignal }
+        )
       }
     }
 
     const initProfileAvatarMagnetism = () => {
       if (
         typeof window === "undefined" ||
+        !orbitField ||
+        !orbitAvatar ||
+        prefersReducedMotion() ||
         !window.matchMedia("(hover: hover) and (pointer: fine)").matches
       ) {
         return
       }
+      const magnetismField = orbitField
+      const magnetismAvatar = orbitAvatar
 
       if (!orbitAvatarSurface) {
         return
@@ -1929,8 +2028,15 @@ export function initHeroOrbit() {
       const maxOffset = 12
       const deadZoneRadius = 40
 
-      orbitField.addEventListener("pointermove", (event) => {
-        const avatarRect = orbitAvatar.getBoundingClientRect()
+      let avatarFrame = 0
+      let lastAvatarEvent: PointerEvent | null = null
+
+      const processAvatarFrame = () => {
+        avatarFrame = 0
+        const event = lastAvatarEvent
+        if (!event) return
+
+        const avatarRect = magnetismAvatar.getBoundingClientRect()
         const centerX = avatarRect.left + avatarRect.width / 2
         const centerY = avatarRect.top + avatarRect.height / 2
         const deltaX = event.clientX - centerX
@@ -1952,12 +2058,29 @@ export function initHeroOrbit() {
         const strength = (1 - distance / influenceRadius) * normalizedDistance
         xTo((deltaX / distance) * maxOffset * strength)
         yTo((deltaY / distance) * maxOffset * strength)
+      }
+
+      magnetismField.addEventListener(
+        "pointermove",
+        (event) => {
+          lastAvatarEvent = event
+          avatarFrame ||= window.requestAnimationFrame(processAvatarFrame)
+        },
+        { signal: heroSignal }
+      )
+
+      heroCleanupTasks.push(() => {
+        if (avatarFrame) window.cancelAnimationFrame(avatarFrame)
       })
 
-      orbitField.addEventListener("pointerleave", () => {
-        xTo(0)
-        yTo(0)
-      })
+      magnetismField.addEventListener(
+        "pointerleave",
+        () => {
+          xTo(0)
+          yTo(0)
+        },
+        { signal: heroSignal }
+      )
     }
 
     if (
@@ -1994,14 +2117,23 @@ export function initHeroOrbit() {
     initOrbitNodeMagnetism()
     initProfileAvatarMagnetism()
     passportLayer.hidden = false
-    passportGlobeController = initPassportGlobe(root)
+    passportGlobeController = initPassportGlobe(root, heroSignal)
     passportGlobeController?.setActive(false)
 
     let boardOpen = false
     let boardAnimation: gsap.core.Timeline | null = null
+
+    heroCleanupTasks.push(() => {
+      boardAnimation?.kill()
+      boardAnimation = null
+    })
     let lockedScrollY = 0
     const preventDocumentScroll = (event: Event) => {
-      if (event.target instanceof Node && boardLayer.contains(event.target)) {
+      if (
+        event.target instanceof Node &&
+        (boardLayer.contains(event.target) ||
+          passportLayer.contains(event.target))
+      ) {
         return
       }
 
@@ -2010,7 +2142,8 @@ export function initHeroOrbit() {
     const preventDocumentScrollKeys = (event: KeyboardEvent) => {
       if (
         document.activeElement instanceof Node &&
-        boardLayer.contains(document.activeElement)
+        (boardLayer.contains(document.activeElement) ||
+          passportLayer.contains(document.activeElement))
       ) {
         return
       }
@@ -2049,13 +2182,16 @@ export function initHeroOrbit() {
       window.addEventListener("wheel", preventDocumentScroll, {
         capture: true,
         passive: false,
+        signal: heroSignal,
       })
       window.addEventListener("touchmove", preventDocumentScroll, {
         capture: true,
         passive: false,
+        signal: heroSignal,
       })
       window.addEventListener("keydown", preventDocumentScrollKeys, {
         capture: true,
+        signal: heroSignal,
       })
     }
 
@@ -2071,7 +2207,7 @@ export function initHeroOrbit() {
 
     const ensurePassportGlobeController = () => {
       if (!passportGlobeController) {
-        passportGlobeController = initPassportGlobe(root)
+        passportGlobeController = initPassportGlobe(root, heroSignal)
       }
 
       return passportGlobeController
@@ -2089,7 +2225,9 @@ export function initHeroOrbit() {
       lockDocumentScroll()
       boardLayer.setAttribute("aria-hidden", "false")
       boardLayer.style.visibility = "visible"
-      boardLayer.style.pointerEvents = "auto"
+      // El tablero de viaje vive en la capa del pasaporte (debajo de esta):
+      // la capa del board actúa solo de fondo y no debe capturar el puntero.
+      boardLayer.style.pointerEvents = isTravelBoard ? "none" : "auto"
       boardTitle.textContent = label
       boardPanel.classList.toggle(
         "hero-board-panel--development",
@@ -2283,24 +2421,32 @@ export function initHeroOrbit() {
     }
 
     for (const trigger of interestTriggers) {
-      trigger.addEventListener("click", (event) => {
-        event.stopPropagation()
-        const label =
-          trigger.closest<HTMLElement>("[data-orbit-profile-node]")?.dataset
-            .interestLabel ?? "Interest"
-        const key =
-          trigger.closest<HTMLElement>("[data-orbit-profile-node]")?.dataset
-            .interestKey ?? ""
-        openBoard(label, key)
-      })
+      trigger.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation()
+          const label =
+            trigger.closest<HTMLElement>("[data-orbit-profile-node]")?.dataset
+              .interestLabel ?? "Interest"
+          const key =
+            trigger.closest<HTMLElement>("[data-orbit-profile-node]")?.dataset
+              .interestKey ?? ""
+          openBoard(label, key)
+        },
+        { signal: heroSignal }
+      )
     }
 
-    boardClose.addEventListener("click", closeBoard)
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        closeBoard()
-      }
-    })
+    boardClose.addEventListener("click", closeBoard, { signal: heroSignal })
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape") {
+          closeBoard()
+        }
+      },
+      { signal: heroSignal }
+    )
 
     const prepareInitialState = () => {
       gsap.set(orbitScene, {
@@ -2331,7 +2477,7 @@ export function initHeroOrbit() {
       gsap.set(orbitAvatar, {
         autoAlpha: 0,
         scale: 0.78,
-        y: getCenteredAvatarY(clusterShell, orbitAvatar),
+        y: 0,
         filter: "blur(10px)",
       })
       gsap.set(orbitMeta, {
@@ -2400,6 +2546,16 @@ export function initHeroOrbit() {
         filter: introImageFilter,
       })
 
+      if (prefersReducedMotion()) {
+        gsap.set(heroImage, {
+          autoAlpha: introImageOpacity,
+          scale: 1,
+          filter: introImageFilter,
+        })
+        gsap.set(titlePieces, { autoAlpha: 1, y: 0, filter: "blur(0px)" })
+        return
+      }
+
       gsap.to(heroImage, {
         autoAlpha: introImageOpacity,
         scale: 1,
@@ -2428,387 +2584,35 @@ export function initHeroOrbit() {
       )
     }
 
-    const setIntroNodeState = () => {
-        gsap.set(originNodes, {
-        autoAlpha: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 0,
-        x: 0,
-        y: 0,
-        scale: 0.42,
-        filter: "blur(14px)",
-      })
-      gsap.set(clusterLayer, { autoAlpha: 0 })
-      gsap.set(orbitAvatar, {
-        autoAlpha: 0,
-        scale: 0.78,
-        y: getCenteredAvatarY(clusterShell, orbitAvatar),
-        filter: "blur(10px)",
-      })
-      gsap.set(orbitMeta, {
-        autoAlpha: 0,
-        y: 10,
-        filter: "blur(10px)",
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(passportGlobe, {
-        autoAlpha: 1,
-        scale: 1,
-        rotate: 0,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 0,
-        scale: 0.82,
-        filter: "blur(18px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: 0,
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
-      })
-      gsap.set(title, {
-        autoAlpha: 1,
-        filter: "blur(0px)",
-      })
-    }
-
-    const setCollapsedCenterState = () => {
-      gsap.set(title, {
-        autoAlpha: 0,
-        filter: "blur(6px)",
-      })
-      gsap.set(originNodes, {
-        x: (_, node) => getCenterNodeOffsetX(node as HTMLElement, orbitField),
-        y: (_, node) => getCenterNodeOffsetY(node as HTMLElement, orbitField),
-        autoAlpha: 0.22,
-        scale: 0.42,
-        filter: "blur(14px)",
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 0,
-        x: 0,
-        y: 0,
-        scale: 0.42,
-        filter: "blur(14px)",
-      })
-      gsap.set(clusterLayer, { autoAlpha: 1 })
-      gsap.set(orbitAvatar, {
-        autoAlpha: 1,
-        scale: 0.94,
-        y: getCenteredAvatarY(clusterShell, orbitAvatar),
-        filter: "blur(0px)",
-      })
-      gsap.set(orbitMeta, {
-        autoAlpha: 0,
-        y: 10,
-        filter: "blur(10px)",
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(passportGlobe, {
-        autoAlpha: 1,
-        scale: 1,
-        rotate: 0,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 0,
-        scale: 0.82,
-        filter: "blur(18px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: 0,
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
-      })
-    }
-
-    const syncCollapsedCenterLayers = () => {
-      gsap.set(title, {
-        autoAlpha: 0,
-        filter: "blur(6px)",
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 0,
-        x: 0,
-        y: 0,
-        scale: 0.42,
-        filter: "blur(14px)",
-      })
-      gsap.set(clusterLayer, { autoAlpha: 1 })
-      gsap.set(orbitMeta, {
-        autoAlpha: 0,
-        y: 10,
-        filter: "blur(10px)",
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(passportGlobe, {
-        autoAlpha: 1,
-        scale: 1,
-        rotate: 0,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 0,
-        scale: 0.82,
-        filter: "blur(18px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: 0,
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
-      })
-    }
-
-    const setExpandedProfileState = () => {
-        gsap.set(title, {
-          autoAlpha: 0,
-        filter: "blur(6px)",
-      })
-      gsap.set(originNodes, {
-        autoAlpha: 0,
-      })
-      gsap.set(clusterLayer, { autoAlpha: 1 })
-      gsap.set(orbitAvatar, {
-        autoAlpha: 1,
-        scale: 1,
-        y: getCenteredAvatarY(clusterShell, orbitAvatar),
-        filter: "blur(0px)",
-      })
-      gsap.set(orbitMeta, {
-        autoAlpha: 1,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(passportGlobe, {
-        autoAlpha: 1,
-        scale: 1,
-        rotate: 0,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 0,
-        scale: 0.82,
-        filter: "blur(18px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: 0,
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 1,
-        x: (_, node) =>
-          getProfileNodeOffsetX(node as HTMLElement, orbitField),
-        y: (_, node) =>
-          getProfileNodeOffsetY(node as HTMLElement, orbitField),
-        scale: (_, node) =>
-          getProfileDatasetValue(
-            node as HTMLElement,
-            "profileScaleDesktop",
-            "profileScaleMobile",
-            1
-          ),
-        filter: "blur(0px)",
-      })
-    }
-
-    const setPassportState = () => {
-        gsap.set(clusterLayer, {
-          autoAlpha: 0,
-        })
-      gsap.set(originNodes, {
-        autoAlpha: 0,
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 0,
-      })
-      gsap.set(orbitAvatar, {
-        autoAlpha: 0,
-        y: getCenteredAvatarY(clusterShell, orbitAvatar) - 40,
-        filter: "blur(12px)",
-      })
-      gsap.set(orbitMeta, {
-        autoAlpha: 0,
-        y: -28,
-        filter: "blur(12px)",
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 1,
-        pointerEvents: "auto",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 1,
-        scale: 1,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 1,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: passportDetail.hidden ? 0 : 1,
-        y: 0,
-        filter: "blur(0px)",
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
-      })
-    }
-
-    const setFooterState = () => {
-        passportGlobeController?.setActive(false)
-        gsap.set(clusterLayer, {
-          autoAlpha: 0,
-      })
-      gsap.set(originNodes, {
-        autoAlpha: 0,
-      })
-      gsap.set(profileNodes, {
-        autoAlpha: 0,
-      })
-      gsap.set(orbitAvatar, {
-        autoAlpha: 0,
-      })
-      gsap.set(orbitMeta, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
-      gsap.set(passportFrame, {
-        autoAlpha: 0,
-        scale: 0.92,
-        filter: "blur(14px)",
-      })
-      gsap.set(passportToolbar, {
-        autoAlpha: 0,
-      })
-      gsap.set(passportDetail, {
-        autoAlpha: 0,
-      })
-      gsap.set(footerLayer, {
-        autoAlpha: 1,
-        pointerEvents: "auto",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 1,
-        scale: 1,
-        y: 0,
-        filter: "blur(0px)",
-      })
-    }
-
     const createIntroScrub = () => {
       const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
       const sequenceDistance = Math.max(
         introDistance - heroSequenceMotion.footer.orbitTailPx,
         window.innerHeight
       )
-      const {
-        collapseStartPx,
-        expandStartPx,
-        passportStartPx,
-        footerStartPx,
-        introEndDistance,
-      } = getHeroSequenceRuntime(sequenceDistance, originNodes.length)
+      const { collapseStartPx, expandStartPx, passportStartPx } =
+        getHeroSequenceRuntime(sequenceDistance, originNodes.length)
       const { intro, footer } = heroSequenceMotion
-      const footerTriggerPx = heroPassportEnabled ? footerStartPx : passportStartPx
-      const heroFlowEndPx = heroPassportEnabled
-        ? introEndDistance
-        : Math.max(sequenceDistance, footerTriggerPx + footer.tailPx + intro.tailPx)
+      const footerTriggerPx = passportStartPx
+      const heroFlowEndPx = Math.max(
+        sequenceDistance,
+        footerTriggerPx + footer.tailPx + intro.tailPx
+      )
 
       const syncNavPoints = () => {
         const rootTop = root.getBoundingClientRect().top + window.scrollY
 
         root.dataset.navHomeY = String(Math.round(rootTop))
         root.dataset.navDevY = String(Math.round(rootTop + expandStartPx))
-        if (heroPassportEnabled) {
-          root.dataset.navPassportY = String(Math.round(rootTop + passportStartPx))
-        } else {
-          delete root.dataset.navPassportY
-        }
+        delete root.dataset.navPassportY
         root.dataset.navFooterY = String(Math.round(rootTop + footerTriggerPx))
         window.dispatchEvent(new CustomEvent("hero-nav-points"))
       }
 
       syncNavPoints()
+
+      // Under reduced motion, map scroll position directly (no easing lag).
+      const scrubSmoothing = prefersReducedMotion() ? true : 1
 
       const introTimeline = gsap.timeline({
         defaults: { ease: "none", overwrite: "auto" },
@@ -2817,7 +2621,7 @@ export function initHeroOrbit() {
           trigger: root,
           start: "top top",
           end: () => `+=${collapseStartPx}`,
-          scrub: 1,
+          scrub: scrubSmoothing,
           markers: getMarkerConfig(debugScroll),
           invalidateOnRefresh: true,
           fastScrollEnd: true,
@@ -2832,18 +2636,14 @@ export function initHeroOrbit() {
           start: "top top",
           end: () =>
             `top+=${heroFlowEndPx + footer.orbitTailPx} top`,
-          scrub: 1,
+          scrub: scrubSmoothing,
           invalidateOnRefresh: true,
           fastScrollEnd: true,
-          markers: debugScroll
-            ? {
-                startColor: "#f59e0b",
-                endColor: "#f59e0b",
-                fontSize: "11px",
-                fontWeight: "600",
-                indent: 92,
-              }
-            : false,
+          markers: getMarkerConfig(debugScroll, {
+            startColor: "#f59e0b",
+            endColor: "#f59e0b",
+            indent: 92,
+          }),
         },
       })
 
@@ -2864,7 +2664,7 @@ export function initHeroOrbit() {
       })
 
       introTimeline.set(orbitScene, { pointerEvents: "auto" }, 0)
-      gsap.fromTo(
+      const heroImageTween = gsap.fromTo(
         heroImage,
         {
           autoAlpha: introImageOpacity,
@@ -2882,19 +2682,11 @@ export function initHeroOrbit() {
             trigger: root,
             start: "top top",
             end: () => `+=${collapseStartPx}`,
-            scrub: 1,
+            scrub: scrubSmoothing,
             invalidateOnRefresh: true,
             fastScrollEnd: true,
             preventOverlaps: "hero-flow",
-            markers: debugScroll
-              ? {
-                  startColor: "#38bdf8",
-                  endColor: "#38bdf8",
-                  fontSize: "11px",
-                  fontWeight: "600",
-                  indent: 20,
-                }
-              : false,
+            markers: getMarkerConfig(debugScroll),
           },
         }
       )
@@ -2982,10 +2774,6 @@ export function initHeroOrbit() {
         collapseSpanPx - collapseNodesStartPx,
         1
       )
-      const expandNodeFaceSwitchPx = Math.min(
-        Math.round(expandMotionPx * 0.32),
-        expandMotionPx
-      )
       const expandMetaStartPx = Math.min(
         Math.round(expandMotionPx * 0.56),
         expandMotionPx
@@ -3011,19 +2799,15 @@ export function initHeroOrbit() {
           trigger: root,
           start: () => `top+=${collapseStartPx} top`,
           end: () => `top+=${heroFlowEndPx} top`,
-          scrub: 1,
+          scrub: scrubSmoothing,
           invalidateOnRefresh: true,
           fastScrollEnd: true,
           preventOverlaps: "hero-flow",
-          markers: debugScroll
-            ? {
-                startColor: "#fb7185",
-                endColor: "#f9fafb",
-                fontSize: "11px",
-                fontWeight: "600",
-                indent: 44,
-              }
-            : false,
+          markers: getMarkerConfig(debugScroll, {
+            startColor: "#fb7185",
+            endColor: "#f9fafb",
+            indent: 44,
+          }),
           onRefresh: syncNavPoints,
         },
       })
@@ -3050,7 +2834,7 @@ export function initHeroOrbit() {
         {
           autoAlpha: 1,
           scale: 1,
-          y: getCenteredAvatarY(clusterShell, orbitAvatar),
+          y: 0,
           filter: "blur(0px)",
           duration: collapseAvatarDurationPx,
         },
@@ -3098,7 +2882,7 @@ export function initHeroOrbit() {
         orbitAvatar,
         {
           scale: 1,
-          y: getCenteredAvatarY(clusterShell, orbitAvatar),
+          y: 0,
           filter: "blur(0px)",
           duration: expandMotionPx,
         },
@@ -3166,7 +2950,7 @@ export function initHeroOrbit() {
         orbitAvatar,
         {
           autoAlpha: 0,
-          y: getCenteredAvatarY(clusterShell, orbitAvatar),
+          y: 0,
           scale: 0.86,
           filter: "blur(12px)",
           duration: footerLayerOutDurationPx,
@@ -3204,6 +2988,17 @@ export function initHeroOrbit() {
         },
         footerStartAt + footerShellInStartPx
       )
+
+      heroCleanupTasks.push(() => {
+        introTimeline.scrollTrigger?.kill()
+        introTimeline.kill()
+        orbitRotationTimeline.scrollTrigger?.kill()
+        orbitRotationTimeline.kill()
+        heroImageTween.scrollTrigger?.kill()
+        heroImageTween.kill()
+        flowTimeline.scrollTrigger?.kill()
+        flowTimeline.kill()
+      })
     }
 
     prepareInitialState()

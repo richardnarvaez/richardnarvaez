@@ -1,0 +1,26 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+
+<BaseLayout title="Page not found | Richard Vinueza">
+  <main class="flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
+    <p
+      class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400"
+      style="font-family: var(--font-jetbrains);"
+    >
+      404
+    </p>
+    <h1
+      class="text-4xl font-bold text-white sm:text-5xl"
+      style="font-family: var(--font-barlow);"
+    >
+      Page not found
+    </h1>
+    <a
+      href="/"
+      class="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/15"
+    >
+      Back home
+    </a>
+  </main>
+</BaseLayout>

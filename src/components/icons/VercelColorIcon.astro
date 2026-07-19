@@ -1,4 +1,8 @@
 ---
+import type { HTMLAttributes } from "astro/types"
+
+type Props = HTMLAttributes<"svg">
+
 const { class: className, ...rest } = Astro.props
 ---
 

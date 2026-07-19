@@ -1,23 +1,30 @@
 ---
 import FooterSignature from "./FooterSignature.astro"
-import packageJson from "../../../package.json"
+import { projectVersionLabel } from "../../site.config"
+
+interface Props {
+  compact?: boolean
+}
 
 const { compact = false } = Astro.props
 const Tag = compact ? "div" : "footer"
-const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`
+const currentYear = new Date().getFullYear()
+// El componente puede renderizarse dos veces en la misma página (variante
+// compacta dentro del hero); los ids internos deben ser únicos por variante.
+const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
 ---
 
 <Tag
   class:list={[
     compact
-      ? "hero-footer-card w-fit min-w-[18rem] max-w-[26rem] px-5 py-6 sm:px-7"
+      ? "w-fit min-w-[18rem] max-w-[26rem] px-5 py-6 sm:px-7"
       : "px-5 pb-32 pt-16 sm:px-8",
   ]}
   style={compact ? "background: transparent;" : "background: var(--page-accent-surface);"}
 >
   <div class="flex items-center justify-center">
     <div class="relative flex">
-      <div id="signature" class:list={[compact ? "text-white/88" : "text-white opacity-70"]}>
+      <div class:list={["site-footer-signature", compact ? "text-white/88" : "text-white opacity-70"]}>
         <FooterSignature />
       </div>
     </div>
@@ -37,7 +44,7 @@ const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`
         class="w-4"
         aria-hidden="true"
       >
-        <g clip-path="url(#footer-flag-ec)">
+        <g clip-path={`url(#${flagClipId})`}>
           <path
             d="M0 6C0 2.68631 2.68631 0 6 0C9.31369 0 12 2.68631 12 6L6 6.52174L0 6Z"
             fill="#FFDA44"
@@ -64,7 +71,7 @@ const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`
           />
         </g>
         <defs>
-          <clipPath id="footer-flag-ec">
+          <clipPath id={flagClipId}>
             <rect width="12" height="12" fill="white" />
           </clipPath>
         </defs>
@@ -79,7 +86,7 @@ const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`
     </div>
 
     <div class:list={[compact ? "mt-3 text-xs font-medium leading-none text-white/42" : "mt-3 text-xs font-medium leading-none text-white/30"]}>
-      © richard vinueza - 2024 · {projectVersionLabel}
+      © richard vinueza - {currentYear} · {projectVersionLabel}
     </div>
   </div>
 </Tag>

@@ -72,7 +72,7 @@ export const illustrationPreviewItems = [
    { src: '/images/illustration/pic_5.jpg', alt: 'Illustration 5' },
 ] as const
 
-export const heroOrbitOriginNodes = [
+export const heroOrbitOriginNodes: readonly HeroOrbitOriginEntry[] = [
    {
       key: 'photography',
       originNode: {
@@ -84,11 +84,6 @@ export const heroOrbitOriginNodes = [
                className: 'size-6 object-contain',
             },
          ],
-      },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Fotografia',
-         iconSvg: lucideInterestIcons.photography,
       },
       origin: { left: 5.5, top: 29.5 },
    },
@@ -103,11 +98,6 @@ export const heroOrbitOriginNodes = [
                className: 'size-6 object-contain',
             },
          ],
-      },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Ilustracion',
-         iconSvg: lucideInterestIcons.illustration,
       },
       origin: { left: 28, top: 0 },
    },
@@ -128,11 +118,6 @@ export const heroOrbitOriginNodes = [
             },
          ],
       },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Experimentos',
-         iconSvg: lucideInterestIcons.experiments,
-      },
       origin: { left: 14, top: 50 },
    },
    {
@@ -152,11 +137,6 @@ export const heroOrbitOriginNodes = [
             },
          ],
       },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Apps',
-         iconSvg: lucideInterestIcons.apps,
-      },
       origin: { left: 32, top: 84 },
    },
    {
@@ -170,11 +150,6 @@ export const heroOrbitOriginNodes = [
                className: 'size-6 object-contain',
             },
          ],
-      },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Viajes',
-         iconSvg: lucideInterestIcons.travel,
       },
       origin: { left: 60, top: 8 },
    },
@@ -190,11 +165,6 @@ export const heroOrbitOriginNodes = [
             },
          ],
       },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Desarrollo',
-         iconSvg: lucideInterestIcons.development,
-      },
       origin: { left: 96, top: 41 },
    },
    {
@@ -208,11 +178,6 @@ export const heroOrbitOriginNodes = [
                className: 'size-7 object-contain',
             },
          ],
-      },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Notas',
-         iconSvg: lucideInterestIcons.writing,
       },
       origin: { left: 86, top: 61 },
    },
@@ -228,11 +193,6 @@ export const heroOrbitOriginNodes = [
             },
          ],
       },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Rutas',
-         iconSvg: lucideInterestIcons.routes,
-      },
       origin: { left: 84, top: 27 },
    },
    {
@@ -246,16 +206,11 @@ export const heroOrbitOriginNodes = [
             },
          ],
       },
-      clusterNode: {
-         kind: 'interest',
-         label: 'Video',
-         iconSvg: lucideInterestIcons.video,
-      },
       origin: { left: 74, top: 98 },
    },
-] as const satisfies readonly HeroOrbitOriginEntry[]
+]
 
-export const heroOrbitProfileNodes = [
+export const heroOrbitProfileNodes: readonly HeroOrbitProfileEntry[] = [
    {
       key: 'photography',
       clusterNode: {
@@ -391,4 +346,4 @@ export const heroOrbitProfileNodes = [
          scaleMobile: 0.76,
       },
    },
-] as const satisfies readonly HeroOrbitProfileEntry[]
+]

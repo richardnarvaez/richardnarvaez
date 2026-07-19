@@ -9,12 +9,6 @@ export interface Place {
   code: string
 }
 
-export interface MarkerEntry {
-  id: string
-  coordinates: [number, number]
-  places: Place[]
-}
-
 export const placeStatusColors: Record<PlaceStatus, { start: string; end: string }> = {
   visited: { start: "#34d399", end: "#22c55e" },
   wishlist: { start: "#fbbf24", end: "#f97316" },
@@ -75,56 +69,4 @@ export function getVisitedCountries() {
   }
 
   return Array.from(countries.values())
-}
-
-function calculateDistance(coord1: [number, number], coord2: [number, number]) {
-  const [lng1, lat1] = coord1
-  const [lng2, lat2] = coord2
-  const radiusKm = 6371
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLng = ((lng2 - lng1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return radiusKm * c
-}
-
-function getGroupCenter(group: Place[]): [number, number] {
-  const sumLng = group.reduce((sum, currentPlace) => sum + currentPlace.coordinates[0], 0)
-  const sumLat = group.reduce((sum, currentPlace) => sum + currentPlace.coordinates[1], 0)
-
-  return [sumLng / group.length, sumLat / group.length]
-}
-
-export function buildMarkerEntries() {
-  const groups: Place[][] = []
-  const processed = new Set<number>()
-
-  places.forEach((currentPlace, index) => {
-    if (processed.has(index)) return
-
-    const group = [currentPlace]
-    processed.add(index)
-
-    places.forEach((otherPlace, otherIndex) => {
-      if (processed.has(otherIndex) || otherIndex === index) return
-
-      if (calculateDistance(currentPlace.coordinates, otherPlace.coordinates) <= 200) {
-        group.push(otherPlace)
-        processed.add(otherIndex)
-      }
-    })
-
-    groups.push(group)
-  })
-
-  return groups.map((group): MarkerEntry => ({
-    id: group.length === 1 ? group[0].id : `group-${group.map((entry) => entry.id).join("-")}`,
-    coordinates: group.length === 1 ? group[0].coordinates : getGroupCenter(group),
-    places: group,
-  }))
 }

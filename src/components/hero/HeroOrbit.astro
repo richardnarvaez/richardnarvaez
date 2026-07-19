@@ -1,8 +1,13 @@
 ---
-import ArrowFigma from "../icons/ArrowFigma";
+import ArrowFigma from "../icons/ArrowFigma.astro";
 import VercelColorIcon from "../icons/VercelColorIcon.astro";
 import SiteFooter from "../footer/SiteFooter.astro";
-import packageJson from "../../../package.json";
+import {
+  projectVersionLabel,
+  siteName,
+  siteRole,
+  socialLinks,
+} from "../../site.config";
 import {
   getPlaceGradient,
   getVisitedCountries,
@@ -17,10 +22,6 @@ import {
   illustrationPreviewItems,
 } from "./hero.data";
 import { heroSequenceMotion } from "./hero.sequence";
-
-const githubUrl = "https://github.com/richardnarvaez/";
-const instagramUrl = "https://www.instagram.com/richard.vinueza/";
-const linkedinUrl = "https://www.linkedin.com/in/richard-vinueza/";
 const instagramIconSvg =
   '<svg viewBox="0 0 24 24" width="18" height="18" class="hero-device-contact-link__svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>';
 const linkedinIconSvg =
@@ -31,7 +32,7 @@ const contactLinks = [
   {
     id: "instagram",
     label: "Instagram",
-    href: instagramUrl,
+    href: socialLinks.instagram,
     iconSvg: instagramIconSvg,
     surfaceClass: "bg-[linear-gradient(135deg,#f97316,#ec4899_56%,#7c3aed)]",
     glyphClass: "scale-[0.94]",
@@ -39,7 +40,7 @@ const contactLinks = [
   {
     id: "linkedin",
     label: "LinkedIn",
-    href: linkedinUrl,
+    href: socialLinks.linkedin,
     iconSvg: linkedinIconSvg,
     surfaceClass: "bg-[linear-gradient(135deg,#38bdf8,#2563eb)]",
     glyphClass: "scale-[0.72] -translate-y-[0.015rem]",
@@ -47,14 +48,12 @@ const contactLinks = [
   {
     id: "github",
     label: "GitHub",
-    href: githubUrl,
+    href: socialLinks.github,
     iconSvg: githubIconSvg,
     surfaceClass: "bg-[linear-gradient(135deg,#334155,#0f172a)]",
     glyphClass: "scale-[0.84]",
   },
 ] as const;
-
-const projectVersionLabel = `v${packageJson.version ?? "0.0.0"}`;
 
 const notchIdleRows = [
   "033300000000",
@@ -75,7 +74,7 @@ const notchPixels = notchIdleRows.flatMap((row, rowIndex) =>
   })),
 );
 
-function buildBoardSprite(rows: readonly string[]) {
+function buildSprite(rows: readonly string[]) {
   return {
     columns: rows[0]?.length ?? 0,
     rows: rows.length,
@@ -90,26 +89,29 @@ function buildBoardSprite(rows: readonly string[]) {
   };
 }
 
-function buildFoodSprite(rows: readonly string[]) {
-  return {
-    columns: rows[0]?.length ?? 0,
-    rows: rows.length,
-    pixels: rows.flatMap((row, rowIndex) =>
-      Array.from(row).map((tone, columnIndex) => ({
-        row: rowIndex,
-        column: columnIndex,
-        tone,
-        active: tone !== "0",
-      })),
-    ),
-  };
+// Paleta LED por tono ("0" = apagado) para los sprites de comida del pet.
+const animalToneColors: Record<string, string> = {
+  "1": "#38bdf8",
+  "2": "#7dd3fc",
+  "3": "#f59e0b",
+  "4": "#f472b6",
+  "5": "#f8fafc",
+  "6": "#94a3b8",
+  "7": "#fbcfe8",
+  "8": "#fb7185",
+  "9": "#0f172a",
+};
+
+function toLedStyle(tone: string, palette: Record<string, string>) {
+  const color = palette[tone];
+  return color ? `background:${color};` : "";
 }
 
 const foodItems = [
   {
     id: "pig",
     label: "Pig",
-    sprite: buildFoodSprite([
+    sprite: buildSprite([
       "087777777780",
       "877777777778",
       "877977779778",
@@ -121,7 +123,7 @@ const foodItems = [
   {
     id: "fish",
     label: "Fish",
-    sprite: buildFoodSprite([
+    sprite: buildSprite([
       "000111000010",
       "001111100110",
       "110441111111",
@@ -133,7 +135,7 @@ const foodItems = [
   {
     id: "goose",
     label: "Goose",
-    sprite: buildFoodSprite([
+    sprite: buildSprite([
       "000666600000",
       "006055560000",
       "333556555560",
@@ -144,63 +146,15 @@ const foodItems = [
   },
 ] as const;
 
-const contactBoardCoco = buildBoardSprite([
-  "033300000000",
-  "300003330333",
-  "333343303550",
-  "333333333333",
-  "003200003200",
-  "003320003320",
-]);
-
 const contactBoardAnimals = foodItems.map((item) => ({
   ...item,
   columns: item.sprite.columns,
   rows: item.sprite.rows,
-  pixels: item.sprite.pixels.map((pixel) => {
-    const ledStyle =
-      pixel.tone === "1"
-        ? "background:#38bdf8;"
-        : pixel.tone === "2"
-          ? "background:#7dd3fc;"
-          : pixel.tone === "3"
-            ? "background:#f59e0b;"
-            : pixel.tone === "4"
-              ? "background:#f472b6;"
-              : pixel.tone === "5"
-                ? "background:#f8fafc;"
-                : pixel.tone === "6"
-                  ? "background:#94a3b8;"
-                  : pixel.tone === "7"
-                    ? "background:#fbcfe8;"
-                    : pixel.tone === "8"
-                      ? "background:#fb7185;"
-                      : pixel.tone === "9"
-                        ? "background:#0f172a;"
-                        : "";
-
-    return { ...pixel, ledStyle };
-  }),
+  pixels: item.sprite.pixels.map((pixel) => ({
+    ...pixel,
+    ledStyle: toLedStyle(pixel.tone, animalToneColors),
+  })),
 }));
-
-const contactBoardCocoPixels = contactBoardCoco.pixels.map((pixel) => {
-  const ledStyle =
-    pixel.tone === "1"
-      ? "background:#166534;"
-      : pixel.tone === "2"
-        ? "background:#22c55e;"
-        : pixel.tone === "3"
-          ? "background:#4ade80;"
-          : pixel.tone === "4"
-            ? "background:#bbf7d0;"
-            : pixel.tone === "5"
-              ? "background:#ef4444;"
-              : pixel.tone === "8"
-                ? "background:#ef4444;"
-                : "";
-
-  return { ...pixel, ledStyle };
-});
 
 function getStableBrandCycleMotion(seed: string, index: number) {
   const source = `${seed}:${index}`;
@@ -236,11 +190,11 @@ const passportCountries = getVisitedCountries();
       <img
         data-hero-image
         src="/images/home/bg-header.jpg"
-        width="720"
-        height="720"
+        width="2731"
+        height="1973"
         loading="eager"
         fetchpriority="high"
-        alt="Background - Richard Narvaez profile"
+        alt=""
         class="absolute inset-0 size-full transform-gpu object-cover [backface-visibility:hidden] [will-change:transform,opacity,filter]"
         style="opacity: 0"
       />
@@ -254,7 +208,7 @@ const passportCountries = getVisitedCountries();
           Richard Narvaez - Creative Human - software, sketches and passport
         </h1>
 
-        <h2
+        <div
           class="font-barlow z-10 flex max-w-3xl origin-center scale-[0.70] flex-col text-center text-8xl font-extrabold sm:scale-[0.82] md:scale-[1.2]"
         >
           <span
@@ -318,11 +272,11 @@ const passportCountries = getVisitedCountries();
                   <p>AI</p>
                 </div>
               </div>
-              <h3
+              <p
                 class="relative z-50 mt-3 hidden rounded-md bg-gray-50 px-4 py-2 text-center text-xs font-semibold text-black md:block"
               >
                 Richard Vinueza
-              </h3>
+              </p>
             </div>
           </span>
 
@@ -343,15 +297,20 @@ const passportCountries = getVisitedCountries();
           >
             -
           </span>
-        </h2>
+        </div>
       </div>
     </div>
 
+    <!--
+      Sin aria-hidden estático: GSAP gestiona autoAlpha (visibility), que ya
+      retira la escena del árbol de accesibilidad mientras está oculta. Un
+      aria-hidden fijo dejaría los botones interactivos invisibles para AT
+      incluso cuando la escena es visible.
+    -->
     <div
       data-orbit-scene
-      aria-hidden="true"
       class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
-      style="opacity: 0"
+      style="opacity: 0; visibility: hidden"
     >
       <div class="absolute inset-0 flex items-center justify-center px-4">
         <div class="hero-orbit-field">
@@ -589,10 +548,8 @@ const passportCountries = getVisitedCountries();
                 </div>
               </div>
               <div data-orbit-meta class="hero-cluster-meta">
-                <p class="hero-cluster-meta__name">Richard Vinueza</p>
-                <p class="hero-cluster-meta__role mt-6">
-                  Product Engineer, Madrid - Spain
-                </p>
+                <p class="hero-cluster-meta__name">{siteName}</p>
+                <p class="hero-cluster-meta__role mt-6">{siteRole}</p>
               </div>
             </div>
           </div>
@@ -603,11 +560,6 @@ const passportCountries = getVisitedCountries();
             </div>
           </div>
 
-          <div
-            data-orbit-board-layer
-            class="hero-board-layer"
-            aria-hidden="true"
-          >
           <div
             data-orbit-passport-layer
             data-passport-reserved
@@ -642,6 +594,7 @@ const passportCountries = getVisitedCountries();
                           data-place-country={place.country}
                           data-place-code={place.code}
                           title={place.name}
+                          aria-label={`${place.name}, ${place.country}`}
                           style={`--marker-start:${gradient.start};--marker-end:${gradient.end};`}
                         ></button>
                       );
@@ -660,6 +613,7 @@ const passportCountries = getVisitedCountries();
                       data-lng={String(country.coordinates[0])}
                       data-lat={String(country.coordinates[1])}
                       title={country.name}
+                      aria-label={`Focus globe on ${country.name}`}
                       style={`z-index:${index + 1};`}
                     >
                       <span
@@ -701,7 +655,11 @@ const passportCountries = getVisitedCountries();
             </div>
           </div>
 
-
+          <div
+            data-orbit-board-layer
+            class="hero-board-layer"
+            aria-hidden="true"
+          >
             <div data-orbit-board-toolbar class="hero-board-toolbar">
               <button
                 type="button"
@@ -725,7 +683,7 @@ const passportCountries = getVisitedCountries();
                 </span>
                 <span>Back</span>
               </button>
-              <h3 data-orbit-board-title class="hero-board-title">Item</h3>
+              <h2 data-orbit-board-title class="hero-board-title">Item</h2>
             </div>
             <div data-orbit-board-panel class="hero-board-panel">
               <div data-orbit-board-default class="hero-board-development">
@@ -783,13 +741,19 @@ const passportCountries = getVisitedCountries();
     >
     </div>
 
-    <div data-hero-device-frame aria-hidden="true" class="hero-device-frame">
+    <!--
+      El marco no lleva aria-hidden: dentro están el pet interactivo y los
+      enlaces de contacto, que deben ser accesibles. Lo decorativo (SVG del
+      notch, rejilla de píxeles) se oculta individualmente.
+    -->
+    <div data-hero-device-frame class="hero-device-frame">
       <div data-hero-device-notch class="hero-device-top-shell">
         <svg
           data-hero-device-notch-svg
           viewBox="0 0 161 24"
           class="hero-device-top-shell__svg"
           preserveAspectRatio="xMidYMin meet"
+          aria-hidden="true"
         >
           <path
             data-hero-device-notch-path
@@ -919,35 +883,8 @@ const passportCountries = getVisitedCountries();
             aria-hidden="true"
           >
             <div
-              class="absolute inset-0 rounded-[0.4rem] bg-transparent"
+              class="relative flex h-full w-full flex-col justify-end gap-[0.8rem] px-[1rem] py-[0.8rem] md:gap-[1rem] md:px-[1.3rem] md:py-[1rem]"
             >
-            </div>
-            <!-- <div
-              class="pointer-events-none absolute inset-x-[0.7rem] top-[0.55rem] bottom-[0.55rem] rounded-[0.4rem] bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.07),transparent_28%),radial-gradient(circle_at_44%_38%,rgba(191,219,254,0.05),transparent_22%),linear-gradient(180deg,rgba(255,255,255,0.03),transparent)]"
-            >
-            </div> -->
-
-            <!-- <span
-              class="pointer-events-none absolute left-[0.55rem] top-[0.5rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
-            ></span> -->
-            <!-- <span
-              class="pointer-events-none absolute right-[0.55rem] top-[0.5rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
-            ></span> -->
-            <!-- <span
-              class="pointer-events-none absolute bottom-[0.5rem] left-[0.55rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
-            ></span> -->
-            <!-- <span
-              class="pointer-events-none absolute bottom-[0.5rem] right-[0.55rem] size-[0.3rem] rounded-full bg-white/90 shadow-[0_0_0_1px_rgba(15,23,42,0.18),0_0_6px_rgba(255,255,255,0.22)]"
-            ></span> -->
-
-            <div
-              class="relative flex h-full w-full flex-col justify-between gap-[0.8rem] px-[1rem] py-[0.8rem] md:gap-[1rem] md:px-[1.3rem] md:py-[1rem]"
-            >
-              <div
-                class="flex w-full items-start justify-start gap-[1rem] overflow-hidden"
-              >
-              </div>
-
               <div
                 class="flex w-full flex-col items-center gap-[0.7rem] md:gap-[0.95rem]"
               >
@@ -1031,7 +968,6 @@ const passportCountries = getVisitedCountries();
     --hero-device-croc-pixel-size: 2px;
     --hero-device-croc-pixel-gap: 1px;
     --hero-device-contact-trigger-padding-x: 0.58rem;
-    --hero-device-contact-trigger-padding-y: 0.24rem;
   }
 
   .font-barlow {
@@ -1128,11 +1064,6 @@ const passportCountries = getVisitedCountries();
     bottom: -0.45rem;
   }
 
-  .orbit-anchor {
-    position: absolute;
-    transform: translate(-50%, -50%);
-  }
-
   .icon-bubble {
     display: flex;
     width: 3rem;
@@ -1194,60 +1125,6 @@ const passportCountries = getVisitedCountries();
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-
-  .avatar-node {
-    display: flex;
-    width: 2.5rem;
-    height: 2.5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.22);
-  }
-
-  .reaction-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    border-radius: 9999px;
-    border: 1px solid rgba(226, 232, 240, 1);
-    background: white;
-    padding: 0.25rem 0.5rem;
-    color: #334155;
-    font-size: 11px;
-    font-weight: 500;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
-  }
-
-  .lucide-mini {
-    display: inline-flex;
-    width: 0.875rem;
-    height: 0.875rem;
-    color: #64748b;
-  }
-
-  .lucide-mini :global(svg) {
-    width: 100%;
-    height: 100%;
-  }
-
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    border-radius: 9999px;
-    border: 1px solid rgba(167, 243, 208, 1);
-    background: white;
-    padding: 0.25rem 0.625rem;
-    color: #047857;
-    font-size: 11px;
-    font-weight: 600;
-    box-shadow: 0 10px 24px rgba(16, 185, 129, 0.12);
   }
 
   .brand-cycle-bubble {
@@ -1334,13 +1211,6 @@ const passportCountries = getVisitedCountries();
     will-change: transform;
   }
 
-  .hero-orbit-node__face {
-    grid-area: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .hero-cluster-layer {
     position: absolute;
     inset: 0;
@@ -1410,8 +1280,7 @@ const passportCountries = getVisitedCountries();
     white-space: nowrap;
   }
 
-  .hero-cluster-meta__role,
-  .hero-cluster-meta__location {
+  .hero-cluster-meta__role {
     font-family: var(--font-jetbrains);
     font-size: 0.7rem;
     font-weight: 500;
@@ -1520,6 +1389,11 @@ const passportCountries = getVisitedCountries();
     display: block;
   }
 
+  /* display:flex ganaría al [hidden] del user-agent; restablecerlo aquí. */
+  .hero-passport-detail[hidden] {
+    display: none;
+  }
+
   .hero-passport-detail {
     position: absolute;
     left: 50%;
@@ -1589,18 +1463,6 @@ const passportCountries = getVisitedCountries();
     max-width: min(92vw, 34rem);
     margin-inline: auto;
     pointer-events: auto;
-  }
-
-  .hero-footer-card {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 1.75rem;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-      rgba(15, 23, 42, 0.34);
-    box-shadow:
-      0 28px 54px rgba(15, 23, 42, 0.24),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(18px);
   }
 
   .hero-board-layer {
@@ -1784,21 +1646,6 @@ const passportCountries = getVisitedCountries();
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  .hero-board-card--wide {
-    grid-column: span 1;
-  }
-
-  .hero-cluster-node {
-    position: absolute;
-    z-index: 10;
-    transform: translate(-50%, -50%);
-  }
-
-  .hero-cluster-node__inner {
-    transform: scale(var(--cluster-scale, 1));
-    transform-origin: center;
   }
 
   @keyframes animate-float {
@@ -2143,61 +1990,6 @@ const passportCountries = getVisitedCountries();
     transform: translateX(0);
   }
 
-  .hero-device-food-bracket {
-    color: #60a5fa;
-    font-size: 0.86rem;
-    line-height: 1;
-    flex: none;
-  }
-
-  .hero-device-food-list {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.32rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .hero-device-food-sprite {
-    display: grid;
-    grid-template-columns: repeat(var(--hero-device-food-columns), 1px);
-    grid-template-rows: repeat(var(--hero-device-food-rows), 1px);
-    gap: 1px;
-    flex: none;
-  }
-
-  .hero-device-food-pixel {
-    width: 1px;
-    height: 1px;
-    border-radius: 999px;
-    background: transparent;
-  }
-
-  .hero-device-food-pixel--active {
-    opacity: 1;
-  }
-
-  .hero-device-food-pixel--tone-deep {
-    background: #0f766e;
-  }
-
-  .hero-device-food-pixel--tone-sea {
-    background: #67e8f9;
-  }
-
-  .hero-device-food-pixel--tone-warm {
-    background: #f59e0b;
-  }
-
-  .hero-device-food-pixel--tone-coral {
-    background: #fb7185;
-  }
-
-  .hero-device-food-pixel--tone-glint {
-    background: #f8fafc;
-  }
-
   .hero-device-contact-glyph .hero-device-contact-link__svg {
     width: 100%;
     height: 100%;
@@ -2275,11 +2067,6 @@ const passportCountries = getVisitedCountries();
       gap: 0.06rem;
     }
 
-    .hero-device-status-icon {
-      width: 0.82rem;
-      height: 0.82rem;
-    }
-
     .hero-ai-cursor {
       left: -1.35rem;
       top: calc(0.62rem + 6px);
@@ -2324,8 +2111,7 @@ const passportCountries = getVisitedCountries();
       line-height: 0.96;
     }
 
-    .hero-cluster-meta__role,
-    .hero-cluster-meta__location {
+    .hero-cluster-meta__role {
       font-size: 0.65rem;
     }
 
@@ -2375,8 +2161,7 @@ const passportCountries = getVisitedCountries();
       gap: 0.85rem;
     }
 
-    .hero-board-card,
-    .hero-board-card--wide {
+    .hero-board-card {
       grid-column: span 1;
       min-height: 0;
     }
@@ -2391,7 +2176,11 @@ const passportCountries = getVisitedCountries();
 </style>
 
 <script>
-  import { initHeroOrbit } from "./hero.motion";
+  import { destroyHeroOrbit, initHeroOrbit } from "./hero.motion";
 
   initHeroOrbit();
+
+  // Si algún día se activan view transitions, liberar ScrollTriggers,
+  // listeners, timers, WebGL y AudioContext antes de reemplazar el DOM.
+  document.addEventListener("astro:before-swap", destroyHeroOrbit);
 </script>

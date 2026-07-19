@@ -1,12 +1,16 @@
 ---
 import "../styles/global.css"
+import { siteDescription, siteName, siteUrl } from "../site.config"
 
 interface Props {
   title?: string
+  description?: string
 }
 
-const { title = "Richard Vinueza" } = Astro.props
+const { title = siteName, description = siteDescription } = Astro.props
 const browserThemeColor = "#131222"
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site ?? siteUrl)
+const socialImageUrl = new URL("/images/cover.jpg", Astro.site ?? siteUrl)
 ---
 
 <!doctype html>
@@ -15,23 +19,51 @@ const browserThemeColor = "#131222"
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content={browserThemeColor} />
-    <meta
-      name="theme-color"
-      content={browserThemeColor}
-      media="(prefers-color-scheme: dark)"
-    />
-    <meta
-      name="theme-color"
-      content={browserThemeColor}
-      media="(prefers-color-scheme: light)"
-    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="generator" content={Astro.generator} />
+
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:site_name" content={siteName} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&display=swap"
+    />
+
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: siteName,
+        jobTitle: "Product Engineer",
+        url: siteUrl,
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Madrid",
+          addressCountry: "ES",
+        },
+      })}
+    />
   </head>
   <body class="min-h-screen text-neutral-100 antialiased">
     <slot />
