@@ -1,5 +1,6 @@
 ---
 import BlueprintSection from "../layout/BlueprintSection.astro"
+import BlueprintDivider from "../layout/BlueprintDivider.astro"
 import WorldDotMap from "./WorldDotMap.astro"
 import BrandMark from "../icons/BrandMark.astro"
 import LaurelAward from "../icons/LaurelAward.astro"
@@ -9,15 +10,16 @@ import { siteName, socialLinks } from "../../site.config"
 const certifications = ["google", "aws", "harvard", "hackerrank", "cisco", "linkedin"] as const
 
 const awards = [
-  { title: "Hackaton", detail: "1er Lugar Al Challenge", scope: "Nacional" },
-  { title: "Code Challenge", detail: "1er Lugar 2023", scope: "Regional" },
-  { title: "UISEK Hackaton", detail: "Finalistas 2022", scope: "Nacional" },
+  { title: "Hackathon", detail: "1st place, AI Challenge", scope: "National" },
+  { title: "Code Challenge", detail: "1st place, 2023", scope: "Regional" },
+  { title: "UISEK Hackathon", detail: "Finalists, 2022", scope: "National" },
 ]
 ---
 
-<BlueprintSection id="profile" class="profile" label="01 — perfil">
+<BlueprintSection id="profile" class="profile" label="01 — profile">
+  {/* Solo Américas + Europa/África por ahora: sin Asia hasta que haya viaje. */}
   <div class="profile__map" aria-hidden="true">
-    <WorldDotMap />
+    <WorldDotMap lonMin={-125} lonMax={40} latMin={-56} latMax={75} />
   </div>
 
   <div class="profile__content">
@@ -34,13 +36,7 @@ const awards = [
       />
     </div>
 
-    <h2 class="profile__name">
-      {siteName}
-      <span class="profile__badge" aria-label="Ecuador · España">
-        <span class="profile__badge-dot profile__badge-dot--ec"></span>
-        <span class="profile__badge-dot profile__badge-dot--es"></span>
-      </span>
-    </h2>
+    <h2 class="profile__name">{siteName}</h2>
 
     <ul class="profile__meta font-jetbrains">
       <li>
@@ -55,14 +51,14 @@ const awards = [
           <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
           <circle cx="12" cy="10" r="3"></circle>
         </svg>
-        US / EU / LATAM
+        EU / LATAM / CA <span class="profile__meta-note">(Work Permit)</span>
       </li>
     </ul>
 
     <p class="profile__bio">
-      Frontend Developer with several years of experience as a Freelancer.
-      Multiple certifications. Passionate about traveling and naturally curious.
-      Currently, I am focused on becoming a great leader and continuing to share.
+      Software Engineer with 5+ years of professional experience and 12+ years
+      programming. Passionate about traveling and naturally curious. Currently,
+      I am focused on becoming a great leader and continuing to share.
     </p>
 
     <h3 class="profile__eyebrow">Certifications &amp; rewards</h3>
@@ -87,6 +83,10 @@ const awards = [
     </div>
   </div>
 
+  <div class="profile__divider">
+    <BlueprintDivider />
+  </div>
+
   <ul class="profile__awards">
     {
       awards.map((award) => (
@@ -103,17 +103,38 @@ const awards = [
 </BlueprintSection>
 
 <style>
-  .profile {
-    overflow: hidden;
-  }
+  /*
+    Sin overflow en la sección a propósito: un `hidden` la convertiría en
+    contenedor de scroll y rompería la view-timeline del nombre. El mapa ya
+    va enmascarado y el desborde horizontal lo recorta body (global.css).
+  */
 
+  /*
+    Mapa anclado a la esquina superior derecha, arrancando justo en la unión
+    con el hero. Se desvanece hacia la izquierda y hacia abajo para que no
+    compita con el texto.
+  */
   .profile__map {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0; /* al ras del riel, no del gutter: evita un segundo borde vertical */
     z-index: 0;
-    opacity: 0.5;
-    mask-image: radial-gradient(ellipse at 62% 32%, black 12%, transparent 62%);
+    width: min(44%, 30rem);
+    aspect-ratio: 165 / 131; /* grados de la ventana pasada a WorldDotMap */
+    opacity: 0.85;
+    mask-image:
+      linear-gradient(to left, black 60%, transparent 100%),
+      linear-gradient(to top, transparent 0%, black 30%);
+    mask-composite: intersect;
     pointer-events: none;
+  }
+
+  /* En móvil queda detrás del texto: más tenue para no competir con él. */
+  @media (max-width: 640px) {
+    .profile__map {
+      width: 90%;
+      opacity: 0.4;
+    }
   }
 
   .profile__content {
@@ -160,38 +181,43 @@ const awards = [
     box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
   }
 
+  /*
+    Publica su posición como --profile-name (la consume StickyName) y, al
+    salir por arriba, se encoge y se apaga: la barra fija recoge el relevo.
+  */
   .profile__name {
-    display: flex;
-    align-items: center;
-    gap: 0.55rem;
     margin: 1.6rem 0 0;
+    font-family: var(--font-bellota);
     font-size: clamp(1.5rem, 3.4vw, 2rem);
     font-weight: 700;
     color: #fff;
+    view-timeline: --profile-name block;
+    transform-origin: top center;
+    animation: profileNameOut linear both;
+    animation-timeline: view();
+    /*
+      Se apaga mientras atraviesa la zona de la barra fija (5.5rem de alto):
+      empieza cuando su borde superior toca el borde inferior de la barra y
+      ha desaparecido un poco antes de llegar arriba.
+    */
+    animation-range: exit -5.5rem exit -0.75rem;
   }
 
-  .profile__badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.2rem 0.3rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.1);
+  @keyframes profileNameOut {
+    from {
+      scale: 1;
+      opacity: 1;
+    }
+    to {
+      scale: 0.5;
+      opacity: 0;
+    }
   }
 
-  .profile__badge-dot {
-    width: 0.85rem;
-    height: 0.85rem;
-    border-radius: 999px;
-    border: 1.5px solid rgba(15, 23, 42, 0.5);
-  }
-
-  .profile__badge-dot--ec {
-    background: linear-gradient(180deg, #ffd400 55%, #0b3d91 55% 78%, #d8102a 78%);
-  }
-
-  .profile__badge-dot--es {
-    margin-left: -0.35rem;
-    background: linear-gradient(180deg, #c60b1e 28%, #ffc400 28% 72%, #c60b1e 72%);
+  @supports not (animation-timeline: view()) {
+    .profile__name {
+      animation: none;
+    }
   }
 
   .profile__meta {
@@ -203,7 +229,7 @@ const awards = [
     padding: 0;
     list-style: none;
     font-size: 0.72rem;
-    color: rgba(226, 232, 240, 0.62);
+    color: rgb(var(--text-rgb) / 0.62);
   }
 
   .profile__meta li {
@@ -212,21 +238,27 @@ const awards = [
     gap: 0.4rem;
   }
 
+  /* Aclaración en tono más bajo: permiso de trabajo en las tres regiones. */
+  .profile__meta-note {
+    color: rgb(var(--text-rgb) / 0.4);
+  }
+
   .profile__bio {
     max-width: 40rem;
     margin: 1.9rem 0 0;
     font-size: 1.02rem;
     line-height: 1.65;
-    color: rgba(226, 232, 240, 0.78);
+    color: rgb(var(--text-rgb) / 0.78);
   }
 
   .profile__eyebrow {
     margin: 2.9rem 0 0;
+    font-family: var(--font-bellota);
     font-size: 0.82rem;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(226, 232, 240, 0.72);
+    color: rgb(var(--text-rgb) / 0.72);
   }
 
   .profile__certs {
@@ -255,46 +287,18 @@ const awards = [
     transform: translateY(-2px);
   }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.55rem;
-    padding: 0.62rem 1.15rem;
-    font-size: 0.86rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition:
-      transform 180ms ease,
-      background 180ms ease,
-      border-color 180ms ease;
-  }
-
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-
-  .btn--solid {
-    background: #fff;
-    color: #16151f;
-  }
-
-  .btn--ghost {
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  .btn--ghost:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-    background: rgba(255, 255, 255, 0.05);
-  }
-
   .profile__actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.7rem;
     margin-top: 2.1rem;
+  }
+
+  .profile__divider {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(3.5rem, 9vh, 6rem);
   }
 
   .profile__awards {
@@ -305,7 +309,7 @@ const awards = [
     justify-content: center;
     gap: 1.5rem 3.2rem;
     margin: 0;
-    padding: clamp(3.5rem, 9vh, 6rem) 0 clamp(3rem, 8vh, 5rem);
+    padding: clamp(2.5rem, 6vh, 4rem) 0 clamp(3rem, 8vh, 5rem);
     list-style: none;
   }
 
@@ -340,7 +344,7 @@ const awards = [
   .award__detail {
     margin: 0.15rem 0 0;
     font-size: 0.82rem;
-    color: rgba(226, 232, 240, 0.7);
+    color: rgb(var(--text-rgb) / 0.7);
   }
 
   .award__scope {
@@ -351,7 +355,7 @@ const awards = [
     padding: 0.12rem 0.5rem;
     font-size: 0.58rem;
     letter-spacing: 0.08em;
-    color: rgba(226, 232, 240, 0.62);
+    color: rgb(var(--text-rgb) / 0.62);
   }
 
   @media (max-width: 640px) {
