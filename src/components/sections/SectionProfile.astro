@@ -1,0 +1,367 @@
+---
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import WorldDotMap from "./WorldDotMap.astro"
+import BrandMark from "../icons/BrandMark.astro"
+import LaurelAward from "../icons/LaurelAward.astro"
+import { siteName, socialLinks } from "../../site.config"
+
+// Los seis logos vienen de IconsBusiness.tsx (rama v1), no son redibujos.
+const certifications = ["google", "aws", "harvard", "hackerrank", "cisco", "linkedin"] as const
+
+const awards = [
+  { title: "Hackaton", detail: "1er Lugar Al Challenge", scope: "Nacional" },
+  { title: "Code Challenge", detail: "1er Lugar 2023", scope: "Regional" },
+  { title: "UISEK Hackaton", detail: "Finalistas 2022", scope: "Nacional" },
+]
+---
+
+<BlueprintSection id="profile" class="profile" label="01 — perfil">
+  <div class="profile__map" aria-hidden="true">
+    <WorldDotMap />
+  </div>
+
+  <div class="profile__content">
+    <div class="profile__avatar">
+      <span class="profile__avatar-sheet profile__avatar-sheet--back" aria-hidden="true"></span>
+      <span class="profile__avatar-sheet profile__avatar-sheet--mid" aria-hidden="true"></span>
+      <img
+        src="/images/avatars/richard.jpg"
+        width="250"
+        height="250"
+        loading="lazy"
+        decoding="async"
+        alt={siteName}
+      />
+    </div>
+
+    <h2 class="profile__name">
+      {siteName}
+      <span class="profile__badge" aria-label="Ecuador · España">
+        <span class="profile__badge-dot profile__badge-dot--ec"></span>
+        <span class="profile__badge-dot profile__badge-dot--es"></span>
+      </span>
+    </h2>
+
+    <ul class="profile__meta font-jetbrains">
+      <li>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="13" rx="2"></rect>
+          <path d="M2 20h20"></path>
+        </svg>
+        Product Engineer
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        US / EU / LATAM
+      </li>
+    </ul>
+
+    <p class="profile__bio">
+      Frontend Developer with several years of experience as a Freelancer.
+      Multiple certifications. Passionate about traveling and naturally curious.
+      Currently, I am focused on becoming a great leader and continuing to share.
+    </p>
+
+    <h3 class="profile__eyebrow">Certifications &amp; rewards</h3>
+
+    <ul class="profile__certs">
+      {
+        certifications.map((name) => (
+          <li class="profile__cert">
+            <BrandMark name={name} class="profile__cert-mark" />
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="profile__actions">
+      <a class="btn btn--solid" href={socialLinks.linkedin} target="_blank" rel="noreferrer noopener">
+        See on Linkedin
+      </a>
+      <a class="btn btn--ghost" href={socialLinks.github} target="_blank" rel="noreferrer noopener">
+        Github
+      </a>
+    </div>
+  </div>
+
+  <ul class="profile__awards">
+    {
+      awards.map((award) => (
+        <li class="award">
+          <LaurelAward>
+            <p class="award__title">{award.title}</p>
+            <p class="award__detail">{award.detail}</p>
+            <span class="award__scope font-jetbrains">{award.scope}</span>
+          </LaurelAward>
+        </li>
+      ))
+    }
+  </ul>
+</BlueprintSection>
+
+<style>
+  .profile {
+    overflow: hidden;
+  }
+
+  .profile__map {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.5;
+    mask-image: radial-gradient(ellipse at 62% 32%, black 12%, transparent 62%);
+    pointer-events: none;
+  }
+
+  .profile__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-block: clamp(3.5rem, 9vh, 6rem) 0;
+  }
+
+  /* Avatar como pila de fotos ligeramente giradas. */
+  .profile__avatar {
+    position: relative;
+    width: 6rem;
+    height: 6rem;
+  }
+
+  .profile__avatar img,
+  .profile__avatar-sheet {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.1rem;
+    border: 3px solid #fff;
+    background: #fff;
+    object-fit: cover;
+  }
+
+  .profile__avatar-sheet--back {
+    transform: rotate(-9deg) translate(-6px, 2px);
+    opacity: 0.35;
+  }
+
+  .profile__avatar-sheet--mid {
+    transform: rotate(-4deg) translate(-3px, 1px);
+    opacity: 0.6;
+  }
+
+  .profile__avatar img {
+    transform: rotate(2deg);
+    box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+  }
+
+  .profile__name {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 1.6rem 0 0;
+    font-size: clamp(1.5rem, 3.4vw, 2rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .profile__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.3rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .profile__badge-dot {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(15, 23, 42, 0.5);
+  }
+
+  .profile__badge-dot--ec {
+    background: linear-gradient(180deg, #ffd400 55%, #0b3d91 55% 78%, #d8102a 78%);
+  }
+
+  .profile__badge-dot--es {
+    margin-left: -0.35rem;
+    background: linear-gradient(180deg, #c60b1e 28%, #ffc400 28% 72%, #c60b1e 72%);
+  }
+
+  .profile__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 1.4rem;
+    margin: 0.7rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.72rem;
+    color: rgba(226, 232, 240, 0.62);
+  }
+
+  .profile__meta li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .profile__bio {
+    max-width: 40rem;
+    margin: 1.9rem 0 0;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: rgba(226, 232, 240, 0.78);
+  }
+
+  .profile__eyebrow {
+    margin: 2.9rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.72);
+  }
+
+  .profile__certs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.4rem 2.6rem;
+    margin: 1.9rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* --brand-mark-size lo consume BrandMark; el color baja por currentColor. */
+  .profile__cert {
+    --brand-mark-size: 2.2rem;
+    display: flex;
+    color: rgba(255, 255, 255, 0.82);
+    transition:
+      color 200ms ease,
+      transform 200ms ease;
+  }
+
+  .profile__cert:hover {
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.55rem;
+    padding: 0.62rem 1.15rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      transform 180ms ease,
+      background 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn--solid {
+    background: #fff;
+    color: #16151f;
+  }
+
+  .btn--ghost {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .btn--ghost:hover {
+    border-color: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .profile__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 2.1rem;
+  }
+
+  .profile__awards {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem 3.2rem;
+    margin: 0;
+    padding: clamp(3.5rem, 9vh, 6rem) 0 clamp(3rem, 8vh, 5rem);
+    list-style: none;
+  }
+
+  .award {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .award__laurel {
+    width: 1.9rem;
+    height: 3.5rem;
+    flex: none;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .award__laurel--flip {
+    transform: scaleX(-1);
+  }
+
+  .award__body {
+    text-align: center;
+  }
+
+  .award__title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .award__detail {
+    margin: 0.15rem 0 0;
+    font-size: 0.82rem;
+    color: rgba(226, 232, 240, 0.7);
+  }
+
+  .award__scope {
+    display: inline-block;
+    margin-top: 0.35rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.12rem 0.5rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: rgba(226, 232, 240, 0.62);
+  }
+
+  @media (max-width: 640px) {
+    .profile__awards {
+      gap: 1.6rem;
+    }
+
+    .award__laurel {
+      width: 1.5rem;
+      height: 2.8rem;
+    }
+  }
+</style>

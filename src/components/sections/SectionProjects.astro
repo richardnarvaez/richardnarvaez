@@ -1,0 +1,247 @@
+---
+import BlueprintSection from "../layout/BlueprintSection.astro"
+
+// TODO(contenido): imágenes provisionales hasta tener las definitivas.
+const projects = [
+  {
+    id: "huma",
+    kind: "apps",
+    title: "A Visual Journey Through Stories From Around the World",
+    brand: "Huma Legends",
+    image: "/images/illustration/pic_1.jpg",
+    href: "https://huma.darkpixl.com",
+  },
+  {
+    id: "memory",
+    kind: "web",
+    title: "App Web de Aprendizaje para todas las edades",
+    brand: "Memory (MCS)",
+    image: "/images/illustration/pic_3.jpg",
+    href: null,
+  },
+  {
+    id: "udramo",
+    kind: "apps",
+    title: "Últimos lanzamientos",
+    brand: "UDRAMO",
+    image: "/images/illustration/pic_5.jpg",
+    href: null,
+  },
+]
+
+const filters = [
+  { id: "all", label: "Todos" },
+  { id: "apps", label: "Apps" },
+  { id: "web", label: "Web" },
+]
+---
+
+<BlueprintSection id="projects" class="projects" label="03 — trabajo" close={true}>
+  <div class="projects__head">
+    <h2 class="projects__title">Projects and Products</h2>
+    <p class="projects__subtitle">Lista de productos</p>
+  </div>
+
+  {/* Filtros sin JavaScript: radios ocultos + selectores de hermano. */}
+  <div class="projects__filter">
+    {
+      filters.map((f, i) => (
+        <input
+          type="radio"
+          name="project-filter"
+          id={`pf-${f.id}`}
+          class="projects__radio sr-only"
+          checked={i === 0}
+        />
+      ))
+    }
+
+    <div class="projects__chips">
+      {filters.map((f) => <label class="chip" for={`pf-${f.id}`}>{f.label}</label>)}
+    </div>
+
+    <ul class="projects__list">
+      {
+        projects.map((p) => (
+          <li class="project" data-kind={p.kind}>
+            <div class="project__thumb">
+              <img src={p.image} width="480" height="320" loading="lazy" decoding="async" alt="" />
+            </div>
+            <div class="project__body">
+              <h3 class="project__title">
+                {p.href ? (
+                  <a href={p.href} target="_blank" rel="noreferrer noopener">
+                    {p.title}
+                  </a>
+                ) : (
+                  p.title
+                )}
+              </h3>
+              <p class="project__brand font-jetbrains">{p.brand}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BlueprintSection>
+
+<style>
+  .projects__head {
+    text-align: center;
+    padding-block: clamp(3rem, 8vh, 5rem) 0;
+  }
+
+  .projects__title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .projects__subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 0.9rem;
+    color: rgba(226, 232, 240, 0.55);
+  }
+
+  .projects__chips {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 1.8rem 0 2.6rem;
+  }
+
+  .chip {
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.34rem 0.9rem;
+    font-size: 0.76rem;
+    color: rgba(226, 232, 240, 0.66);
+    cursor: pointer;
+    transition:
+      background 180ms ease,
+      color 180ms ease,
+      border-color 180ms ease;
+  }
+
+  .chip:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+  }
+
+  /* El radio marcado tiñe su etiqueta y filtra la lista. */
+  #pf-all:checked ~ .projects__chips label[for="pf-all"],
+  #pf-apps:checked ~ .projects__chips label[for="pf-apps"],
+  #pf-web:checked ~ .projects__chips label[for="pf-web"] {
+    background: #fff;
+    border-color: #fff;
+    color: #16151f;
+  }
+
+  #pf-apps:checked ~ .projects__list .project:not([data-kind="apps"]),
+  #pf-web:checked ~ .projects__list .project:not([data-kind="web"]) {
+    display: none;
+  }
+
+  .projects__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0 0 clamp(3rem, 8vh, 5rem);
+    list-style: none;
+  }
+
+  .project {
+    display: grid;
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.6rem;
+  }
+
+  /*
+    Alterna el lado de la miniatura. Hay que invertir también las columnas:
+    con solo `order`, la miniatura caía en la columna ancha y se disparaba
+    de tamaño.
+  */
+  .project:nth-child(even) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
+  }
+
+  .project:nth-child(even) .project__thumb {
+    order: 2;
+  }
+
+  .project:nth-child(even) .project__body {
+    text-align: right;
+  }
+
+  .project__thumb {
+    overflow: hidden;
+    border-radius: 0.9rem;
+    aspect-ratio: 3 / 2;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .project__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .project:hover .project__thumb img {
+    transform: scale(1.05);
+  }
+
+  .project__title {
+    margin: 0;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    font-weight: 700;
+    line-height: 1.35;
+    color: #fff;
+  }
+
+  .project__title a {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(var(--page-accent), var(--page-accent));
+    background-size: 0 1.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 260ms ease;
+  }
+
+  .project__title a:hover {
+    background-size: 100% 1.5px;
+  }
+
+  .project__brand {
+    margin: 0.45rem 0 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.5);
+  }
+
+  @media (max-width: 640px) {
+    .project {
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+    }
+
+    .project:nth-child(even) {
+      grid-template-columns: 1fr;
+    }
+
+    .project:nth-child(even) .project__thumb {
+      order: 0;
+    }
+
+    .project:nth-child(even) .project__body {
+      text-align: left;
+    }
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+import BlueprintSection from "../layout/BlueprintSection.astro"
+
+const stack = [
+  {
+    title: "NextJS 15",
+    body: "App Router, server actions y renderizado híbrido.",
+    icon: "n",
+  },
+  {
+    title: "React 19",
+    body: "Server components y el modelo de datos que traen.",
+    icon: "r",
+  },
+  {
+    title: "Backend",
+    body: "API REST y GraphQL sobre Node, con Postgres.",
+    icon: "b",
+  },
+  {
+    title: "Components",
+    body: "Sistemas de diseño accesibles y componibles.",
+    icon: "c",
+  },
+  {
+    title: "Authentication",
+    body: "Sesiones, OAuth y control de acceso por rol.",
+    icon: "a",
+  },
+  {
+    title: "Subscriptions",
+    body: "Pagos recurrentes, planes y facturación.",
+    icon: "s",
+  },
+]
+---
+
+<BlueprintSection id="stack" class="stack" label="05 — stack" divider={false}>
+  <div class="stack__head">
+    <h2 class="stack__title">Frameworks &amp; Tech</h2>
+    <p class="stack__lead">
+      Estas son las herramientas con las que trabajo a diario. No es una lista
+      de todo lo que existe, sino de lo que uso lo bastante como para conocer
+      sus bordes.
+    </p>
+  </div>
+
+  <ul class="stack__grid">
+    {
+      stack.map((item) => (
+        <li class="card">
+          <span class="card__icon font-jetbrains" aria-hidden="true">
+            {item.icon}
+          </span>
+          <h3 class="card__title">{item.title}</h3>
+          <p class="card__body">{item.body}</p>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="stack__logos">
+    <img
+      src="/images/IconsTech.png"
+      width="800"
+      height="800"
+      loading="lazy"
+      decoding="async"
+      alt=""
+    />
+  </div>
+</BlueprintSection>
+
+<style>
+  .stack__head {
+    text-align: center;
+    padding-block: clamp(3.5rem, 9vh, 5.5rem) 0;
+  }
+
+  .stack__title {
+    margin: 0;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .stack__lead {
+    max-width: 36rem;
+    margin: 0.8rem auto 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(226, 232, 240, 0.6);
+  }
+
+  /* Rejilla 3x2 fija: con auto-fit quedaban huecos vacíos al final. */
+  .stack__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 2.8rem 0 0;
+    padding: 0;
+    list-style: none;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 0.9rem;
+    overflow: hidden;
+  }
+
+  .card {
+    background: #16151f;
+    padding: 1.5rem 1.35rem;
+    transition: background 220ms ease;
+  }
+
+  .card:hover {
+    background: #1b1a26;
+  }
+
+  .card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .card__title {
+    margin: 0.9rem 0 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .card__body {
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: rgba(226, 232, 240, 0.55);
+  }
+
+  .stack__logos {
+    display: flex;
+    justify-content: center;
+    padding-block: 2.6rem clamp(3rem, 8vh, 4.5rem);
+  }
+
+  .stack__logos img {
+    width: min(100%, 34rem);
+    height: auto;
+    opacity: 0.9;
+  }
+</style>

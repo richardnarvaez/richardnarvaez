@@ -1,5 +1,6 @@
 ---
-import { siteName, siteRole, socialLinks } from "../site.config"
+import BlueprintSection from "./layout/BlueprintSection.astro"
+import { socialLinks } from "../site.config"
 import FooterSignature from "./footer/FooterSignature.astro"
 
 const resumeHref =
@@ -44,16 +45,9 @@ const skillGroups = [
 ]
 ---
 
-<section
-  id="main"
-  class="section-bento mx-auto w-full max-w-5xl px-8 py-16 lg:px-6"
->
-  <header class="mb-10 text-center">
-    <h2 class="text-4xl font-bold text-white sm:text-5xl">{siteName}</h2>
-    <p class="mt-3 text-sm font-medium uppercase tracking-[0.2em] text-white/50">
-      {siteRole}
-    </p>
-  </header>
+{/* El nombre y el rol viven en la sección de perfil, justo encima. */}
+<BlueprintSection id="main" class="section-bento" label="02 — atajos">
+  <div class="py-14">
 
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     <!-- Resume -->
@@ -291,7 +285,8 @@ const skillGroups = [
       </div>
     </div>
   </div>
-</section>
+  </div>
+</BlueprintSection>
 
 <dialog data-about-dialog class="about-dialog">
   <div class="about-dialog__inner">

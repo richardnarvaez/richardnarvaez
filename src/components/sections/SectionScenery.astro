@@ -1,0 +1,52 @@
+---
+// Franja a sangre: dos capas, montaña de fondo y tren con transparencia
+// encima. Va fuera del marco de plano a propósito — aquí el contenido deja
+// de estar acotado y el riel se interrumpe.
+//
+// TODO(assets): sustituir por las imágenes definitivas.
+//   fondo → /images/scenery/mountain.jpg
+//   frente → /images/scenery/train.png  (PNG con alfa)
+const background = "/images/home/bg-header-blur.jpg"
+---
+
+<section class="scenery" aria-hidden="true">
+  <div class="scenery__layer scenery__layer--back">
+    <img src={background} width="1600" height="900" loading="lazy" decoding="async" alt="" />
+  </div>
+
+  <div class="scenery__layer scenery__layer--front"></div>
+</section>
+
+<style>
+  .scenery {
+    position: relative;
+    width: 100%;
+    height: clamp(16rem, 34vw, 26rem);
+    overflow: hidden;
+    background: #1b1730;
+  }
+
+  .scenery__layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .scenery__layer--back img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+  }
+
+  /*
+    Capa del tren. Mientras no exista el PNG definitivo, un degradado
+    sostiene la composición: viñeta lateral y calidez baja, que es el papel
+    que hará la imagen con alfa.
+  */
+  .scenery__layer--front {
+    background:
+      radial-gradient(ellipse at 50% 62%, rgba(167, 139, 250, 0.22), transparent 58%),
+      linear-gradient(90deg, rgba(19, 18, 34, 0.95), transparent 22%, transparent 78%, rgba(19, 18, 34, 0.95)),
+      linear-gradient(180deg, var(--page-accent-surface), transparent 26%, transparent 74%, var(--page-accent-surface));
+  }
+</style>

@@ -1,14 +1,19 @@
 ---
-// Sección envuelta en el marco de plano técnico: rieles discontinuos a los
-// lados, divisor superior opcional y marcadores en las esquinas.
+// Sección dentro del marco de plano: rieles discontinuos a los lados,
+// divisor horizontal propio y marcadores en las esquinas superiores.
+//
+// Las secciones a sangre (franja de imagen, footer) no usan este componente:
+// así el riel se interrumpe donde el contenido deja de estar acotado.
 interface Props {
   id?: string
   class?: string
-  /** Línea discontinua de separación en el borde superior. */
+  /** Divisor horizontal en el borde superior. */
   divider?: boolean
+  /** Cierra el marco por abajo (usar en la última antes de una sección a sangre). */
+  close?: boolean
   /** Marcadores cuadrados en las esquinas. */
-  markers?: "none" | "top" | "bottom" | "all"
-  /** Etiqueta de la esquina, estilo anotación de plano. */
+  markers?: boolean
+  /** Anotación en la esquina, estilo plano técnico. */
   label?: string
 }
 
@@ -16,20 +21,35 @@ const {
   id,
   class: className,
   divider = true,
-  markers = "all",
+  close = false,
+  markers = true,
   label,
 } = Astro.props
-
-const showTop = markers === "top" || markers === "all"
-const showBottom = markers === "bottom" || markers === "all"
 ---
 
-<section id={id} class:list={["bp-section", className]} data-bp-divider={divider}>
+<section
+  id={id}
+  class:list={["bp-section", className]}
+  data-bp-divider={divider}
+  data-bp-close={close}
+>
   <div class="bp-inner">
-    {showTop && <span class="bp-marker bp-marker--tl" aria-hidden="true" />}
-    {showTop && <span class="bp-marker bp-marker--tr" aria-hidden="true" />}
-    {showBottom && <span class="bp-marker bp-marker--bl" aria-hidden="true" />}
-    {showBottom && <span class="bp-marker bp-marker--br" aria-hidden="true" />}
+    {
+      markers && divider && (
+        <>
+          <span class="bp-marker bp-marker--tl" aria-hidden="true" />
+          <span class="bp-marker bp-marker--tr" aria-hidden="true" />
+        </>
+      )
+    }
+    {
+      markers && close && (
+        <>
+          <span class="bp-marker bp-marker--bl" aria-hidden="true" />
+          <span class="bp-marker bp-marker--br" aria-hidden="true" />
+        </>
+      )
+    }
 
     {
       label && (
@@ -47,10 +67,11 @@ const showBottom = markers === "bottom" || markers === "all"
   .bp-label {
     position: absolute;
     left: var(--bp-gutter);
-    top: 0.75rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.18em;
+    top: 0.9rem;
+    margin: 0;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(148, 163, 184, 0.45);
+    color: rgba(148, 163, 184, 0.4);
   }
 </style>

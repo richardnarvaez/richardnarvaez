@@ -41,9 +41,15 @@ body {
 }
 
 /*
-  Marco de plano: dos rieles discontinuos acotan el ancho del contenido y se
-  leen como una línea continua al recorrer la página; los marcadores cuadrados
-  marcan las esquinas de cada sección.
+  Marco de plano.
+
+  Los rieles verticales viven en cada sección enmarcada: al apilarse, sus
+  bordes forman una línea continua de arriba abajo. Cada sección aporta
+  además su propio divisor horizontal superior.
+
+  Las secciones a sangre (la franja de imagen, el footer) simplemente no
+  usan .bp-inner, así que el riel se corta ahí — que es justo lo que se
+  quiere: el marco delimita el contenido, no la página entera.
 */
 .bp-section {
   position: relative;
@@ -61,6 +67,11 @@ body {
 
 .bp-section[data-bp-divider="true"] .bp-inner {
   border-top: 1px dashed var(--bp-line);
+}
+
+/* Cierra el marco cuando la siguiente sección va a sangre. */
+.bp-section[data-bp-close="true"] .bp-inner {
+  border-bottom: 1px dashed var(--bp-line);
 }
 
 .bp-marker {

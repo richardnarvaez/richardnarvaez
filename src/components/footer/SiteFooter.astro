@@ -25,7 +25,14 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
   <div data-footer-reveal={compact ? undefined : true}>
   <div class="flex items-center justify-center">
     <div class="relative flex">
-      <div class:list={["site-footer-signature", compact ? "text-white/88" : "text-white opacity-70"]}>
+      {
+        !compact && (
+          <span class="footer-wordmark" aria-hidden="true">
+            VINUEZA
+          </span>
+        )
+      }
+      <div class:list={["site-footer-signature relative z-10", compact ? "text-white/88" : "text-white opacity-70"]}>
         <FooterSignature />
       </div>
     </div>
@@ -109,6 +116,22 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
         animation-range: entry 5% entry 65%;
       }
     }
+  }
+
+  /* Apellido a gran escala detrás de la firma, casi al límite de lo legible. */
+  .footer-wordmark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    transform: translate(-50%, -50%);
+    font-size: clamp(4rem, 17vw, 13rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.045);
+    user-select: none;
   }
 
   @keyframes footerReveal {
