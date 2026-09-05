@@ -1,41 +1,25 @@
 ---
 import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
 import { socialLinks } from "../../site.config"
 ---
 
-<BlueprintSection id="open-source" class="oss" label="06 — código" close={true}>
+<BlueprintSection id="open-source" class="oss" label="06 — code" close={true}>
   <div class="oss__body">
-    <h2 class="oss__title">Open Source</h2>
-    <p class="oss__lead">
-      Este portafolio se construyó con software libre y está abierto a quien
-      quiera mirarlo por dentro. El código vive en
+    <SectionHeader title="Open Source">
+      This portfolio is built on open-source software and open to anyone who
+      wants to look under the hood. The code lives on
       <a href={socialLinks.github} target="_blank" rel="noreferrer noopener">GitHub</a>.
-    </p>
+    </SectionHeader>
   </div>
 </BlueprintSection>
 
 <style>
   .oss__body {
-    text-align: center;
     padding-block: clamp(3.5rem, 9vh, 5.5rem);
   }
 
-  .oss__title {
-    margin: 0;
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .oss__lead {
-    max-width: 34rem;
-    margin: 0.8rem auto 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: rgba(226, 232, 240, 0.58);
-  }
-
-  .oss__lead a {
+  .oss__body a {
     color: #fff;
     text-decoration: underline;
     text-underline-offset: 3px;
@@ -43,7 +27,7 @@ import { socialLinks } from "../../site.config"
     transition: text-decoration-color 200ms ease;
   }
 
-  .oss__lead a:hover {
+  .oss__body a:hover {
     text-decoration-color: var(--page-accent);
   }
 </style>
