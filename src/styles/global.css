@@ -8,6 +8,8 @@
 
   --page-accent-surface: #131222;
   --page-accent: #ff512f;
+  /* Azul del lienzo de Figma: bordes y tiradores de selección. */
+  --figma-select: #60a5fa;
 
   /* Retícula de plano técnico: rieles verticales, divisores y marcadores. */
   --bp-max: 68rem;

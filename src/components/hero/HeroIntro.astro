@@ -151,12 +151,16 @@ import { siteName } from "../../site.config"
     animation-delay: 0.24s;
   }
 
-  /* Caja de selección tipo Figma alrededor de "thinking...". */
+  /*
+    Selección tipo Figma: borde azul plano y tiradores blancos, igual que
+    en la versión original. El azul es el del lienzo, no el naranja de la
+    marca — el naranja se queda solo en el texto y el cursor.
+  */
   .hero__selection {
     position: relative;
     margin-top: 0.35em;
     padding: 0.1em 0.5em 0.18em;
-    border: 1.5px dashed rgba(255, 81, 47, 0.55);
+    border: 2px solid var(--figma-select);
     transform-origin: left center;
     animation: heroSelect 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
   }
@@ -165,8 +169,8 @@ import { siteName } from "../../site.config"
     position: absolute;
     width: 9px;
     height: 9px;
-    background: var(--page-accent-surface);
-    border: 1.5px solid var(--page-accent);
+    background: #fff;
+    border: 2px solid var(--figma-select);
   }
 
   .hero__handle--tl {
