@@ -1,7 +1,6 @@
 ---
 import ArrowFigma from "../icons/ArrowFigma.astro";
 import VercelColorIcon from "../icons/VercelColorIcon.astro";
-import SiteFooter from "../footer/SiteFooter.astro";
 import {
   projectVersionLabel,
   siteName,
@@ -21,7 +20,6 @@ import {
   heroOrbitProfileNodes,
   illustrationPreviewItems,
 } from "./hero.data";
-import { heroSequenceMotion } from "./hero.sequence";
 const instagramIconSvg =
   '<svg viewBox="0 0 24 24" width="18" height="18" class="hero-device-contact-link__svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>';
 const linkedinIconSvg =
@@ -554,12 +552,6 @@ const passportCountries = getVisitedCountries();
             </div>
           </div>
 
-          <div data-orbit-footer-layer class="hero-footer-layer">
-            <div data-orbit-footer-shell class="hero-footer-shell">
-              <SiteFooter compact={true} />
-            </div>
-          </div>
-
           <div
             data-orbit-passport-layer
             data-passport-reserved
@@ -944,7 +936,6 @@ const passportCountries = getVisitedCountries();
       data-story-step="Intro"
       aria-label="Header intro"
       class="hero-scroll-step"
-      style={`--hero-orbit-tail-px:${heroSequenceMotion.footer.orbitTailPx}px;`}
     >
       <h2 class="sr-only">Header intro</h2>
     </section>
@@ -1446,25 +1437,6 @@ const passportCountries = getVisitedCountries();
     text-transform: uppercase;
   }
 
-  .hero-footer-layer {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-    padding-inline: 1rem;
-  }
-
-  .hero-footer-shell {
-    display: flex;
-    justify-content: center;
-    width: fit-content;
-    max-width: min(92vw, 34rem);
-    margin-inline: auto;
-    pointer-events: auto;
-  }
-
   .hero-board-layer {
     position: absolute;
     left: 50%;
@@ -1686,7 +1658,7 @@ const passportCountries = getVisitedCountries();
 
   .hero-scroll-step {
     position: relative;
-    height: calc(470dvh + var(--hero-orbit-tail-px));
+    height: 210dvh;
   }
 
   [data-hero-stage] {
@@ -2132,10 +2104,6 @@ const passportCountries = getVisitedCountries();
       width: min(100%, 20rem);
     }
 
-    .hero-footer-shell {
-      max-width: min(94vw, 22rem);
-    }
-
     .hero-board-layer {
       padding: 4.5rem 0.75rem 1.5rem;
     }
@@ -2170,7 +2138,7 @@ const passportCountries = getVisitedCountries();
 
   @media (min-width: 768px) {
     .hero-scroll-step {
-      height: calc(520dvh + var(--hero-orbit-tail-px));
+      height: 195dvh;
     }
   }
 </style>

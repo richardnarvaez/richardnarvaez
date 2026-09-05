@@ -22,6 +22,7 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
   ]}
   style={compact ? "background: transparent;" : "background: var(--page-accent-surface);"}
 >
+  <div data-footer-reveal={compact ? undefined : true}>
   <div class="flex items-center justify-center">
     <div class="relative flex">
       <div class:list={["site-footer-signature", compact ? "text-white/88" : "text-white opacity-70"]}>
@@ -89,4 +90,52 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
       © richard vinueza - {currentYear} · {projectVersionLabel}
     </div>
   </div>
+  </div>
 </Tag>
+
+<script>
+  import { gsap } from "gsap"
+  import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+  gsap.registerPlugin(ScrollTrigger)
+
+  // Entrada de la firma ligada al scroll: mismo blur+fade+scale que tenía
+  // cuando era la fase final de la coreografía del hero. Sin JS el footer
+  // queda visible (el estado oculto se aplica aquí, no en el markup).
+  // Bajo prefers-reduced-motion NO se omite: al igual que el scrub del hero,
+  // se mapea directo a la posición de scroll (scrub: true, sin inercia).
+  const reveals = document.querySelectorAll<HTMLElement>("[data-footer-reveal]")
+  const scrubSmoothing = window.matchMedia("(prefers-reduced-motion: reduce)")
+    .matches
+    ? true
+    : 1
+
+  for (const el of reveals) {
+    const tween = gsap.fromTo(
+      el,
+      { autoAlpha: 0, y: 18, scale: 0.9, filter: "blur(18px)" },
+      {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+        ease: "none",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 96%",
+          end: "top 55%",
+          scrub: scrubSmoothing,
+        },
+      }
+    )
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => {
+        tween.scrollTrigger?.kill()
+        tween.kill()
+      },
+      { once: true }
+    )
+  }
+</script>

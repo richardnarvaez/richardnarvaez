@@ -1,6 +1,7 @@
 export const heroSequenceMotion = {
    intro: {
-      // All timing values below are in seconds.
+      // All timing values below are fractions of the intro timeline,
+      // mapped over `revealDistancePx` of scroll.
       // Intro scrub:
       // 1. Orbit scaffold fades in
       // 2. App/logo nodes appear
@@ -16,44 +17,25 @@ export const heroSequenceMotion = {
 
       // Fraction of the intro scrub where node reveal should feel complete.
       targetNodesCompleteAt: 0.24,
-      // Extra scroll distance after the last node appears.
-      holdAfterNodesPx: 28,
-      maxHoldAfterNodesProgress: 0.05,
-      // Local spacing between intro completion and collapse.
-      collapseHoldPx: 30,
-      // Direct knob for the collapse marker.
-      // Negative = earlier, positive = later.
-      collapseTriggerOffsetPx: -260,
+
+      // Scroll distance (px) the intro reveal occupies. Fixed so the reveal
+      // pace is independent of the spacer height: ~720px is roughly one
+      // viewport of scrolling (the original pre-bento feel).
+      revealDistancePx: 720,
       // Scroll distance between collapse and expanded profile.
       expandHoldPx: 360,
-      // Breathing room after passport trigger calculation.
+      // Breathing room after the profile hold.
       tailPx: 110,
    },
    passport: {
-      // Scroll distance between profile and the footer trigger.
-      startGapPx: 600,
-   },
-   footer: {
-      tailPx: 180,
-      // Final scroll where the signature stays visible while the orbit keeps rotating.
-      orbitTailPx: 350,
-      orbitTailRotation: 24,
+      // Scroll distance the profile holds before the pin releases into the bento.
+      startGapPx: 280,
    },
 } as const
 
-export function getHeroSequenceRuntime(introDistance: number, nodeCount: number) {
+export function getHeroSequenceRuntime() {
    const { intro, passport } = heroSequenceMotion
-   const nodesCompleteAt =
-      intro.nodeInStart + intro.nodeInDuration + Math.max(nodeCount - 1, 0) * intro.nodeInStagger
-   const holdAfterNodesCompensation = Math.max(intro.targetNodesCompleteAt - nodesCompleteAt, 0)
-   const holdAfterNodes =
-      holdAfterNodesCompensation +
-      Math.min(intro.holdAfterNodesPx / introDistance, intro.maxHoldAfterNodesProgress)
-   const titleOutStart = nodesCompleteAt + holdAfterNodes
-   const collapseStartPx =
-      Math.round(introDistance * titleOutStart) +
-      intro.collapseHoldPx +
-      intro.collapseTriggerOffsetPx
+   const collapseStartPx = intro.revealDistancePx
    const expandStartPx = collapseStartPx + intro.expandHoldPx
    const passportStartPx = expandStartPx + passport.startGapPx
 

@@ -1841,8 +1841,6 @@ export function initHeroOrbit() {
     const passportFrame = root.querySelector<HTMLElement>("[data-passport-globe-frame]")
     const passportToolbar = root.querySelector<HTMLElement>(".hero-passport-toolbar")
     const passportDetail = root.querySelector<HTMLElement>("[data-passport-detail]")
-    const footerLayer = root.querySelector<HTMLElement>("[data-orbit-footer-layer]")
-    const footerShell = root.querySelector<HTMLElement>("[data-orbit-footer-shell]")
     const introStep = root.querySelector<HTMLElement>('[data-story-step="Intro"]')
 
     const initOrbitNodeMagnetism = () => {
@@ -2107,8 +2105,6 @@ export function initHeroOrbit() {
       !passportFrame ||
       !passportToolbar ||
       !passportDetail ||
-      !footerLayer ||
-      !footerShell ||
       !introStep
     ) {
       continue
@@ -2297,7 +2293,7 @@ export function initHeroOrbit() {
           0.04
         )
         .to(
-          [clusterLayer, profileNodes, footerLayer],
+          [clusterLayer, profileNodes],
           {
             autoAlpha: 0,
             filter: "blur(10px)",
@@ -2397,7 +2393,7 @@ export function initHeroOrbit() {
           0.14
         )
         .to(
-          [profileNodes, footerLayer],
+          profileNodes,
           {
             autoAlpha: 1,
             filter: "blur(0px)",
@@ -2510,10 +2506,6 @@ export function initHeroOrbit() {
       gsap.set(passportDetail, {
         autoAlpha: 0,
       })
-      gsap.set(footerLayer, {
-        autoAlpha: 0,
-        pointerEvents: "none",
-      })
       gsap.set(boardLayer, {
         autoAlpha: 0,
         pointerEvents: "none",
@@ -2527,13 +2519,6 @@ export function initHeroOrbit() {
       gsap.set(boardPanel, {
         autoAlpha: 0,
         filter: "blur(10px)",
-        transformOrigin: "50% 50%",
-      })
-      gsap.set(footerShell, {
-        autoAlpha: 0,
-        scale: 0.9,
-        y: 18,
-        filter: "blur(18px)",
         transformOrigin: "50% 50%",
       })
       gsap.set(title, {
@@ -2585,19 +2570,11 @@ export function initHeroOrbit() {
     }
 
     const createIntroScrub = () => {
-      const introDistance = Math.max(introStep.offsetHeight, window.innerHeight)
-      const sequenceDistance = Math.max(
-        introDistance - heroSequenceMotion.footer.orbitTailPx,
-        window.innerHeight
-      )
       const { collapseStartPx, expandStartPx, passportStartPx } =
-        getHeroSequenceRuntime(sequenceDistance, originNodes.length)
-      const { intro, footer } = heroSequenceMotion
+        getHeroSequenceRuntime()
+      const { intro } = heroSequenceMotion
       const footerTriggerPx = passportStartPx
-      const heroFlowEndPx = Math.max(
-        sequenceDistance,
-        footerTriggerPx + footer.tailPx + intro.tailPx
-      )
+      const heroFlowEndPx = footerTriggerPx + intro.tailPx
 
       const syncNavPoints = () => {
         const rootTop = root.getBoundingClientRect().top + window.scrollY
@@ -2605,7 +2582,6 @@ export function initHeroOrbit() {
         root.dataset.navHomeY = String(Math.round(rootTop))
         root.dataset.navDevY = String(Math.round(rootTop + expandStartPx))
         delete root.dataset.navPassportY
-        root.dataset.navFooterY = String(Math.round(rootTop + footerTriggerPx))
         window.dispatchEvent(new CustomEvent("hero-nav-points"))
       }
 
@@ -2634,8 +2610,7 @@ export function initHeroOrbit() {
           id: "hero-orbit-rotation",
           trigger: root,
           start: "top top",
-          end: () =>
-            `top+=${heroFlowEndPx + footer.orbitTailPx} top`,
+          end: () => `top+=${heroFlowEndPx} top`,
           scrub: scrubSmoothing,
           invalidateOnRefresh: true,
           fastScrollEnd: true,
@@ -2657,11 +2632,6 @@ export function initHeroOrbit() {
           immediateRender: false,
         }
       )
-      orbitRotationTimeline.to(orbitGraphic, {
-        rotate: 135 + footer.orbitTailRotation,
-        duration: footer.orbitTailPx,
-        ease: "none",
-      })
 
       introTimeline.set(orbitScene, { pointerEvents: "auto" }, 0)
       const heroImageTween = gsap.fromTo(
@@ -2739,7 +2709,6 @@ export function initHeroOrbit() {
         Math.max(120, Math.round(expandAvailablePx * 0.28))
       )
       const profileHoldPx = Math.max(expandAvailablePx - expandMotionPx, 0)
-      const footerMotionPx = Math.max(heroFlowEndPx - footerTriggerPx, 1)
       const centerSwapStartPx = Math.max(
         Math.min(56, collapseSpanPx - 1),
         0
@@ -2779,18 +2748,6 @@ export function initHeroOrbit() {
         expandMotionPx
       )
       const expandMetaDurationPx = Math.max(expandMotionPx - expandMetaStartPx, 1)
-      const footerLayerOutDurationPx = Math.max(
-        Math.round(footerMotionPx * 0.42),
-        1
-      )
-      const footerShellInStartPx = Math.min(
-        Math.round(footerMotionPx * 0.08),
-        footerMotionPx
-      )
-      const footerShellInDurationPx = Math.max(
-        footerMotionPx - footerShellInStartPx,
-        1
-      )
 
       const flowTimeline = gsap.timeline({
         defaults: { ease: "none", overwrite: "auto" },
@@ -2933,62 +2890,6 @@ export function initHeroOrbit() {
         flowTimeline.to({}, { duration: profileHoldPx })
       }
 
-      const footerStartAt = expandStartAt + expandMotionPx + profileHoldPx
-
-      flowTimeline.to(
-        [clusterLayer, profileNodes],
-        {
-          autoAlpha: 0,
-          filter: "blur(12px)",
-          scale: 0.86,
-          duration: footerLayerOutDurationPx,
-          stagger: 0,
-        },
-        footerStartAt
-      )
-      flowTimeline.to(
-        orbitAvatar,
-        {
-          autoAlpha: 0,
-          y: 0,
-          scale: 0.86,
-          filter: "blur(12px)",
-          duration: footerLayerOutDurationPx,
-        },
-        footerStartAt
-      )
-      flowTimeline.to(
-        orbitMeta,
-        {
-          autoAlpha: 0,
-          y: 0,
-          scale: 0.86,
-          filter: "blur(12px)",
-          duration: footerLayerOutDurationPx,
-        },
-        footerStartAt
-      )
-      flowTimeline.to(
-        footerLayer,
-        {
-          autoAlpha: 1,
-          pointerEvents: "auto",
-          duration: 0.01,
-        },
-        footerStartAt
-      )
-      flowTimeline.to(
-        footerShell,
-        {
-          autoAlpha: 1,
-          y: 0,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: footerShellInDurationPx,
-        },
-        footerStartAt + footerShellInStartPx
-      )
-
       heroCleanupTasks.push(() => {
         introTimeline.scrollTrigger?.kill()
         introTimeline.kill()
@@ -3000,6 +2901,65 @@ export function initHeroOrbit() {
         flowTimeline.kill()
       })
     }
+
+    // En móvil el campo orbital es estrecho y alto, así que las posiciones
+    // autoradas (pensadas para desktop) quedan a distancias muy dispares del
+    // centro. Aquí se normalizan a un anillo de radio uniforme, conservando
+    // el orden angular original de cada logo. En desktop se restauran las
+    // posiciones autoradas tal cual.
+    const applyMobileOriginRing = () => {
+      const fieldWidth = orbitField.clientWidth
+      const fieldHeight = orbitField.clientHeight
+
+      if (!fieldWidth || !fieldHeight) return
+
+      for (const node of originNodes) {
+        node.dataset.originLeft ??= String(
+          getPercentFromInlineStyle(node, "left", 50)
+        )
+        node.dataset.originTop ??= String(
+          getPercentFromInlineStyle(node, "top", 50)
+        )
+      }
+
+      if (!isMobileOrbitViewport()) {
+        for (const node of originNodes) {
+          node.style.left = `${node.dataset.originLeft}%`
+          node.style.top = `${node.dataset.originTop}%`
+        }
+        return
+      }
+
+      const ringRadius = Math.min(fieldWidth, fieldHeight) * 0.38
+      const sorted = originNodes
+        .map((node) => {
+          const left = Number(node.dataset.originLeft)
+          const top = Number(node.dataset.originTop)
+
+          return {
+            node,
+            angle: Math.atan2(
+              ((top - 50) / 100) * fieldHeight,
+              ((left - 50) / 100) * fieldWidth
+            ),
+          }
+        })
+        .sort((a, b) => a.angle - b.angle)
+
+      sorted.forEach((entry, index) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / sorted.length
+        const leftPct = 50 + ((Math.cos(angle) * ringRadius) / fieldWidth) * 100
+        const topPct = 50 + ((Math.sin(angle) * ringRadius) / fieldHeight) * 100
+
+        entry.node.style.left = `${leftPct}%`
+        entry.node.style.top = `${topPct}%`
+      })
+    }
+
+    applyMobileOriginRing()
+    window.addEventListener("resize", applyMobileOriginRing, {
+      signal: heroSignal,
+    })
 
     prepareInitialState()
     createIntroScrub()
