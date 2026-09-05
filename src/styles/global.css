@@ -2,10 +2,19 @@
 
 :root {
   color-scheme: dark;
-  --font-barlow: "Barlow", sans-serif;
-  --font-playfair: "Playfair Display", serif;
-  --font-jetbrains: "JetBrains Mono", monospace;
+
+  --font-bellota: "Bellota Text", ui-rounded, system-ui, sans-serif;
+  --font-jetbrains: "JetBrains Mono", ui-monospace, monospace;
+
   --page-accent-surface: #131222;
+  --page-accent: #ff512f;
+
+  /* Retícula de plano técnico: rieles verticales, divisores y marcadores. */
+  --bp-max: 68rem;
+  --bp-gutter: 1.5rem;
+  --bp-line: rgba(148, 163, 184, 0.16);
+  --bp-marker: #2b2a45;
+  --bp-marker-size: 7px;
 }
 
 html {
@@ -17,9 +26,67 @@ body {
   margin: 0;
   background: var(--page-accent-surface);
   color: rgb(226 232 240);
+  font-family: var(--font-bellota);
   font-feature-settings:
     "rlig" 1,
     "calt" 1;
+}
+
+.font-bellota {
+  font-family: var(--font-bellota);
+}
+
+.font-jetbrains {
+  font-family: var(--font-jetbrains);
+}
+
+/*
+  Marco de plano: dos rieles discontinuos acotan el ancho del contenido y se
+  leen como una línea continua al recorrer la página; los marcadores cuadrados
+  marcan las esquinas de cada sección.
+*/
+.bp-section {
+  position: relative;
+  width: 100%;
+}
+
+.bp-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--bp-max);
+  margin-inline: auto;
+  padding-inline: var(--bp-gutter);
+  border-inline: 1px dashed var(--bp-line);
+}
+
+.bp-section[data-bp-divider="true"] .bp-inner {
+  border-top: 1px dashed var(--bp-line);
+}
+
+.bp-marker {
+  position: absolute;
+  width: var(--bp-marker-size);
+  height: var(--bp-marker-size);
+  background: var(--bp-marker);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.bp-marker--tl {
+  left: 0;
+  top: 0;
+}
+.bp-marker--tr {
+  left: 100%;
+  top: 0;
+}
+.bp-marker--bl {
+  left: 0;
+  top: 100%;
+}
+.bp-marker--br {
+  left: 100%;
+  top: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {

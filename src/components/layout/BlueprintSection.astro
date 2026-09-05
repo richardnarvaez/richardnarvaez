@@ -1,0 +1,56 @@
+---
+// Sección envuelta en el marco de plano técnico: rieles discontinuos a los
+// lados, divisor superior opcional y marcadores en las esquinas.
+interface Props {
+  id?: string
+  class?: string
+  /** Línea discontinua de separación en el borde superior. */
+  divider?: boolean
+  /** Marcadores cuadrados en las esquinas. */
+  markers?: "none" | "top" | "bottom" | "all"
+  /** Etiqueta de la esquina, estilo anotación de plano. */
+  label?: string
+}
+
+const {
+  id,
+  class: className,
+  divider = true,
+  markers = "all",
+  label,
+} = Astro.props
+
+const showTop = markers === "top" || markers === "all"
+const showBottom = markers === "bottom" || markers === "all"
+---
+
+<section id={id} class:list={["bp-section", className]} data-bp-divider={divider}>
+  <div class="bp-inner">
+    {showTop && <span class="bp-marker bp-marker--tl" aria-hidden="true" />}
+    {showTop && <span class="bp-marker bp-marker--tr" aria-hidden="true" />}
+    {showBottom && <span class="bp-marker bp-marker--bl" aria-hidden="true" />}
+    {showBottom && <span class="bp-marker bp-marker--br" aria-hidden="true" />}
+
+    {
+      label && (
+        <p class="bp-label font-jetbrains" aria-hidden="true">
+          {label}
+        </p>
+      )
+    }
+
+    <slot />
+  </div>
+</section>
+
+<style>
+  .bp-label {
+    position: absolute;
+    left: var(--bp-gutter);
+    top: 0.75rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(148, 163, 184, 0.45);
+  }
+</style>

@@ -1,0 +1,634 @@
+---
+// PET DEL NOTCH — código conservado, no montado en ninguna página.
+//
+// Para revivirlo: importar este componente en un layout/página. El módulo de
+// movimiento (./notch.motion.ts) es autocontenido — solo depende de gsap.
+//
+// El panel desplegable conserva el mecanismo de expansión (es lo que revela
+// el rail de comida), pero ya no lleva enlaces sociales: esos viven ahora en
+// el bento y en la sección de perfil.
+import { projectVersionLabel } from "../../site.config"
+
+const notchIdleRows = [
+  "033300000000",
+  "300003330000",
+  "333343303333",
+  "333333333333",
+  "003200003200",
+  "003320003320",
+] as const;
+
+const notchPixels = notchIdleRows.flatMap((row, rowIndex) =>
+  Array.from(row).map((tone, columnIndex) => ({
+    row: rowIndex,
+    column: columnIndex,
+    tone,
+    active: tone !== "0",
+    delay: (rowIndex * row.length + columnIndex) * 0.028,
+  })),
+);
+
+function buildSprite(rows: readonly string[]) {
+  return {
+    columns: rows[0]?.length ?? 0,
+    rows: rows.length,
+    pixels: rows.flatMap((row, rowIndex) =>
+      Array.from(row).map((tone, columnIndex) => ({
+        row: rowIndex,
+        column: columnIndex,
+        tone,
+        active: tone !== "0",
+      })),
+    ),
+  };
+}
+
+// Paleta LED por tono ("0" = apagado) para los sprites de comida del pet.
+const animalToneColors: Record<string, string> = {
+  "1": "#38bdf8",
+  "2": "#7dd3fc",
+  "3": "#f59e0b",
+  "4": "#f472b6",
+  "5": "#f8fafc",
+  "6": "#94a3b8",
+  "7": "#fbcfe8",
+  "8": "#fb7185",
+  "9": "#0f172a",
+};
+
+function toLedStyle(tone: string, palette: Record<string, string>) {
+  const color = palette[tone];
+  return color ? `background:${color};` : "";
+}
+
+const foodItems = [
+  {
+    id: "pig",
+    label: "Pig",
+    sprite: buildSprite([
+      "087777777780",
+      "877777777778",
+      "877977779778",
+      "077444444770",
+      "077494494770",
+      "007444444700",
+    ]),
+  },
+  {
+    id: "fish",
+    label: "Fish",
+    sprite: buildSprite([
+      "000111000010",
+      "001111100110",
+      "110441111111",
+      "011433113311",
+      "113111100110",
+      "001111000010",
+    ]),
+  },
+  {
+    id: "goose",
+    label: "Goose",
+    sprite: buildSprite([
+      "000666600000",
+      "006055560000",
+      "333556555560",
+      "333556665560",
+      "006555555600",
+      "000666660000",
+    ]),
+  },
+] as const;
+
+const contactBoardAnimals = foodItems.map((item) => ({
+  ...item,
+  columns: item.sprite.columns,
+  rows: item.sprite.rows,
+  pixels: item.sprite.pixels.map((pixel) => ({
+    ...pixel,
+    ledStyle: toLedStyle(pixel.tone, animalToneColors),
+  })),
+}));
+---
+
+    <div data-hero-device-frame class="hero-device-frame">
+      <div data-hero-device-notch class="hero-device-top-shell">
+        <svg
+          data-hero-device-notch-svg
+          viewBox="0 0 161 24"
+          class="hero-device-top-shell__svg"
+          preserveAspectRatio="xMidYMin meet"
+          aria-hidden="true"
+        >
+          <path
+            data-hero-device-notch-path
+            d="M0 0V2.01331H12.1115C16.5298 2.01331 20.1115 5.59504 20.1115 10.0133V15.3078C20.1115 19.7261 23.6932 23.3078 28.1115 23.3078H135.146C139.565 23.3078 143.146 19.7261 143.146 15.3078V10.0133C143.146 5.59503 146.728 2.01331 151.146 2.01331H160.892V0H0Z"
+            fill="var(--page-accent-surface)"></path>
+        </svg>
+        <div class="hero-device-top-shell__content">
+          <div class="hero-device-top-shell__row">
+            <div class="hero-device-top-shell__lead justify-between">
+              <div class="flex items-center gap-[0.42rem]">
+                <div
+                  data-notch-sprite
+                  class="hero-device-pixel-grid"
+                  data-notch-mode="ambient"
+                  aria-hidden="true"
+                >
+                  {
+                    notchPixels.map((pixel) => (
+                      <span
+                        class:list={[
+                          "hero-device-pixel",
+                          pixel.active && "hero-device-pixel--active",
+                          pixel.tone === "1" && "hero-device-pixel--tone-1",
+                          pixel.tone === "2" && "hero-device-pixel--tone-2",
+                          pixel.tone === "3" && "hero-device-pixel--tone-3",
+                          pixel.tone === "4" && "hero-device-pixel--tone-eye",
+                          pixel.tone === "5" &&
+                            "hero-device-pixel--tone-tongue",
+                          pixel.tone === "8" &&
+                            "hero-device-pixel--tone-eye-alert",
+                        ]}
+                        data-notch-pixel
+                        data-notch-row={pixel.row}
+                        data-notch-column={pixel.column}
+                        style={`--pixel-delay:${pixel.delay}s;`}
+                      />
+                    ))
+                  }
+                </div>
+                <div class="hero-device-top-shell__identity">
+                  <span
+                    class="hero-device-top-shell__identity-divider"
+                    aria-hidden="true">|</span
+                  >
+                  <div class="hero-device-contact-meta">
+                    <span class="hero-device-contact-name"
+                      >Interactive Pet (<span data-notch-food-counter>0</span
+                      >/3)</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="hero-device-food-rail pr-2">
+                {
+                  contactBoardAnimals.map((creature) => (
+                    <button
+                      type="button"
+                      class="inline-flex cursor-pointer border-0 bg-transparent p-0 items-center justify-center focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-sky-200/70"
+                      data-notch-food-item
+                      title={creature.label}
+                      aria-label={`Feed ${creature.label} to Coco`}
+                    >
+                      <div
+                        class="grid gap-[var(--hero-device-croc-pixel-gap)] [grid-template-columns:repeat(var(--contact-board-columns),var(--hero-device-croc-pixel-size))] [grid-template-rows:repeat(var(--contact-board-rows),var(--hero-device-croc-pixel-size))]"
+                        style={`--contact-board-columns:${creature.columns};--contact-board-rows:${creature.rows};`}
+                        aria-hidden="true"
+                      >
+                        {creature.pixels.map((pixel) => (
+                          <span
+                            class:list={[
+                              "rounded-full w-[var(--hero-device-croc-pixel-size)] h-[var(--hero-device-croc-pixel-size)]",
+                              pixel.active ? "" : "bg-transparent",
+                            ]}
+                            style={`grid-row:${pixel.row + 1};grid-column:${pixel.column + 1};${pixel.ledStyle}`}
+                          />
+                        ))}
+                      </div>
+                    </button>
+                  ))
+                }
+              </div>
+            </div>
+
+            <div class="ml-auto flex shrink-0 items-center gap-[0.52rem]">
+              <button
+                type="button"
+                data-notch-contact-trigger
+                class="hero-device-contact-trigger relative z-[1] inline-flex max-w-[10rem] flex-none cursor-pointer overflow-hidden whitespace-nowrap rounded-full bg-[linear-gradient(180deg,rgba(15,23,42,0.42),rgba(15,23,42,0.18)),rgba(15,23,42,0.08)] px-2 py-[3px] text-slate-50 shadow-[0_8px_18px_rgba(2,6,23,0.18)] transition-all duration-200 ease-out hover:bg-[linear-gradient(180deg,rgba(30,41,59,0.52),rgba(15,23,42,0.2)),rgba(15,23,42,0.1)] hover:text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-sky-200/70"
+                aria-label="Open pet panel"
+                aria-controls="hero-device-contact-panel"
+                aria-expanded="false"
+              >
+                <span
+                  class="hero-device-contact-trigger__state relative inline-flex w-max items-center gap-[0.52rem] transition duration-200 ease-out"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="text-[0.5rem] font-[650] tracking-[0.01em] text-current md:text-[0.56rem]"
+                  >
+                    Feed
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="hero-device-contact-panel"
+            data-notch-contact-panel
+            class="hero-device-contact-panel relative block w-full overflow-hidden"
+            aria-hidden="true"
+          >
+            <div
+              class="relative flex h-full w-full flex-col justify-end gap-[0.8rem] px-[1rem] py-[0.8rem] md:gap-[1rem] md:px-[1.3rem] md:py-[1rem]"
+            >
+              <div class="flex w-full flex-col items-center gap-[0.7rem]">
+                <div
+                  class="inline-flex items-center gap-[0.32rem] rounded-full bg-black/18 px-[0.7rem] py-[0.38rem] font-jetbrains text-[0.42rem] font-medium tracking-[0.1em] text-white/58 backdrop-blur-[2px] md:gap-[0.38rem] md:px-[0.9rem] md:py-[0.46rem] md:text-[0.48rem]"
+                >
+                  <span class="text-white/42">Version</span>
+                  <span class="text-white/82">{projectVersionLabel}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<style>
+  :root {
+    --hero-device-bezel: 5px;
+    --hero-device-radius: 28px;
+    --hero-device-top-shell-height: clamp(2.35rem, 5.4vw, 2.95rem);
+    --hero-device-notch-overlap: 4px;
+    --hero-device-notch-content-left: 28px;
+    --hero-device-notch-content-right: 26px;
+    --hero-device-notch-content-top: 2px;
+    --hero-device-notch-content-bottom: 1px;
+    --hero-device-notch-content-left-open: 38px;
+    --hero-device-notch-content-right-open: 38px;
+    --hero-device-notch-content-top-open: 6px;
+    --hero-device-notch-content-bottom-open: 6px;
+    --hero-device-croc-pixel-size: 2px;
+    --hero-device-croc-pixel-gap: 1px;
+    --hero-device-contact-trigger-padding-x: 0.58rem;
+
+  .font-jetbrains {
+    font-family: var(--font-jetbrains);
+  }
+
+  .hero-device-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    overflow: hidden;
+    border-top: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-left: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-right: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-bottom: var(--hero-device-bezel) solid var(--page-accent-surface);
+    border-radius: var(--hero-device-radius);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+  }
+
+  .hero-device-top-shell {
+    --hero-device-notch-hover-scale: 1;
+    --hero-device-notch-intro-scale: 1;
+    --hero-device-notch-shadow-y: 0;
+    --hero-device-notch-shadow-blur: 0;
+    --hero-device-notch-shadow-alpha: 0;
+    position: absolute;
+    left: 50%;
+    top: calc(var(--hero-device-notch-overlap) * -0.5);
+    z-index: 1;
+    height: var(--hero-device-top-shell-height);
+    aspect-ratio: 161 / 24;
+    pointer-events: auto;
+    cursor: default;
+    transform: translateX(-50%)
+      scale(
+        calc(
+          var(--hero-device-notch-hover-scale) *
+            var(--hero-device-notch-intro-scale)
+        )
+      );
+    transform-origin: center top;
+    will-change: width, height, transform;
+  }
+
+  .hero-device-top-shell__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(
+      0 calc(var(--hero-device-notch-shadow-y) * 1px)
+        calc(var(--hero-device-notch-shadow-blur) * 1px)
+        rgba(2, 6, 23, var(--hero-device-notch-shadow-alpha))
+    );
+  }
+
+  .hero-device-top-shell__content {
+    position: absolute;
+    left: var(--hero-device-notch-content-left);
+    right: var(--hero-device-notch-content-right);
+    top: var(--hero-device-notch-content-top);
+    bottom: var(--hero-device-notch-content-bottom);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    color: #60a5fa;
+    overflow: hidden;
+    pointer-events: none;
+    transition:
+      left 220ms ease,
+      right 220ms ease,
+      top 220ms ease,
+      bottom 220ms ease;
+  }
+
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-top-shell__content {
+    left: var(--hero-device-notch-content-left-open);
+    right: var(--hero-device-notch-content-right-open);
+    top: var(--hero-device-notch-content-top-open);
+    bottom: var(--hero-device-notch-content-bottom-open);
+  }
+
+  .hero-device-top-shell__row {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    min-height: 1rem;
+  }
+
+  .hero-device-top-shell__lead {
+    display: flex;
+    align-items: center;
+    gap: 0.42rem;
+    padding-left: var(--hero-device-contact-trigger-padding-x);
+    min-width: 0;
+    flex: 1 1 auto;
+    will-change: transform, filter, opacity;
+  }
+
+  .hero-device-top-shell__identity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    min-width: 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    filter: blur(6px);
+    transform: translateX(-6px);
+    transition:
+      max-width 220ms ease,
+      opacity 180ms ease,
+      filter 220ms ease,
+      transform 220ms ease;
+  }
+
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-top-shell__identity {
+    max-width: 14rem;
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+  }
+
+  .hero-device-top-shell__identity-divider {
+    color: rgba(148, 163, 184, 0.75);
+    font-size: 0.8rem;
+    line-height: 1;
+    flex: none;
+  }
+
+  .hero-device-pixel-grid {
+    --hero-device-heart-color: #ef4444;
+    --hero-device-heart-glow: rgba(239, 68, 68, 0.18);
+    --hero-device-heart-glow-strong: rgba(248, 113, 113, 0.42);
+    display: grid;
+    grid-template-columns: repeat(12, var(--hero-device-croc-pixel-size));
+    grid-template-rows: repeat(6, var(--hero-device-croc-pixel-size));
+    gap: var(--hero-device-croc-pixel-gap);
+    width: calc(
+      12 * var(--hero-device-croc-pixel-size) + 11 *
+        var(--hero-device-croc-pixel-gap)
+    );
+    height: calc(
+      6 * var(--hero-device-croc-pixel-size) + 5 *
+        var(--hero-device-croc-pixel-gap)
+    );
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .hero-device-pixel {
+    width: var(--hero-device-croc-pixel-size);
+    height: var(--hero-device-croc-pixel-size);
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .hero-device-pixel--active {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-device-pixel-grid[data-notch-mode="fed"] .hero-device-pixel--active,
+  .hero-device-pixel-grid[data-notch-mode="fed-amber"]
+    .hero-device-pixel--active {
+    animation: heroPixelPulse 1.05s ease-in-out infinite;
+    animation-delay: var(--pixel-delay, 0s);
+  }
+
+  .hero-device-pixel-grid[data-notch-mode="fed"] {
+    --hero-device-heart-color: #ef4444;
+    --hero-device-heart-glow: rgba(239, 68, 68, 0.22);
+    --hero-device-heart-glow-strong: rgba(248, 113, 113, 0.52);
+  }
+
+  .hero-device-pixel-grid[data-notch-mode="fed-amber"] {
+    --hero-device-heart-color: #f59e0b;
+    --hero-device-heart-glow: rgba(245, 158, 11, 0.28);
+    --hero-device-heart-glow-strong: rgba(251, 191, 36, 0.6);
+  }
+
+  .hero-device-pixel--tone-1 {
+    background: #166534;
+    box-shadow: 0 0 4px rgba(34, 197, 94, 0.16);
+  }
+
+  .hero-device-pixel--tone-2 {
+    background: #22c55e;
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.28);
+  }
+
+  .hero-device-pixel--tone-3 {
+    background: #4ade80;
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.36);
+  }
+
+  .hero-device-pixel--tone-eye {
+    background: #bbf7d0;
+    box-shadow: 0 0 4px rgba(187, 247, 208, 0.22);
+  }
+
+  .hero-device-pixel--tone-eye-alert {
+    background: #ef4444;
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.22);
+  }
+
+  .hero-device-pixel--tone-tongue {
+    background: var(--hero-device-heart-color);
+    box-shadow: 0 0 4px var(--hero-device-heart-glow);
+  }
+
+  .hero-device-pixel-grid[data-notch-mode="fed"]
+    .hero-device-pixel--tone-tongue,
+  .hero-device-pixel-grid[data-notch-mode="fed-amber"]
+    .hero-device-pixel--tone-tongue {
+    animation: heroHeartGlow 1.05s ease-in-out infinite;
+  }
+
+  .hero-device-top-shell[data-contact-open="true"]
+    .hero-device-contact-trigger {
+    max-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    box-shadow: none;
+  }
+
+  .hero-device-contact-panel {
+    height: 0;
+    max-height: none;
+    margin-top: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+  }
+
+  .hero-device-contact-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.42rem;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .hero-device-contact-name {
+    font-family: inherit;
+    font-size: 0.56rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #eff6ff;
+    text-shadow: 0 0 8px rgba(191, 219, 254, 0.18);
+    white-space: nowrap;
+  }
+
+  .hero-device-food-rail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translateX(6px);
+    transition:
+      max-width 220ms ease,
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  .hero-device-top-shell[data-contact-open="true"] .hero-device-food-rail {
+    max-width: 10rem;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .hero-device-contact-glyph .hero-device-contact-link__svg {
+    width: 100%;
+    height: 100%;
+    flex: none;
+    display: block;
+  }
+
+  @keyframes heroPixelPulse {
+    0%,
+    100% {
+      opacity: 0.58;
+      transform: scale(0.9);
+      filter: brightness(1);
+    }
+
+    45% {
+      opacity: 1;
+      transform: scale(1.08);
+      filter: brightness(1.4);
+    }
+  }
+
+  @keyframes heroHeartGlow {
+    0%,
+    100% {
+      box-shadow: 0 0 4px var(--hero-device-heart-glow);
+    }
+
+    45% {
+      box-shadow: 0 0 10px var(--hero-device-heart-glow-strong);
+    }
+  }
+
+
+  @media (max-width: 767px) {
+    :root {
+      --hero-device-radius: 28px;
+      --hero-device-top-shell-height: 2.45rem;
+      --hero-device-notch-overlap: 4px;
+      --hero-device-notch-content-left-open: 30px;
+      --hero-device-notch-content-right-open: 30px;
+      --hero-device-notch-content-top-open: 5px;
+      --hero-device-notch-content-bottom-open: 5px;
+      --hero-device-croc-pixel-size: 2px;
+    }
+
+    .hero-device-top-shell__content {
+      left: 24px;
+      right: 22px;
+    }
+
+    .hero-device-contact-meta {
+      gap: 0.42rem;
+    }
+
+    .hero-device-top-shell[data-contact-open="true"]
+      .hero-device-top-shell__identity {
+      max-width: 11rem;
+    }
+
+    .hero-device-top-shell[data-contact-open="true"] .hero-device-food-rail {
+      max-width: 8rem;
+    }
+
+    .hero-device-contact-name {
+      font-size: 0.48rem;
+    }
+
+    .hero-device-pixel-grid {
+      gap: 0.06rem;
+    }
+
+  }
+</style>
+
+<script>
+  import { initNotchPet } from "./notch.motion"
+
+  initNotchPet()
+</script>

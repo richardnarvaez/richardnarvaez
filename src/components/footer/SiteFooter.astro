@@ -93,49 +93,34 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
   </div>
 </Tag>
 
-<script>
-  import { gsap } from "gsap"
-  import { ScrollTrigger } from "gsap/ScrollTrigger"
+<style>
+  /*
+    Entrada de la firma ligada al scroll — el mismo blur+fade+scale que tenía
+    como fase final de la coreografía del hero, ahora en CSS puro: cero JS.
 
-  gsap.registerPlugin(ScrollTrigger)
-
-  // Entrada de la firma ligada al scroll: mismo blur+fade+scale que tenía
-  // cuando era la fase final de la coreografía del hero. Sin JS el footer
-  // queda visible (el estado oculto se aplica aquí, no en el markup).
-  // Bajo prefers-reduced-motion NO se omite: al igual que el scrub del hero,
-  // se mapea directo a la posición de scroll (scrub: true, sin inercia).
-  const reveals = document.querySelectorAll<HTMLElement>("[data-footer-reveal]")
-  const scrubSmoothing = window.matchMedia("(prefers-reduced-motion: reduce)")
-    .matches
-    ? true
-    : 1
-
-  for (const el of reveals) {
-    const tween = gsap.fromTo(
-      el,
-      { autoAlpha: 0, y: 18, scale: 0.9, filter: "blur(18px)" },
-      {
-        autoAlpha: 1,
-        y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-        ease: "none",
-        scrollTrigger: {
-          trigger: el,
-          start: "top 96%",
-          end: "top 55%",
-          scrub: scrubSmoothing,
-        },
+    Donde no hay soporte de scroll-driven animations el footer se ve normal,
+    que es el estado correcto; el efecto es un adorno, no información.
+  */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      [data-footer-reveal] {
+        animation: footerReveal linear both;
+        animation-timeline: view();
+        animation-range: entry 5% entry 65%;
       }
-    )
-
-    document.addEventListener(
-      "astro:before-swap",
-      () => {
-        tween.scrollTrigger?.kill()
-        tween.kill()
-      },
-      { once: true }
-    )
+    }
   }
-</script>
+
+  @keyframes footerReveal {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.9);
+      filter: blur(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+</style>

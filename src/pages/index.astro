@@ -1,12 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
-import HeroOrbit from "../components/hero/HeroOrbit.astro"
+import HeroIntro from "../components/hero/HeroIntro.astro"
 import SectionBento from "../components/SectionBento.astro"
 import SiteFooter from "../components/footer/SiteFooter.astro"
+import { siteName } from "../site.config"
 ---
 
-<BaseLayout title="Richard Narvaez | Orbit">
-  <HeroOrbit />
+<BaseLayout title={`${siteName} | Product Engineer`}>
+  <HeroIntro />
   <SectionBento />
   <SiteFooter />
 </BaseLayout>

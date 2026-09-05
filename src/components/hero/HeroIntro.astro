@@ -1,0 +1,285 @@
+---
+import ArrowFigma from "../icons/ArrowFigma.astro"
+import { siteName } from "../../site.config"
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__bg" aria-hidden="true">
+    <img
+      src="/images/home/bg-header.jpg"
+      width="2731"
+      height="1973"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      alt=""
+    />
+  </div>
+
+  <div class="hero__grid" aria-hidden="true"></div>
+
+  <div class="bp-inner hero__inner">
+    <span class="bp-marker bp-marker--bl" aria-hidden="true"></span>
+    <span class="bp-marker bp-marker--br" aria-hidden="true"></span>
+
+    <p class="hero__eyebrow font-jetbrains">Portfolio — v3</p>
+
+    <h1 id="hero-title" class="hero__title">
+      <span class="sr-only">{siteName} — creative human thinking</span>
+
+      <span class="hero__line hero__line--creative" aria-hidden="true">
+        Creative
+      </span>
+      <span class="hero__line hero__line--human" aria-hidden="true">HUMAN</span>
+
+      <span class="hero__selection" aria-hidden="true">
+        <span class="hero__line hero__line--thinking">thinking...</span>
+
+        <span class="hero__handle hero__handle--tl"></span>
+        <span class="hero__handle hero__handle--tr"></span>
+        <span class="hero__handle hero__handle--bl"></span>
+        <span class="hero__handle hero__handle--br"></span>
+
+        <span class="hero__cursor">
+          <ArrowFigma class="hero__cursor-arrow" />
+          <span class="hero__cursor-label">{siteName}</span>
+        </span>
+      </span>
+    </h1>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: min(88svh, 46rem);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.28;
+    transform: scale(1.06);
+    animation: heroBgSettle 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(19, 18, 34, 0.55) 0%,
+      rgba(19, 18, 34, 0.35) 45%,
+      var(--page-accent-surface) 100%
+    );
+  }
+
+  /* Retícula tenue: refuerza la lectura de hoja de planos. */
+  .hero__grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, var(--bp-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--bp-line) 1px, transparent 1px);
+    background-size: 7.5rem 7.5rem;
+    opacity: 0.35;
+    mask-image: radial-gradient(ellipse at 30% 50%, black, transparent 78%);
+  }
+
+  .hero__inner {
+    padding-block: clamp(4rem, 12vh, 8rem);
+  }
+
+  .hero__eyebrow {
+    margin: 0 0 1.25rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(226, 232, 240, 0.5);
+    animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1em;
+    margin: 0;
+    font-weight: 400;
+    line-height: 0.94;
+  }
+
+  .hero__line {
+    display: block;
+    animation: heroRise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero__line--creative {
+    font-size: clamp(2.4rem, 7vw, 4.6rem);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.92);
+    animation-delay: 0.08s;
+  }
+
+  .hero__line--human {
+    font-size: clamp(3.6rem, 12vw, 8rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #fff;
+    animation-delay: 0.16s;
+  }
+
+  .hero__line--thinking {
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--page-accent);
+    animation-delay: 0.24s;
+  }
+
+  /* Caja de selección tipo Figma alrededor de "thinking...". */
+  .hero__selection {
+    position: relative;
+    margin-top: 0.35em;
+    padding: 0.1em 0.5em 0.18em;
+    border: 1.5px dashed rgba(255, 81, 47, 0.55);
+    transform-origin: left center;
+    animation: heroSelect 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both;
+  }
+
+  .hero__handle {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    background: var(--page-accent-surface);
+    border: 1.5px solid var(--page-accent);
+  }
+
+  .hero__handle--tl {
+    left: -5px;
+    top: -5px;
+  }
+  .hero__handle--tr {
+    right: -5px;
+    top: -5px;
+  }
+  .hero__handle--bl {
+    left: -5px;
+    bottom: -5px;
+  }
+  .hero__handle--br {
+    right: -5px;
+    bottom: -5px;
+  }
+
+  .hero__cursor {
+    position: absolute;
+    right: -2.6rem;
+    bottom: -2.2rem;
+    display: flex;
+    align-items: flex-start;
+    animation: heroCursorIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.75s both;
+  }
+
+  .hero__cursor :global(.hero__cursor-arrow) {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: none;
+    filter: drop-shadow(0 4px 10px rgba(2, 6, 23, 0.45));
+  }
+
+  .hero__cursor-label {
+    margin: 1.1rem 0 0 -0.35rem;
+    border-radius: 0.3rem;
+    background: var(--page-accent);
+    padding: 0.22rem 0.5rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #fff;
+  }
+
+  @keyframes heroBgSettle {
+    to {
+      transform: scale(1);
+      opacity: 0.32;
+    }
+  }
+
+  @keyframes heroRise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+    Sin clip-path: recortaría al cursor, que vive fuera de la caja. El barrido
+    se consigue escalando desde el borde izquierdo.
+  */
+  @keyframes heroSelect {
+    from {
+      opacity: 0;
+      transform: scaleX(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes heroCursorIn {
+    from {
+      opacity: 0;
+      transform: translate(-6px, -6px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  /* Sin animación de entrada: el contenido nace en su estado final. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__bg img {
+      transform: scale(1);
+      opacity: 0.32;
+    }
+
+    .hero__eyebrow,
+    .hero__line,
+    .hero__selection,
+    .hero__cursor {
+      animation: none;
+      opacity: 1;
+      transform: none;
+      clip-path: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero__cursor {
+      right: -1.2rem;
+      bottom: -1.9rem;
+      scale: 0.85;
+    }
+  }
+</style>
