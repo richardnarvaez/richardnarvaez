@@ -20,15 +20,27 @@ const out = (path) => {
 const report = (path) => console.log(`  ${path}  ${(statSync(path).size / 1024).toFixed(0)} KB`)
 
 const tasks = {
-  // Bocetos del hero: máscara de luminancia (trazo) + halo pre-desenfocado.
-  // Blanco sobre negro sin alfa: WebP con pérdida comprime 5× mejor que PNG.
+  // Bocetos del hero: máscara del trazo + halo pre-desenfocado, ambas como
+  // ALFA (trazo blanco sobre transparente). Safari ignora `mask-mode:
+  // luminance` con imágenes raster, así que la luminancia no es opción.
+  // 2000px de ancho bastan (el hero se ve a ≤1920 y el trazo es suave).
   async sketch() {
-    const base = sharp("design/hero/sketch.png").flatten({ background: "#000" }).removeAlpha().grayscale()
-    await base.clone().webp({ quality: 70, effort: 6, smartSubsample: true })
-      .toFile(out("public/images/home/bg-header-lineas-lum.webp"))
-    await base.clone().blur(28).linear(3.2, 0).webp({ quality: 70, effort: 6 })
+    const src = sharp("design/hero/sketch.png").resize({ width: 2000 })
+    const { width, height } = await src.clone().metadata()
+    // Trazo: la imagen tal cual (blanco + alfa), WebP con pérdida en color y alfa casi intacto.
+    await src.clone().webp({ quality: 60, alphaQuality: 90, effort: 6 })
+      .toFile(out("public/images/home/bg-header-lineas-mask.webp"))
+    // Halo: el alfa del trazo desenfocado y reforzado, montado sobre blanco.
+    // A la mitad de resolución (ya va desenfocado) y con alfa SIN pérdida: la
+    // compresión con pérdida del alfa deja bandas en los degradados suaves.
+    const half = Math.round(width / 2)
+    const alpha = await src.clone().extractChannel("alpha").blur(20).linear(3.2, 0)
+      .resize({ width: half }).toBuffer()
+    await sharp({ create: { width: half, height: Math.round(height / 2), channels: 3, background: "#fff" } })
+      .joinChannel(alpha)
+      .webp({ quality: 60, alphaQuality: 100, effort: 6 })
       .toFile(out("public/images/home/bg-header-lineas-glow.webp"))
-    report("public/images/home/bg-header-lineas-lum.webp")
+    report("public/images/home/bg-header-lineas-mask.webp")
     report("public/images/home/bg-header-lineas-glow.webp")
   },
 
