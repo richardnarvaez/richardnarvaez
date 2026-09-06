@@ -33,9 +33,11 @@ const tasks = {
     // Halo: el alfa del trazo desenfocado y reforzado, montado sobre blanco.
     // A la mitad de resolución (ya va desenfocado) y con alfa SIN pérdida: la
     // compresión con pérdida del alfa deja bandas en los degradados suaves.
+    // Dos pasadas a propósito: sharp aplica `linear` ANTES de `extractChannel`
+    // y `blur` si van en la misma cadena, y sobre un alfa 0/255 no hace nada.
     const half = Math.round(width / 2)
-    const alpha = await src.clone().extractChannel("alpha").blur(20).linear(3.2, 0)
-      .resize({ width: half }).toBuffer()
+    const blurred = await src.clone().extractChannel("alpha").blur(20).toBuffer()
+    const alpha = await sharp(blurred).linear(3.2, 0).resize({ width: half }).toBuffer()
     await sharp({ create: { width: half, height: Math.round(height / 2), channels: 3, background: "#fff" } })
       .joinChannel(alpha)
       .webp({ quality: 60, alphaQuality: 100, effort: 6 })
