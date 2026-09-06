@@ -468,11 +468,24 @@ const clusters = [
 
   /* ── Racimo ─────────────────────────────────────────────────────────── */
   .orbit__stage {
-    /* El racimo está en px; en pantallas estrechas se escala entero (mín. 56·0.6 ≈ 34px). */
-    --cluster-scale: clamp(0.6, 100vw / 1000, 1);
+    /* El racimo está en px; en pantallas estrechas se escala entero (ver media queries; mín. 56·0.6 ≈ 34px). */
+    --cluster-scale: 1;
 
     position: relative;
     height: clamp(19rem, 38vw, 25rem);
+  }
+
+  @media (max-width: 900px) {
+    .orbit__stage {
+      --cluster-scale: 0.8;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .orbit__stage {
+      --cluster-scale: 0.6;
+      height: clamp(15rem, 60vw, 19rem);
+    }
   }
 
   /* Origen del racimo: un punto en el centro del escenario. */

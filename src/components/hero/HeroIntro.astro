@@ -310,9 +310,10 @@ import { siteName, projectVersionLabel } from "../../site.config"
   }
 
   /* ── Bocetos + foco ────────────────────────────────────────────────────
-    El dibujo (blanco sobre negro, WebP con pérdida) se usa como máscara por
-    LUMINANCIA: así pesa 5× menos que un PNG con alfa y el color lo pone el
-    CSS. Dos capas con la misma máscara:
+    El dibujo (trazo blanco sobre transparente, WebP con alfa) se usa como
+    máscara ALFA y el color lo pone el CSS. Antes era por luminancia, más
+    ligera, pero Safari la ignora con imágenes raster y pintaba la capa
+    entera. Dos capas con la misma máscara:
       · base   → oculta con puntero (en reposo no se ve nada); solo aparece,
                  tenue y fija, en táctil o con reduced-motion, donde no hay foco.
       · torch  → caja que sigue al puntero (translate en GPU) y dentro el
@@ -330,7 +331,7 @@ import { siteName, projectVersionLabel } from "../../site.config"
     El neón son dos tintas: un halo (máscara pre-desenfocada) y un núcleo claro.
   */
   .hero__sketch {
-    --sketch: url("/images/home/bg-header-lineas-lum.webp");
+    --sketch: url("/images/home/bg-header-lineas-mask.webp");
     /* Mismo dibujo pre-desenfocado en build: el halo del neón sin filtros en runtime. */
     --sketch-glow: url("/images/home/bg-header-lineas-glow.webp");
     --blob: url("/images/home/torch-blob.png");
@@ -367,7 +368,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
     position: absolute;
     inset: 0;
     mask-image: var(--sketch);
-    mask-mode: luminance;
     mask-size: cover;
     mask-position: center;
     mask-repeat: no-repeat;
