@@ -1,52 +1,17 @@
 ---
 import BlueprintSection from "./layout/BlueprintSection.astro"
 import { socialLinks } from "../site.config"
-import FooterSignature from "./footer/FooterSignature.astro"
+import GradualBlur from "./ui/GradualBlur.astro"
 
 const resumeHref =
   "https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
 const figmaHref = "https://www.figma.com/community/file/1270173776891030529"
 const humaHref = "https://huma.darkpixl.com"
 
-const skillGroups = [
-  {
-    label: "Mobile",
-    items: ["Android / iOS", "React Native / Flutter", "Java / Kotlin / Swift"],
-  },
-  {
-    label: "Web",
-    items: [
-      "React / NextJS",
-      "Angular",
-      "HTML / CSS / JS / TS",
-      "NodeJS / REST / GraphQL",
-      "PostgreSQL / MongoDB / MySQL",
-    ],
-  },
-  {
-    label: "UI / UX",
-    items: [
-      "Figma / Adobe Suite",
-      "Wireframes",
-      "Responsive UIs",
-      "Motion & Microinteractions",
-      "Web Accessibility",
-    ],
-  },
-  {
-    label: "Cloud",
-    items: [
-      "AWS / GCP / Azure / DO",
-      "CI/CD / DevOps",
-      "Linux / Unix",
-      "Docker / ECS / Serverless",
-    ],
-  },
-]
 ---
 
 {/* El nombre y el rol viven en la sección de perfil, justo encima. */}
-<BlueprintSection id="main" class="section-bento" label="02 — atajos">
+<BlueprintSection id="main" class="section-bento" label="02 — shortcuts">
   <div class="py-14">
 
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -60,7 +25,7 @@ const skillGroups = [
       <img
         alt=""
         class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 group-hover:blur-sm"
-        src="/images/me.jpg"
+        src="/images/bento/resume.webp"
         width="700"
         height="900"
       />
@@ -71,8 +36,15 @@ const skillGroups = [
           <p class="text-xs font-bold text-gray-500">NOW AVAILABLE</p>
         </div>
         <div class="relative">
-          <div class="bento-blur-overlay"></div>
-          <div class="relative z-10 p-4 font-bold">
+          <GradualBlur
+            position="bottom"
+            height="10rem"
+            strength={1}
+            divCount={5}
+            curve="bezier"
+            exponential
+          />
+          <div class="relative z-10 bg-gradient-to-t from-black/50 to-transparent p-4 font-bold">
             <p class="text-md text-gray-300">RESUME</p>
             <p class="text-3xl">View or Download Resume in PDF</p>
             <p class="text-sm">It's free, so take a look.</p>
@@ -150,29 +122,32 @@ const skillGroups = [
       />
     </div>
 
-    <!-- Column: About Me + Gallery -->
+    <!-- Column: Photography + Gallery -->
     <div
       class="grid w-full grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2"
     >
-      <div class="grid grid-cols-1 gap-3">
-        <button
-          type="button"
-          data-about-open
-          class="bento-card group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl bg-slate-800 text-center"
+      <!-- auto + 1fr: la fila del botón mide lo que el botón; Gallery absorbe el resto. -->
+      <div class="grid grid-cols-1 grid-rows-[auto_1fr] gap-4">
+        {/* Tarjeta estática: lo de "About me" ya vive en la sección de perfil. */}
+        <div
+          class="bento-card group relative flex h-40 w-full items-center justify-center overflow-hidden rounded-3xl bg-slate-800 text-center"
         >
+          {/* Madeira Cliffs, la misma foto que abre el lienzo de Fotografía. */}
           <img
             alt=""
-            class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 group-hover:blur-sm"
-            src="/images/me.jpg"
+            class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+            src="https://images.unsplash.com/photo-1764025721609-2bd1cf185f32?auto=format&fit=crop&q=75&w=700"
             width="700"
-            height="900"
+            height="875"
+            loading="lazy"
+            decoding="async"
           />
           <div
-            class="absolute inset-0 flex items-center justify-center bg-black/50 transition-colors group-hover:bg-black/60"
+            class="absolute inset-0 flex items-center justify-center bg-black/50 transition-colors group-hover:bg-black/40"
           >
-            <p class="text-2xl font-bold">About Me</p>
+            <p class="text-2xl font-bold">Photography</p>
           </div>
-        </button>
+        </div>
 
         <span
           class="bento-card relative flex h-full cursor-default items-center overflow-hidden rounded-3xl border-2 border-dashed border-white/20 p-6 font-bold text-white/70"
@@ -186,7 +161,8 @@ const skillGroups = [
         </span>
       </div>
 
-      <div class="grid grid-cols-1 gap-3">
+      <!-- 1fr + auto: Figma absorbe el resto; la fila de iconos mide lo que los iconos. -->
+      <div class="grid grid-cols-1 grid-rows-[1fr_auto] gap-4">
         <!-- Figma template -->
         <a
           target="_blank"
@@ -287,190 +263,3 @@ const skillGroups = [
   </div>
   </div>
 </BlueprintSection>
-
-<dialog data-about-dialog class="about-dialog">
-  <div class="about-dialog__inner">
-    <button
-      type="button"
-      data-about-close
-      class="about-dialog__close"
-      aria-label="Close"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M18 6 6 18"></path>
-        <path d="m6 6 12 12"></path>
-      </svg>
-    </button>
-
-    <div class="w-full space-y-6 text-center">
-      <div
-        class="relative mb-6 flex w-full items-center gap-4 overflow-hidden rounded-xl bg-white/5 px-6 py-6"
-      >
-        <img
-          src="/images/avatars/richard.jpg"
-          alt="Richard B. Vinueza"
-          class="size-14 rounded-full bg-white object-cover md:size-20"
-          width="96"
-          height="96"
-        />
-        <div class="flex flex-col items-start justify-center text-left">
-          <p class="font-bold md:text-xl">Richard B. Vinueza</p>
-          <div class="mt-2 flex flex-wrap gap-4 text-sm text-white/70">
-            <div class="flex items-center gap-1">Software Engineer</div>
-            <div class="flex items-center gap-1">Everywhere</div>
-            <div class="flex items-center gap-1 text-green-400">
-              <span
-                class="flex size-4 items-center justify-center rounded-full bg-green-500/30"
-              >
-                <span class="size-2 rounded-full bg-green-500"></span>
-              </span>
-              Available
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="text-3xl font-bold sm:text-4xl">Who am I?</h3>
-      <p class="mx-auto max-w-3xl leading-relaxed text-white/70 sm:text-lg">
-        Software Engineer with several years of experience. I began tinkering
-        with mobile stuff when I was 12. Some time later I pivoted my focus to
-        web development, UI/UX, and cloud. Now I'm working with AI to enhance
-        learning. Passionate about traveling and naturally curious. Currently
-        focused on becoming a great leader and continuing to share my knowledge.
-      </p>
-
-      <div class="grid grid-cols-1 gap-4 pt-2 text-left sm:grid-cols-2">
-        {
-          skillGroups.map((group) => (
-            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p class="mb-2 text-sm font-bold uppercase tracking-wide text-[#FF512F]">
-                {group.label}
-              </p>
-              <ul class="space-y-1 text-sm text-white/70">
-                {group.items.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-
-      <div class="flex flex-wrap justify-center gap-4 pt-4">
-        <a
-          href="https://www.linkedin.com/in/richard-vinueza/details/certifications/"
-          target="_blank"
-          rel="noreferrer noopener"
-          class="rounded-full bg-white px-6 py-2 font-medium text-black transition-colors hover:bg-white/90"
-        >
-          See on LinkedIn
-        </a>
-        <a
-          href={socialLinks.github}
-          target="_blank"
-          rel="noreferrer noopener"
-          class="rounded-full border border-white/30 px-6 py-2 font-medium text-white transition-colors hover:bg-white/10"
-        >
-          GitHub
-        </a>
-      </div>
-
-      <div class="flex justify-center pt-6 text-white/70">
-        <FooterSignature />
-      </div>
-    </div>
-  </div>
-</dialog>
-
-<style>
-  .bento-blur-overlay {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 10rem;
-    z-index: 5;
-    pointer-events: none;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.65) 0%,
-      rgba(0, 0, 0, 0.35) 45%,
-      transparent 100%
-    );
-  }
-
-  .about-dialog {
-    width: min(92vw, 56rem);
-    max-height: 88vh;
-    margin: auto;
-    padding: 0;
-    border: none;
-    border-radius: 1.5rem;
-    background: #16151f;
-    color: rgb(226 232 240);
-    overflow: hidden;
-  }
-
-  .about-dialog::backdrop {
-    background: rgba(4, 4, 12, 0.7);
-    backdrop-filter: blur(4px);
-  }
-
-  .about-dialog__inner {
-    position: relative;
-    max-height: 88vh;
-    overflow-y: auto;
-    padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
-  }
-
-  .about-dialog__close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-
-  .about-dialog__close:hover {
-    background: rgba(255, 255, 255, 0.14);
-  }
-</style>
-
-<script>
-  const dialog = document.querySelector<HTMLDialogElement>(
-    "[data-about-dialog]"
-  )
-  const openBtn = document.querySelector<HTMLButtonElement>("[data-about-open]")
-  const closeBtn =
-    document.querySelector<HTMLButtonElement>("[data-about-close]")
-
-  openBtn?.addEventListener("click", () => dialog?.showModal())
-  closeBtn?.addEventListener("click", () => dialog?.close())
-
-  // Backdrop click closes the dialog.
-  dialog?.addEventListener("click", (event) => {
-    if (event.target === dialog) {
-      dialog.close()
-    }
-  })
-</script>

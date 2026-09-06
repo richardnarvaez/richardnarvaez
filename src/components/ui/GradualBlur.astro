@@ -1,0 +1,146 @@
+---
+// Desenfoque progresivo: N capas apiladas, cada una con su propio
+// backdrop-filter y una máscara que la limita a una franja. Al solaparse, el
+// radio de desenfoque crece de forma continua hacia el borde.
+//
+// Portado del GradualBlur de la versión Next.js (components/ui/gradual-blur.tsx).
+// Toda la aritmética ocurre aquí, en build: el cliente recibe solo divs con
+// estilos inline, sin JS ni dependencias.
+//
+// No existe (todavía) un `linear-blur()` nativo en CSS; hay una propuesta
+// abierta en el CSSWG (csswg-drafts#13285), pero ningún navegador la implementa.
+
+type Position = "top" | "bottom" | "left" | "right"
+type Curve = "linear" | "bezier" | "ease-in" | "ease-out" | "ease-in-out"
+
+interface Props {
+  /** Borde desde el que crece el desenfoque. */
+  position?: Position
+  /** Alto (o ancho, si es lateral) de la zona desenfocada. */
+  height?: string
+  /** Multiplicador del radio de desenfoque. */
+  strength?: number
+  /** Número de capas. Más capas, transición más suave. */
+  divCount?: number
+  /** Curva que reparte el desenfoque entre las capas. */
+  curve?: Curve
+  /** Crecimiento exponencial del radio en vez de lineal. */
+  exponential?: boolean
+  opacity?: number
+  zIndex?: number
+  class?: string
+}
+
+const {
+  position = "bottom",
+  height = "6rem",
+  strength = 2,
+  divCount = 5,
+  curve = "linear",
+  exponential = false,
+  opacity = 1,
+  zIndex = 1,
+  class: className,
+} = Astro.props
+
+const CURVES: Record<Curve, (p: number) => number> = {
+  linear: (p) => p,
+  bezier: (p) => p * p * (3 - 2 * p),
+  "ease-in": (p) => p * p,
+  "ease-out": (p) => 1 - Math.pow(1 - p, 2),
+  "ease-in-out": (p) => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2),
+}
+
+const DIRECTION: Record<Position, string> = {
+  top: "to top",
+  bottom: "to bottom",
+  left: "to left",
+  right: "to right",
+}
+
+const round1 = (n: number) => Math.round(n * 10) / 10
+const curveFn = CURVES[curve]
+const increment = 100 / divCount
+
+const layers = Array.from({ length: divCount }, (_, index) => {
+  const i = index + 1
+  const progress = curveFn(i / divCount)
+
+  const blur = exponential
+    ? Math.pow(2, progress * 4) * 0.0625 * strength
+    : 0.0625 * (progress * divCount + 1) * strength
+
+  // Franja de la capa: sube de transparente a opaco, se mantiene una franja
+  // y vuelve a transparente. Las últimas capas se cortan en 100%.
+  const p1 = round1(increment * i - increment)
+  const p2 = round1(increment * i)
+  const p3 = round1(increment * i + increment)
+  const p4 = round1(increment * i + increment * 2)
+
+  let stops = `transparent ${p1}%, black ${p2}%`
+  if (p3 <= 100) stops += `, black ${p3}%`
+  if (p4 <= 100) stops += `, transparent ${p4}%`
+
+  const mask = `linear-gradient(${DIRECTION[position]}, ${stops})`
+
+  return {
+    mask,
+    blur: `blur(${blur.toFixed(3)}rem)`,
+  }
+})
+
+const isVertical = position === "top" || position === "bottom"
+---
+
+<div
+  class:list={["gradual-blur", `gradual-blur--${position}`, className]}
+  style={`--gb-size: ${height}; --gb-opacity: ${opacity}; --gb-z: ${zIndex};`}
+  aria-hidden="true"
+  data-vertical={isVertical}
+>
+  {
+    layers.map((layer) => (
+      <div
+        class="gradual-blur__layer"
+        style={`mask-image: ${layer.mask}; -webkit-mask-image: ${layer.mask}; backdrop-filter: ${layer.blur}; -webkit-backdrop-filter: ${layer.blur};`}
+      />
+    ))
+  }
+</div>
+
+<style>
+  .gradual-blur {
+    position: absolute;
+    z-index: var(--gb-z);
+    opacity: var(--gb-opacity);
+    pointer-events: none;
+  }
+
+  .gradual-blur[data-vertical="true"] {
+    inset-inline: 0;
+    height: var(--gb-size);
+  }
+
+  .gradual-blur[data-vertical="false"] {
+    inset-block: 0;
+    width: var(--gb-size);
+  }
+
+  .gradual-blur--top {
+    top: 0;
+  }
+  .gradual-blur--bottom {
+    bottom: 0;
+  }
+  .gradual-blur--left {
+    left: 0;
+  }
+  .gradual-blur--right {
+    right: 0;
+  }
+
+  .gradual-blur__layer {
+    position: absolute;
+    inset: 0;
+  }
+</style>
