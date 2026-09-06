@@ -1,0 +1,927 @@
+---
+import ArrowFigma from "../icons/ArrowFigma.astro"
+import { siteName, projectVersionLabel } from "../../site.config"
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__bg" aria-hidden="true">
+    <img
+      src="/images/home/bg-header.webp"
+      width="2000"
+      height="1445"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      alt=""
+    />
+  </div>
+
+  <div class="hero__grid" aria-hidden="true"></div>
+
+  {/*
+    Bocetos a mano sobre la foto (misma proporción que bg-header.webp, así que
+    casan píxel a píxel). En reposo casi no se ven; un foco de neón naranja
+    que sigue al puntero los revela. El script de abajo mueve el foco.
+  */}
+  <div class="hero__sketch" aria-hidden="true">
+    <div class="hero__sketch-base"></div>
+    <div class="hero__sketch-torch">
+      <div class="hero__sketch-lit">
+        <div class="hero__sketch-glow"><div class="hero__sketch-ink"></div></div>
+        <div class="hero__sketch-ink hero__sketch-ink--core"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bp-inner hero__inner">
+    <span class="bp-marker bp-marker--bl" aria-hidden="true"></span>
+    <span class="bp-marker bp-marker--br" aria-hidden="true"></span>
+
+    <p class="hero__eyebrow font-jetbrains">Portfolio — {projectVersionLabel}</p>
+
+    <h1 id="hero-title" class="hero__title">
+      <span class="sr-only">{siteName} — creative human thinking</span>
+
+      <span class="hero__line hero__line--creative" aria-hidden="true">
+        Creative
+      </span>
+      {/* Letra a letra para el guiño automático "AI": se apagan todas menos la A, y la N se vuelve I. */}
+      <span class="hero__line hero__line--human" aria-hidden="true">
+        <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter hero__letter--keep">A</span><span class="hero__letter hero__letter--swap" data-alt="I"><span class="hero__glyph">N</span></span>
+      </span>
+
+      <span class="hero__selection" aria-hidden="true">
+        <span class="hero__line hero__line--thinking"><span class="hero__word">thinking...</span></span>
+
+        <span class="hero__handle hero__handle--tl"></span>
+        <span class="hero__handle hero__handle--tr"></span>
+        <span class="hero__handle hero__handle--bl"></span>
+        <span class="hero__handle hero__handle--br"></span>
+
+        <span class="hero__cursor">
+          <ArrowFigma class="hero__cursor-arrow" />
+          <span class="hero__cursor-label">{siteName}</span>
+        </span>
+      </span>
+    </h1>
+  </div>
+</section>
+
+<script>
+  // El guiño "AI" es automático: cada cierto tiempo la I sustituye a la N con
+  // un parpadeo suave (fluorescente que arranca), el resto de letras se
+  // atenúa, aguanta HOLD_MS y vuelve. Las esperas siguen un patrón irregular
+  // para que no se sienta mecánico ni molesto.
+  const WAITS_MS = [3000, 5000, 8000, 4000]
+  const HOLD_MS = 2000
+  const human = document.querySelector<HTMLElement>(".hero__line--human")
+
+  if (human) {
+    let step = 0
+    const cycle = () => {
+      setTimeout(() => {
+        human.classList.add("is-ai")
+        setTimeout(() => {
+          human.classList.remove("is-ai")
+          step = (step + 1) % WAITS_MS.length
+          cycle()
+        }, HOLD_MS)
+      }, WAITS_MS[step])
+    }
+    cycle()
+
+    // Letrero estropeado: entre medias, una letra al azar titila un instante
+    // (a veces dos seguidas). Nunca mientras el "AI" está encendido, para no
+    // pisar su propio parpadeo.
+    const bulbs = [
+      ...human.querySelectorAll<HTMLElement>(".hero__letter:not(.hero__letter--swap)"),
+      human.querySelector<HTMLElement>(".hero__glyph")!,
+    ]
+    const BLINK_MS = 520
+    const randomBetween = (min: number, max: number) => min + Math.random() * (max - min)
+
+    const blink = () => {
+      if (!human.classList.contains("is-ai")) {
+        const bulb = bulbs[Math.floor(Math.random() * bulbs.length)]
+        bulb.classList.add("is-blink")
+        setTimeout(() => bulb.classList.remove("is-blink"), BLINK_MS)
+        // Un 30% de las veces, otra letra repite justo después.
+        if (Math.random() < 0.3) {
+          setTimeout(() => {
+            const other = bulbs[Math.floor(Math.random() * bulbs.length)]
+            other.classList.add("is-blink")
+            setTimeout(() => other.classList.remove("is-blink"), BLINK_MS)
+          }, BLINK_MS + 120)
+        }
+      }
+      setTimeout(blink, randomBetween(1400, 4800))
+    }
+    setTimeout(blink, randomBetween(1400, 4800))
+  }
+
+  // "Clic" al llegar a la derecha: cada ciclo del arrastre (heroDrag, 7.5s),
+  // al 30% la selección llega a su destino; ahí pulsa (escala) y la palabra
+  // rota con fundido, ajustando el ancho del marco con suavidad. Se engancha
+  // a los eventos de la propia animación CSS, así nunca se desfasa; con
+  // reduced-motion la animación no existe y la palabra se queda quieta.
+  const selection = document.querySelector<HTMLElement>(".hero__selection")
+  const line = selection?.querySelector<HTMLElement>(".hero__line--thinking")
+  const word = line?.querySelector<HTMLElement>(".hero__word")
+
+  if (selection && line && word) {
+    // Tres palabras de ancho casi idéntico (234 / 231 / 235px en Bellota 300)
+    // para que el marco apenas se mueva al cambiar. "coding..." medía 206px y
+    // el salto de 28px se notaba.
+    const WORDS = ["thinking...", "building...", "drawing..."]
+    const CLICK_AT_MS = 2250 // 30% de 7.5s
+    const FADE_MS = 180
+    let index = 0
+
+    const click = () => {
+      selection.classList.add("is-clicking")
+      setTimeout(() => selection.classList.remove("is-clicking"), FADE_MS)
+
+      // Congela el ancho actual para poder animarlo hasta el nuevo.
+      const from = line.offsetWidth
+      line.style.width = `${from}px`
+      word.classList.add("is-swapping")
+
+      setTimeout(() => {
+        index = (index + 1) % WORDS.length
+        word.textContent = WORDS[index]
+        line.style.width = "auto"
+        const to = line.offsetWidth
+        line.style.width = `${from}px`
+        requestAnimationFrame(() => {
+          line.style.width = `${to}px`
+          word.classList.remove("is-swapping")
+        })
+        setTimeout(() => {
+          line.style.width = ""
+        }, 400)
+      }, FADE_MS)
+    }
+
+    const schedule = (event: AnimationEvent) => {
+      if (event.animationName.includes("heroDrag")) setTimeout(click, CLICK_AT_MS)
+    }
+    selection.addEventListener("animationstart", schedule)
+    selection.addEventListener("animationiteration", schedule)
+  }
+
+  // Foco sobre los bocetos. Solo escribe dos variables CSS (--tx/--ty) que
+  // el CSS convierte en `translate`: todo el movimiento es composición en GPU,
+  // sin repintar nada. Persigue al puntero con inercia (lerp) y el bucle de
+  // rAF se apaga solo cuando el foco alcanza al puntero.
+  const hero = document.querySelector<HTMLElement>(".hero")
+  const sketch = hero?.querySelector<HTMLElement>(".hero__sketch")
+  const wantsMotion =
+    matchMedia("(hover: hover)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
+
+  if (hero && sketch && wantsMotion) {
+    // Tres manchas con inercias distintas: la principal y dos que se rezagan.
+    // Al moverse se separan como gotas; al parar se funden en una sola.
+    const blobs = [
+      { ease: 0.14, x: 0, y: 0, vx: "--tx", vy: "--ty" },
+      { ease: 0.06, x: 0, y: 0, vx: "--tx2", vy: "--ty2" },
+      { ease: 0.036, x: 0, y: 0, vx: "--tx3", vy: "--ty3" },
+      { ease: 0.022, x: 0, y: 0, vx: "--tx4", vy: "--ty4" },
+    ]
+    // Paralaje del dibujo: se desplaza hasta ±PARALLAX px según dónde esté el
+    // puntero respecto al centro del hero, con una inercia más lenta que la
+    // linterna. Da la sensación de que el boceto flota sobre la foto.
+    const PARALLAX = 14
+    const parallax = { ease: 0.05, x: 0, y: 0, tx: 0, ty: 0 }
+    let targetX = 0
+    let targetY = 0
+    let frame = 0
+
+    const aim = (event: PointerEvent) => {
+      const box = hero.getBoundingClientRect()
+      targetX = event.clientX - box.left
+      targetY = event.clientY - box.top
+      parallax.tx = (targetX / box.width - 0.5) * 2 * PARALLAX
+      parallax.ty = (targetY / box.height - 0.5) * 2 * PARALLAX
+    }
+
+    const tick = () => {
+      let pending = 0
+      for (const b of blobs) {
+        b.x += (targetX - b.x) * b.ease
+        b.y += (targetY - b.y) * b.ease
+        sketch.style.setProperty(b.vx, `${b.x.toFixed(1)}px`)
+        sketch.style.setProperty(b.vy, `${b.y.toFixed(1)}px`)
+        pending += Math.abs(targetX - b.x) + Math.abs(targetY - b.y)
+      }
+      parallax.x += (parallax.tx - parallax.x) * parallax.ease
+      parallax.y += (parallax.ty - parallax.y) * parallax.ease
+      sketch.style.setProperty("--px", `${parallax.x.toFixed(2)}px`)
+      sketch.style.setProperty("--py", `${parallax.y.toFixed(2)}px`)
+      pending += Math.abs(parallax.tx - parallax.x) + Math.abs(parallax.ty - parallax.y)
+      frame = pending < 0.5 ? 0 : requestAnimationFrame(tick)
+    }
+
+    const wake = () => {
+      if (!frame) frame = requestAnimationFrame(tick)
+    }
+
+    hero.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "touch") return
+      aim(event)
+      // Nace justo bajo el puntero, sin deslizarse desde la última posición.
+      for (const b of blobs) {
+        b.x = targetX
+        b.y = targetY
+      }
+      sketch.classList.add("is-lit")
+      wake()
+    })
+
+    hero.addEventListener("pointermove", (event) => {
+      if (event.pointerType === "touch") return
+      aim(event)
+      wake()
+    })
+
+    hero.addEventListener("pointerleave", () => {
+      sketch.classList.remove("is-lit")
+    })
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    font-family: var(--font-bellota);
+    align-items: center;
+    min-height: min(88svh, 46rem);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .hero__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.28;
+    transform: scale(1.06);
+    animation: heroBgSettle 1.6s var(--ease-out) forwards;
+  }
+
+  /* Funde la foto con el fondo por arriba y por abajo, simétrico. */
+  .hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      var(--page-accent-surface) 0%,
+      rgb(var(--surface-rgb) / 0.45) 22%,
+      rgb(var(--surface-rgb) / 0.35) 55%,
+      var(--page-accent-surface) 100%
+    );
+  }
+
+  /*
+    Retícula tenue: refuerza la lectura de hoja de planos. Acotada al ancho
+    del marco (mismo max-width que .bp-inner) para que sus líneas nazcan en
+    los rieles y no los crucen.
+  */
+  .hero__grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: var(--bp-max);
+    margin-inline: auto;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, var(--bp-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--bp-line) 1px, transparent 1px);
+    background-size: 7.5rem 7.5rem;
+    opacity: 0.45;
+    mask-image: radial-gradient(ellipse at 30% 50%, black, transparent 78%);
+  }
+
+  /* ── Bocetos + foco ────────────────────────────────────────────────────
+    El dibujo (blanco sobre negro, WebP con pérdida) se usa como máscara por
+    LUMINANCIA: así pesa 5× menos que un PNG con alfa y el color lo pone el
+    CSS. Dos capas con la misma máscara:
+      · base   → oculta con puntero (en reposo no se ve nada); solo aparece,
+                 tenue y fija, en táctil o con reduced-motion, donde no hay foco.
+      · torch  → caja que sigue al puntero (translate en GPU) y dentro el
+                 boceto a tamaño del hero desplazado a la inversa, de modo
+                 que el dibujo queda clavado a la foto y solo se mueve la
+                 "linterna".
+    La forma de la linterna es LÍQUIDA: la máscara es una gota (círculo con
+    degradado radial ≈50% → 0, arrugado por ruido) rasterizada EN BUILD a un
+    PNG con alfa (scripts en el historial: sharp + SVG con feTurbulence). En
+    runtime es un bitmap: un SVG con filtros como mask-image obligaba al
+    navegador a re-rasterizarlo al mover el foco y calentaba la GPU. Se
+    repite cuatro veces en posiciones que el script rezaga con inercias
+    distintas (--tx2…--tx4): el movimiento líquido lo da la estela de gotas. Solo cambia la máscara de la caja
+    (alfa, se recompone en GPU); el contenido neón no se repinta.
+    El neón son dos tintas: un halo (máscara pre-desenfocada) y un núcleo claro.
+  */
+  .hero__sketch {
+    --sketch: url("/images/home/bg-header-lineas-lum.webp");
+    /* Mismo dibujo pre-desenfocado en build: el halo del neón sin filtros en runtime. */
+    --sketch-glow: url("/images/home/bg-header-lineas-glow.webp");
+    --blob: url("/images/home/torch-blob.png");
+    /* Caja de la linterna (debe dar cabida a la estela) y diámetro de cada mancha. */
+    --torch-box: 64rem;
+    --blob-1: 36rem;
+    --blob-2: 28rem;
+    --blob-3: 21rem;
+    --blob-4: 15rem;
+    --tx: 0px;
+    --ty: 0px;
+    --tx2: 0px;
+    --ty2: 0px;
+    --tx3: 0px;
+    --ty3: 0px;
+    --tx4: 0px;
+    --ty4: 0px;
+    /* Paralaje del dibujo respecto a la foto (lo escribe el script). */
+    --px: 0px;
+    --py: 0px;
+
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    container-type: size;
+    pointer-events: none;
+    /* Mismo asentamiento que la foto de fondo, para no desalinearse en la entrada. */
+    transform: scale(1.06);
+    animation: heroSketchSettle 1.6s var(--ease-out) forwards;
+  }
+
+  .hero__sketch-base,
+  .hero__sketch-ink {
+    position: absolute;
+    inset: 0;
+    mask-image: var(--sketch);
+    mask-mode: luminance;
+    mask-size: cover;
+    mask-position: center;
+    mask-repeat: no-repeat;
+  }
+
+  /* Con puntero no existe: el dibujo solo se revela bajo el foco. */
+  .hero__sketch-base {
+    display: none;
+  }
+
+  .hero__sketch-torch {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--torch-box);
+    height: var(--torch-box);
+    translate: calc(var(--tx) - var(--torch-box) / 2) calc(var(--ty) - var(--torch-box) / 2);
+    scale: 0.6;
+    opacity: 0;
+    /* Apagado del todo en reposo (no se pinta ni compone); vuelve al entrar. */
+    visibility: hidden;
+    overflow: clip;
+    contain: paint;
+    /* Cuatro manchas líquidas: la principal centrada, las otras rezagadas (la estela). */
+    mask-image: var(--blob), var(--blob), var(--blob), var(--blob);
+    mask-repeat: no-repeat;
+    mask-size:
+      var(--blob-1) var(--blob-1),
+      var(--blob-2) var(--blob-2),
+      var(--blob-3) var(--blob-3),
+      var(--blob-4) var(--blob-4);
+    mask-position:
+      center,
+      calc(50% + (var(--tx2) - var(--tx))) calc(50% + (var(--ty2) - var(--ty))),
+      calc(50% + (var(--tx3) - var(--tx))) calc(50% + (var(--ty3) - var(--ty))),
+      calc(50% + (var(--tx4) - var(--tx))) calc(50% + (var(--ty4) - var(--ty)));
+    transition:
+      opacity 480ms ease,
+      scale 640ms var(--ease-out),
+      visibility 0s linear 480ms;
+    will-change: translate, opacity;
+  }
+
+  .hero__sketch.is-lit .hero__sketch-torch {
+    opacity: 1;
+    scale: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  /* Luz cálida de la linterna sobre la propia foto. */
+  .hero__sketch-torch::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle calc(var(--blob-1) / 2) at center, rgb(var(--accent-rgb) / 0.14), transparent 100%);
+  }
+
+  /* Tamaño del hero (unidades de contenedor) y traslación inversa al foco. */
+  .hero__sketch-lit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100cqw;
+    height: 100cqh;
+    /* Translúcido: se lee como dibujado encima de la foto, sin imponerse. */
+    opacity: 0.7;
+    translate: calc(var(--torch-box) / 2 - var(--tx) + var(--px)) calc(var(--torch-box) / 2 - var(--ty) + var(--py));
+    will-change: translate;
+  }
+
+  /*
+    Halo: tinta naranja enmascarada con la versión PRE-desenfocada del dibujo
+    (generada en build). Sin `filter` ni `mix-blend-mode` en runtime: eso
+    obligaba a la GPU a recalcular un desenfoque de pantalla completa en cada
+    frame. Ahora es una máscara estática más.
+  */
+  .hero__sketch-glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0.9;
+  }
+
+  .hero__sketch-glow .hero__sketch-ink {
+    mask-image: var(--sketch-glow);
+    background: var(--page-accent);
+  }
+
+  /* Núcleo del tubo: más claro que el halo, como un neón real. */
+  .hero__sketch-ink--core {
+    background: #ffb59e;
+  }
+
+  @keyframes heroSketchSettle {
+    to {
+      transform: scale(1);
+    }
+  }
+
+  /* Sin puntero o sin movimiento: nada de foco; el boceto queda tenue y fijo. */
+  @media (hover: none), (prefers-reduced-motion: reduce) {
+    .hero__sketch-torch {
+      display: none;
+    }
+
+    .hero__sketch-base {
+      display: block;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero__sketch {
+      animation: none;
+      transform: none;
+    }
+  }
+
+  /*
+    Se estira a toda la altura del hero para que los rieles lleguen de tope
+    a tope; el contenido se centra dentro.
+  */
+  .hero__inner {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(4rem, 12vh, 8rem);
+  }
+
+  .hero__eyebrow {
+    margin: 0 0 1.25rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+    animation: heroRise 0.7s var(--ease-out) both;
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1em;
+    margin: 0;
+    font-weight: 400;
+    line-height: 0.94;
+  }
+
+  .hero__line {
+    display: block;
+    animation: heroRise 0.9s var(--ease-out) both;
+  }
+
+  .hero__line--creative {
+    font-size: clamp(2.4rem, 7vw, 4.6rem);
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.92);
+    animation-delay: 0.08s;
+  }
+
+  .hero__line--human {
+    font-size: clamp(3.6rem, 12vw, 8rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #fff;
+    animation-delay: 0.16s;
+  }
+
+  /*
+    Guiño "AI" en HUMAN, automático (lo gobierna el script): la I aparece
+    sobre la N con un parpadeo suave de fluorescente y el resto de letras se
+    atenúa, legible. Sin glitch. Solo se anima la opacidad.
+  */
+  /* Ya no es texto sino un componente: puntero normal, sin selección. */
+  .hero__line--human {
+    /* Cuánto se atenúan las letras apagadas: HUMAN debe seguir leyéndose. */
+    --hero-dim: 0.3;
+
+    cursor: default;
+    user-select: none;
+  }
+
+  .hero__letter,
+  .hero__glyph {
+    display: inline-block;
+    transition: opacity 320ms ease;
+  }
+
+  .hero__letter--swap {
+    position: relative;
+  }
+
+  /* La I espera invisible sobre la N, alineada a su primer trazo. */
+  .hero__letter--swap::before {
+    content: attr(data-alt);
+    position: absolute;
+    inset: 0;
+    text-align: left;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 320ms ease;
+  }
+
+  /* Estado AI: H, U, M y el glifo de la N se apagan con parpadeo; la A no se toca. */
+  .hero__line--human.is-ai .hero__letter,
+  .hero__line--human.is-ai .hero__glyph {
+    opacity: var(--hero-dim);
+    animation: heroDimFlicker 700ms ease-in-out;
+  }
+
+  .hero__line--human.is-ai .hero__letter--keep,
+  .hero__line--human.is-ai .hero__letter--swap {
+    opacity: 1;
+    animation: none;
+  }
+
+  .hero__line--human.is-ai .hero__letter--swap::before {
+    opacity: 1;
+    animation: heroLitFlicker 700ms ease-in-out;
+  }
+
+  /* Bombilla suelta que titila (lo dispara el script en letras al azar). */
+  .hero__letter.is-blink,
+  .hero__glyph.is-blink {
+    animation: heroBlink 520ms ease-in-out;
+  }
+
+  @keyframes heroBlink {
+    0% {
+      opacity: 1;
+    }
+    22% {
+      opacity: 0.3;
+    }
+    40% {
+      opacity: 0.9;
+    }
+    58% {
+      opacity: 0.45;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Fluorescente que arranca: un par de titubeos antes de encender del todo. */
+  @keyframes heroLitFlicker {
+    0% {
+      opacity: 0;
+    }
+    18% {
+      opacity: 0.75;
+    }
+    32% {
+      opacity: 0.2;
+    }
+    52% {
+      opacity: 1;
+    }
+    68% {
+      opacity: 0.55;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes heroDimFlicker {
+    0% {
+      opacity: 1;
+    }
+    18% {
+      opacity: 0.45;
+    }
+    32% {
+      opacity: 0.85;
+    }
+    52% {
+      opacity: 0.3;
+    }
+    68% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: var(--hero-dim);
+    }
+  }
+
+  .hero__line--thinking {
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 300;
+    color: var(--page-accent);
+    animation-delay: 0.24s;
+    /* El script fija el ancho en px durante el cambio de palabra para animarlo. */
+    transition: width 320ms var(--ease-out);
+    white-space: nowrap;
+  }
+
+  /*
+    La palabra va en un span propio porque .hero__line conserva la opacidad
+    de su animación de entrada (fill both) y no dejaría fundirla.
+  */
+  .hero__word {
+    display: inline-block;
+    transition:
+      opacity 180ms ease,
+      translate 180ms ease;
+  }
+
+  .hero__word.is-swapping {
+    opacity: 0;
+    translate: 0 -0.12em;
+  }
+
+  /*
+    Selección tipo Figma: borde azul plano y tiradores blancos, igual que
+    en la versión original. El azul es el del lienzo, no el naranja de la
+    marca — el naranja se queda solo en el texto y el cursor.
+  */
+  .hero__selection {
+    position: relative;
+    margin-top: 0.35em;
+    padding: 0.1em 0.5em 0.18em;
+    border: 2px solid var(--figma-select);
+    /*
+      Como si alguien lo hubiera girado en el lienzo. Va en `rotate`, no en
+      `transform`, para no pisar la animación de entrada que anima transform.
+      Pivote a la izquierda: el extremo derecho sube y se monta sobre HUMAN,
+      que es la intención.
+    */
+    transform-origin: left center;
+    rotate: -10deg;
+    /* Pulso de "clic" (lo dispara el script al llegar a la derecha). */
+    transition: scale 180ms ease;
+    /*
+      Dos animaciones sobre propiedades distintas: la entrada anima
+      `transform` (scaleX) y el arrastre anima `translate`, así no se pisan.
+      El arrastre arranca cuando la entrada ya terminó.
+    */
+    animation:
+      heroSelect 0.5s var(--ease-out) 0.55s both,
+      heroDrag 7.5s ease-in-out 1.6s infinite;
+  }
+
+  .hero__handle {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    background: #fff;
+    border: 2px solid var(--figma-select);
+  }
+
+  .hero__handle--tl {
+    left: -5px;
+    top: -5px;
+  }
+  .hero__handle--tr {
+    right: -5px;
+    top: -5px;
+  }
+  .hero__handle--bl {
+    left: -5px;
+    bottom: -5px;
+  }
+  .hero__handle--br {
+    right: -5px;
+    bottom: -5px;
+  }
+
+  /*
+    Anclado por la izquierda del grupo (= la flecha), no por la derecha: así
+    la flecha se queda siempre en la esquina de la selección y es la etiqueta
+    la que crece hacia fuera, sin tapar el texto.
+  */
+  .hero__cursor {
+    position: absolute;
+    left: calc(100% - 1.1rem);
+    top: calc(100% - 1rem);
+    display: flex;
+    align-items: flex-start;
+    /*
+      Deshace el giro del padre: en Figma el cursor y la etiqueta no rotan con
+      la selección. Pivote en la punta de la flecha, para que sea la etiqueta
+      la que se recoloque y la flecha no se mueva de sitio.
+    */
+    transform-origin: top left;
+    rotate: 10deg;
+    animation: heroCursorIn 0.6s var(--ease-out) 0.75s both;
+  }
+
+  .hero__cursor :global(.hero__cursor-arrow) {
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+    filter: drop-shadow(0 4px 10px rgba(2, 6, 23, 0.45));
+  }
+
+  /*
+    Etiqueta de colaborador estilo Figma: cuelga de la punta del cursor,
+    con brillo superior y sombra en el color de la marca.
+  */
+  .hero__cursor-label {
+    margin: 1.45rem 0 0 -0.45rem;
+    padding: 0.42rem 0.8rem 0.46rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(180deg, #ff6a4b 0%, var(--page-accent) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 10px 24px -8px rgb(var(--accent-rgb) / 0.6),
+      0 2px 6px rgba(2, 6, 23, 0.4);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    color: #fff;
+  }
+
+  @keyframes heroBgSettle {
+    to {
+      transform: scale(1);
+      opacity: 0.32;
+    }
+  }
+
+  @keyframes heroRise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /*
+    Sin clip-path: recortaría al cursor, que vive fuera de la caja. El barrido
+    se consigue escalando desde el borde izquierdo.
+  */
+  @keyframes heroSelect {
+    from {
+      opacity: 0;
+      transform: scaleX(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  .hero__selection.is-clicking {
+    scale: 0.94;
+  }
+
+  /*
+    Alguien arrastra la selección con el ratón y no se decide dónde dejarla:
+    la lleva a la derecha y un poco abajo, se detiene, la corrige un pelín,
+    vuelve a dudar y la devuelve a su sitio. Los tramos planos son las pausas.
+    Anima `translate` (no `transform`) para convivir con la entrada.
+  */
+  @keyframes heroDrag {
+    0%,
+    14% {
+      translate: 0 0;
+    }
+    30%,
+    41% {
+      translate: 1.7rem 0.9rem;
+    }
+    47%,
+    58% {
+      translate: 1.3rem 1.2rem;
+    }
+    74%,
+    100% {
+      translate: 0 0;
+    }
+  }
+
+  @keyframes heroCursorIn {
+    from {
+      opacity: 0;
+      transform: translate(-6px, -6px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  /* Sin animación de entrada: el contenido nace en su estado final. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__bg img {
+      transform: scale(1);
+      opacity: 0.32;
+    }
+
+    .hero__eyebrow,
+    .hero__line,
+    .hero__letter,
+    .hero__glyph,
+    .hero__letter--swap::before,
+    .hero__selection,
+    .hero__cursor {
+      animation: none;
+      opacity: 1;
+      transform: none;
+      clip-path: none;
+    }
+  }
+
+  /*
+    Móvil: todo centrado y más grande. El cursor sigue en la esquina derecha
+    de la selección, pero la etiqueta cuelga hacia abajo y hacia la izquierda
+    para no salirse de la pantalla.
+  */
+  @media (max-width: 640px) {
+    .hero__inner {
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero__title {
+      align-items: center;
+    }
+
+    .hero__line--creative {
+      font-size: 2.9rem;
+    }
+
+    .hero__line--human {
+      font-size: min(4.6rem, 23vw);
+    }
+
+    .hero__line--thinking {
+      font-size: 2.5rem;
+    }
+
+    .hero__selection {
+      transform-origin: center;
+    }
+
+    /*
+      En la esquina inferior izquierda: la flecha apunta al tirador y la
+      etiqueta cuelga hacia la derecha por debajo del texto, sin tapar nada
+      y sin salirse de la pantalla.
+    */
+    .hero__cursor {
+      left: -0.3rem;
+      top: calc(100% - 0.7rem);
+    }
+
+    .hero__cursor-label {
+      margin: 1.2rem 0 0 -0.3rem;
+    }
+  }
+</style>

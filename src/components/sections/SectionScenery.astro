@@ -1,0 +1,177 @@
+---
+// Franja a sangre: vagón semifijo en primer plano (PNG con las ventanas en
+// alfa) y paisaje ampliado detrás que se desplaza de derecha a izquierda
+// conforme se hace scroll. La ilusión de viaje la conduce el scroll, no el
+// tiempo: cuanto más bajas, más avanza el tren.
+//
+// Animación dirigida por scroll en CSS puro (animation-timeline). Donde no
+// exista soporte, cae a un vaivén lento por tiempo; con reduced-motion,
+// queda fijo en el fotograma central.
+//
+// Acotada al ancho del marco de plano (mismo max-width que .bp-inner) y con
+// los rieles como bordes propios: en pantallas anchas queda centrada con el
+// fondo de página a los lados, en vez de estirarse y recortar el vagón.
+// Sin divisor horizontal arriba ni abajo.
+const landscape = "/images/home/fondo.webp"
+const wagon = "/images/home/vagones.webp"
+---
+
+<section class="scenery" aria-hidden="true">
+  <img
+    class="scenery__landscape"
+    src={landscape}
+    width="2000"
+    height="1116"
+    loading="lazy"
+    decoding="async"
+    alt=""
+  />
+
+  <img
+    class="scenery__wagon"
+    src={wagon}
+    width="1628"
+    height="847"
+    loading="lazy"
+    decoding="async"
+    alt=""
+  />
+
+  <div class="scenery__tint"></div>
+  <div class="scenery__vignette"></div>
+</section>
+
+<style>
+  /*
+    La proporción es la del PNG del vagón, para no recortar las ventanas.
+    `overflow: clip` (no hidden) para no convertir la sección en contenedor
+    de scroll, que confundiría a la línea de tiempo de vista.
+  */
+  .scenery {
+    /* Cuánto más ancho que la sección es el paisaje: define el recorrido. */
+    --scenery-span: 1.7;
+
+    position: relative;
+    width: 100%;
+    max-width: var(--bp-max);
+    margin-inline: auto;
+    aspect-ratio: 1628 / 847;
+    max-height: 36rem;
+    overflow: clip;
+    border-inline: 1px dashed var(--bp-line);
+    background: #1b1730;
+    view-timeline: --scenery block;
+  }
+
+  /* Mismo umbral que .bp-inner en global.css: sin marco, sin rieles. */
+  @media (max-width: 68rem) {
+    .scenery {
+      border-inline-color: transparent;
+    }
+  }
+
+  /*
+    Paisaje ampliado: arranca alineado al borde izquierdo y, al salir la
+    sección por arriba, ha recorrido todo el sobrante hacia la izquierda.
+  */
+  .scenery__landscape {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--scenery-span) * 100%);
+    max-width: none; /* el preflight de Tailwind limita las img al 100% */
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 42%;
+    will-change: transform;
+    animation: sceneryTravel linear both;
+    animation-timeline: --scenery;
+    animation-range: cover 0% cover 100%;
+  }
+
+  /* Vagón semifijo: ligera deriva vertical, más lenta que la página. */
+  .scenery__wagon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    will-change: transform;
+    animation: sceneryWagon linear both;
+    animation-timeline: --scenery;
+    animation-range: cover 0% cover 100%;
+  }
+
+  /* Velo del color de la página sobre toda la escena: la integra en la paleta. */
+  .scenery__tint {
+    position: absolute;
+    inset: 0;
+    background: var(--page-accent-surface);
+    opacity: 0.1;
+    pointer-events: none;
+  }
+
+  /*
+    Funde techo y asientos con el fondo de la página, arriba y abajo. Dos
+    degradados independientes cuya altura es un % de la sección: así el
+    fundido escala con ella y en móvil (donde la sección mide ~200px) no se
+    come la escena entera, como pasaba con una altura fija en px.
+    70% equivale a los 400px que se ven en escritorio (566px de alto).
+  */
+  .scenery__vignette {
+    --scenery-fade: 70%;
+
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, var(--page-accent-surface), transparent) top / 100% var(--scenery-fade) no-repeat,
+      linear-gradient(0deg, var(--page-accent-surface), transparent) bottom / 100% var(--scenery-fade) no-repeat;
+    pointer-events: none;
+  }
+
+  /* El sobrante (span − 1) expresado como % del propio paisaje. */
+  @keyframes sceneryTravel {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc((1 - var(--scenery-span)) / var(--scenery-span) * 100%));
+    }
+  }
+
+  @keyframes sceneryWagon {
+    from {
+      transform: scale(1.06) translateY(-2.5%);
+    }
+    to {
+      transform: scale(1.06) translateY(2.5%);
+    }
+  }
+
+  /* Sin scroll-driven animations: vaivén lento por tiempo. */
+  @supports not (animation-timeline: view()) {
+    .scenery__landscape {
+      animation: sceneryTravel 40s ease-in-out infinite alternate;
+    }
+
+    .scenery__wagon {
+      animation: none;
+      transform: scale(1.06);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scenery__landscape,
+    .scenery__wagon {
+      animation: none;
+    }
+
+    .scenery__landscape {
+      transform: translateX(calc((1 - var(--scenery-span)) / var(--scenery-span) * 50%));
+    }
+
+    .scenery__wagon {
+      transform: scale(1.06);
+    }
+  }
+</style>

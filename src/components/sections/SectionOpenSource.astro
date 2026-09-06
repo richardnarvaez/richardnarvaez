@@ -1,0 +1,33 @@
+---
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
+import { socialLinks } from "../../site.config"
+---
+
+<BlueprintSection id="open-source" class="oss" label="06 — code" close={true}>
+  <div class="oss__body">
+    <SectionHeader title="Open Source">
+      This portfolio is built on open-source software and open to anyone who
+      wants to look under the hood. The code lives on
+      <a href={socialLinks.github} target="_blank" rel="noreferrer noopener">GitHub</a>.
+    </SectionHeader>
+  </div>
+</BlueprintSection>
+
+<style>
+  .oss__body {
+    padding-block: clamp(3.5rem, 9vh, 5.5rem);
+  }
+
+  .oss__body a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
+    transition: text-decoration-color 200ms ease;
+  }
+
+  .oss__body a:hover {
+    text-decoration-color: var(--page-accent);
+  }
+</style>

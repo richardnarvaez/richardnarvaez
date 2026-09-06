@@ -1,8 +1,30 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
-import HeroOrbit from "../components/hero/HeroOrbit.astro"
+import HeroIntro from "../components/hero/HeroIntro.astro"
+import SectionProfile from "../components/sections/SectionProfile.astro"
+import SectionBento from "../components/SectionBento.astro"
+import SectionProjects from "../components/sections/SectionProjects.astro"
+import SectionScenery from "../components/sections/SectionScenery.astro"
+import SectionFrameworks from "../components/sections/SectionFrameworks.astro"
+import SectionOpenSource from "../components/sections/SectionOpenSource.astro"
+import SiteFooter from "../components/footer/SiteFooter.astro"
+import StickyName from "../components/header/StickyName.astro"
+import { siteName } from "../site.config"
 ---
 
-<BaseLayout title="Richard Narvaez | Orbit">
-  <HeroOrbit />
+<BaseLayout title={`${siteName} | Product Engineer`}>
+  {/* Fija arriba; se enciende cuando el nombre del perfil sale del viewport. */}
+  <StickyName />
+
+  <HeroIntro />
+  <SectionProfile />
+  <SectionBento />
+  <SectionProjects />
+
+  {/* A sangre: aquí se corta el marco de plano. */}
+  <SectionScenery />
+
+  <SectionFrameworks />
+  <SectionOpenSource />
+  <SiteFooter />
 </BaseLayout>

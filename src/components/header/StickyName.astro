@@ -1,0 +1,80 @@
+---
+// Barra fija tipo Apple: cuando el nombre grande del perfil sale por arriba,
+// aparece aquí en pequeño como "richard.vinueza", sobre un degradado del
+// color de la página que se disuelve hacia abajo para que el texto contraste
+// con lo que pase por debajo.
+//
+// Sin JS: la barra escucha la posición del <h2> del perfil vía una
+// view-timeline con nombre (--profile-name) cuyo alcance abre `body` con
+// `timeline-scope` en global.css. Mientras el h2 sale del viewport, el h2
+// se encoge y esta barra se enciende: leído en conjunto, el nombre se
+// transforma en el handle.
+import { siteName } from "../../site.config"
+
+const handle = siteName.toLowerCase().trim().split(/\s+/).join(".")
+---
+
+<div class="sticky-name" aria-hidden="true">
+  <div class="sticky-name__tint"></div>
+  <p class="sticky-name__title">{handle}</p>
+</div>
+
+<style>
+  .sticky-name {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 40;
+    height: 5.5rem;
+    pointer-events: none;
+    animation: stickyNameIn linear both;
+    animation-timeline: --profile-name;
+    /*
+      Entra con medio paso de retraso respecto a la salida del nombre grande
+      (que se apaga entre exit -5.5rem y -0.75rem): así apenas coinciden en
+      pantalla y se lee como un relevo, no como dos nombres.
+    */
+    animation-range: exit -3.25rem exit 0.75rem;
+  }
+
+  /* Color de página que se disuelve hacia abajo. */
+  .sticky-name__tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      var(--page-accent-surface) 0%,
+      rgb(var(--surface-rgb) / 0.75) 40%,
+      transparent 100%
+    );
+  }
+
+  .sticky-name__title {
+    position: absolute;
+    inset: 0.95rem 0 auto 0;
+    margin: 0;
+    font-family: var(--font-bellota);
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #fff;
+  }
+
+  @keyframes stickyNameIn {
+    from {
+      opacity: 0;
+      translate: 0 -0.6rem;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Sin scroll-driven animations la barra quedaría fija encendida: se oculta. */
+  @supports not (animation-timeline: view()) {
+    .sticky-name {
+      display: none;
+    }
+  }
+</style>

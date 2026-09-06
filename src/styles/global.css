@@ -2,10 +2,31 @@
 
 :root {
   color-scheme: dark;
-  --font-barlow: "Barlow", sans-serif;
-  --font-playfair: "Playfair Display", serif;
-  --font-jetbrains: "JetBrains Mono", monospace;
+
+  /* Texto corrido y UI: sobria. Bellota queda para el hero y los títulos de sección. */
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-bellota: "Bellota Text", ui-rounded, system-ui, sans-serif;
+  --font-jetbrains: "JetBrains Mono", ui-monospace, monospace;
+
   --page-accent-surface: #131222;
+  --page-accent: #ff512f;
+  /* Versiones RGB para componer alfas: rgb(var(--text-rgb) / 0.6). */
+  --text-rgb: 226 232 240;
+  --accent-rgb: 255 81 47;
+  --surface-rgb: 19 18 34;
+  /* Superficie elevada (tarjetas, botón sólido sobre claro). */
+  --surface-raised: #16151f;
+  /* Curva de salida suave usada en toda la página. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Azul del lienzo de Figma: bordes y tiradores de selección. */
+  --figma-select: #60a5fa;
+
+  /* Retícula de plano técnico: rieles verticales, divisores y marcadores. */
+  --bp-max: 68rem;
+  --bp-gutter: 1.5rem;
+  --bp-line: rgba(148, 163, 184, 0.16);
+  --bp-marker: #2b2a45;
+  --bp-marker-size: 7px;
 }
 
 html {
@@ -13,13 +34,187 @@ html {
   background: var(--page-accent-surface);
 }
 
+/*
+  Red de seguridad contra el scroll horizontal. `clip` y no `hidden`: hidden
+  convertiría a body en contenedor de scroll y rompería las animaciones
+  dirigidas por scroll (la franja del tren) y cualquier sticky.
+*/
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
+  /* Abre el alcance de la view-timeline del nombre del perfil a toda la página (StickyName). */
+  timeline-scope: --profile-name;
   background: var(--page-accent-surface);
-  color: rgb(226 232 240);
+  color: rgb(var(--text-rgb));
+  font-family: var(--font-sans);
   font-feature-settings:
     "rlig" 1,
     "calt" 1;
+}
+
+/* Tipografía de display (hero y títulos de sección). */
+.font-bellota,
+.font-display {
+  font-family: var(--font-bellota);
+}
+
+/* ── Botones ──────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.55rem;
+  padding: 0.62rem 1.15rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--solid {
+  background: #fff;
+  color: var(--surface-raised);
+}
+
+.btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: none;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.btn--ghost:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn--sm {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.76rem;
+}
+
+.btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Chips (filtros, etiquetas pulsables) ─────────────────────────────── */
+.chip {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.34rem 0.9rem;
+  font-size: 0.76rem;
+  color: rgb(var(--text-rgb) / 0.66);
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.chip:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.chip--active {
+  background: #fff;
+  border-color: #fff;
+  color: var(--surface-raised);
+}
+
+.font-jetbrains {
+  font-family: var(--font-jetbrains);
+}
+
+/*
+  Marco de plano.
+
+  Los rieles verticales viven en cada sección enmarcada: al apilarse, sus
+  bordes forman una línea continua de arriba abajo. Cada sección aporta
+  además su propio divisor horizontal superior.
+
+  Las secciones a sangre (la franja de imagen, el footer) simplemente no
+  usan .bp-inner, así que el riel se corta ahí — que es justo lo que se
+  quiere: el marco delimita el contenido, no la página entera.
+*/
+.bp-section {
+  position: relative;
+  width: 100%;
+}
+
+.bp-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--bp-max);
+  margin-inline: auto;
+  padding-inline: var(--bp-gutter);
+  border-inline: 1px dashed var(--bp-line);
+}
+
+.bp-section[data-bp-divider="true"] .bp-inner {
+  border-top: 1px dashed var(--bp-line);
+}
+
+/* Cierra el marco cuando la siguiente sección va a sangre. */
+.bp-section[data-bp-close="true"] .bp-inner {
+  border-bottom: 1px dashed var(--bp-line);
+}
+
+.bp-marker {
+  position: absolute;
+  width: var(--bp-marker-size);
+  height: var(--bp-marker-size);
+  background: var(--bp-marker);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.bp-marker--tl {
+  left: 0;
+  top: 0;
+}
+.bp-marker--tr {
+  left: 100%;
+  top: 0;
+}
+.bp-marker--bl {
+  left: 0;
+  top: 100%;
+}
+.bp-marker--br {
+  left: 100%;
+  top: 100%;
+}
+
+/*
+  Cuando el viewport no supera el ancho del marco (--bp-max, 68rem), los
+  rieles caen justo en el borde de la pantalla y los marcadores sobresalen
+  por la derecha provocando scroll horizontal. Ahí el marco deja de tener
+  sentido: se ocultan rieles y marcadores. Los bordes pasan a transparente
+  (no a 0) para que el ancho útil no cambie ni un píxel.
+*/
+@media (max-width: 68rem) {
+  .bp-inner {
+    border-inline-color: transparent;
+  }
+
+  .bp-marker {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

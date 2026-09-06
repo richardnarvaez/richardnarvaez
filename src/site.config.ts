@@ -1,7 +1,6 @@
 import packageJson from "../package.json"
 
 export const siteName = "Richard Vinueza"
-export const siteRole = "Product Engineer, Madrid - Spain"
 export const siteDescription =
   "Portfolio of Richard Vinueza - Product Engineer in Madrid. Software, sketches and passport."
 export const siteUrl = "https://rbvn.vercel.app"

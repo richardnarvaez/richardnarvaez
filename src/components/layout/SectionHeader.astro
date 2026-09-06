@@ -1,0 +1,46 @@
+---
+// Cabecera de sección: título en la tipografía de display y una entradilla
+// opcional (por prop o por slot, para poder meter enlaces). El espaciado
+// exterior lo pone cada sección.
+interface Props {
+  title: string
+  lead?: string
+}
+
+const { title, lead } = Astro.props
+const hasLead = Boolean(lead) || Astro.slots.has("default")
+---
+
+<header class="section-header">
+  <h2 class="section-header__title">{title}</h2>
+  {
+    hasLead && (
+      <p class="section-header__lead">
+        {lead}
+        <slot />
+      </p>
+    )
+  }
+</header>
+
+<style>
+  .section-header {
+    text-align: center;
+  }
+
+  .section-header__title {
+    margin: 0;
+    font-family: var(--font-bellota);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .section-header__lead {
+    max-width: 36rem;
+    margin: 0.8rem auto 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgb(var(--text-rgb) / 0.6);
+  }
+</style>

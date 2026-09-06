@@ -23,3 +23,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# local tooling
+.claude/
+
+# image sources (~20 MB); the derived WebP/PNG in public/ are generated
+# from these with `node scripts/build-images.mjs`
+design/

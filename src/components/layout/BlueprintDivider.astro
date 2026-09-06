@@ -1,0 +1,20 @@
+---
+// Divisor horizontal del marco de plano, de riel a riel, con los dos
+// marcadores en los extremos. Va dentro de un .bp-inner: los márgenes
+// negativos anulan el gutter para que la línea toque los rieles. Los
+// marcadores son los globales (.bp-marker), que ya se ocultan bajo 68rem.
+---
+
+<div class="bp-divider" role="presentation">
+  <span class="bp-marker bp-marker--tl" aria-hidden="true"></span>
+  <span class="bp-marker bp-marker--tr" aria-hidden="true"></span>
+</div>
+
+<style>
+  .bp-divider {
+    position: relative;
+    height: 0;
+    margin-inline: calc(-1 * var(--bp-gutter));
+    border-top: 1px dashed var(--bp-line);
+  }
+</style>

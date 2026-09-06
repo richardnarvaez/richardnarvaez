@@ -1,0 +1,755 @@
+---
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
+
+// Tres lienzos, uno por pestaña: Apps (iconos), Ilustraciones y Fotografía
+// (imágenes). Todos comparten la misma mecánica: un racimo de tiles centrado
+// que se pueden arrastrar y recolocar (las posiciones se guardan en
+// localStorage por lienzo); al pulsar uno, crece a 1.2, aparta al resto y su
+// ficha aparece debajo. "Ver más" está desactivado hasta que existan las
+// páginas de detalle.
+//
+// Los tiles con `placeholder: true` son huecos (punteados, no interactivos)
+// para contenido futuro. Sustituir por entradas reales.
+
+type Tile = {
+  id: string
+  name: string
+  desc?: string
+  /** Icono de app o imagen. */
+  src?: string
+  /** Para tiles sin imagen: inicial sobre un degradado. */
+  initial?: string
+  tint?: string
+  placeholder?: boolean
+}
+
+type Slot = {
+  /** Centro del tile en px respecto al centro del escenario. */
+  x: number
+  y: number
+  /** Ancho en px; el alto sale de `ratio` (1 en los iconos). */
+  w: number
+  ratio?: number
+  /** Profundidad visual (1 = el más cercano); hoy solo ordena el apilado. */
+  depth: number
+}
+
+type Placed = Tile & Slot & { h: number; delay: number; rot: number }
+
+// ── Apps: racimo compacto de iconos ───────────────────────────────────────
+// 3 grandes (88px) alrededor del centro y 6 pequeños (56px) en parejas
+// flanqueando cada hueco. Radios calculados para ~16px entre vecinos:
+//   interior r=60 → cuerda entre grandes 104 = 88 + 16
+//   exterior r=123 → pequeño↔grande ≈17px, pequeño↔pequeño ≈15px
+const polar = (r: number, deg: number) => ({ x: Math.cos((deg * Math.PI) / 180) * r, y: Math.sin((deg * Math.PI) / 180) * r })
+
+const appSlots: Slot[] = [
+  ...[-90, 30, 150].map((deg) => ({ ...polar(60, deg), w: 88, depth: 1 })),
+  ...[-46.8, -13.2, 73.2, 106.8, 193.2, 226.8].map((deg) => ({ ...polar(123, deg), w: 56, depth: 0.55 })),
+]
+
+const apps: Tile[] = [
+  {
+    id: "huma",
+    name: "Huma Legends",
+    desc: "iOS app to learn English and Spanish vocabulary through illustrated stories from around the world.",
+    src: "/images/apps/huma.webp",
+  },
+  {
+    id: "memory",
+    name: "Memory ClickStudio",
+    desc: "Learning platform for all ages: notebooks, speed reading and information retention.",
+    src: "/images/apps/memory.webp",
+  },
+  {
+    id: "udramo",
+    name: "UDRAMO",
+    desc: "Latest releases. Details coming soon.",
+    initial: "U",
+    tint: "linear-gradient(145deg, #ff6a4b, #b3261e)",
+  },
+  ...Array.from({ length: 6 }, (_, i) => ({ id: `app-slot-${i + 1}`, name: "Coming soon", placeholder: true })),
+]
+
+// ── Lienzos de imágenes: composición tipo mood board ──────────────────────
+// Posiciones a mano (px) para 5 piezas con ~16px entre vecinas; el alto de
+// cada tile respeta la proporción de su imagen. Sin rotación.
+const canvasSlots: Slot[] = [
+  { x: 0, y: 0, w: 176, ratio: 1, depth: 1 },
+  { x: -172, y: -60, w: 136, ratio: 1.43, depth: 0.7 },
+  { x: 152, y: -20, w: 96, ratio: 0.56, depth: 0.7 },
+  { x: -154, y: 76, w: 100, ratio: 0.7, depth: 0.5 },
+  { x: 156, y: 134, w: 104, ratio: 1, depth: 0.5 },
+]
+
+const illustrations: Tile[] = [
+  { id: "ill-1", name: "Huma", desc: "Illustration for Huma Legends.", src: "/images/illustration/thumbs/pic_1.webp" },
+  { id: "ill-2", name: "Illustration 02", src: "/images/illustration/thumbs/pic_2.webp" },
+  { id: "ill-3", name: "Illustration 03", src: "/images/illustration/thumbs/pic_3.webp" },
+  { id: "ill-4", name: "Illustration 04", src: "/images/illustration/thumbs/pic_4.webp" },
+  { id: "ill-5", name: "UDRAMO", desc: "Character sketch.", src: "/images/illustration/thumbs/pic_5.webp" },
+]
+
+// Fotografía: las fotos propias publicadas en Unsplash (títulos y textos de
+// la versión anterior). Se piden a 480px de ancho, suficiente para tiles de
+// hasta 240px en retina. Composición aparte, para 8 piezas.
+const unsplash = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=75&w=480`
+
+const photos: Tile[] = [
+  { id: "madeira", name: "Madeira Cliffs", desc: "Clouds wrapping the ridge before the sun opened the valley.", src: unsplash("photo-1764025721609-2bd1cf185f32") },
+  { id: "landing-path", name: "Landing Path", desc: "A quiet frame under the flight line with the city opening behind.", src: "/images/photos/landing-path.webp" },
+  { id: "blue-valley", name: "Blue Valley", desc: "A clear mountain basin with the horizon holding just one color.", src: unsplash("photo-1761671955448-f68ca9eec238") },
+  { id: "flag-street", name: "Flag Street", desc: "A narrow corridor of facades, cables and banners in late light.", src: unsplash("photo-1761671955479-c1fa3e1cf1a8") },
+  { id: "sail-line", name: "Sail Line", desc: "A single mast crossing the calmest part of the afternoon sea.", src: unsplash("photo-1767279265177-60b3595c61b5") },
+  { id: "green-rise", name: "Green Rise", desc: "A softer slope where clouds break just above the tree line.", src: unsplash("photo-1764181582237-0c57598f693a") },
+  { id: "stone-steps", name: "Stone Steps", desc: "Texture, repetition and a monochrome path cut into the rock.", src: unsplash("photo-1759424727859-7f489622313d") },
+  { id: "harbor-silence", name: "Harbor Silence", desc: "A narrow frame where water and distant relief almost flatten out.", src: unsplash("photo-1759424727855-772a29b2ee93") },
+]
+
+// Ranuras para las 8 fotos (mismas proporciones que tenían: 4/5, 3/4, 9/16),
+// ~16px entre vecinas, centro desplazado 30px arriba para equilibrar.
+const photoSlots: Slot[] = [
+  { x: 0, y: -30, w: 150, ratio: 0.8, depth: 1 },
+  { x: -147, y: -70, w: 112, ratio: 0.75, depth: 0.7 },
+  { x: 147, y: -76, w: 112, ratio: 0.8, depth: 0.7 },
+  { x: -135, y: 76, w: 88, ratio: 0.8, depth: 0.5 },
+  { x: 127, y: 74, w: 72, ratio: 0.5625, depth: 0.5 },
+  { x: -263, y: -16, w: 88, ratio: 0.8, depth: 0.4 },
+  { x: 251, y: -40, w: 64, ratio: 0.5625, depth: 0.4 },
+  { x: -263, y: 108, w: 80, ratio: 0.75, depth: 0.4 },
+]
+
+function place(tiles: Tile[], slots: Slot[], { rotate }: { rotate: boolean }): Placed[] {
+  return tiles.slice(0, slots.length).map((tile, index) => {
+    const slot = slots[index]
+    return {
+      ...tile,
+      ...slot,
+      h: slot.w / (slot.ratio ?? 1),
+      delay: (index * 0.7) % 4,
+      // Giro ligero y distinto por tile (−12°…12°), como iconos esparcidos.
+      rot: rotate ? ((index * 137) % 25) - 12 : 0,
+    }
+  })
+}
+
+const clusters = [
+  { id: "apps", label: "Apps", kind: "icons", items: place(apps, appSlots, { rotate: true }) },
+  { id: "illustration", label: "Illustrations", kind: "canvas", items: place(illustrations, canvasSlots, { rotate: false }) },
+  { id: "photo", label: "Photography", kind: "canvas", items: place(photos, photoSlots, { rotate: false }) },
+] as const
+---
+
+<BlueprintSection id="projects" class="projects" label="03 — work">
+  <div class="projects__head">
+    <SectionHeader title="Projects and Products" lead="Apps, illustrations and photography" />
+  </div>
+
+  {/* Pestañas sin JavaScript: radios ocultos + selectores de hermano. */}
+  <div class="projects__filter">
+    {
+      clusters.map((c, i) => (
+        <input type="radio" name="project-filter" id={`pf-${c.id}`} class="projects__radio sr-only" checked={i === 0} />
+      ))
+    }
+
+    <div class="projects__chips">
+      {clusters.map((c) => <label class="chip" for={`pf-${c.id}`}>{c.label}</label>)}
+    </div>
+
+    {
+      clusters.map((c) => (
+        <div class:list={["orbit", `orbit--${c.kind}`]} data-orbit data-cluster={c.id}>
+          {/* Ficha SOBRE el racimo, en un hueco de altura fija (no salta el layout). Cierra con ×, clic fuera o Escape. */}
+          <div class="orbit__stage" data-orbit-stage>
+            <div class="orbit__cluster">
+              {c.items.map((a) => (
+                <button
+                  type="button"
+                  class:list={["orbit__app", { "orbit__app--placeholder": a.placeholder }]}
+                  style={`--x: ${a.x.toFixed(1)}px; --y: ${a.y.toFixed(1)}px; --w: ${a.w}px; --h: ${a.h.toFixed(1)}px; --depth: ${a.depth}; --delay: ${a.delay}s; --rot: ${a.rot}deg;`}
+                  data-app={a.placeholder ? undefined : a.id}
+                  data-name={a.name}
+                  data-desc={a.desc}
+                  data-icon={a.src}
+                  data-initial={a.initial}
+                  data-tint={a.tint}
+                  aria-label={a.name}
+                  aria-pressed={a.placeholder ? undefined : "false"}
+                  disabled={a.placeholder}
+                >
+                  <span class="orbit__tile" style={a.tint ? `background: ${a.tint};` : undefined}>
+                    {a.src && <img src={a.src} loading="lazy" decoding="async" draggable="false" alt="" />}
+                    {a.initial && <span class="orbit__initial">{a.initial}</span>}
+                    {a.placeholder && <span class="orbit__plus" aria-hidden="true">+</span>}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="orbit__detail">
+            <button type="button" class="orbit__reset" data-orbit-reset hidden>Reset positions</button>
+            <div class="orbit__card" data-orbit-card hidden aria-live="polite">
+              <span class="orbit__card-icon" data-orbit-card-icon></span>
+              <div class="orbit__card-text">
+                <p class="orbit__card-name" data-orbit-card-name></p>
+                <p class="orbit__card-desc" data-orbit-card-desc></p>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm orbit__more" disabled title="Soon">See more</button>
+              <button type="button" class="orbit__close" data-orbit-close aria-label="Close">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      ))
+    }
+  </div>
+</BlueprintSection>
+
+<script>
+  // Cada lienzo es independiente: ficha al pulsar y arrastrar-y-soltar con
+  // posiciones persistidas en localStorage (una clave por lienzo).
+  for (const orbit of document.querySelectorAll<HTMLElement>("[data-orbit]")) {
+    const stage = orbit.querySelector<HTMLElement>("[data-orbit-stage]")
+    const cluster = orbit.querySelector<HTMLElement>(".orbit__cluster")
+    const card = orbit.querySelector<HTMLElement>("[data-orbit-card]")
+    const reset = orbit.querySelector<HTMLButtonElement>("[data-orbit-reset]")
+    if (!stage || !cluster || !card || !reset) continue
+
+    const storageKey = `orbit:${orbit.dataset.cluster}:positions`
+    const tiles = [...orbit.querySelectorAll<HTMLButtonElement>(".orbit__app[data-app]")]
+
+    // ── Posiciones guardadas ──
+    type Pos = { x: number; y: number }
+    const load = (): Record<string, Pos> => {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) ?? "{}")
+      } catch {
+        return {}
+      }
+    }
+    const save = (positions: Record<string, Pos>) => {
+      try {
+        if (Object.keys(positions).length) localStorage.setItem(storageKey, JSON.stringify(positions))
+        else localStorage.removeItem(storageKey)
+      } catch {
+        /* sin almacenamiento: la sesión sigue funcionando, solo no persiste */
+      }
+      reset.hidden = Object.keys(positions).length === 0
+    }
+    const saved = load()
+    for (const tile of tiles) {
+      // Posición de fábrica (la del HTML), ANTES de aplicar la guardada: es a
+      // donde vuelve "Restablecer".
+      tile.dataset.homeX = tile.style.getPropertyValue("--x")
+      tile.dataset.homeY = tile.style.getPropertyValue("--y")
+      const pos = saved[tile.dataset.app!]
+      if (pos) {
+        tile.style.setProperty("--x", `${pos.x}px`)
+        tile.style.setProperty("--y", `${pos.y}px`)
+      }
+    }
+    reset.hidden = Object.keys(saved).length === 0
+    reset.addEventListener("click", () => {
+      for (const tile of tiles) {
+        tile.style.setProperty("--x", tile.dataset.homeX!)
+        tile.style.setProperty("--y", tile.dataset.homeY!)
+      }
+      save({})
+    })
+
+    // ── Ficha ──
+    const cardIcon = card.querySelector<HTMLElement>("[data-orbit-card-icon]")!
+    const cardName = card.querySelector<HTMLElement>("[data-orbit-card-name]")!
+    const cardDesc = card.querySelector<HTMLElement>("[data-orbit-card-desc]")!
+
+    const select = (tile: HTMLButtonElement | null) => {
+      for (const t of tiles) t.setAttribute("aria-pressed", String(t === tile))
+      orbit.classList.toggle("has-active", tile !== null)
+      card.hidden = tile === null
+      if (!tile) return
+      cardName.textContent = tile.dataset.name ?? ""
+      cardDesc.textContent = tile.dataset.desc ?? ""
+      cardDesc.hidden = !tile.dataset.desc
+      cardIcon.replaceChildren()
+      cardIcon.style.background = tile.dataset.tint ?? ""
+      if (tile.dataset.icon) {
+        const img = new Image()
+        img.src = tile.dataset.icon
+        img.alt = ""
+        cardIcon.append(img)
+      } else if (tile.dataset.initial) {
+        cardIcon.textContent = tile.dataset.initial
+      }
+    }
+
+    card.querySelector("[data-orbit-close]")?.addEventListener("click", () => select(null))
+    stage.addEventListener("click", () => select(null))
+    orbit.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") select(null)
+    })
+
+    // ── Arrastrar y soltar ──
+    // Un pointerdown que se mueve más de DRAG_THRESHOLD px es un arrastre (y
+    // se traga el click posterior); si no, es un click normal → ficha.
+    const DRAG_THRESHOLD = 4
+    // Separación mínima entre tiles al soltar (la misma de la composición).
+    const MIN_GAP = 16
+    const everyTile = [...orbit.querySelectorAll<HTMLElement>(".orbit__app")]
+
+    type Frame = { minX: number; maxX: number; minY: number; maxY: number; midX: number; midY: number }
+    const frameOf = (el: HTMLElement, x?: number, y?: number): Frame => {
+      const cx = x ?? parseFloat(el.style.getPropertyValue("--x"))
+      const cy = y ?? parseFloat(el.style.getPropertyValue("--y"))
+      const w = parseFloat(el.style.getPropertyValue("--w"))
+      const h = parseFloat(el.style.getPropertyValue("--h"))
+      return { minX: cx - w / 2, maxX: cx + w / 2, minY: cy - h / 2, maxY: cy + h / 2, midX: cx, midY: cy }
+    }
+
+    // Si el tile cae sobre otro, se desplaza al hueco libre más cercano:
+    // se expande cada vecino MIN_GAP y se empuja al que se mueve por el eje
+    // de menor solape, repitiendo hasta que no choque con nadie (o 8 veces).
+    // Adaptado del lienzo de justabrain (resolveSnapPosition).
+    const resolveOverlap = (moving: HTMLElement, x: number, y: number, bounds: { x: number; y: number }) => {
+      const others = everyTile.filter((t) => t !== moving)
+      let rx = x
+      let ry = y
+      for (let i = 0; i < 8; i++) {
+        let collided = false
+        let me = frameOf(moving, rx, ry)
+        for (const other of others) {
+          const f = frameOf(other)
+          const ex = { minX: f.minX - MIN_GAP, maxX: f.maxX + MIN_GAP, minY: f.minY - MIN_GAP, maxY: f.maxY + MIN_GAP }
+          const overlapX = Math.min(me.maxX, ex.maxX) - Math.max(me.minX, ex.minX)
+          const overlapY = Math.min(me.maxY, ex.maxY) - Math.max(me.minY, ex.minY)
+          if (overlapX <= 0 || overlapY <= 0) continue
+          collided = true
+          if (overlapX < overlapY) rx += (me.midX >= f.midX ? 1 : -1) * overlapX
+          else ry += (me.midY >= f.midY ? 1 : -1) * overlapY
+          // Sin salirse del escenario.
+          rx = Math.max(-bounds.x, Math.min(bounds.x, rx))
+          ry = Math.max(-bounds.y, Math.min(bounds.y, ry))
+          me = frameOf(moving, rx, ry)
+        }
+        if (!collided) break
+      }
+      return { x: rx, y: ry }
+    }
+
+    // El drag-and-drop nativo de HTML (imágenes, texto) cortaría los
+    // pointermove: se cancela en todo el lienzo.
+    orbit.addEventListener("dragstart", (event) => event.preventDefault())
+
+    for (const tile of tiles) {
+      let startX = 0
+      let startY = 0
+      let originX = 0
+      let originY = 0
+      let scale = 1
+      let dragged = false
+      let active = false
+      let half = { w: 0, h: 0 }
+      let bounds = { x: 0, y: 0 }
+
+      tile.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return
+        active = true
+        startX = event.clientX
+        startY = event.clientY
+        originX = parseFloat(tile.style.getPropertyValue("--x"))
+        originY = parseFloat(tile.style.getPropertyValue("--y"))
+        // El racimo va escalado en pantallas estrechas: el delta del puntero
+        // se convierte a unidades del racimo dividiendo por su escala.
+        scale = cluster.getBoundingClientRect().width / Math.max(cluster.offsetWidth, 1) || parseFloat(getComputedStyle(cluster).scale) || 1
+        if (!Number.isFinite(scale) || scale <= 0) scale = 1
+        const stageBox = stage.getBoundingClientRect()
+        half = { w: tile.offsetWidth / 2, h: tile.offsetHeight / 2 }
+        bounds = { x: stageBox.width / 2 / scale - half.w, y: stageBox.height / 2 / scale - half.h }
+        dragged = false
+        // La captura mantiene el arrastre aunque el puntero salga del tile;
+        // si no está disponible, el arrastre sigue funcionando sobre el tile.
+        try {
+          tile.setPointerCapture(event.pointerId)
+        } catch {
+          /* puntero no capturable */
+        }
+      })
+
+      tile.addEventListener("pointermove", (event) => {
+        if (!active) return
+        const dx = (event.clientX - startX) / scale
+        const dy = (event.clientY - startY) / scale
+        if (!dragged && Math.hypot(dx, dy) * scale < DRAG_THRESHOLD) return
+        if (!dragged) {
+          dragged = true
+          tile.classList.add("is-dragging")
+        }
+        // Sin salirse del escenario.
+        const x = Math.max(-bounds.x, Math.min(bounds.x, originX + dx))
+        const y = Math.max(-bounds.y, Math.min(bounds.y, originY + dy))
+        tile.style.setProperty("--x", `${x.toFixed(1)}px`)
+        tile.style.setProperty("--y", `${y.toFixed(1)}px`)
+      })
+
+      const finish = (event: PointerEvent) => {
+        if (!active) return
+        active = false
+        try {
+          tile.releasePointerCapture(event.pointerId)
+        } catch {
+          /* no estaba capturado */
+        }
+        if (!dragged) return
+        tile.classList.remove("is-dragging")
+        // Al soltar: si pisa a otro, se acomoda en el hueco libre más cercano
+        // (la transición de left/top hace el recorrido).
+        const dropped = resolveOverlap(
+          tile,
+          parseFloat(tile.style.getPropertyValue("--x")),
+          parseFloat(tile.style.getPropertyValue("--y")),
+          bounds,
+        )
+        tile.style.setProperty("--x", `${dropped.x.toFixed(1)}px`)
+        tile.style.setProperty("--y", `${dropped.y.toFixed(1)}px`)
+        const positions = load()
+        positions[tile.dataset.app!] = { x: +dropped.x.toFixed(1), y: +dropped.y.toFixed(1) }
+        save(positions)
+      }
+      tile.addEventListener("pointerup", finish)
+      tile.addEventListener("pointercancel", finish)
+
+      tile.addEventListener("click", (event) => {
+        event.stopPropagation()
+        if (dragged) return // fue un arrastre, no una elección
+        select(tile.getAttribute("aria-pressed") === "true" ? null : tile)
+      })
+    }
+  }
+</script>
+
+<style>
+  .projects__head {
+    text-align: center;
+    padding-block: clamp(3rem, 8vh, 5rem) 0;
+  }
+
+  .projects__chips {
+    display: flex;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 1.8rem 0 1.2rem;
+  }
+
+  /* El radio marcado tiñe su etiqueta (mismo aspecto que .chip--active) y muestra su lienzo. */
+  #pf-apps:checked ~ .projects__chips label[for="pf-apps"],
+  #pf-illustration:checked ~ .projects__chips label[for="pf-illustration"],
+  #pf-photo:checked ~ .projects__chips label[for="pf-photo"] {
+    background: #fff;
+    border-color: #fff;
+    color: var(--surface-raised);
+  }
+
+  .orbit {
+    display: none;
+    padding: 0 0 clamp(2rem, 6vh, 3.5rem);
+  }
+
+  #pf-apps:checked ~ .orbit[data-cluster="apps"],
+  #pf-illustration:checked ~ .orbit[data-cluster="illustration"],
+  #pf-photo:checked ~ .orbit[data-cluster="photo"] {
+    display: block;
+  }
+
+  /* ── Racimo ─────────────────────────────────────────────────────────── */
+  .orbit__stage {
+    /* El racimo está en px; en pantallas estrechas se escala entero (mín. 56·0.6 ≈ 34px). */
+    --cluster-scale: clamp(0.6, 100vw / 1000, 1);
+
+    position: relative;
+    height: clamp(19rem, 38vw, 25rem);
+  }
+
+  /* Origen del racimo: un punto en el centro del escenario. */
+  .orbit__cluster {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    scale: var(--cluster-scale);
+  }
+
+  /*
+    Cada tile se ancla por su centro en (--x, --y) px respecto al origen; se
+    puede arrastrar (el script actualiza --x/--y). Al elegir uno, los demás
+    se apartan (--spread).
+  */
+  .orbit__app {
+    --spread: 1;
+
+    position: absolute;
+    left: calc(var(--x) * var(--spread));
+    top: calc(var(--y) * var(--spread));
+    width: var(--w);
+    height: var(--h);
+    margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: grab;
+    touch-action: none;
+    /* Sin arrastre nativo ni selección: el arrastre lo hace el script con pointer events. */
+    user-select: none;
+    -webkit-user-drag: none;
+    transition:
+      scale 320ms var(--ease-out),
+      left 460ms var(--ease-out),
+      top 460ms var(--ease-out);
+  }
+
+  .orbit__app:hover {
+    scale: 1.08;
+    z-index: 1;
+  }
+
+  /* Arrastrando: sigue al puntero sin inercia y por encima de todo. */
+  .orbit__app.is-dragging {
+    z-index: 3;
+    cursor: grabbing;
+    scale: 1.06;
+    transition: scale 200ms ease;
+  }
+
+  .orbit__app.is-dragging .orbit__tile {
+    animation-play-state: paused;
+    box-shadow: 0 22px 40px -12px rgba(2, 6, 23, 0.85);
+  }
+
+  /* El elegido crece a 1.2 y empuja al resto hacia fuera. */
+  .orbit__app[aria-pressed="true"] {
+    scale: 1.2;
+    z-index: 2;
+  }
+
+  .orbit.has-active .orbit__app:not([aria-pressed="true"]) {
+    --spread: 1.3;
+  }
+
+  /* El tile: cuadrado redondeado tipo icono de app, con giro propio, flotando despacio. */
+  .orbit__tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 24%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 12px 28px -10px rgba(2, 6, 23, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    rotate: var(--rot);
+    transition: rotate 320ms var(--ease-out);
+    animation: orbitFloat 6s ease-in-out var(--delay) infinite alternate;
+  }
+
+  /* Imágenes: mismo tile pero rectangular, sin rotación, con radio fijo. */
+  .orbit--canvas .orbit__tile {
+    border-radius: 0.85rem;
+  }
+
+  /* Al pasar o elegir, el tile se endereza. */
+  .orbit__app:hover .orbit__tile,
+  .orbit__app[aria-pressed="true"] .orbit__tile {
+    rotate: 0deg;
+  }
+
+  .orbit__app[aria-pressed="true"] .orbit__tile {
+    border-color: var(--page-accent);
+    box-shadow:
+      0 0 0 3px rgb(var(--accent-rgb) / 0.25),
+      0 14px 30px -8px rgb(var(--accent-rgb) / 0.45);
+  }
+
+  .orbit__tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  .orbit__initial {
+    font-size: calc(var(--w) * 0.5);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .orbit__app--placeholder {
+    cursor: default;
+  }
+
+  .orbit__app--placeholder .orbit__tile {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.025);
+    box-shadow: none;
+  }
+
+  .orbit__plus {
+    font-size: calc(min(var(--w), var(--h)) * 0.45);
+    font-weight: 300;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* ── Ficha: hueco de altura fija bajo el racimo; aparece al elegir ───── */
+  .orbit__detail {
+    position: relative;
+    /* Por encima de los tiles (absolutos, con z hasta 3 al arrastrar). */
+    z-index: 4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 7.5rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Solo aparece cuando hay posiciones guardadas. */
+  .orbit__reset {
+    position: absolute;
+    right: 0;
+    top: -1.6rem;
+    border: 0;
+    background: none;
+    padding: 0.2rem 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: rgb(var(--text-rgb) / 0.4);
+    cursor: pointer;
+    transition: color 180ms ease;
+  }
+
+  .orbit__reset:hover {
+    color: rgb(var(--text-rgb) / 0.85);
+  }
+
+  .orbit__card {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    width: min(32rem, 100%);
+    padding: 0.85rem 0.9rem 0.85rem 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    text-align: left;
+    animation: orbitCardIn 320ms var(--ease-out) both;
+  }
+
+  .orbit__card-icon {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    overflow: hidden;
+    border-radius: 24%;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .orbit__card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .orbit__card-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .orbit__card-name {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .orbit__card-desc {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: rgb(var(--text-rgb) / 0.7);
+  }
+
+  .orbit__more {
+    flex: none;
+  }
+
+  .orbit__close {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: background 180ms ease;
+  }
+
+  .orbit__close:hover {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  @keyframes orbitFloat {
+    from {
+      translate: 0 -3px;
+    }
+    to {
+      translate: 0 4px;
+    }
+  }
+
+  @keyframes orbitCardIn {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit__tile,
+    .orbit__card {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .orbit__card {
+      flex-wrap: wrap;
+    }
+
+    .orbit__more {
+      flex: 1;
+    }
+  }
+</style>
