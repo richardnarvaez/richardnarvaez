@@ -1,158 +1,198 @@
 ---
 import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
 
+// Sin versiones a propósito: las herramientas envejecen mejor que los números.
+// Los iconos son trazos de 24px (estilo lucide) dibujados inline.
 const stack = [
   {
-    title: "NextJS 15",
-    body: "App Router, server actions y renderizado híbrido.",
-    icon: "n",
+    title: "React & Next.js",
+    body: "App Router, server components and composable design systems.",
+    icon: `<circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><ellipse cx="12" cy="12" rx="10" ry="3.8"/><ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="3.8" transform="rotate(120 12 12)"/>`,
   },
   {
-    title: "React 19",
-    body: "Server components y el modelo de datos que traen.",
-    icon: "r",
+    title: "Angular",
+    body: "Large-scale SPAs with RxJS and a modular architecture.",
+    icon: `<path d="M12 2 3 5.5l1.4 12L12 22l7.6-4.5 1.4-12z"/><path d="m8.5 16.5 3.5-9 3.5 9"/><path d="M9.8 13.5h4.4"/>`,
   },
   {
     title: "Backend",
-    body: "API REST y GraphQL sobre Node, con Postgres.",
-    icon: "b",
+    body: "REST, GraphQL and gRPC APIs on Node; Postgres and Convex.",
+    icon: `<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>`,
   },
   {
-    title: "Components",
-    body: "Sistemas de diseño accesibles y componibles.",
-    icon: "c",
+    title: "Mobile",
+    body: "React Native for iOS and Android; native with Swift, Kotlin and Java.",
+    icon: `<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>`,
   },
   {
     title: "Authentication",
-    body: "Sesiones, OAuth y control de acceso por rol.",
-    icon: "a",
+    body: "Sessions, JWT, OAuth and Google sign-in; Directus and Strapi.",
+    icon: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>`,
   },
   {
-    title: "Subscriptions",
-    body: "Pagos recurrentes, planes y facturación.",
-    icon: "s",
+    title: "Subscriptions & Payments",
+    body: "Recurring payments, plans and billing with Stripe and Adyen.",
+    icon: `<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h3"/>`,
   },
 ]
 ---
 
 <BlueprintSection id="stack" class="stack" label="05 — stack" divider={false}>
-  <div class="stack__head">
-    <h2 class="stack__title">Frameworks &amp; Tech</h2>
-    <p class="stack__lead">
-      Estas son las herramientas con las que trabajo a diario. No es una lista
-      de todo lo que existe, sino de lo que uso lo bastante como para conocer
-      sus bordes.
-    </p>
+  {/*
+    La pantalla: un marco con bisel que contiene todo el contenido, apoyado
+    sobre el MacBook. La tapa del portátil queda detrás del marco (solo asoma
+    la base con el teclado), así el contenido se lee como lo que muestra la
+    pantalla.
+  */}
+  <div class="stack__screen">
+    <SectionHeader title="Frameworks & Tech" lead="My go-to stack: the tools I ship with most often." />
+
+    <ul class="stack__grid">
+      {
+        stack.map((item) => (
+          <li class="card">
+            <span class="card__icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                set:html={item.icon}
+              />
+            </span>
+            <h3 class="card__title">{item.title}</h3>
+            <p class="card__body">{item.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    {/* Resplandor que "sale" de la pantalla hacia el teclado. */}
+    <span class="stack__glow" aria-hidden="true"></span>
   </div>
 
-  <ul class="stack__grid">
-    {
-      stack.map((item) => (
-        <li class="card">
-          <span class="card__icon font-jetbrains" aria-hidden="true">
-            {item.icon}
-          </span>
-          <h3 class="card__title">{item.title}</h3>
-          <p class="card__body">{item.body}</p>
-        </li>
-      ))
-    }
-  </ul>
-
-  <div class="stack__logos">
-    <img
-      src="/images/IconsTech.png"
-      width="800"
-      height="800"
-      loading="lazy"
-      decoding="async"
-      alt=""
-    />
+  <div class="stack__base">
+    <img src="/images/teclado-mac.jpg" width="667" height="295" loading="lazy" decoding="async" alt="" />
   </div>
 </BlueprintSection>
 
 <style>
-  .stack__head {
-    text-align: center;
-    padding-block: clamp(3.5rem, 9vh, 5.5rem) 0;
-  }
-
-  .stack__title {
-    margin: 0;
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .stack__lead {
-    max-width: 36rem;
-    margin: 0.8rem auto 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: rgba(226, 232, 240, 0.6);
+  /* ── Pantalla ─────────────────────────────────────────────────────────── */
+  .stack__screen {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(3rem, 8vh, 5rem);
+    padding: clamp(2rem, 4.5vw, 3.25rem) clamp(1.25rem, 3.5vw, 2.75rem) clamp(2.25rem, 4.5vw, 3.25rem);
+    border-radius: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Opaco: la tapa del portátil queda detrás y no debe transparentarse. */
+    background: linear-gradient(180deg, #1a1929 0%, #141322 60%, var(--page-accent-surface) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+      0 40px 90px -40px rgba(0, 0, 0, 0.9);
   }
 
   /* Rejilla 3x2 fija: con auto-fit quedaban huecos vacíos al final. */
   .stack__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1px;
-    margin: 2.8rem 0 0;
+    gap: 0.75rem;
+    margin: 2.4rem 0 0;
     padding: 0;
     list-style: none;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    background: rgba(255, 255, 255, 0.07);
-    border-radius: 0.9rem;
-    overflow: hidden;
   }
 
   .card {
-    background: #16151f;
-    padding: 1.5rem 1.35rem;
-    transition: background 220ms ease;
+    padding: 1.35rem 1.3rem 1.4rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.025);
+    transition:
+      background 220ms ease,
+      border-color 220ms ease;
   }
 
   .card:hover {
-    background: #1b1a26;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.14);
   }
 
   .card__icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.6rem;
-    background: rgba(255, 255, 255, 0.07);
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.82);
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
   }
 
   .card__title {
-    margin: 0.9rem 0 0;
+    margin: 1rem 0 0;
     font-size: 1rem;
     font-weight: 700;
     color: #fff;
   }
 
   .card__body {
-    margin: 0.4rem 0 0;
+    margin: 0.35rem 0 0;
     font-size: 0.85rem;
     line-height: 1.55;
-    color: rgba(226, 232, 240, 0.55);
+    color: rgb(var(--text-rgb) / 0.55);
   }
 
-  .stack__logos {
+  /* Luz que cae de la pantalla al teclado, en el tono del brillo de la foto. */
+  .stack__glow {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: -3.5rem;
+    height: 7rem;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 0%, rgba(167, 139, 250, 0.22), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Base del portátil ────────────────────────────────────────────────── */
+  /*
+    La foto es el MacBook entreabierto visto de frente. Se solapa con la
+    pantalla solo por arriba (~25% de su alto): asoma parte de la tapa con
+    su brillo y, sobre todo, la base con el teclado. El solape es
+    proporcional al ancho de la imagen.
+  */
+  .stack__base {
     display: flex;
     justify-content: center;
-    padding-block: 2.6rem clamp(3rem, 8vh, 4.5rem);
+    margin-top: calc(-1 * min(11%, 5.75rem));
+    padding-bottom: clamp(2rem, 6vh, 3.5rem);
   }
 
-  .stack__logos img {
-    width: min(100%, 34rem);
+  .stack__base img {
+    width: min(100%, 52rem);
     height: auto;
-    opacity: 0.9;
+    mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, #000 45%, transparent 100%);
+  }
+
+  @media (max-width: 900px) {
+    .stack__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .stack__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stack__screen {
+      border-radius: 1.25rem;
+    }
   }
 </style>
