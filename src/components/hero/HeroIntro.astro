@@ -1,5 +1,6 @@
 ---
 import ArrowFigma from "../icons/ArrowFigma.astro"
+import GradualBlur from "../ui/GradualBlur.astro"
 import { siteName, projectVersionLabel } from "../../site.config"
 
 // Palabras que rotan en la selección. Van apiladas en la misma celda de una
@@ -35,6 +36,22 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       </div>
     </div>
   </div>
+
+  {/*
+    Desenfoque progresivo bajo el texto: máximo en el borde izquierdo y nulo
+    hacia el 45% del ancho, así la foto y el boceto se leen limpios a la
+    derecha. Va entre las capas de fondo (z negativo) y el contenido.
+  */}
+  <GradualBlur
+    class="hero__blur"
+    position="left"
+    height="45%"
+    strength={1.5}
+    divCount={5}
+    curve="bezier"
+    exponential
+    zIndex={0}
+  />
 
   {/* Sin rieles ni marcadores: el hero va a sangre; el marco arranca en 01 — profile. */}
   <div class="bp-inner hero__inner">
@@ -827,6 +844,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     para no salirse de la pantalla.
   */
   @media (max-width: 640px) {
+    /* Texto centrado: un desenfoque solo a la izquierda quedaría descompensado. */
+    .hero :global(.hero__blur) {
+      display: none;
+    }
+
     .hero__inner {
       align-items: center;
       text-align: center;
