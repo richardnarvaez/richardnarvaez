@@ -1,6 +1,11 @@
 ---
 import ArrowFigma from "../icons/ArrowFigma.astro"
 import { siteName, projectVersionLabel } from "../../site.config"
+
+// Palabras que rotan en la selección. Van apiladas en la misma celda de una
+// rejilla, así que el marco mide siempre lo que la más ancha: nunca cambia de
+// tamaño. Cada letra es un span para fundirlas de una en una, en su sitio.
+const words = ["thinking...", "building...", "drawing..."].map((word) => [...word])
 ---
 
 <section class="hero" aria-labelledby="hero-title">
@@ -56,7 +61,17 @@ import { siteName, projectVersionLabel } from "../../site.config"
       </span>
 
       <span class="hero__selection" aria-hidden="true">
-        <span class="hero__line hero__line--thinking"><span class="hero__word">thinking...</span></span>
+        <span class="hero__line hero__line--thinking">
+          <span class="hero__slot">
+            {words.map((chars, i) => (
+              <span class:list={["hero__word", { "is-active": i === 0 }]}>
+                {chars.map((char, n) => (
+                  <span class="hero__char" style={`--i: ${n}`}>{char}</span>
+                ))}
+              </span>
+            ))}
+          </span>
+        </span>
 
         <span class="hero__handle hero__handle--tl"></span>
         <span class="hero__handle hero__handle--tr"></span>
@@ -73,60 +88,32 @@ import { siteName, projectVersionLabel } from "../../site.config"
 </section>
 
 <script>
-  // "Clic" al llegar a la derecha: cada ciclo del arrastre (heroDrag, 7.5s),
-  // al 30% la selección llega a su destino; ahí pulsa (escala) y la palabra
-  // rota con fundido, ajustando el ancho del marco con suavidad. Se engancha
-  // a los eventos de la propia animación CSS, así nunca se desfasa; con
-  // reduced-motion la animación no existe y la palabra se queda quieta.
+  // Cambio de palabra al llegar a la derecha: cada ciclo del arrastre
+  // (heroDrag, 7.5s), al 30% la selección llega a su destino y las letras de
+  // la palabra se funden con las de la siguiente, de izquierda a derecha y
+  // sin moverse. Se engancha a los eventos de la propia animación CSS, así
+  // nunca se desfasa; con reduced-motion la animación no existe y la palabra
+  // se queda quieta.
   const selection = document.querySelector<HTMLElement>(".hero__selection")
-  const line = selection?.querySelector<HTMLElement>(".hero__line--thinking")
-  const word = line?.querySelector<HTMLElement>(".hero__word")
+  const slotWords = [...document.querySelectorAll<HTMLElement>(".hero__word")]
 
-  if (selection && line && word) {
-    // Tres palabras de ancho casi idéntico (234 / 231 / 235px en Bellota 300)
-    // para que el marco apenas se mueva al cambiar. "coding..." medía 206px y
-    // el salto de 28px se notaba.
-    const WORDS = ["thinking...", "building...", "drawing..."]
-    const CLICK_AT_MS = 2250 // 30% de 7.5s
-    const FADE_MS = 180
+  if (selection && slotWords.length > 1) {
+    const SWAP_AT_MS = 2250 // 30% de 7.5s
     let index = 0
 
-    const click = () => {
-      selection.classList.add("is-clicking")
-      setTimeout(() => selection.classList.remove("is-clicking"), FADE_MS)
-
-      // Congela el ancho actual para poder animarlo hasta el nuevo.
-      const from = line.offsetWidth
-      line.style.width = `${from}px`
-      word.classList.add("is-swapping")
-
-      setTimeout(() => {
-        index = (index + 1) % WORDS.length
-        word.textContent = WORDS[index]
-        line.style.width = "auto"
-        const to = line.offsetWidth
-        line.style.width = `${from}px`
-        requestAnimationFrame(() => {
-          line.style.width = `${to}px`
-          word.classList.remove("is-swapping")
-        })
-        setTimeout(() => {
-          line.style.width = ""
-        }, 400)
-      }, FADE_MS)
+    const swap = () => {
+      slotWords[index].classList.remove("is-active")
+      index = (index + 1) % slotWords.length
+      slotWords[index].classList.add("is-active")
     }
 
     const schedule = (event: AnimationEvent) => {
-      if (event.animationName.includes("heroDrag")) setTimeout(click, CLICK_AT_MS)
+      if (event.animationName.includes("heroDrag")) setTimeout(swap, SWAP_AT_MS)
     }
     selection.addEventListener("animationstart", schedule)
     selection.addEventListener("animationiteration", schedule)
   }
 
-  // Foco sobre los bocetos. Solo escribe dos variables CSS (--tx/--ty) que
-  // el CSS convierte en `translate`: todo el movimiento es composición en GPU,
-  // sin repintar nada. Persigue al puntero con inercia (lerp) y el bucle de
-  // rAF se apaga solo cuando el foco alcanza al puntero.
   // Las variables viven en .hero: las leen tanto los bocetos como la palabra
   // HUMAN, cuyas máscaras usan las mismas manchas para revelar el "AI".
   const hero = document.querySelector<HTMLElement>(".hero")
@@ -618,25 +605,31 @@ import { siteName, projectVersionLabel } from "../../site.config"
     font-weight: 300;
     color: var(--page-accent);
     animation-delay: 0.24s;
-    /* El script fija el ancho en px durante el cambio de palabra para animarlo. */
-    transition: width 320ms var(--ease-out);
     white-space: nowrap;
   }
 
   /*
-    La palabra va en un span propio porque .hero__line conserva la opacidad
-    de su animación de entrada (fill both) y no dejaría fundirla.
+    Todas las palabras ocupan la misma celda, así que la caja mide lo que la
+    más ancha y no cambia nunca. Solo se ve la activa (lo alterna el script);
+    las letras se funden de una en una, de izquierda a derecha, sin moverse.
+    La que sale se apaga un poco antes de que entre la nueva.
   */
-  .hero__word {
-    display: inline-block;
-    transition:
-      opacity 180ms ease,
-      translate 180ms ease;
+  .hero__slot {
+    display: inline-grid;
   }
 
-  .hero__word.is-swapping {
+  .hero__word {
+    grid-area: 1 / 1;
+  }
+
+  .hero__char {
     opacity: 0;
-    translate: 0 -0.12em;
+    transition: opacity 240ms ease calc(var(--i) * 35ms);
+  }
+
+  .hero__word.is-active .hero__char {
+    opacity: 1;
+    transition-delay: calc(var(--i) * 35ms + 140ms);
   }
 
   /*
@@ -657,8 +650,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
     */
     transform-origin: left center;
     rotate: -10deg;
-    /* Pulso de "clic" (lo dispara el script al llegar a la derecha). */
-    transition: scale 180ms ease;
     /*
       Dos animaciones sobre propiedades distintas: la entrada anima
       `transform` (scaleX) y el arrastre anima `translate`, así no se pisan.
@@ -774,10 +765,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
       opacity: 1;
       transform: scaleX(1);
     }
-  }
-
-  .hero__selection.is-clicking {
-    scale: 0.94;
   }
 
   /*
