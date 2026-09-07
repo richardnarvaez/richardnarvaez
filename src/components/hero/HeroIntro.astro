@@ -41,9 +41,18 @@ import { siteName, projectVersionLabel } from "../../site.config"
       <span class="hero__line hero__line--creative" aria-hidden="true">
         Creative
       </span>
-      {/* Letra a letra para el guiño automático "AI": se apagan todas menos la A, y la N se vuelve I. */}
+      {/*
+        Dos capas con las mismas letras. La luz que sigue al puntero recorta
+        la capa normal y revela la capa "AI" debajo: H, U, M atenuadas, la A
+        intacta y una I sobre el primer trazo de la N.
+      */}
       <span class="hero__line hero__line--human" aria-hidden="true">
-        <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter hero__letter--keep">A</span><span class="hero__letter hero__letter--swap" data-alt="I"><span class="hero__glyph">N</span></span>
+        <span class="hero__human hero__human--base">
+          <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter hero__letter--keep">A</span><span class="hero__letter hero__letter--swap"><span class="hero__glyph">N</span></span>
+        </span>
+        <span class="hero__human hero__human--ai">
+          <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter hero__letter--keep">A</span><span class="hero__letter hero__letter--swap" data-alt="I"><span class="hero__glyph">N</span></span>
+        </span>
       </span>
 
       <span class="hero__selection" aria-hidden="true">
@@ -64,57 +73,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
 </section>
 
 <script>
-  // El guiño "AI" es automático: cada cierto tiempo la I sustituye a la N con
-  // un parpadeo suave (fluorescente que arranca), el resto de letras se
-  // atenúa, aguanta HOLD_MS y vuelve. Las esperas siguen un patrón irregular
-  // para que no se sienta mecánico ni molesto.
-  const WAITS_MS = [3000, 5000, 8000, 4000]
-  const HOLD_MS = 2000
-  const human = document.querySelector<HTMLElement>(".hero__line--human")
-
-  if (human) {
-    let step = 0
-    const cycle = () => {
-      setTimeout(() => {
-        human.classList.add("is-ai")
-        setTimeout(() => {
-          human.classList.remove("is-ai")
-          step = (step + 1) % WAITS_MS.length
-          cycle()
-        }, HOLD_MS)
-      }, WAITS_MS[step])
-    }
-    cycle()
-
-    // Letrero estropeado: entre medias, una letra al azar titila un instante
-    // (a veces dos seguidas). Nunca mientras el "AI" está encendido, para no
-    // pisar su propio parpadeo.
-    const bulbs = [
-      ...human.querySelectorAll<HTMLElement>(".hero__letter:not(.hero__letter--swap)"),
-      human.querySelector<HTMLElement>(".hero__glyph")!,
-    ]
-    const BLINK_MS = 520
-    const randomBetween = (min: number, max: number) => min + Math.random() * (max - min)
-
-    const blink = () => {
-      if (!human.classList.contains("is-ai")) {
-        const bulb = bulbs[Math.floor(Math.random() * bulbs.length)]
-        bulb.classList.add("is-blink")
-        setTimeout(() => bulb.classList.remove("is-blink"), BLINK_MS)
-        // Un 30% de las veces, otra letra repite justo después.
-        if (Math.random() < 0.3) {
-          setTimeout(() => {
-            const other = bulbs[Math.floor(Math.random() * bulbs.length)]
-            other.classList.add("is-blink")
-            setTimeout(() => other.classList.remove("is-blink"), BLINK_MS)
-          }, BLINK_MS + 120)
-        }
-      }
-      setTimeout(blink, randomBetween(1400, 4800))
-    }
-    setTimeout(blink, randomBetween(1400, 4800))
-  }
-
   // "Clic" al llegar a la derecha: cada ciclo del arrastre (heroDrag, 7.5s),
   // al 30% la selección llega a su destino; ahí pulsa (escala) y la palabra
   // rota con fundido, ajustando el ancho del marco con suavidad. Se engancha
@@ -169,12 +127,14 @@ import { siteName, projectVersionLabel } from "../../site.config"
   // el CSS convierte en `translate`: todo el movimiento es composición en GPU,
   // sin repintar nada. Persigue al puntero con inercia (lerp) y el bucle de
   // rAF se apaga solo cuando el foco alcanza al puntero.
+  // Las variables viven en .hero: las leen tanto los bocetos como la palabra
+  // HUMAN, cuyas máscaras usan las mismas manchas para revelar el "AI".
   const hero = document.querySelector<HTMLElement>(".hero")
-  const sketch = hero?.querySelector<HTMLElement>(".hero__sketch")
+  const human = hero?.querySelector<HTMLElement>(".hero__line--human")
   const wantsMotion =
     matchMedia("(hover: hover)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  if (hero && sketch && wantsMotion) {
+  if (hero && human && wantsMotion) {
     // Tres manchas con inercias distintas: la principal y dos que se rezagan.
     // Al moverse se separan como gotas; al parar se funden en una sola.
     const blobs = [
@@ -205,14 +165,14 @@ import { siteName, projectVersionLabel } from "../../site.config"
       for (const b of blobs) {
         b.x += (targetX - b.x) * b.ease
         b.y += (targetY - b.y) * b.ease
-        sketch.style.setProperty(b.vx, `${b.x.toFixed(1)}px`)
-        sketch.style.setProperty(b.vy, `${b.y.toFixed(1)}px`)
+        hero.style.setProperty(b.vx, `${b.x.toFixed(1)}px`)
+        hero.style.setProperty(b.vy, `${b.y.toFixed(1)}px`)
         pending += Math.abs(targetX - b.x) + Math.abs(targetY - b.y)
       }
       parallax.x += (parallax.tx - parallax.x) * parallax.ease
       parallax.y += (parallax.ty - parallax.y) * parallax.ease
-      sketch.style.setProperty("--px", `${parallax.x.toFixed(2)}px`)
-      sketch.style.setProperty("--py", `${parallax.y.toFixed(2)}px`)
+      hero.style.setProperty("--px", `${parallax.x.toFixed(2)}px`)
+      hero.style.setProperty("--py", `${parallax.y.toFixed(2)}px`)
       pending += Math.abs(parallax.tx - parallax.x) + Math.abs(parallax.ty - parallax.y)
       frame = pending < 0.5 ? 0 : requestAnimationFrame(tick)
     }
@@ -221,15 +181,26 @@ import { siteName, projectVersionLabel } from "../../site.config"
       if (!frame) frame = requestAnimationFrame(tick)
     }
 
+    // Dónde está la palabra dentro del hero, para que sus máscaras compartan
+    // el sistema de coordenadas de la linterna. Se mide al entrar el puntero
+    // (layout ya asentado) y no en cada frame.
+    const locate = () => {
+      const box = hero.getBoundingClientRect()
+      const word = human.getBoundingClientRect()
+      human.style.setProperty("--wx", `${(word.left - box.left).toFixed(1)}px`)
+      human.style.setProperty("--wy", `${(word.top - box.top).toFixed(1)}px`)
+    }
+
     hero.addEventListener("pointerenter", (event) => {
       if (event.pointerType === "touch") return
       aim(event)
+      locate()
       // Nace justo bajo el puntero, sin deslizarse desde la última posición.
       for (const b of blobs) {
         b.x = targetX
         b.y = targetY
       }
-      sketch.classList.add("is-lit")
+      hero.classList.add("is-lit")
       wake()
     })
 
@@ -240,13 +211,36 @@ import { siteName, projectVersionLabel } from "../../site.config"
     })
 
     hero.addEventListener("pointerleave", () => {
-      sketch.classList.remove("is-lit")
+      hero.classList.remove("is-lit")
     })
   }
 </script>
 
 <style>
   .hero {
+    /*
+      Linterna: caja (debe dar cabida a la estela), diámetro de cada mancha y
+      posición de las cuatro (--tx… las escribe el script, en px del hero).
+      Están aquí y no en .hero__sketch porque HUMAN también las consume.
+    */
+    --blob: url("/images/home/torch-blob.png");
+    --torch-box: 64rem;
+    --blob-1: 36rem;
+    --blob-2: 28rem;
+    --blob-3: 21rem;
+    --blob-4: 15rem;
+    --tx: 0px;
+    --ty: 0px;
+    --tx2: 0px;
+    --ty2: 0px;
+    --tx3: 0px;
+    --ty3: 0px;
+    --tx4: 0px;
+    --ty4: 0px;
+    /* Paralaje del dibujo respecto a la foto (lo escribe el script). */
+    --px: 0px;
+    --py: 0px;
+
     position: relative;
     display: flex;
     font-family: var(--font-bellota);
@@ -310,24 +304,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
     --sketch: url("/images/home/bg-header-lineas-mask.webp");
     /* Mismo dibujo pre-desenfocado en build: el halo del neón sin filtros en runtime. */
     --sketch-glow: url("/images/home/bg-header-lineas-glow.webp");
-    --blob: url("/images/home/torch-blob.png");
-    /* Caja de la linterna (debe dar cabida a la estela) y diámetro de cada mancha. */
-    --torch-box: 64rem;
-    --blob-1: 36rem;
-    --blob-2: 28rem;
-    --blob-3: 21rem;
-    --blob-4: 15rem;
-    --tx: 0px;
-    --ty: 0px;
-    --tx2: 0px;
-    --ty2: 0px;
-    --tx3: 0px;
-    --ty3: 0px;
-    --tx4: 0px;
-    --ty4: 0px;
-    /* Paralaje del dibujo respecto a la foto (lo escribe el script). */
-    --px: 0px;
-    --py: 0px;
 
     position: absolute;
     inset: 0;
@@ -387,7 +363,7 @@ import { siteName, projectVersionLabel } from "../../site.config"
     will-change: translate, opacity;
   }
 
-  .hero__sketch.is-lit .hero__sketch-torch {
+  .hero.is-lit .hero__sketch-torch {
     opacity: 1;
     scale: 1;
     visibility: visible;
@@ -513,122 +489,127 @@ import { siteName, projectVersionLabel } from "../../site.config"
   }
 
   /*
-    Guiño "AI" en HUMAN, automático (lo gobierna el script): la I aparece
-    sobre la N con un parpadeo suave de fluorescente y el resto de letras se
-    atenúa, legible. Sin glitch. Solo se anima la opacidad.
+    "AI" en HUMAN, revelado por la misma linterna que ilumina los bocetos.
+    Dos capas idénticas: la base lleva las manchas como máscara INVERTIDA
+    (agujero bajo la luz) y la capa "AI" las lleva en positivo, así que solo
+    existe dentro del haz. Bajo la luz H, U y M se atenúan, la A sigue y la I
+    se posa sobre el primer trazo de la N. Las manchas usan las mismas
+    variables que la linterna, trasladadas al origen de la palabra (--wx/--wy,
+    las mide el script). --torch-scale crece de 0 a 1 al entrar el puntero:
+    el agujero nace bajo el cursor, como el propio foco.
   */
+  @property --torch-scale {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
   /* Ya no es texto sino un componente: puntero normal, sin selección. */
   .hero__line--human {
     /* Cuánto se atenúan las letras apagadas: HUMAN debe seguir leyéndose. */
     --hero-dim: 0.3;
+    /*
+      La luz sobre la palabra es más ancha que la de los bocetos: las manchas
+      tienen el borde muy suave y a tamaño real solo "morderían" ~150px.
+    */
+    --word-light: 1.75;
+    --wx: 0px;
+    --wy: 0px;
+    --torch-scale: 0;
 
+    position: relative;
     cursor: default;
     user-select: none;
+    transition: --torch-scale 480ms ease;
+  }
+
+  .hero.is-lit .hero__line--human {
+    --torch-scale: 1;
+  }
+
+  .hero__human {
+    display: block;
+  }
+
+  .hero__human--ai {
+    position: absolute;
+    inset: 0;
+    display: none;
   }
 
   .hero__letter,
   .hero__glyph {
     display: inline-block;
-    transition: opacity 320ms ease;
   }
 
   .hero__letter--swap {
     position: relative;
   }
 
-  /* La I espera invisible sobre la N, alineada a su primer trazo. */
-  .hero__letter--swap::before {
+  /* Capa "AI": H, U, M apagadas; la N cede su sitio a la I, alineada a su primer trazo. */
+  .hero__human--ai .hero__letter {
+    opacity: var(--hero-dim);
+  }
+
+  .hero__human--ai .hero__letter--keep,
+  .hero__human--ai .hero__letter--swap {
+    opacity: 1;
+  }
+
+  .hero__human--ai .hero__glyph {
+    opacity: 0;
+  }
+
+  .hero__human--ai .hero__letter--swap::before {
     content: attr(data-alt);
     position: absolute;
     inset: 0;
     text-align: left;
     color: #fff;
-    opacity: 0;
-    transition: opacity 320ms ease;
   }
 
-  /* Estado AI: H, U, M y el glifo de la N se apagan con parpadeo; la A no se toca. */
-  .hero__line--human.is-ai .hero__letter,
-  .hero__line--human.is-ai .hero__glyph {
-    opacity: var(--hero-dim);
-    animation: heroDimFlicker 700ms ease-in-out;
-  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .hero__human--ai {
+      display: block;
+    }
 
-  .hero__line--human.is-ai .hero__letter--keep,
-  .hero__line--human.is-ai .hero__letter--swap {
-    opacity: 1;
-    animation: none;
-  }
+    /* Las cuatro manchas, escaladas por --torch-scale y centradas en cada foco. */
+    .hero__human--base,
+    .hero__human--ai {
+      --b1: calc(var(--blob-1) * var(--word-light) * var(--torch-scale));
+      --b2: calc(var(--blob-2) * var(--word-light) * var(--torch-scale));
+      --b3: calc(var(--blob-3) * var(--word-light) * var(--torch-scale));
+      --b4: calc(var(--blob-4) * var(--word-light) * var(--torch-scale));
+      --p1: calc(var(--tx) - var(--wx) - var(--b1) / 2) calc(var(--ty) - var(--wy) - var(--b1) / 2);
+      --p2: calc(var(--tx2) - var(--wx) - var(--b2) / 2) calc(var(--ty2) - var(--wy) - var(--b2) / 2);
+      --p3: calc(var(--tx3) - var(--wx) - var(--b3) / 2) calc(var(--ty3) - var(--wy) - var(--b3) / 2);
+      --p4: calc(var(--tx4) - var(--wx) - var(--b4) / 2) calc(var(--ty4) - var(--wy) - var(--b4) / 2);
 
-  .hero__line--human.is-ai .hero__letter--swap::before {
-    opacity: 1;
-    animation: heroLitFlicker 700ms ease-in-out;
-  }
+      mask-repeat: no-repeat;
+      will-change: mask-position;
+    }
 
-  /* Bombilla suelta que titila (lo dispara el script en letras al azar). */
-  .hero__letter.is-blink,
-  .hero__glyph.is-blink {
-    animation: heroBlink 520ms ease-in-out;
-  }
+    .hero__human--ai {
+      mask-image: var(--blob), var(--blob), var(--blob), var(--blob);
+      mask-size:
+        var(--b1) var(--b1),
+        var(--b2) var(--b2),
+        var(--b3) var(--b3),
+        var(--b4) var(--b4);
+      mask-position: var(--p1), var(--p2), var(--p3), var(--p4);
+    }
 
-  @keyframes heroBlink {
-    0% {
-      opacity: 1;
-    }
-    22% {
-      opacity: 0.3;
-    }
-    40% {
-      opacity: 0.9;
-    }
-    58% {
-      opacity: 0.45;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  /* Fluorescente que arranca: un par de titubeos antes de encender del todo. */
-  @keyframes heroLitFlicker {
-    0% {
-      opacity: 0;
-    }
-    18% {
-      opacity: 0.75;
-    }
-    32% {
-      opacity: 0.2;
-    }
-    52% {
-      opacity: 1;
-    }
-    68% {
-      opacity: 0.55;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-
-  @keyframes heroDimFlicker {
-    0% {
-      opacity: 1;
-    }
-    18% {
-      opacity: 0.45;
-    }
-    32% {
-      opacity: 0.85;
-    }
-    52% {
-      opacity: 0.3;
-    }
-    68% {
-      opacity: 0.6;
-    }
-    100% {
-      opacity: var(--hero-dim);
+    /* Base: todo el texto MENOS la unión de las manchas (exclude = XOR con la capa llena). */
+    .hero__human--base {
+      mask-image: linear-gradient(#000, #000), var(--blob), var(--blob), var(--blob), var(--blob);
+      mask-size:
+        auto,
+        var(--b1) var(--b1),
+        var(--b2) var(--b2),
+        var(--b3) var(--b3),
+        var(--b4) var(--b4);
+      mask-position: 0 0, var(--p1), var(--p2), var(--p3), var(--p4);
+      mask-composite: exclude, add, add, add, add;
     }
   }
 
@@ -844,9 +825,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
 
     .hero__eyebrow,
     .hero__line,
-    .hero__letter,
-    .hero__glyph,
-    .hero__letter--swap::before,
     .hero__selection,
     .hero__cursor {
       animation: none;
