@@ -16,8 +16,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
     />
   </div>
 
-  <div class="hero__grid" aria-hidden="true"></div>
-
   {/*
     Bocetos a mano sobre la foto (misma proporción que bg-header.webp, así que
     casan píxel a píxel). En reposo casi no se ven; un foco de neón naranja
@@ -33,10 +31,8 @@ import { siteName, projectVersionLabel } from "../../site.config"
     </div>
   </div>
 
+  {/* Sin rieles ni marcadores: el hero va a sangre; el marco arranca en 01 — profile. */}
   <div class="bp-inner hero__inner">
-    <span class="bp-marker bp-marker--bl" aria-hidden="true"></span>
-    <span class="bp-marker bp-marker--br" aria-hidden="true"></span>
-
     <p class="hero__eyebrow font-jetbrains">Portfolio — {projectVersionLabel}</p>
 
     <h1 id="hero-title" class="hero__title">
@@ -289,26 +285,6 @@ import { siteName, projectVersionLabel } from "../../site.config"
     );
   }
 
-  /*
-    Retícula tenue: refuerza la lectura de hoja de planos. Acotada al ancho
-    del marco (mismo max-width que .bp-inner) para que sus líneas nazcan en
-    los rieles y no los crucen.
-  */
-  .hero__grid {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    max-width: var(--bp-max);
-    margin-inline: auto;
-    z-index: -1;
-    background-image:
-      linear-gradient(to right, var(--bp-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--bp-line) 1px, transparent 1px);
-    background-size: 7.5rem 7.5rem;
-    opacity: 0.45;
-    mask-image: radial-gradient(ellipse at 30% 50%, black, transparent 78%);
-  }
-
   /* ── Bocetos + foco ────────────────────────────────────────────────────
     El dibujo (trazo blanco sobre transparente, WebP con alfa) se usa como
     máscara ALFA y el color lo pone el CSS. Antes era por luminancia, más
@@ -489,6 +465,7 @@ import { siteName, projectVersionLabel } from "../../site.config"
     a tope; el contenido se centra dentro.
   */
   .hero__inner {
+    border-inline-color: transparent; /* mismo ancho útil que el resto, sin línea */
     align-self: stretch;
     display: flex;
     flex-direction: column;
