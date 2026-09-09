@@ -8,10 +8,12 @@
 // exista soporte, cae a un vaivén lento por tiempo; con reduced-motion,
 // queda fijo en el fotograma central.
 //
-// Acotada al ancho del marco de plano (mismo max-width que .bp-inner) y con
-// los rieles como bordes propios: en pantallas anchas queda centrada con el
-// fondo de página a los lados, en vez de estirarse y recortar el vagón.
-// Sin divisor horizontal arriba ni abajo.
+// Acotada al ancho del marco de plano (mismo max-width que .bp-inner) para
+// no estirar ni recortar el vagón en pantallas anchas; sin rieles ni
+// divisores: los bordes se funden con el fondo de la página por los cuatro
+// lados (degradados arriba y abajo, máscara a los costados).
+import GradualBlur from "../ui/GradualBlur.astro"
+
 const landscape = "/images/home/fondo.webp"
 const wagon = "/images/home/vagones.webp"
 ---
@@ -26,6 +28,14 @@ const wagon = "/images/home/vagones.webp"
     decoding="async"
     alt=""
   />
+
+  {/*
+    Como en el hero, los costados se desenfocan hacia el borde; pero solo el
+    paisaje: van entre las dos capas (z 0, antes del vagón en el árbol), así
+    que el vagón queda nítido encima.
+  */}
+  <GradualBlur position="left" height="20%" strength={1.5} divCount={5} curve="bezier" exponential zIndex={0} />
+  <GradualBlur position="right" height="20%" strength={1.5} divCount={5} curve="bezier" exponential zIndex={0} />
 
   <img
     class="scenery__wagon"
@@ -54,20 +64,19 @@ const wagon = "/images/home/vagones.webp"
     position: relative;
     width: 100%;
     max-width: var(--bp-max);
-    margin-inline: auto;
+    /* Aire respecto al cierre del marco de la sección anterior. */
+    margin: clamp(3rem, 8vh, 5rem) auto 0;
     aspect-ratio: 1628 / 847;
     max-height: 36rem;
     overflow: clip;
-    border-inline: 1px dashed var(--bp-line);
-    background: #1b1730;
+    /*
+      Del color de la página, no de la escena: con una altura fraccionaria, el
+      antialias del último píxel dejaba ver el fondo propio como una línea.
+    */
+    background: var(--page-accent-surface);
     view-timeline: --scenery block;
-  }
-
-  /* Mismo umbral que .bp-inner en global.css: sin marco, sin rieles. */
-  @media (max-width: 68rem) {
-    .scenery {
-      border-inline-color: transparent;
-    }
+    /* Costados fundidos con la página, ya que no hay rieles que los enmarquen. */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
 
   /*
@@ -117,15 +126,20 @@ const wagon = "/images/home/vagones.webp"
     fundido escala con ella y en móvil (donde la sección mide ~200px) no se
     come la escena entera, como pasaba con una altura fija en px.
     70% equivale a los 400px que se ven en escritorio (566px de alto).
+    Los primeros tramos son opacos del todo: un degradado lineal a secas
+    solo llega al 100% en el último píxel y el borde se leía como un corte.
   */
   .scenery__vignette {
     --scenery-fade: 70%;
+    --page: var(--page-accent-surface);
 
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, var(--page-accent-surface), transparent) top / 100% var(--scenery-fade) no-repeat,
-      linear-gradient(0deg, var(--page-accent-surface), transparent) bottom / 100% var(--scenery-fade) no-repeat;
+      linear-gradient(180deg, var(--page) 0%, var(--page) 6%, rgb(var(--surface-rgb) / 0.7) 30%, transparent 100%)
+        top / 100% var(--scenery-fade) no-repeat,
+      linear-gradient(0deg, var(--page) 0%, var(--page) 6%, rgb(var(--surface-rgb) / 0.7) 30%, transparent 100%)
+        bottom / 100% var(--scenery-fade) no-repeat;
     pointer-events: none;
   }
 
