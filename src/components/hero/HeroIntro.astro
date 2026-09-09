@@ -53,6 +53,13 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     zIndex={0}
   />
 
+  {/*
+    Fundido inferior por encima de TODAS las capas de fondo (foto, boceto,
+    desenfoque): la escena se disuelve en el color de la página antes del
+    borde y el corte no se ve nunca, ni siquiera con la linterna encendida.
+  */}
+  <div class="hero__fade" aria-hidden="true"></div>
+
   {/* Sin rieles ni marcadores: el hero va a sangre; el marco arranca en 01 — profile. */}
   <div class="bp-inner hero__inner">
     <p class="hero__eyebrow font-jetbrains">Portfolio — {projectVersionLabel}</p>
@@ -280,6 +287,26 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       rgb(var(--surface-rgb) / 0.45) 22%,
       rgb(var(--surface-rgb) / 0.35) 55%,
       var(--page-accent-surface) 100%
+    );
+  }
+
+  /*
+    Opaco del todo en el último tramo: un degradado lineal a secas solo llega
+    al 100% en el último píxel y el borde se lee como un corte.
+  */
+  .hero__fade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 45%;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to top,
+      var(--page-accent-surface) 0%,
+      var(--page-accent-surface) 14%,
+      rgb(var(--surface-rgb) / 0.85) 38%,
+      rgb(var(--surface-rgb) / 0.45) 66%,
+      transparent 100%
     );
   }
 
