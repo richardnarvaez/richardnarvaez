@@ -114,6 +114,17 @@ const awards = [
     con el hero. Se desvanece hacia la izquierda y hacia abajo para que no
     compita con el texto.
   */
+  /*
+    El marco arranca bastante más abajo del hero: la zona intermedia, del
+    color de la página, es donde la foto termina de disolverse. El contenido
+    sube con margen negativo para que el avatar quede a caballo de la línea
+    discontinua, como un sello; el mapa no sube: sigue anclado al marco.
+  */
+  /* :global porque la sección la pinta BlueprintSection, con su propio ámbito. */
+  :global(#profile) {
+    margin-top: 1rem;
+  }
+
   .profile__map {
     position: absolute;
     top: 0;
@@ -144,14 +155,24 @@ const awards = [
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding-block: clamp(3.5rem, 9vh, 6rem) 0;
+    /* Mitad del avatar por encima de la línea del marco. */
+    margin-top: calc(var(--avatar-size) / -2);
   }
 
-  /* Avatar como pila de fotos ligeramente giradas. */
+  /*
+    Avatar como pila de fotos instantáneas: dos hojas blancas opacas detrás,
+    abiertas en abanico hacia la izquierda, y la foto encima casi recta.
+  */
   .profile__avatar {
+    --avatar-size: 7.5rem;
+
     position: relative;
-    width: 6rem;
-    height: 6rem;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+  }
+
+  .profile__content {
+    --avatar-size: 7.5rem;
   }
 
   .profile__avatar img,
@@ -160,20 +181,19 @@ const awards = [
     inset: 0;
     width: 100%;
     height: 100%;
-    border-radius: 1.1rem;
-    border: 3px solid #fff;
+    border-radius: 26%;
+    border: 4px solid #fff;
     background: #fff;
     object-fit: cover;
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.35);
   }
 
   .profile__avatar-sheet--back {
-    transform: rotate(-9deg) translate(-6px, 2px);
-    opacity: 0.35;
+    transform: rotate(-16deg) translate(-16%, 6%);
   }
 
   .profile__avatar-sheet--mid {
-    transform: rotate(-4deg) translate(-3px, 1px);
-    opacity: 0.6;
+    transform: rotate(-8deg) translate(-8%, 3%);
   }
 
   .profile__avatar img {
