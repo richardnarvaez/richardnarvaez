@@ -38,8 +38,8 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
     </div>
   </div>
 
-  {/* pt-40 / pb-28 del footer dejan el mismo aire visual sobre VINUEZA que bajo el copyright (y sitio para el dock). */}
-  <div class:list={[compact ? "mt-7 flex flex-col items-center justify-center gap-2.5" : "mt-16 flex flex-col items-center justify-center gap-2.5"]}>
+  {/* pt-40 / pb-28 del footer dejan el mismo aire visual sobre VINUEZA que bajo el copyright (y sitio para el dock); mt-40 repite ese mismo aire entre VINUEZA y la etiqueta. */}
+  <div class:list={[compact ? "mt-7 flex flex-col items-center justify-center gap-2.5" : "mt-40 flex flex-col items-center justify-center gap-2.5"]}>
     <div class:list={[
       compact
         ? "flex h-9 w-full max-w-72 items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 text-xs font-medium text-neutral-100/76 shadow-[0_18px_38px_rgba(15,23,42,0.18)] backdrop-blur-xl"
