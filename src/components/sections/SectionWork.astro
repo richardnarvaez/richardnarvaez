@@ -211,7 +211,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     <WorkLightbox />
 
     {/* Datos de la galería para el visor: nombre, texto y proporción por id. */}
-    <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, ratio: g.ratio }])))} />
+    <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, full: g.full, ratio: g.ratio }])))} />
   </div>
 </BlueprintSection>
 
@@ -525,7 +525,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     }
 
     // ── Visor de imagen: vuela desde la miniatura, fondo desenfocado ────
-    type GalleryDatum = { name: string; desc: string; src: string; ratio: number }
+    type GalleryDatum = { name: string; desc: string; src: string; full: string; ratio: number }
     const galleryData: Record<string, GalleryDatum> = JSON.parse(root.querySelector("[data-gallery-data]")?.textContent ?? "{}")
     const lightbox = root.querySelector<HTMLElement>("[data-lightbox]")
     const lbImg = lightbox?.querySelector<HTMLImageElement>("[data-lightbox-img]")
@@ -576,8 +576,15 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       const thumb = (from.querySelector("img") ?? from) as HTMLElement
       lbSource = thumb
       lbOpener = from
+      // Arranca con la miniatura (ya en caché) y cambia a la grande en cuanto carga.
       lbImg.src = (thumb as HTMLImageElement).currentSrc || datum.src
       lbImg.alt = datum.name
+      const large = new Image()
+      large.decoding = "async"
+      large.onload = () => {
+        if (lbSource === thumb && !lightbox.hidden) lbImg.src = datum.full
+      }
+      large.src = datum.full
       if (lbName) lbName.textContent = datum.name
       if (lbDesc) lbDesc.textContent = datum.desc
       lightbox.hidden = false

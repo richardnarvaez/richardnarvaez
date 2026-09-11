@@ -76,19 +76,27 @@ const tasks = {
   },
 
   // Miniaturas del lienzo de ilustraciones (tiles de hasta 200px, 2×).
+  // Miniaturas (lienzo, drawer) y versiones grandes (visor, ≤1600px).
   async illustrations() {
     for (let i = 1; i <= 5; i++) {
-      const dst = out(`public/images/illustration/thumbs/pic_${i}.webp`)
-      await sharp(`design/illustrations/pic_${i}.jpg`).resize({ width: 400 }).webp({ quality: 78 }).toFile(dst)
-      report(dst)
+      const src = `design/illustrations/pic_${i}.jpg`
+      const thumb = out(`public/images/illustration/thumbs/pic_${i}.webp`)
+      await sharp(src).resize({ width: 400 }).webp({ quality: 78 }).toFile(thumb)
+      report(thumb)
+      const large = out(`public/images/illustration/large/pic_${i}.webp`)
+      await sharp(src).resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 82, effort: 6 }).toFile(large)
+      report(large)
     }
   },
 
-  // Retrato del lienzo de fotografía.
+  // Retrato del lienzo de fotografía: miniatura y grande para el visor.
   async photos() {
     await sharp("design/photos/landing-path.jpg").resize({ width: 480 }).webp({ quality: 78 })
       .toFile(out("public/images/photos/landing-path.webp"))
     report("public/images/photos/landing-path.webp")
+    await sharp("design/photos/landing-path.jpg").resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 82, effort: 6 })
+      .toFile(out("public/images/photos/large/landing-path.webp"))
+    report("public/images/photos/large/landing-path.webp")
   },
 
   // Foto del hero: a sangre, 2000px bastan (la original son 2731).
