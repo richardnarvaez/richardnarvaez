@@ -88,7 +88,7 @@ const stackLogo: Record<string, string> = {
   Swift: "swift", SwiftUI: "swift", Convex: "convex", Stripe: "stripe", "Next.js": "next", TypeScript: "typescript",
   Postgres: "postgres", Kotlin: "kotlin", React: "react", Angular: "angular", Node: "node", AWS: "aws", Docker: "docker",
   Vercel: "vercel", Figma: "figma", Strapi: "strapi", Railway: "railway", "Google Cloud": "googlecloud", SendGrid: "sendgrid",
-  Directus: "directus", Unity: "unity",
+  Directus: "directus", Unity: "unity", Firebase: "firebase",
 }
 
 // Logos negros o muy oscuros: van sobre un círculo blanco; el resto, tal cual.
@@ -1136,10 +1136,9 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     background: rgba(19, 18, 34, 0.75);
   }
 
-  /* Retiradas: en blanco y negro, algo apagadas, con su lápida. */
+  /* Retiradas: en blanco y negro y algo más oscuras. Opacas: los conectores no deben verse a través. */
   .piece__tile--dead {
-    filter: grayscale(1);
-    opacity: 0.72;
+    filter: grayscale(1) brightness(0.82);
   }
 
   .piece__soon--dead {
