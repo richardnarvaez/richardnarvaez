@@ -41,23 +41,31 @@ const logo = (id: string) => toolLogoById.get(id)!
 const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox, filled: true })
 
 // Todo se mide desde el nombre: cada burbuja tiene un ángulo y una distancia
-// al centro del handle, y se reparten por el medio anillo inferior. El
-// handle es una píldora ancha, así que el anillo es elíptico (KX) para que
-// las de los lados no se le monten. Distancias mezcladas, como el racimo del
-// perfil antiguo.
+// al centro del handle. Dos anillos elípticos (KX estira el eje horizontal
+// porque el handle es una píldora ancha): el interior cuelga justo bajo la
+// píldora y el exterior más abajo. Cada anillo dibuja un arco hacia abajo, y
+// los huecos pequeños se rellenan con puntos decorativos.
 const KX = 1.35
 const items: Item[] = [
-  { id: "code", label: "Open Source", href: "#open-source", angle: 78, r: 74, size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
-  { id: "github", label: "GitHub", href: socialLinks.github, external: true, angle: 118, r: 84, size: "s", ...brand("github") },
-  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", angle: 140, r: 108, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
-  { id: "profile", label: "Profile", href: "#profile", angle: 45, r: 112, size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
-  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, angle: 126, r: 160, size: "s", ...brand("linkedin") },
-  { id: "work", label: "Work", href: "#work", angle: 90, r: 145, size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
-  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, angle: 62, r: 155, size: "s", ...brand("instagram") },
+  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", angle: 148, r: 96, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
+  { id: "github", label: "GitHub", href: socialLinks.github, external: true, angle: 112, r: 78, size: "s", ...brand("github") },
+  { id: "code", label: "Open Source", href: "#open-source", angle: 68, r: 78, size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
+  { id: "profile", label: "Profile", href: "#profile", angle: 32, r: 96, size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
+  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, angle: 125, r: 150, size: "s", ...brand("linkedin") },
+  { id: "work", label: "Work", href: "#work", angle: 90, r: 150, size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
+  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, angle: 55, r: 150, size: "s", ...brand("instagram") },
 ]
-const place = (item: Item) => {
-  const a = (item.angle * Math.PI) / 180
-  return { x: Math.round(Math.cos(a) * item.r * KX), y: Math.round(Math.sin(a) * item.r) }
+// Puntos sin función que completan los arcos donde queda hueco.
+const dots = [
+  { angle: 90, r: 92, d: 12 },
+  { angle: 108, r: 150, d: 12 },
+  { angle: 72, r: 150, d: 12 },
+  { angle: 166, r: 118, d: 10 },
+  { angle: 14, r: 118, d: 10 },
+]
+const place = (node: { angle: number; r: number }) => {
+  const a = (node.angle * Math.PI) / 180
+  return { x: Math.round(Math.cos(a) * node.r * KX), y: Math.round(Math.sin(a) * node.r) }
 }
 
 // Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
@@ -79,7 +87,7 @@ const arcs = [
   </button>
 </div>
 
-<div class="site-menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Menu" data-site-menu hidden>
+<div class="site-menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1" data-site-menu hidden>
   {/* Fondo: la página se desenfoca de arriba abajo. La franja sin desenfoque
       del GradualBlur queda fuera de pantalla (alto 140dvh), así todo el
       viewport recibe algo y la barra recibe lo máximo. Al abrir, el script
@@ -138,8 +146,25 @@ const arcs = [
                   aria-hidden="true"
                   set:html={item.icon}
                 />
+                {
+                  item.external && (
+                    <span class="site-menu__ext" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 17 17 7" />
+                        <path d="M8 7h9v9" />
+                      </svg>
+                    </span>
+                  )
+                }
                 <span class="site-menu__label">{item.label}</span>
               </a>
+            </li>
+          ))
+        }
+        {
+          dots.map((dot, i) => (
+            <li class="site-menu__slot site-menu__slot--dot" style={`--x: ${place(dot).x}; --y: ${place(dot).y}; --i: ${items.length + i}; --d: ${dot.d}px;`} aria-hidden="true">
+              <span class="site-menu__dot"></span>
             </li>
           ))
         }
@@ -205,7 +230,9 @@ const arcs = [
         menu.classList.add("is-open")
         rampBlur(1)
         document.documentElement.style.overflow = "hidden"
-        menu.querySelector<HTMLElement>("[data-menu-link]")?.focus({ preventScroll: true })
+        // El foco va al diálogo, no al primer enlace: con ratón no aparece
+        // ningún anillo ni etiqueta; con Tab se entra al primer círculo.
+        menu.focus({ preventScroll: true })
       } else {
         menu.classList.remove("is-open")
         rampBlur(0)
@@ -242,9 +269,12 @@ const arcs = [
         } else if (!event.shiftKey && document.activeElement === last) {
           event.preventDefault()
           toggle.focus()
-        } else if (document.activeElement === toggle && !event.shiftKey) {
+        } else if ((document.activeElement === toggle || document.activeElement === menu) && !event.shiftKey) {
           event.preventDefault()
           first.focus()
+        } else if (document.activeElement === menu && event.shiftKey) {
+          event.preventDefault()
+          last.focus()
         }
       }
     })
@@ -365,6 +395,7 @@ const arcs = [
     position: fixed;
     inset: 0;
     z-index: 39;
+    outline: none;
   }
 
   /* Solo filtro, nunca opacidad ni tinte: oscurece lo que hay detrás mientras el GradualBlur lo desenfoca. */
@@ -528,13 +559,58 @@ const arcs = [
     transition-duration: 220ms;
   }
 
-  /* Etiqueta bajo el círculo, solo al pasar el puntero o enfocar. */
+  /* Enlaces externos: un satélite pequeño con la flecha de "sale a otra pestaña". */
+  .site-menu__ext {
+    position: absolute;
+    right: -0.2rem;
+    top: -0.2rem;
+    display: grid;
+    place-items: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: #fff;
+    color: #172033;
+    box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.7);
+  }
+
+  .site-menu__ext svg {
+    width: 62%;
+    height: 62%;
+  }
+
+  /* Puntos decorativos: mismo material y misma entrada que las burbujas. */
+  .site-menu__slot--dot {
+    pointer-events: none;
+  }
+
+  .site-menu__dot {
+    display: block;
+    width: var(--d);
+    height: var(--d);
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.7);
+    transition:
+      scale 520ms cubic-bezier(0.22, 1.4, 0.36, 1) calc(120ms + var(--i) * 40ms),
+      opacity 220ms ease calc(120ms + var(--i) * 40ms);
+  }
+
+  .site-menu:not(.is-open) .site-menu__dot {
+    scale: 0.35;
+    opacity: 0;
+    transition-delay: 0ms;
+    transition-duration: 220ms;
+  }
+
+  /* Etiqueta sobre el círculo, solo al pasar el puntero o enfocar. */
   .site-menu__label {
     position: absolute;
-    top: calc(100% + 0.55rem);
+    bottom: calc(100% + 0.55rem);
     left: 50%;
     padding: 0.3rem 0.6rem;
-    translate: -50% -0.25rem;
+    translate: -50% 0.25rem;
     border-radius: 999px;
     background: #fff;
     color: #172033;
@@ -592,6 +668,7 @@ const arcs = [
     .site-menu__orbit,
     .site-menu__slot,
     .site-menu__item,
+    .site-menu__dot,
     .site-menu__scrim,
     .site-menu__blur {
       transition: none;
