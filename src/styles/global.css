@@ -16,6 +16,10 @@
   --surface-rgb: 19 18 34;
   /* Superficie elevada (tarjetas, botón sólido sobre claro). */
   --surface-raised: #16151f;
+  /* Variantes claras del fondo (misma tinta violeta, no gris) para tarjetas y trazos. */
+  --surface-2: #1e1c36;
+  --surface-3: #2a2748;
+  --line-tint: rgba(139, 126, 210, 0.3);
   /* Curva de salida suave usada en toda la página. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   /* Azul del lienzo de Figma: bordes y tiradores de selección. */
@@ -24,7 +28,7 @@
   /* Retícula de plano técnico: rieles verticales, divisores y marcadores. */
   --bp-max: 68rem;
   --bp-gutter: 1.5rem;
-  --bp-line: rgba(148, 163, 184, 0.16);
+  --bp-line: rgba(139, 126, 210, 0.18);
   --bp-marker: #2b2a45;
   --bp-marker-size: 7px;
 }
@@ -83,9 +87,42 @@ body {
   transform: translateY(-1px);
 }
 
+/*
+  Sólido tipo "light UI control": cara ligeramente convexa (degradado de
+  blanco arriba a gris perla abajo), borde fino gris, filo de luz interior
+  arriba, sombra de contacto y texto grabado. Al pulsar se hunde.
+*/
 .btn--solid {
-  background: #fff;
-  color: var(--surface-raised);
+  border: 1px solid #cfd3dc;
+  background: linear-gradient(180deg, #fbfbfd 0%, #eceef3 100%);
+  color: #33344a;
+  text-shadow: 0 1px 0 #fff;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 0 rgba(19, 18, 34, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 16px -8px rgba(0, 0, 0, 0.55);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.btn--solid:hover {
+  background: linear-gradient(180deg, #fff 0%, #f1f2f6 100%);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 0 rgba(19, 18, 34, 0.05),
+    0 2px 3px rgba(0, 0, 0, 0.3),
+    0 12px 20px -8px rgba(0, 0, 0, 0.55);
+}
+
+.btn--solid:active {
+  transform: translateY(0);
+  background: linear-gradient(180deg, #e2e4ea 0%, #eff0f4 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(19, 18, 34, 0.14),
+    0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .btn--ghost {
@@ -138,6 +175,33 @@ body {
 
 .font-jetbrains {
   font-family: var(--font-jetbrains);
+}
+
+/* Foco visible y consistente para teclado, en el acento de la marca. */
+:focus-visible {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Enlace "saltar al contenido": oculto hasta que recibe el foco. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: var(--surface-raised);
+  font-size: 0.85rem;
+  font-weight: 700;
+  transform: translateY(-200%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
 }
 
 /*

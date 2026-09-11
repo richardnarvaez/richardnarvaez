@@ -16,7 +16,7 @@ const awards = [
 ]
 ---
 
-<BlueprintSection id="profile" class="profile" label="01 — profile">
+<BlueprintSection id="profile" class="profile" label="01 — profile" ariaLabelledby="profile-name">
   {/* Solo Américas + Europa/África por ahora: sin Asia hasta que haya viaje. */}
   <div class="profile__map" aria-hidden="true">
     <WorldDotMap lonMin={-125} lonMax={40} latMin={-56} latMax={75} />
@@ -36,7 +36,7 @@ const awards = [
       />
     </div>
 
-    <h2 class="profile__name">{siteName}</h2>
+    <h2 class="profile__name" id="profile-name">{siteName}</h2>
 
     <ul class="profile__meta font-jetbrains">
       <li>
@@ -133,9 +133,13 @@ const awards = [
     width: min(44%, 30rem);
     aspect-ratio: 165 / 131; /* grados de la ventana pasada a WorldDotMap */
     opacity: 0.85;
+    /*
+      Se apaga antes hacia la izquierda y hacia abajo: es donde cae el texto
+      del perfil y los puntos le restaban legibilidad.
+    */
     mask-image:
-      linear-gradient(to left, black 60%, transparent 100%),
-      linear-gradient(to top, transparent 0%, black 30%);
+      linear-gradient(to left, black 40%, transparent 92%),
+      linear-gradient(to top, transparent 0%, black 45%);
     mask-composite: intersect;
     pointer-events: none;
   }
@@ -240,6 +244,19 @@ const awards = [
     }
   }
 
+  /*
+    Halo del color de la página bajo los textos que caen sobre el mapa: los
+    separa de los puntos. Solo en los textos sueltos, nunca en los botones.
+  */
+  .profile__name,
+  .profile__meta,
+  .profile__bio,
+  .profile__eyebrow {
+    text-shadow:
+      0 1px 2px rgb(var(--surface-rgb) / 0.9),
+      0 0 14px rgb(var(--surface-rgb) / 0.8);
+  }
+
   .profile__meta {
     display: flex;
     flex-wrap: wrap;
@@ -260,7 +277,7 @@ const awards = [
 
   /* Aclaración en tono más bajo: permiso de trabajo en las tres regiones. */
   .profile__meta-note {
-    color: rgb(var(--text-rgb) / 0.4);
+    color: rgb(var(--text-rgb) / 0.55); /* ≥ 4.5:1 sobre el fondo */
   }
 
   .profile__bio {
