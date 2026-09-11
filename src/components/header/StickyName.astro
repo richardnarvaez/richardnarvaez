@@ -43,7 +43,7 @@ const GAP = 16
 // El handle es una píldora ancha: los anillos son elipses (KX estira el eje x).
 const KX = 1.5
 
-// Dos anillos alrededor del handle: las secciones cerca, las redes debajo.
+// Dos filas alrededor del handle: las secciones en arco, las redes debajo en línea.
 const sections: Item[] = [
   { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
   { id: "work", label: "Work", href: "#work", size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
@@ -95,7 +95,28 @@ const ring = (list: Item[], r: number): Placed[] => {
   })
 }
 
-const items: Placed[] = [...ring(sections, 86), ...ring(socials, 152)]
+// Segunda fila: las redes en una línea recta bajo las secciones, cada una
+// centrada horizontalmente en el hueco entre dos secciones vecinas.
+const row = (list: Item[], above: Placed[]): Placed[] => {
+  const y = Math.max(...above.map((p) => p.y + DIAMETER[p.size] / 2)) + GAP + DIAMETER[list[0].size] / 2
+  return list.map((item, i) => {
+    const a = above[i]
+    const b = above[i + 1]
+    const x = (a.x + DIAMETER[a.size] / 2 + (b.x - DIAMETER[b.size] / 2)) / 2
+    const n = NUDGE[i] ?? { x: 0, y: 0 }
+    return { ...item, x: Math.round(x + n.x), y: Math.round(y + n.y) }
+  })
+}
+// Ajuste a ojo: los extremos de la segunda fila suben y se abren un poco,
+// siguiendo la curva de la primera.
+const NUDGE = [
+  { x: -6, y: -16 },
+  { x: 0, y: 0 },
+  { x: 6, y: -16 },
+]
+
+const inner = ring(sections, 86)
+const items: Placed[] = [...inner, ...row(socials, inner)]
 
 // Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
 // anterior, ahora girando despacio detrás del racimo.
