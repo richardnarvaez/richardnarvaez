@@ -275,10 +275,40 @@ const toolRows = [
       </div>
     </div>
   </div>
+
+  {/*
+    Huecos para lo que viene: dos tarjetas vacías con borde discontinuo que
+    se disuelven hacia abajo, hacia el Mac. En móvil solo una.
+  */}
+  <div class="bento-ghosts mt-4 grid grid-cols-1 gap-4 md:grid-cols-2" aria-hidden="true">
+    <div class="bento-ghost"></div>
+    <div class="bento-ghost hidden md:block"></div>
+  </div>
   </div>
 </BlueprintSection>
 
 <style>
+  /*
+    Tarjetas fantasma: vacías y discontinuas. Un solo fundido para toda la
+    fila, que cubre el 60% inferior; ese 60% no ocupa sitio (margen negativo),
+    así el Mac arranca donde las tarjetas ya se han disuelto.
+  */
+  .bento-ghosts {
+    --ghost-h: 9rem;
+
+    margin-bottom: calc(var(--ghost-h) * -0.6);
+    /* El fundido arranca en el borde superior y ya no queda nada al 55%. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 55%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 55%);
+  }
+
+  .bento-ghost {
+    height: var(--ghost-h);
+    border-radius: 1.5rem;
+    /* Un 10% menos que --line-tint (0.3): se distinguen de las tarjetas activas. */
+    border: 2px dashed rgba(139, 126, 210, 0.2);
+  }
+
   /*
     Cinta de herramientas: nace bajo el título y desborda la tarjeta por los
     tres lados restantes; el `overflow-hidden` de la tarjeta la recorta.
