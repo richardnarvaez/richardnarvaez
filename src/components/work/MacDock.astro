@@ -1,0 +1,164 @@
+---
+// Dock de macOS dentro de la pantalla: tres iconos que cambian la capa del
+// lienzo. Magnificación al acercar el puntero (el script mide la distancia a
+// cada icono y escribe --s), etiqueta flotante y punto de "abierto" bajo el
+// activo. Semántica de pestañas: role=tablist / tab con aria-selected.
+export interface DockItem {
+  id: string
+  label: string
+  /** Marcado interno del SVG (viewBox 0 0 24 24, trazo currentColor). */
+  icon: string
+}
+
+interface Props {
+  items: DockItem[]
+  active: string
+}
+
+const { items, active } = Astro.props
+---
+
+<div class="dock" role="tablist" aria-label="Work" data-dock>
+  {
+    items.map((item) => (
+      <button
+        type="button"
+        class="dock__item"
+        role="tab"
+        id={`dock-${item.id}`}
+        aria-selected={item.id === active}
+        aria-controls={`layer-${item.id}`}
+        tabindex={item.id === active ? 0 : -1}
+        data-dock-item={item.id}
+      >
+        <span class="dock__label">{item.label}</span>
+        <span class="dock__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon} />
+        </span>
+        <span class="dock__dot" aria-hidden="true"></span>
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .dock {
+    --dock-size: 3.25rem;
+
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    z-index: 3;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+    padding: 0.45rem 0.6rem 0.4rem;
+    translate: -50% 0;
+    border-radius: 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 18px 40px -16px rgba(0, 0, 0, 0.7);
+  }
+
+  /*
+    --s la escribe el script (1 en reposo, hasta ~1.5 bajo el puntero). El
+    icono crece desde su base, como en macOS. Sin puntero (táctil) no hay
+    magnificación: el dock se queda plano.
+  */
+  .dock__item {
+    --s: 1;
+
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--dock-size);
+    height: var(--dock-size);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transform-origin: 50% 100%;
+    transform: scale(var(--s));
+    transition: transform 140ms ease;
+  }
+
+  .dock__icon {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 26%;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-2) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 8px 16px -8px rgba(0, 0, 0, 0.8);
+  }
+
+  .dock__icon svg {
+    width: 52%;
+    height: 52%;
+  }
+
+  .dock__item[aria-selected="true"] .dock__icon {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
+  /* Punto de "app abierta" bajo el icono activo. */
+  .dock__dot {
+    position: absolute;
+    bottom: -0.32rem;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.75);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .dock__item[aria-selected="true"] .dock__dot {
+    opacity: 1;
+  }
+
+  /* Etiqueta flotante sobre el icono, como el tooltip del dock. */
+  .dock__label {
+    position: absolute;
+    bottom: calc(100% + 0.7rem);
+    left: 50%;
+    padding: 0.3rem 0.6rem;
+    translate: -50% 4px;
+    border-radius: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(20, 19, 34, 0.92);
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 140ms ease,
+      translate 140ms ease;
+  }
+
+  .dock__item:hover .dock__label,
+  .dock__item:focus-visible .dock__label {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  @media (max-width: 640px) {
+    .dock {
+      --dock-size: 2.9rem;
+      bottom: 0.6rem;
+    }
+  }
+</style>

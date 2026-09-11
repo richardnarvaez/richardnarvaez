@@ -8,9 +8,11 @@ interface Props {
   entry: CollectionEntry<"work">
   /** Nivel del título: h1 en la página propia, h2 dentro del drawer. */
   headingLevel?: "h1" | "h2"
+  /** id del título, para que el drawer lo referencie con aria-labelledby. */
+  titleId?: string
 }
 
-const { entry, headingLevel = "h1" } = Astro.props
+const { entry, headingLevel = "h1", titleId } = Astro.props
 const { data } = entry
 const { Content } = await render(entry)
 const Heading = headingLevel
@@ -23,7 +25,7 @@ const Heading = headingLevel
     </span>
 
     <div class="case__intro">
-      <Heading class="case__name">{data.name}</Heading>
+      <Heading class="case__name" id={titleId}>{data.name}</Heading>
       <p class="case__tagline">{data.tagline}</p>
     </div>
 

@@ -1,0 +1,859 @@
+---
+// Sección de trabajo: la pantalla de un MacBook como escenario. Dentro, un
+// lienzo de puntos que se puede desplazar (arrastrando, con inercia) con
+// las piezas de la capa activa; un dock con tres capas (Apps, Illustrations,
+// Photography); y drawers inferiores: uno por caso de estudio (MDX) y uno
+// para la galería con filtro simple. Sin arrastrar piezas: las posiciones
+// son fijas y la interacción es leer, no ordenar.
+//
+// Cada caso existe además como página propia en /work/[slug]; el drawer es
+// la misma pieza montada aquí. Al abrir uno, la URL pasa a #work/<slug>, y
+// al cargar con ese hash se abre solo.
+import { getCollection } from "astro:content"
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
+import MacDock from "../work/MacDock.astro"
+import WorkDrawer from "../work/WorkDrawer.astro"
+import CaseStudy from "../case/CaseStudy.astro"
+import { illustrations, photos, gallery, type GalleryItem } from "../../data/gallery"
+
+const cases = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order)
+const published = cases.filter((c) => !c.data.draft)
+
+// ── Ranuras (px respecto al centro del lienzo) ──────────────────────────
+type Slot = { x: number; y: number; w: number; ratio?: number }
+
+// Apps: 3 grandes (88px) alrededor del centro y 6 pequeños (56px) en parejas
+// flanqueando cada hueco; radios para ~16px entre vecinos.
+const polar = (r: number, deg: number) => ({ x: Math.cos((deg * Math.PI) / 180) * r, y: Math.sin((deg * Math.PI) / 180) * r })
+const appSlots: Slot[] = [
+  ...[-90, 30, 150].map((deg) => ({ ...polar(60, deg), w: 88 })),
+  ...[-46.8, -13.2, 73.2, 106.8, 193.2, 226.8].map((deg) => ({ ...polar(123, deg), w: 56 })),
+]
+
+// Ilustraciones: composición tipo mood board, 5 piezas.
+const illustrationSlots: Slot[] = [
+  { x: 0, y: 0, w: 176, ratio: 1 },
+  { x: -172, y: -60, w: 136, ratio: 1.43 },
+  { x: 152, y: -20, w: 96, ratio: 0.56 },
+  { x: -154, y: 76, w: 100, ratio: 0.7 },
+  { x: 156, y: 134, w: 104, ratio: 1 },
+]
+
+// Fotografía: 8 piezas, centro 30px arriba para equilibrar.
+const photoSlots: Slot[] = [
+  { x: 0, y: -30, w: 150, ratio: 0.8 },
+  { x: -147, y: -70, w: 112, ratio: 0.75 },
+  { x: 147, y: -76, w: 112, ratio: 0.8 },
+  { x: -135, y: 76, w: 88, ratio: 0.8 },
+  { x: 127, y: 74, w: 72, ratio: 0.5625 },
+  { x: -263, y: -16, w: 88, ratio: 0.8 },
+  { x: 251, y: -40, w: 64, ratio: 0.5625 },
+  { x: -263, y: 108, w: 80, ratio: 0.75 },
+]
+
+type Piece = {
+  id: string
+  name: string
+  src?: string
+  initial?: string
+  tint?: string
+  /** "case:<slug>" o "gallery:<id>"; sin `open`, la pieza no es pulsable. */
+  open?: string
+  soon?: boolean
+  placeholder?: boolean
+  x: number
+  y: number
+  w: number
+  h: number
+  rot: number
+}
+
+const appPieces: Piece[] = appSlots.map((slot, i) => {
+  const entry = cases[i]
+  const base = { ...slot, h: slot.w, rot: ((i * 137) % 25) - 12 }
+  if (!entry) return { ...base, id: `slot-${i}`, name: "Coming soon", placeholder: true }
+  return {
+    ...base,
+    id: entry.id,
+    name: entry.data.name,
+    src: entry.data.icon || undefined,
+    initial: entry.data.icon ? undefined : entry.data.name[0],
+    tint: entry.data.tint,
+    open: entry.data.draft ? undefined : `case:${entry.id}`,
+    soon: entry.data.draft,
+  }
+})
+
+const galleryPieces = (items: GalleryItem[], slots: Slot[]): Piece[] =>
+  items.slice(0, slots.length).map((item, i) => {
+    const slot = slots[i]
+    return { id: item.id, name: item.name, src: item.src, open: `gallery:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1), rot: 0 }
+  })
+
+const layers = [
+  { id: "apps", label: "Apps", kind: "icons", pieces: appPieces, icon: `<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>` },
+  { id: "illustration", label: "Illustrations", kind: "canvas", pieces: galleryPieces(illustrations, illustrationSlots), icon: `<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/>` },
+  { id: "photo", label: "Photography", kind: "canvas", pieces: galleryPieces(photos, photoSlots), icon: `<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>` },
+] as const
+
+const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
+---
+
+<BlueprintSection id="work" class="work" label="03 — work" ariaLabelledby="work-title">
+  <div class="work__head">
+    <SectionHeader title="Projects and Products" titleId="work-title" />
+  </div>
+
+  <div class="work__mac">
+    {/* Tapa: bisel negro fino, muesca y pantalla. */}
+    <div class="work__screen">
+      <div class="work__display" data-display>
+        <span class="work__notch" aria-hidden="true"></span>
+
+        <div class="canvas" data-canvas>
+          <div class="canvas__dots" aria-hidden="true"></div>
+          {
+            layers.map((layer) => (
+              <div
+                class:list={["canvas__layer", `canvas__layer--${layer.kind}`]}
+                id={`layer-${layer.id}`}
+                role="tabpanel"
+                aria-labelledby={`dock-${layer.id}`}
+                data-layer={layer.id}
+                hidden={layer.id !== "apps"}
+              >
+                <div class="canvas__cluster">
+                  {layer.pieces.map((p) => {
+                    const style = `--x: ${p.x.toFixed(1)}px; --y: ${p.y.toFixed(1)}px; --w: ${p.w}px; --h: ${p.h.toFixed(1)}px; --rot: ${p.rot}deg;`
+                    const tile = (
+                      <span class="piece__tile" style={p.tint ? `background: ${p.tint};` : undefined}>
+                        {p.src && <img src={p.src} loading="lazy" decoding="async" draggable="false" alt="" />}
+                        {p.initial && <span class="piece__initial">{p.initial}</span>}
+                        {p.placeholder && <span class="piece__plus" aria-hidden="true">+</span>}
+                        {p.soon && <span class="piece__soon font-jetbrains">soon</span>}
+                      </span>
+                    )
+                    return p.open ? (
+                      <button type="button" class="piece" style={style} data-open={p.open} aria-label={p.name}>
+                        {tile}
+                        <span class="piece__name" aria-hidden="true">{p.name}</span>
+                      </button>
+                    ) : (
+                      <span class:list={["piece", "piece--static", { "piece--placeholder": p.placeholder }]} style={style} aria-hidden="true">
+                        {tile}
+                      </span>
+                    )
+                  })}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+
+        <MacDock items={dockItems} active="apps" />
+
+        {
+          published.map((entry) => (
+            <WorkDrawer id={`drawer-${entry.id}`} labelledby={`case-${entry.id}-title`}>
+              <CaseStudy entry={entry} headingLevel="h2" titleId={`case-${entry.id}-title`} />
+              <p class="work__fullpage">
+                <a class="btn btn--ghost btn--sm" href={`/work/${entry.id}`}>Open as a page</a>
+              </p>
+            </WorkDrawer>
+          ))
+        }
+
+        <WorkDrawer id="drawer-gallery" labelledby="gallery-title" class="drawer--gallery">
+          <header class="gallery__head">
+            <h2 class="gallery__title" id="gallery-title">Gallery</h2>
+            <div class="gallery__filters" role="group" aria-label="Filter">
+              <button type="button" class="chip chip--active" data-gallery-filter="all" aria-pressed="true">All</button>
+              <button type="button" class="chip" data-gallery-filter="illustration" aria-pressed="false">Illustrations</button>
+              <button type="button" class="chip" data-gallery-filter="photo" aria-pressed="false">Photography</button>
+            </div>
+          </header>
+          <div class="gallery" data-gallery>
+            {
+              gallery.map((item) => (
+                <figure class="gallery__item" id={`g-${item.id}`} data-kind={item.kind}>
+                  <img src={item.src} alt={item.name} loading="lazy" decoding="async" style={`aspect-ratio: ${item.ratio};`} />
+                  <figcaption>
+                    <span class="gallery__name">{item.name}</span>
+                    {item.desc && <span class="gallery__desc">{item.desc}</span>}
+                  </figcaption>
+                </figure>
+              ))
+            }
+          </div>
+        </WorkDrawer>
+      </div>
+    </div>
+
+    {/* Base con el teclado, detrás de la tapa. */}
+    <div class="work__base" aria-hidden="true">
+      <img src="/images/teclado-mac.jpg" width="667" height="295" loading="lazy" decoding="async" alt="" />
+    </div>
+  </div>
+</BlueprintSection>
+
+<script>
+  const root = document.querySelector<HTMLElement>("#work")
+  const display = root?.querySelector<HTMLElement>("[data-display]")
+  const canvas = root?.querySelector<HTMLElement>("[data-canvas]")
+  const dock = root?.querySelector<HTMLElement>("[data-dock]")
+
+  if (root && display && canvas && dock) {
+    const hoverable = matchMedia("(hover: hover)").matches
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
+
+    // ── Capas ↔ dock (pestañas) ─────────────────────────────────────────
+    const tabs = [...dock.querySelectorAll<HTMLButtonElement>("[data-dock-item]")]
+    const layersEl = [...canvas.querySelectorAll<HTMLElement>("[data-layer]")]
+
+    const showLayer = (id: string) => {
+      for (const tab of tabs) {
+        const on = tab.dataset.dockItem === id
+        tab.setAttribute("aria-selected", String(on))
+        tab.tabIndex = on ? 0 : -1
+      }
+      for (const layer of layersEl) layer.hidden = layer.dataset.layer !== id
+      // Cada capa vuelve al centro: sus piezas están compuestas para él.
+      setPan(0, 0)
+    }
+
+    for (const tab of tabs) tab.addEventListener("click", () => showLayer(tab.dataset.dockItem!))
+    dock.addEventListener("keydown", (event) => {
+      const i = tabs.findIndex((t) => t === document.activeElement)
+      if (i < 0) return
+      const next = event.key === "ArrowRight" ? i + 1 : event.key === "ArrowLeft" ? i - 1 : -1
+      if (next < 0) return
+      event.preventDefault()
+      const tab = tabs[(next + tabs.length) % tabs.length]
+      showLayer(tab.dataset.dockItem!)
+      tab.focus()
+    })
+
+    // ── Magnificación del dock ──────────────────────────────────────────
+    if (hoverable) {
+      const RANGE = 110
+      const GAIN = 0.5
+      dock.addEventListener("pointermove", (event) => {
+        for (const tab of tabs) {
+          const box = tab.getBoundingClientRect()
+          const d = Math.abs(event.clientX - (box.left + box.width / 2))
+          const s = 1 + GAIN * Math.max(0, 1 - d / RANGE)
+          tab.style.setProperty("--s", s.toFixed(3))
+        }
+      })
+      dock.addEventListener("pointerleave", () => {
+        for (const tab of tabs) tab.style.setProperty("--s", "1")
+      })
+    }
+
+    // ── Desplazamiento del lienzo (arrastre con inercia) ────────────────
+    const BOUND_X = 280
+    const BOUND_Y = 190
+    const clamp = (v: number, b: number) => Math.max(-b, Math.min(b, v))
+    let px = 0
+    let py = 0
+    const setPan = (x: number, y: number) => {
+      px = clamp(x, BOUND_X)
+      py = clamp(y, BOUND_Y)
+      canvas.style.setProperty("--px", `${px.toFixed(1)}px`)
+      canvas.style.setProperty("--py", `${py.toFixed(1)}px`)
+    }
+
+    let drag: { id: number; sx: number; sy: number; bx: number; by: number; lx: number; ly: number; lt: number; vx: number; vy: number } | null = null
+    let panning = false
+    let inertia = 0
+
+    canvas.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return
+      cancelAnimationFrame(inertia)
+      drag = { id: event.pointerId, sx: event.clientX, sy: event.clientY, bx: px, by: py, lx: event.clientX, ly: event.clientY, lt: performance.now(), vx: 0, vy: 0 }
+      panning = false
+    })
+
+    canvas.addEventListener("pointermove", (event) => {
+      if (!drag || event.pointerId !== drag.id) return
+      const dx = event.clientX - drag.sx
+      const dy = event.clientY - drag.sy
+      if (!panning && Math.hypot(dx, dy) < 5) return
+      if (!panning) {
+        panning = true
+        canvas.classList.add("is-panning")
+        try {
+          canvas.setPointerCapture(drag.id)
+        } catch {
+          /* sin captura: sigue funcionando mientras el puntero esté encima */
+        }
+      }
+      const now = performance.now()
+      const dt = Math.max(1, now - drag.lt)
+      drag.vx = ((event.clientX - drag.lx) / dt) * 16
+      drag.vy = ((event.clientY - drag.ly) / dt) * 16
+      drag.lx = event.clientX
+      drag.ly = event.clientY
+      drag.lt = now
+      setPan(drag.bx + dx, drag.by + dy)
+    })
+
+    const endDrag = () => {
+      if (!drag) return
+      const { vx, vy } = drag
+      drag = null
+      if (!panning) return
+      canvas.classList.remove("is-panning")
+      // Un clic justo después de arrastrar no debe abrir nada.
+      suppressClick = true
+      setTimeout(() => (suppressClick = false), 0)
+      if (reduced) return
+      let cx = vx
+      let cy = vy
+      const glide = () => {
+        cx *= 0.92
+        cy *= 0.92
+        setPan(px + cx, py + cy)
+        if (Math.abs(cx) + Math.abs(cy) > 0.2) inertia = requestAnimationFrame(glide)
+      }
+      inertia = requestAnimationFrame(glide)
+    }
+    canvas.addEventListener("pointerup", endDrag)
+    canvas.addEventListener("pointercancel", endDrag)
+
+    let suppressClick = false
+    canvas.addEventListener(
+      "click",
+      (event) => {
+        if (suppressClick) {
+          event.stopPropagation()
+          event.preventDefault()
+        }
+      },
+      true,
+    )
+
+    // ── Drawers ────────────────────────────────────────────────────────
+    const drawers = [...display.querySelectorAll<HTMLElement>("[data-drawer]")]
+    let openDrawer: HTMLElement | null = null
+    let opener: HTMLElement | null = null
+
+    const focusables = (el: HTMLElement) =>
+      [...el.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')].filter((n) => !n.closest("[hidden]"))
+
+    const open = (drawer: HTMLElement, from?: HTMLElement | null) => {
+      if (openDrawer && openDrawer !== drawer) close(false)
+      opener = from ?? (document.activeElement as HTMLElement | null)
+      openDrawer = drawer
+      drawer.hidden = false
+      // Fuerza el layout con el panel abajo antes de animarlo hacia arriba.
+      void drawer.offsetHeight
+      drawer.classList.add("is-open")
+      display.classList.add("has-drawer")
+      drawer.querySelector<HTMLElement>("[data-drawer-body]")?.scrollTo({ top: 0 })
+      drawer.querySelector<HTMLElement>("[data-drawer-close]:not(.drawer__scrim)")?.focus()
+    }
+
+    const close = (restoreFocus = true) => {
+      const drawer = openDrawer
+      if (!drawer) return
+      openDrawer = null
+      drawer.classList.remove("is-open")
+      display.classList.remove("has-drawer")
+      const done = () => {
+        drawer.hidden = true
+        drawer.querySelector<HTMLElement>("[data-drawer-panel]")!.style.translate = ""
+      }
+      if (reduced) done()
+      else setTimeout(done, 480)
+      if (restoreFocus) opener?.focus()
+      if (location.hash.startsWith("#work/")) history.replaceState(null, "", "#work")
+    }
+
+    for (const drawer of drawers) {
+      for (const btn of drawer.querySelectorAll("[data-drawer-close]")) btn.addEventListener("click", () => close())
+
+      // Arrastrar el asa hacia abajo cierra; si no llega, vuelve a su sitio.
+      const grip = drawer.querySelector<HTMLElement>("[data-drawer-grip]")!
+      const panel = drawer.querySelector<HTMLElement>("[data-drawer-panel]")!
+      let start: number | null = null
+      let last = 0
+      let lastT = 0
+      let v = 0
+      grip.addEventListener("pointerdown", (event) => {
+        start = event.clientY
+        last = start
+        lastT = performance.now()
+        v = 0
+        drawer.classList.add("is-dragging")
+        try {
+          grip.setPointerCapture(event.pointerId)
+        } catch {
+          /* idem */
+        }
+      })
+      grip.addEventListener("pointermove", (event) => {
+        if (start === null) return
+        const dy = Math.max(0, event.clientY - start)
+        const now = performance.now()
+        v = (event.clientY - last) / Math.max(1, now - lastT)
+        last = event.clientY
+        lastT = now
+        panel.style.translate = `0 ${dy}px`
+      })
+      const release = () => {
+        if (start === null) return
+        const dy = last - start
+        start = null
+        drawer.classList.remove("is-dragging")
+        if (dy > 120 || v > 0.6) close()
+        else panel.style.translate = ""
+      }
+      grip.addEventListener("pointerup", release)
+      grip.addEventListener("pointercancel", release)
+    }
+
+    display.addEventListener("keydown", (event) => {
+      if (!openDrawer) return
+      if (event.key === "Escape") {
+        event.preventDefault()
+        close()
+        return
+      }
+      if (event.key === "Tab") {
+        const nodes = focusables(openDrawer)
+        if (!nodes.length) return
+        const first = nodes[0]
+        const lastNode = nodes[nodes.length - 1]
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
+          lastNode.focus()
+        } else if (!event.shiftKey && document.activeElement === lastNode) {
+          event.preventDefault()
+          first.focus()
+        }
+      }
+    })
+
+    // ── Galería: filtro y pieza destacada ───────────────────────────────
+    const galleryDrawer = display.querySelector<HTMLElement>("#drawer-gallery")
+    const filterButtons = [...(galleryDrawer?.querySelectorAll<HTMLButtonElement>("[data-gallery-filter]") ?? [])]
+    const galleryItems = [...(galleryDrawer?.querySelectorAll<HTMLElement>(".gallery__item") ?? [])]
+
+    const setFilter = (kind: string) => {
+      for (const btn of filterButtons) {
+        const on = btn.dataset.galleryFilter === kind
+        btn.classList.toggle("chip--active", on)
+        btn.setAttribute("aria-pressed", String(on))
+      }
+      for (const item of galleryItems) item.hidden = kind !== "all" && item.dataset.kind !== kind
+    }
+    for (const btn of filterButtons) btn.addEventListener("click", () => setFilter(btn.dataset.galleryFilter!))
+
+    const openGallery = (id: string, from?: HTMLElement | null) => {
+      if (!galleryDrawer) return
+      const item = galleryDrawer.querySelector<HTMLElement>(`#g-${id}`)
+      setFilter(item?.dataset.kind ?? "all")
+      open(galleryDrawer, from)
+      if (item) {
+        // Solo se desplaza el cuerpo del drawer, nunca la página.
+        const body = galleryDrawer.querySelector<HTMLElement>("[data-drawer-body]")!
+        setTimeout(() => {
+          const top = item.offsetTop - body.clientHeight / 2 + item.offsetHeight / 2
+          body.scrollTo({ top: Math.max(0, top), behavior: reduced ? "auto" : "smooth" })
+          item.classList.add("is-target")
+          setTimeout(() => item.classList.remove("is-target"), 1400)
+        }, 200)
+      }
+    }
+
+    const openCase = (slug: string, from?: HTMLElement | null) => {
+      const drawer = display.querySelector<HTMLElement>(`#drawer-${slug}`)
+      if (!drawer) return
+      open(drawer, from)
+      history.replaceState(null, "", `#work/${slug}`)
+    }
+
+    canvas.addEventListener("click", (event) => {
+      const piece = (event.target as HTMLElement).closest<HTMLElement>("[data-open]")
+      if (!piece) return
+      const [kind, id] = piece.dataset.open!.split(":")
+      if (kind === "case") openCase(id, piece)
+      else openGallery(id, piece)
+    })
+
+    // Enlace profundo: /#work/huma abre el caso, al cargar o al cambiar el hash.
+    const openFromHash = () => {
+      const match = location.hash.match(/^#work\/([\w-]+)$/)
+      if (!match) return
+      root.scrollIntoView({ block: "start" })
+      openCase(match[1], null)
+    }
+    requestAnimationFrame(openFromHash)
+    window.addEventListener("hashchange", openFromHash)
+  }
+</script>
+
+<style>
+  .work__head {
+    padding-top: clamp(3.5rem, 9vh, 6rem);
+  }
+
+  /* ── MacBook ─────────────────────────────────────────────────────────── */
+  .work__mac {
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+  }
+
+  /* Bisel: negro casi puro, fino, con filo de separador de Apple. */
+  .work__screen {
+    --bezel: #000;
+
+    position: relative;
+    z-index: 1;
+    padding: 0.7rem;
+    border-radius: 1.6rem;
+    border: 1px solid rgba(84, 84, 88, 0.65);
+    background: var(--bezel);
+  }
+
+  .work__display {
+    position: relative;
+    height: clamp(22rem, 52vw, 34rem);
+    overflow: clip;
+    border-radius: 1rem;
+    background: var(--page-accent-surface);
+    /* Contexto propio: los drawers y el dock se apilan dentro de la pantalla. */
+    isolation: isolate;
+  }
+
+  .work__notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 4;
+    width: clamp(6rem, 14%, 9rem);
+    height: 1.25rem;
+    translate: -50% 0;
+    border-radius: 0 0 0.75rem 0.75rem;
+    background: var(--bezel);
+    pointer-events: none;
+  }
+
+  .work__base {
+    display: flex;
+    justify-content: center;
+    margin-top: calc(-1 * min(11%, 5.75rem));
+    padding-bottom: clamp(2rem, 6vh, 3.5rem);
+  }
+
+  .work__base img {
+    width: min(100%, 52rem);
+    height: auto;
+    mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, #000 45%, transparent 100%);
+  }
+
+  /* ── Lienzo ──────────────────────────────────────────────────────────── */
+  .canvas {
+    --px: 0px;
+    --py: 0px;
+    --cluster-scale: 1;
+
+    position: absolute;
+    inset: 0;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .canvas.is-panning {
+    cursor: grabbing;
+  }
+
+  /* Las piezas no reciben eventos mientras se arrastra: no hay hover ni clic accidental. */
+  .canvas.is-panning .piece {
+    pointer-events: none;
+  }
+
+  /* Retícula de puntos, con paralaje a la mitad del desplazamiento. */
+  .canvas__dots {
+    position: absolute;
+    inset: -60%;
+    background-image: radial-gradient(circle, var(--line-tint) 1px, transparent 1.6px);
+    background-size: 22px 22px;
+    translate: calc(var(--px) * 0.5) calc(var(--py) * 0.5);
+    mask-image: radial-gradient(ellipse 45% 45% at 50% 50%, #000 40%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .canvas__layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  .canvas__cluster {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    translate: var(--px) var(--py);
+    scale: var(--cluster-scale);
+    will-change: translate;
+  }
+
+  /* ── Piezas ──────────────────────────────────────────────────────────── */
+  .piece {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: block;
+    width: var(--w);
+    height: var(--h);
+    padding: 0;
+    border: 0;
+    background: none;
+    translate: -50% -50%;
+    cursor: pointer;
+    transition: scale 260ms var(--ease-out);
+  }
+
+  .piece--static {
+    cursor: default;
+  }
+
+  .piece:hover,
+  .piece:focus-visible {
+    scale: 1.06;
+    z-index: 2;
+  }
+
+  .piece__tile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 24%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--surface-2);
+    box-shadow:
+      0 12px 28px -10px rgba(2, 6, 23, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    rotate: var(--rot);
+    transition:
+      rotate 320ms var(--ease-out),
+      box-shadow 260ms ease;
+  }
+
+  .piece:hover .piece__tile {
+    rotate: 0deg;
+    box-shadow:
+      0 22px 40px -12px rgba(2, 6, 23, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  .canvas__layer--canvas .piece__tile {
+    border-radius: 0.85rem;
+  }
+
+  .piece__tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  .piece__initial {
+    font-family: var(--font-bellota);
+    font-size: calc(var(--w) * 0.5);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .piece--placeholder .piece__tile {
+    border-style: dashed;
+    border-color: var(--line-tint);
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: none;
+  }
+
+  .piece__plus {
+    font-size: calc(min(var(--w), var(--h)) * 0.45);
+    font-weight: 300;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .piece__soon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0.15rem 0;
+    background: rgba(0, 0, 0, 0.55);
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Nombre bajo la pieza al pasar el puntero. */
+  .piece__name {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    padding: 0.25rem 0.55rem;
+    translate: -50% 4px;
+    border-radius: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(20, 19, 34, 0.92);
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 140ms ease,
+      translate 140ms ease;
+  }
+
+  .piece:hover .piece__name,
+  .piece:focus-visible .piece__name {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  /* Con un drawer abierto, el lienzo y el dock quedan detrás del scrim. */
+  .work__display.has-drawer .canvas {
+    pointer-events: none;
+  }
+
+  /* ── Drawer de caso: enlace a la página propia ───────────────────────── */
+  .work__fullpage {
+    margin: 2.5rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--bp-line);
+  }
+
+  /* ── Galería ─────────────────────────────────────────────────────────── */
+  .gallery__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .gallery__title {
+    margin: 0;
+    font-family: var(--font-bellota);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .gallery__filters {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .gallery {
+    columns: 3;
+    column-gap: 0.9rem;
+  }
+
+  .gallery__item {
+    break-inside: avoid;
+    margin: 0 0 0.9rem;
+    border-radius: 0.9rem;
+    outline: 2px solid transparent;
+    outline-offset: 4px;
+    transition: outline-color 300ms ease;
+  }
+
+  .gallery__item.is-target {
+    outline-color: var(--page-accent);
+  }
+
+  .gallery__item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface-2);
+  }
+
+  .gallery__item figcaption {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.55rem 0.25rem 0;
+  }
+
+  .gallery__name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .gallery__desc {
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .canvas {
+      --cluster-scale: 0.85;
+    }
+
+    .gallery {
+      columns: 2;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .work__screen {
+      padding: 0.4rem;
+      border-radius: 1.1rem;
+    }
+
+    .work__display {
+      height: min(72vh, 34rem);
+      border-radius: 0.8rem;
+    }
+
+    .work__notch {
+      width: 4.5rem;
+      height: 1rem;
+    }
+
+    .work__base {
+      display: none;
+    }
+
+    .canvas {
+      --cluster-scale: 0.66;
+    }
+
+    .gallery {
+      columns: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .piece,
+    .piece__tile,
+    .piece__name {
+      transition: none;
+    }
+  }
+</style>

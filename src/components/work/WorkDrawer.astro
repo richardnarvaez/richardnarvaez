@@ -1,0 +1,139 @@
+---
+// Drawer inferior dentro de la pantalla del Mac. Un panel que sube desde el
+// borde con asa para arrastrar y cerrar, botón de cierre, scrim y cuerpo con
+// scroll. La apertura, el foco y el arrastre los gestiona el script de
+// SectionWork; este componente solo aporta marcado y estilo.
+interface Props {
+  id: string
+  /** id del encabezado que da nombre al diálogo. */
+  labelledby: string
+  class?: string
+}
+
+const { id, labelledby, class: className } = Astro.props
+---
+
+<div class:list={["drawer", className]} id={id} role="dialog" aria-modal="true" aria-labelledby={labelledby} data-drawer hidden>
+  <div class="drawer__scrim" data-drawer-close></div>
+  <div class="drawer__panel" data-drawer-panel>
+    <div class="drawer__grip" data-drawer-grip>
+      <span class="drawer__handle" aria-hidden="true"></span>
+      <button type="button" class="drawer__close" data-drawer-close aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="drawer__body" data-drawer-body>
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .drawer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .drawer__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgb(var(--surface-rgb) / 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 320ms ease;
+  }
+
+  .drawer__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 92%;
+    border-radius: 1.4rem 1.4rem 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 0;
+    background: var(--surface-raised);
+    box-shadow: 0 -24px 60px -30px rgba(0, 0, 0, 0.9);
+    translate: 0 100%;
+    transition: translate 460ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: translate;
+  }
+
+  .drawer.is-open .drawer__scrim {
+    opacity: 1;
+  }
+
+  .drawer.is-open .drawer__panel {
+    translate: 0 0;
+  }
+
+  /* Mientras se arrastra el asa, el panel sigue al dedo sin transición. */
+  .drawer.is-dragging .drawer__panel {
+    transition: none;
+  }
+
+  .drawer__grip {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    height: 2.6rem;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .drawer__grip:active {
+    cursor: grabbing;
+  }
+
+  .drawer__handle {
+    width: 2.75rem;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .drawer__close {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.8rem;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition:
+      background 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .drawer__close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .drawer__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.25rem clamp(1.25rem, 4vw, 2.75rem) clamp(2rem, 5vh, 3rem);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer__panel,
+    .drawer__scrim {
+      transition: none;
+    }
+  }
+</style>
