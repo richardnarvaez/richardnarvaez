@@ -528,7 +528,8 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
 
   /* Bisel: negro casi puro, fino, con filo de separador de Apple. */
   .work__screen {
-    --bezel: #000;
+    /* Negro al 25%: el bisel y la muesca se leen como un tinte sobre la página, no como un bloque. */
+    --bezel: rgba(0, 0, 0, 0.25);
 
     position: relative;
     z-index: 1;
