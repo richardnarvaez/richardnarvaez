@@ -17,8 +17,8 @@ metrics:
     label: "languages"
   - value: "iOS"
     label: "native app"
-  - value: "100%"
-    label: "hand-drawn stories"
+  - value: "Mixed"
+    label: "illustration · video · AI"
 order: 1
 ---
 
@@ -32,13 +32,13 @@ import Callout from "../../components/case/Callout.astro"
 
 Vocabulary apps drill words out of context. People memorize lists, forget them a week later and quit.
 
-Huma teaches words **inside a story**: a legend from a real place, illustrated by hand, where each new word appears where it matters.
+Huma teaches words **inside a story**: a legend from a real place, told with illustrators from different countries and, alongside them, video and AI-made pieces. Each new word appears where it matters.
 
 ## What I built
 
 <Flow
   steps={[
-    { label: "Story", note: "Illustrated legend, one chapter at a time" },
+    { label: "Story", note: "A legend from a real place, one chapter at a time" },
     { label: "Words in context", note: "Tap any word, hear it, keep it" },
     { label: "Review", note: "Spaced repetition on what you kept" },
     { label: "Progress", note: "Streaks and a map of visited places" },
@@ -61,7 +61,13 @@ Huma teaches words **inside a story**: a legend from a real place, illustrated b
 
 <Decision
   title="Stories before features"
-  why="Every release ships at least one new illustrated legend. The content is the product; features follow what readers ask for."
+  why="Every release ships at least one new legend. The content is the product; features follow what readers ask for."
+/>
+
+<Decision
+  title="Illustrators from each place, not one house style"
+  why="A legend from Ecuador should look Ecuadorian. Local artists bring that; video and AI-made pieces fill the gaps and keep the release pace."
+  tradeoff="Less visual uniformity across stories, more coordination."
 />
 
 ## Architecture
@@ -72,7 +78,7 @@ Huma teaches words **inside a story**: a legend from a real place, illustrated b
     { label: "SwiftUI client", note: "Reader, audio, review engine, offline cache" },
     { label: "Convex", note: "Auth, progress, story catalogue, realtime sync" },
     { label: "Stripe", note: "Subscriptions and receipts" },
-    { label: "Content pipeline", note: "Illustrations and audio processed at build time" },
+    { label: "Content pipeline", note: "Illustration, video, AI pieces and audio processed at build time" },
   ]}
 />
 
