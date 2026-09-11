@@ -1087,6 +1087,19 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     transition: scale 260ms var(--ease-out);
   }
 
+  /* Zona de hover generosa: 8px alrededor del icono, y en los nodos del
+     diagrama baja hasta cubrir el nombre. Así icono, hueco y nombre son un
+     solo objetivo y el puntero no "sale" al pasar del uno al otro. */
+  .piece::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+  }
+
+  .node::before {
+    bottom: calc(-1.6rem - 8px);
+  }
+
   .piece--static {
     cursor: default;
   }
