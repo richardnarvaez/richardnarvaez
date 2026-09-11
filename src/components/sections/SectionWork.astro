@@ -11,7 +11,6 @@
 // al cargar con ese hash se abre solo.
 import { getCollection } from "astro:content"
 import BlueprintSection from "../layout/BlueprintSection.astro"
-import SectionHeader from "../layout/SectionHeader.astro"
 import MacDock from "../work/MacDock.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import CaseStudy from "../case/CaseStudy.astro"
@@ -100,11 +99,8 @@ const layers = [
 const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
 ---
 
-<BlueprintSection id="work" class="work" label="03 — work" ariaLabelledby="work-title">
-  <div class="work__head">
-    <SectionHeader title="Projects and Products" titleId="work-title" />
-  </div>
-
+{/* Sin divisor ni título: continúa el bloque 02 (shortcuts & work) que abre el bento. */}
+<BlueprintSection id="work" class="work" divider={false} ariaLabel="Projects and products">
   <div class="work__mac">
     {/* Tapa: bisel negro fino, muesca y pantalla. */}
     <div class="work__screen">
@@ -517,13 +513,10 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
 </script>
 
 <style>
-  .work__head {
-    padding-top: clamp(3.5rem, 9vh, 6rem);
-  }
-
   /* ── MacBook ─────────────────────────────────────────────────────────── */
+  /* El aire superior lo pone el bento, que cierra su propio bloque con relleno. */
   .work__mac {
-    margin-top: clamp(2.5rem, 6vh, 4rem);
+    margin-top: 0;
   }
 
   /* Bisel: negro casi puro, fino, con filo de separador de Apple. */
