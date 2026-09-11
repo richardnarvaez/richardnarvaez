@@ -546,6 +546,18 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       lbImg.style.width = `${r.width}px`
       lbImg.style.height = `${r.height}px`
     }
+    // Radio visible de la miniatura: el <img> no lo tiene, lo recorta su
+    // contenedor. Se sube por los ancestros hasta encontrarlo; si no, 0.
+    const radiusOf = (el: HTMLElement, stopAt: HTMLElement) => {
+      let node: HTMLElement | null = el
+      while (node) {
+        const r = getComputedStyle(node).borderRadius
+        if (r && r !== "0px") return r
+        if (node === stopAt) break
+        node = node.parentElement
+      }
+      return "0px"
+    }
     const targetRect = (ratio: number): Rect => {
       const maxW = Math.min(innerWidth * 0.9, 72 * 16)
       const maxH = innerHeight * 0.78
@@ -572,7 +584,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       lightbox.classList.remove("is-settled")
       // Arranca exactamente sobre la miniatura y vuela al centro.
       lbImg.style.transition = "none"
-      lbImg.style.borderRadius = getComputedStyle(thumb).borderRadius
+      lbImg.style.borderRadius = radiusOf(thumb, from)
       applyRect(rectOf(thumb))
       void lbImg.offsetWidth
       lbImg.style.transition = ""
@@ -591,7 +603,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       // Vuelve a donde esté ahora la miniatura (el drawer puede haberse desplazado).
       if (lbSource) {
         applyRect(rectOf(lbSource))
-        lbImg.style.borderRadius = getComputedStyle(lbSource).borderRadius
+        lbImg.style.borderRadius = radiusOf(lbSource, lbOpener ?? lbSource)
       }
       const done = () => {
         lightbox.hidden = true
