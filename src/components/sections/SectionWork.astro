@@ -967,11 +967,15 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       opacity 220ms ease;
   }
 
+  /* Fijada: sus conectores enteros, discontinuos y en la tinta base. */
   .diagram__links path.is-lit {
-    stroke: var(--page-accent);
-    stroke-dasharray: none;
-    stroke-width: 1.6;
     opacity: 1;
+  }
+
+  /* Solo con el puntero encima pasan al naranja. */
+  .diagram.has-focus .diagram__links path.is-lit {
+    stroke: var(--page-accent);
+    stroke-width: 1.5;
   }
 
   /* Chips de stack: píldora oscura con logo a color y nombre; blanco solo al iluminarse. */
