@@ -26,6 +26,7 @@ export const illustrations: GalleryItem[] = [
   { id: "ill-3", kind: "illustration", name: "Illustration 03", ...local("/images/illustration/thumbs/pic_3.webp", "/images/illustration/large/pic_3.webp"), ratio: 0.56 },
   { id: "ill-4", kind: "illustration", name: "Illustration 04", ...local("/images/illustration/thumbs/pic_4.webp", "/images/illustration/large/pic_4.webp"), ratio: 0.7 },
   { id: "ill-5", kind: "illustration", name: "Cantuña", desc: "Cover for the story of Cantuña.", ...local("/images/illustration/thumbs/pic_5.webp", "/images/illustration/large/pic_5.webp"), ratio: 1 },
+  { id: "ill-6", kind: "illustration", name: "First Illustration", desc: "Skull and sword, in two blues.", ...local("/images/illustration/thumbs/pic_6.webp", "/images/illustration/large/pic_6.webp"), ratio: 1 },
 ]
 
 export const photos: GalleryItem[] = [
@@ -43,6 +44,13 @@ export const photos: GalleryItem[] = [
 export const appIcons: GalleryItem[] = [
   { id: "app-huma", kind: "app", name: "Huma Legends icon", desc: "App icon for Huma Legends.", ...local("/images/apps/huma.webp", "/images/apps/large/huma.webp"), ratio: 1 },
   { id: "app-memory", kind: "app", name: "Memory ClickStudio icon", desc: "App icon for Memory ClickStudio.", ...local("/images/apps/memory.webp", "/images/apps/large/memory.webp"), ratio: 1 },
+  { id: "app-deliverycat", kind: "app", name: "DeliveryCat icon", desc: "App icon for DeliveryCat.", ...local("/images/apps/deliverycat.webp", "/images/apps/large/deliverycat.webp"), ratio: 1 },
+  { id: "app-thelist", kind: "app", name: "The List icon", desc: "App icon for The List.", ...local("/images/apps/thelist.webp", "/images/apps/large/thelist.webp"), ratio: 1 },
+  { id: "app-zodiac", kind: "app", name: "Zodiac icon", desc: "App icon for Zodiac.", ...local("/images/apps/zodiac.webp", "/images/apps/large/zodiac.webp"), ratio: 1 },
+  { id: "app-chicken", kind: "app", name: "Chicken vs Cats icon", desc: "Game icon for Chicken vs Cats.", ...local("/images/apps/chicken-vs-cats.webp", "/images/apps/large/chicken-vs-cats.webp"), ratio: 1 },
+  { id: "app-little-king", kind: "app", name: "The Little King icon", desc: "Game icon for The Little King.", ...local("/images/apps/little-king.webp", "/images/apps/large/little-king.webp"), ratio: 1 },
+  { id: "app-little-king-logo", kind: "app", name: "The Little King logo", desc: "Wordmark for The Little King.", ...local("/images/apps/little-king-logo.webp", "/images/apps/large/little-king-logo.webp"), ratio: 1 },
+  { id: "app-relax-puzzle", kind: "app", name: "Relax Puzzle logo", desc: "Wordmark for Relax Puzzle.", ...local("/images/apps/relax-puzzle.webp", "/images/apps/large/relax-puzzle.webp"), ratio: 2.33 },
 ]
 
 export const gallery: GalleryItem[] = [...illustrations, ...appIcons, ...photos]
