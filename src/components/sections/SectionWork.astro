@@ -28,12 +28,13 @@ type Slot = { x: number; y: number; w: number; ratio?: number }
 // Las apps en fila en el centro; los stacks, únicos, repartidos en dos
 // filas arriba y abajo; un conector por cada uso. Todo sale del frontmatter
 // de los MDX (stack, platform, sticker): añadir un caso redibuja el mapa.
-const APP_GAP = 190
-const CHIP_GAP = 150
-// Filas de chips: la de abajo queda por encima del dock (el lienzo mide ~544px de alto).
-const ROW_TOP = -196
-const ROW_BOTTOM = 148
-const APP_Y = -22
+// Apps en zigzag (dos alturas alternas) para que nueve quepan sin pisarse;
+// filas de chips arriba y abajo, la de abajo por encima del dock.
+const APP_GAP = 104
+const APP_ROWS = [-66, 34]
+const CHIP_GAP = 132
+const ROW_TOP = -206
+const ROW_BOTTOM = 160
 
 type AppNode = {
   id: string
@@ -43,8 +44,12 @@ type AppNode = {
   tint?: string
   open?: string
   soon?: boolean
+  /** Retirada hace años: blanco y negro y etiqueta R.I.P. */
+  dead?: boolean
   sticker?: string
   stacks: string[]
+  /** Baldosa clara: la inicial va en oscuro. */
+  light?: boolean
   x: number
   y: number
   rot: number
@@ -57,19 +62,22 @@ const appNodes: AppNode[] = cases.map((entry, i) => ({
   initial: entry.data.icon ? undefined : entry.data.name[0],
   tint: entry.data.tint,
   open: entry.data.draft ? undefined : `case:${entry.id}`,
-  soon: entry.data.draft,
+  soon: entry.data.draft && entry.data.status !== "discontinued",
+  dead: entry.data.status === "discontinued",
   sticker: entry.data.sticker,
   stacks: entry.data.stack,
   x: (i - (cases.length - 1) / 2) * APP_GAP,
-  y: APP_Y,
+  y: APP_ROWS[i % APP_ROWS.length],
   rot: ((i * 137) % 17) - 8,
+  light: entry.data.tint?.toLowerCase() === "#fff",
 }))
 
 // Stack → id de logo en tool-logos (los que no tienen logo salen solo con texto).
 const stackLogo: Record<string, string> = {
   Swift: "swift", SwiftUI: "swift", Convex: "convex", Stripe: "stripe", "Next.js": "next", TypeScript: "typescript",
   Postgres: "postgres", Kotlin: "kotlin", React: "react", Angular: "angular", Node: "node", AWS: "aws", Docker: "docker",
-  Vercel: "vercel", Figma: "figma", Strapi: "strapi", Railway: "railway",
+  Vercel: "vercel", Figma: "figma", Strapi: "strapi", Railway: "railway", "Google Cloud": "googlecloud", SendGrid: "sendgrid",
+  Directus: "directus", Unity: "unity",
 }
 
 const stackNames = [...new Set(appNodes.flatMap((n) => n.stacks))]
@@ -77,7 +85,7 @@ const top = stackNames.filter((_, i) => i % 2 === 0)
 const bottom = stackNames.filter((_, i) => i % 2 === 1)
 const stackChips = [
   ...top.map((name, j) => ({ name, x: (j - (top.length - 1) / 2) * CHIP_GAP, y: ROW_TOP })),
-  ...bottom.map((name, j) => ({ name, x: (j - (bottom.length - 1) / 2) * CHIP_GAP + CHIP_GAP / 2, y: ROW_BOTTOM })),
+  ...bottom.map((name, j) => ({ name, x: (j - (bottom.length - 1) / 2) * CHIP_GAP, y: ROW_BOTTOM })),
 ].map((chip) => ({ ...chip, logo: stackLogo[chip.name] ? toolLogoById.get(stackLogo[chip.name]) : undefined }))
 const chipByName = new Map(stackChips.map((c) => [c.name, c]))
 
@@ -188,10 +196,11 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
                       {appNodes.map((node) => {
                         const style = `--x: ${node.x.toFixed(1)}px; --y: ${node.y.toFixed(1)}px; --w: 88px; --h: 88px; --rot: ${node.rot}deg;`
                         const tile = (
-                          <span class="piece__tile" style={node.tint ? `background: ${node.tint};` : undefined}>
+                          <span class:list={["piece__tile", { "piece__tile--light": node.light, "piece__tile--dead": node.dead }]} style={node.tint ? `background: ${node.tint};` : undefined}>
                             {node.src && <img src={node.src} loading="lazy" decoding="async" draggable="false" alt="" />}
                             {node.initial && <span class="piece__initial">{node.initial}</span>}
                             {node.soon && <span class="piece__soon font-jetbrains">soon</span>}
+                            {node.dead && <span class="piece__soon piece__soon--dead font-jetbrains">R.I.P.</span>}
                           </span>
                         )
                         const inner = (
@@ -436,8 +445,9 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       }
       inertia = requestAnimationFrame(glide)
     }
-    canvas.addEventListener("pointerup", endDrag)
-    canvas.addEventListener("pointercancel", endDrag)
+    // En window: si se suelta fuera del lienzo, el arrastre no puede quedarse armado.
+    window.addEventListener("pointerup", endDrag)
+    window.addEventListener("pointercancel", endDrag)
 
     let suppressClick = false
     canvas.addEventListener(
@@ -951,10 +961,15 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       background 220ms ease;
   }
 
+  /* Logo sobre círculo blanco: los negros (Next.js, Railway) y los oscuros (AWS) no se veían sobre el chip. */
   .chip-node__logo {
-    width: 1rem;
-    height: 1rem;
+    box-sizing: border-box;
+    width: 1.35rem;
+    height: 1.35rem;
     flex: none;
+    padding: 0.2rem;
+    border-radius: 50%;
+    background: #fff;
   }
 
   .diagram.has-focus .chip-node:not(.is-lit) {
@@ -1080,6 +1095,25 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     font-size: calc(var(--w) * 0.5);
     font-weight: 700;
     color: #fff;
+  }
+
+  .piece__tile--light .piece__initial {
+    color: var(--surface-raised);
+  }
+
+  .piece__tile--light .piece__soon {
+    background: rgba(19, 18, 34, 0.75);
+  }
+
+  /* Retiradas: en blanco y negro, algo apagadas, con su lápida. */
+  .piece__tile--dead {
+    filter: grayscale(1);
+    opacity: 0.72;
+  }
+
+  .piece__soon--dead {
+    background: rgba(0, 0, 0, 0.7);
+    color: rgba(255, 255, 255, 0.85);
   }
 
   .piece--placeholder .piece__tile {

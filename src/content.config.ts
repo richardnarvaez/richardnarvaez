@@ -30,6 +30,8 @@ const work = defineCollection({
     year: z.number().optional(),
     /** Nota corta pegada al nodo en el diagrama ("Shipped 2023", "Offline first"). */
     sticker: z.string().optional(),
+    /** Retirado hace años: en el diagrama va en blanco y negro con etiqueta R.I.P. */
+    status: z.enum(["active", "discontinued"]).default("active"),
     /** Orden en el lienzo (menor primero). */
     order: z.number().default(99),
     /** Borrador: no se publica como página ni aparece en el lienzo. */
