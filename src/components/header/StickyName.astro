@@ -477,7 +477,7 @@ const arcs = [
 
   /*
     Racimo: un punto (0×0) en el centro del handle. Los círculos se colocan
-    desde ahí con --x/--y en px de diseño multiplicados por --u, que encoge en
+    desde ahí con --x/--y en px de diseño; --u escala el conjunto en
     pantallas estrechas. Al abrir salen del handle: parten reunidos en él,
     encogidos, y se abren escalonados.
   */
@@ -489,6 +489,8 @@ const arcs = [
     top: var(--anchor);
     width: 0;
     height: 0;
+    /* En pantallas estrechas encoge el racimo entero (posiciones y círculos), así los huecos se mantienen en proporción. */
+    scale: var(--u);
     pointer-events: auto;
   }
 
@@ -535,7 +537,7 @@ const arcs = [
     position: absolute;
     left: 0;
     top: 0;
-    translate: calc(var(--x) * var(--u) * 1px) calc(var(--y) * var(--u) * 1px);
+    translate: calc(var(--x) * 1px) calc(var(--y) * 1px);
     transition:
       translate 620ms cubic-bezier(0.22, 1.2, 0.36, 1) calc(120ms + var(--i) * 40ms),
       opacity 220ms ease;
@@ -672,18 +674,6 @@ const arcs = [
   @media (max-width: 400px) {
     .site-menu__cluster {
       --u: 0.74;
-    }
-
-    .site-menu__item {
-      --d: 2.25rem;
-    }
-
-    .site-menu__item--l {
-      --d: 2.75rem;
-    }
-
-    .site-menu__item--xl {
-      --d: 3.25rem;
     }
   }
 
