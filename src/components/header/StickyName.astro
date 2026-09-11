@@ -40,7 +40,7 @@ const logo = (id: string) => toolLogoById.get(id)!
 const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox, filled: true })
 
 // Racimo asimétrico, como el boceto: grandes y pequeños mezclados, más ancho
-// que alto, colgando bajo el nombre.
+// que alto, colgando bajo el handle de la barra.
 const items: Item[] = [
   { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", x: -150, y: -47, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
   { id: "github", label: "GitHub", href: socialLinks.github, external: true, x: -52, y: -55, size: "s", ...brand("github") },
@@ -82,11 +82,10 @@ const arcs = [
   </div>
   <div class="site-menu__scrim" data-menu-close></div>
 
+  {/* El centro de todo es el handle de la barra: los anillos giran en torno
+      a él y el racimo cuelga debajo. */}
   <div class="site-menu__stage">
-    <p class="site-menu__name">{handle}</p>
-
-    <div class="site-menu__cluster">
-      <div class="site-menu__orbit" aria-hidden="true">
+    <div class="site-menu__orbit" aria-hidden="true">
         <svg class="site-menu__rings" viewBox="0 0 1251 1251" fill="none">
           {rings.map((r, i) => <circle cx="625.5" cy="625.5" r={r} stroke="white" stroke-opacity={0.07 - i * 0.01} />)}
           {
@@ -104,8 +103,9 @@ const arcs = [
             ))
           }
         </svg>
-      </div>
+    </div>
 
+    <div class="site-menu__cluster">
       <ul class="site-menu__list">
         {
           items.map((item, i) => (
@@ -342,59 +342,39 @@ const arcs = [
     height: 100%;
   }
 
-  /* Columna anclada arriba, bajo la barra: nombre y, colgando, el racimo. */
+  /* Todo se ancla al centro del botón de la barra (--anchor). */
   .site-menu__stage {
+    --anchor: 1.5rem;
+
     position: absolute;
     inset: 0;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: clamp(7rem, 17vh, 11rem);
     pointer-events: none;
   }
 
-  .site-menu__name {
-    margin: 0;
-    font-family: var(--font-bellota);
-    font-size: clamp(1.5rem, 3vw, 2.1rem);
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 2px 24px rgb(var(--surface-rgb) / 0.9);
-    opacity: 0;
-    translate: 0 -0.75rem;
-    transition:
-      opacity 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms,
-      translate 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 60ms;
-  }
-
-  .site-menu.is-open .site-menu__name {
-    opacity: 1;
-    translate: 0 0;
-  }
-
   /*
-    Racimo: un punto (0×0) a --drop bajo el nombre. Los círculos se colocan
+    Racimo: un punto (0×0) a --drop bajo el botón. Los círculos se colocan
     desde ahí con --x/--y en px de diseño multiplicados por --u, que encoge en
-    pantallas estrechas. Al abrir salen del nombre: parten reunidos arriba
-    (translate hacia el nombre, escala pequeña) y se abren escalonados.
+    pantallas estrechas. Al abrir salen del botón: parten reunidos arriba
+    (translate hacia el handle, escala pequeña) y se abren escalonados.
   */
   .site-menu__cluster {
-    --u: 1;
-    --drop: clamp(7.5rem, 22vh, 11rem);
+    --u: 0.72;
+    --drop: clamp(10rem, 24vh, 14rem);
 
-    position: relative;
+    position: absolute;
+    left: 50%;
+    top: calc(var(--anchor) + var(--drop));
     width: 0;
     height: 0;
-    margin-top: var(--drop);
     pointer-events: auto;
   }
 
-  /* Anillos girando despacio detrás; entran girando y creciendo como en el hero anterior. */
+  /* Anillos girando despacio en torno al handle; entran girando y creciendo como en el hero anterior. */
   .site-menu__orbit {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: var(--anchor);
     width: min(140vw, 68rem);
     aspect-ratio: 1;
     translate: -50% -50%;
@@ -446,13 +426,13 @@ const arcs = [
   }
 
   .site-menu__item {
-    --d: 3rem;
+    --d: 2.5rem;
 
     position: relative;
     display: grid;
     place-items: center;
-    width: calc(var(--d) * var(--u));
-    height: calc(var(--d) * var(--u));
+    width: var(--d);
+    height: var(--d);
     translate: -50% -50%;
     border-radius: 50%;
     background: #fff;
@@ -475,11 +455,12 @@ const arcs = [
   }
 
   .site-menu__item--l {
-    --d: 5rem;
+    --d: 3.25rem;
   }
 
+  /* Ninguno pasa de 60px. */
   .site-menu__item--xl {
-    --d: 6rem;
+    --d: 3.75rem;
   }
 
   .site-menu__item svg {
@@ -529,13 +510,25 @@ const arcs = [
 
   @media (max-width: 560px) {
     .site-menu__cluster {
-      --u: 0.78;
+      --u: 0.62;
     }
   }
 
   @media (max-width: 400px) {
     .site-menu__cluster {
-      --u: 0.66;
+      --u: 0.54;
+    }
+
+    .site-menu__item {
+      --d: 2.25rem;
+    }
+
+    .site-menu__item--l {
+      --d: 2.75rem;
+    }
+
+    .site-menu__item--xl {
+      --d: 3.25rem;
     }
   }
 
@@ -553,7 +546,6 @@ const arcs = [
     .site-menu__orbit,
     .site-menu__slot,
     .site-menu__item,
-    .site-menu__name,
     .site-menu__scrim,
     .site-menu__blur {
       transition: none;
