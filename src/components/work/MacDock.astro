@@ -1,13 +1,17 @@
 ---
-// Dock de macOS dentro de la pantalla: tres iconos que cambian la capa del
-// lienzo. Magnificación al acercar el puntero (el script mide la distancia a
-// cada icono y escribe --s), etiqueta flotante y punto de "abierto" bajo el
-// activo. Semántica de pestañas: role=tablist / tab con aria-selected.
+// Dock de macOS dentro de la pantalla. Barra de cristal con filo de luz,
+// iconos con la forma y el sombreado de los de macOS (cada uno con su color
+// de fondo), etiqueta flotante y punto de "abierto" bajo el activo.
+// Magnificación al acercar el puntero: el script mide la distancia de cada
+// icono al cursor y escribe --s; los vecinos crecen menos, como en el Dock.
+// Semántica de pestañas: role=tablist / tab con aria-selected.
 export interface DockItem {
   id: string
   label: string
   /** Marcado interno del SVG (viewBox 0 0 24 24, trazo currentColor). */
   icon: string
+  /** Fondo del icono: dos tonos (arriba, abajo), como los iconos del sistema. */
+  tint: [string, string]
 }
 
 interface Props {
@@ -30,10 +34,11 @@ const { items, active } = Astro.props
         aria-controls={`layer-${item.id}`}
         tabindex={item.id === active ? 0 : -1}
         data-dock-item={item.id}
+        style={`--tint-a: ${item.tint[0]}; --tint-b: ${item.tint[1]};`}
       >
         <span class="dock__label">{item.label}</span>
         <span class="dock__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon} />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" set:html={item.icon} />
         </span>
         <span class="dock__dot" aria-hidden="true"></span>
       </button>
@@ -43,31 +48,37 @@ const { items, active } = Astro.props
 
 <style>
   .dock {
-    --dock-size: 3.25rem;
+    --dock-size: 3.4rem;
+    --dock-pad: 0.5rem;
 
     position: absolute;
-    bottom: 0.75rem;
+    bottom: 0.7rem;
     left: 50%;
     z-index: 3;
     display: flex;
     align-items: flex-end;
-    gap: 0.35rem;
-    padding: 0.45rem 0.6rem 0.4rem;
+    gap: 0.5rem;
+    /* Alto fijo: la barra no crece con la magnificación; los iconos la desbordan hacia arriba. */
+    height: calc(var(--dock-size) + var(--dock-pad) * 2);
+    padding: var(--dock-pad) 0.65rem;
     translate: -50% 0;
-    border-radius: 1.1rem;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(18px) saturate(1.3);
-    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(22px) saturate(1.4);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 18px 40px -16px rgba(0, 0, 0, 0.7);
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+      0 18px 40px -16px rgba(0, 0, 0, 0.75);
   }
 
   /*
-    --s la escribe el script (1 en reposo, hasta ~1.5 bajo el puntero). El
-    icono crece desde su base, como en macOS. Sin puntero (táctil) no hay
-    magnificación: el dock se queda plano.
+    --s la escribe el script (1 en reposo, hasta ~1.6 bajo el puntero). El
+    icono crece EN EL LAYOUT (ancho y alto), no con transform: así aparta a
+    los vecinos y la barra se ensancha, como en macOS, en vez de montarse
+    unos sobre otros. Anclados abajo, crecen hacia arriba. Mientras el
+    puntero se mueve la respuesta es casi inmediata; al salir vuelve suave.
   */
   .dock__item {
     --s: 1;
@@ -75,51 +86,60 @@ const { items, active } = Astro.props
     position: relative;
     display: grid;
     place-items: center;
-    width: var(--dock-size);
-    height: var(--dock-size);
+    flex: none;
+    width: calc(var(--dock-size) * var(--s));
+    height: calc(var(--dock-size) * var(--s));
     padding: 0;
     border: 0;
     background: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: #fff;
     cursor: pointer;
-    transform-origin: 50% 100%;
-    transform: scale(var(--s));
-    transition: transform 140ms ease;
+    transition:
+      width 80ms linear,
+      height 80ms linear;
   }
 
+  .dock.is-idle .dock__item {
+    transition:
+      width 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      height 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /*
+    Icono al estilo del sistema: squircle con dos tonos (claro arriba, denso
+    abajo), brillo en el borde superior y canto oscuro abajo. El glifo va en
+    blanco con una sombra mínima, como los símbolos de los iconos de Apple.
+  */
   .dock__icon {
     display: grid;
     place-items: center;
     width: 100%;
     height: 100%;
-    border-radius: 26%;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: linear-gradient(180deg, var(--surface-3) 0%, var(--surface-2) 100%);
+    border-radius: 24%;
+    background: linear-gradient(180deg, var(--tint-a) 0%, var(--tint-b) 100%);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 8px 16px -8px rgba(0, 0, 0, 0.8);
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+      0 1px 2px rgba(0, 0, 0, 0.35),
+      0 8px 14px -8px rgba(0, 0, 0, 0.7);
   }
 
   .dock__icon svg {
-    width: 52%;
-    height: 52%;
-  }
-
-  .dock__item[aria-selected="true"] .dock__icon {
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #fff;
+    width: 54%;
+    height: 54%;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
   }
 
   /* Punto de "app abierta" bajo el icono activo. */
   .dock__dot {
     position: absolute;
-    bottom: -0.32rem;
+    bottom: -0.38rem;
     left: 50%;
     width: 4px;
     height: 4px;
     translate: -50% 0;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.8);
     opacity: 0;
     transition: opacity 180ms ease;
   }
@@ -128,17 +148,17 @@ const { items, active } = Astro.props
     opacity: 1;
   }
 
-  /* Etiqueta flotante sobre el icono, como el tooltip del dock. */
+  /* Etiqueta flotante sobre el icono, como el tooltip del Dock. */
   .dock__label {
     position: absolute;
-    bottom: calc(100% + 0.7rem);
+    bottom: calc(100% + 0.8rem);
     left: 50%;
-    padding: 0.3rem 0.6rem;
+    padding: 0.3rem 0.65rem;
     translate: -50% 4px;
-    border-radius: 0.4rem;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(20, 19, 34, 0.92);
-    font-size: 0.7rem;
+    border-radius: 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(20, 19, 34, 0.94);
+    font-size: 0.72rem;
     font-weight: 600;
     white-space: nowrap;
     color: #fff;
@@ -157,7 +177,7 @@ const { items, active } = Astro.props
 
   @media (max-width: 640px) {
     .dock {
-      --dock-size: 2.9rem;
+      --dock-size: 3rem;
       bottom: 0.6rem;
     }
   }

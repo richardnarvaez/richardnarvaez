@@ -13,8 +13,9 @@ import { getCollection } from "astro:content"
 import BlueprintSection from "../layout/BlueprintSection.astro"
 import MacDock from "../work/MacDock.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
+import WorkLightbox from "../work/WorkLightbox.astro"
 import CaseStudy from "../case/CaseStudy.astro"
-import { illustrations, photos, gallery, type GalleryItem } from "../../data/gallery"
+import { gallery, type GalleryItem } from "../../data/gallery"
 
 const cases = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order)
 const published = cases.filter((c) => !c.data.draft)
@@ -30,26 +31,19 @@ const appSlots: Slot[] = [
   ...[-46.8, -13.2, 73.2, 106.8, 193.2, 226.8].map((deg) => ({ ...polar(123, deg), w: 56 })),
 ]
 
-// Ilustraciones: composición tipo mood board, 5 piezas.
-const illustrationSlots: Slot[] = [
-  { x: 0, y: 0, w: 176, ratio: 1 },
-  { x: -172, y: -60, w: 136, ratio: 1.43 },
-  { x: 152, y: -20, w: 96, ratio: 0.56 },
-  { x: -154, y: 76, w: 100, ratio: 0.7 },
-  { x: 156, y: 134, w: 104, ratio: 1 },
+// Galería: lo principal de ilustración y fotografía en una sola composición
+// tipo mood board, 7 piezas alternando ambos tipos. El resto vive en el drawer.
+const featuredIds = ["madeira", "ill-1", "landing-path", "ill-2", "sail-line", "ill-4", "blue-valley"]
+const gallerySlots: Slot[] = [
+  { x: 0, y: -12, w: 168, ratio: 0.8 },
+  { x: -176, y: -64, w: 128, ratio: 1 },
+  { x: 168, y: -56, w: 108, ratio: 0.75 },
+  { x: -168, y: 92, w: 108, ratio: 1.43 },
+  { x: 164, y: 104, w: 92, ratio: 0.5625 },
+  { x: 306, y: 24, w: 88, ratio: 0.7 },
+  { x: -318, y: 14, w: 84, ratio: 0.8 },
 ]
-
-// Fotografía: 8 piezas, centro 30px arriba para equilibrar.
-const photoSlots: Slot[] = [
-  { x: 0, y: -30, w: 150, ratio: 0.8 },
-  { x: -147, y: -70, w: 112, ratio: 0.75 },
-  { x: 147, y: -76, w: 112, ratio: 0.8 },
-  { x: -135, y: 76, w: 88, ratio: 0.8 },
-  { x: 127, y: 74, w: 72, ratio: 0.5625 },
-  { x: -263, y: -16, w: 88, ratio: 0.8 },
-  { x: 251, y: -40, w: 64, ratio: 0.5625 },
-  { x: -263, y: 108, w: 80, ratio: 0.75 },
-]
+const featured = featuredIds.map((id) => gallery.find((g) => g.id === id)!).filter(Boolean)
 
 type Piece = {
   id: string
@@ -57,7 +51,7 @@ type Piece = {
   src?: string
   initial?: string
   tint?: string
-  /** "case:<slug>" o "gallery:<id>"; sin `open`, la pieza no es pulsable. */
+  /** "case:<slug>" o "image:<id>"; sin `open`, la pieza no es pulsable. */
   open?: string
   soon?: boolean
   placeholder?: boolean
@@ -87,16 +81,29 @@ const appPieces: Piece[] = appSlots.map((slot, i) => {
 const galleryPieces = (items: GalleryItem[], slots: Slot[]): Piece[] =>
   items.slice(0, slots.length).map((item, i) => {
     const slot = slots[i]
-    return { id: item.id, name: item.name, src: item.src, open: `gallery:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1), rot: 0 }
+    return { id: item.id, name: item.name, src: item.src, open: `image:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1), rot: 0 }
   })
 
 const layers = [
-  { id: "apps", label: "Apps", kind: "icons", pieces: appPieces, icon: `<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>` },
-  { id: "illustration", label: "Illustrations", kind: "canvas", pieces: galleryPieces(illustrations, illustrationSlots), icon: `<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/>` },
-  { id: "photo", label: "Photography", kind: "canvas", pieces: galleryPieces(photos, photoSlots), icon: `<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>` },
+  {
+    id: "apps",
+    label: "Apps",
+    kind: "icons",
+    pieces: appPieces,
+    icon: `<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>`,
+    tint: ["#5ac8fa", "#0a5fd6"] as [string, string],
+  },
+  {
+    id: "gallery",
+    label: "Gallery",
+    kind: "canvas",
+    pieces: galleryPieces(featured, gallerySlots),
+    icon: `<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m21 15-4.5-4.5L8 19"/>`,
+    tint: ["#ff9f5a", "#e0402f"] as [string, string],
+  },
 ] as const
 
-const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
+const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, tint }))
 ---
 
 {/* Sin divisor ni título: continúa el bloque 02 (shortcuts & work) que abre el bento. */}
@@ -142,6 +149,11 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
                     )
                   })}
                 </div>
+                {layer.id === "gallery" && (
+                  <button type="button" class="btn btn--ghost btn--sm canvas__cta" data-open="gallery">
+                    See all {gallery.length}
+                  </button>
+                )}
               </div>
             ))
           }
@@ -181,7 +193,9 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         {
           gallery.map((item) => (
             <figure class="gallery__item" id={`g-${item.id}`} data-kind={item.kind}>
-              <img src={item.src} alt={item.name} loading="lazy" decoding="async" style={`aspect-ratio: ${item.ratio};`} />
+              <button type="button" class="gallery__thumb" data-open={`image:${item.id}`} aria-label={`Open ${item.name}`}>
+                <img src={item.src} alt={item.name} loading="lazy" decoding="async" style={`aspect-ratio: ${item.ratio};`} />
+              </button>
               <figcaption>
                 <span class="gallery__name">{item.name}</span>
                 {item.desc && <span class="gallery__desc">{item.desc}</span>}
@@ -191,6 +205,11 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         }
       </div>
     </WorkDrawer>
+
+    <WorkLightbox />
+
+    {/* Datos de la galería para el visor: nombre, texto y proporción por id. */}
+    <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, ratio: g.ratio }])))} />
   </div>
 </BlueprintSection>
 
@@ -233,17 +252,39 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
 
     // ── Magnificación del dock ──────────────────────────────────────────
     if (hoverable) {
-      const RANGE = 110
-      const GAIN = 0.5
-      dock.addEventListener("pointermove", (event) => {
-        for (const tab of tabs) {
+      const RANGE = 96
+      const GAIN = 0.55
+      // La barra se ensancha simétricamente al magnificar (está centrada), así
+      // que se comparan posiciones respecto a su centro: los centros de los
+      // iconos se miden en reposo y el puntero se refiere al centro actual.
+      // Sin realimentación: la medida no depende del estado magnificado.
+      let centers: number[] = []
+      const measure = () => {
+        for (const tab of tabs) tab.style.setProperty("--s", "1")
+        const mid = dock.getBoundingClientRect()
+        const dockMid = mid.left + mid.width / 2
+        centers = tabs.map((tab) => {
           const box = tab.getBoundingClientRect()
-          const d = Math.abs(event.clientX - (box.left + box.width / 2))
-          const s = 1 + GAIN * Math.max(0, 1 - d / RANGE)
+          return box.left + box.width / 2 - dockMid
+        })
+      }
+      dock.addEventListener("pointerenter", () => {
+        measure()
+        dock.classList.remove("is-idle")
+      })
+      dock.addEventListener("pointermove", (event) => {
+        const box = dock.getBoundingClientRect()
+        const x = event.clientX - (box.left + box.width / 2)
+        tabs.forEach((tab, i) => {
+          const d = Math.abs(x - centers[i])
+          // Caída en coseno: suave en el centro y en los bordes, como el Dock.
+          const t = Math.max(0, 1 - d / RANGE)
+          const s = 1 + GAIN * (0.5 - 0.5 * Math.cos(Math.PI * t))
           tab.style.setProperty("--s", s.toFixed(3))
-        }
+        })
       })
       dock.addEventListener("pointerleave", () => {
+        dock.classList.add("is-idle")
         for (const tab of tabs) tab.style.setProperty("--s", "1")
       })
     }
@@ -453,7 +494,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       }
     })
 
-    // ── Galería: filtro y pieza destacada ───────────────────────────────
+    // ── Galería: filtro ─────────────────────────────────────────────────
     const galleryDrawer = root.querySelector<HTMLElement>("#drawer-gallery")
     const filterButtons = [...(galleryDrawer?.querySelectorAll<HTMLButtonElement>("[data-gallery-filter]") ?? [])]
     const galleryItems = [...(galleryDrawer?.querySelectorAll<HTMLElement>(".gallery__item") ?? [])]
@@ -468,21 +509,10 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     }
     for (const btn of filterButtons) btn.addEventListener("click", () => setFilter(btn.dataset.galleryFilter!))
 
-    const openGallery = (id: string, from?: HTMLElement | null) => {
+    const openGallery = (from?: HTMLElement | null) => {
       if (!galleryDrawer) return
-      const item = galleryDrawer.querySelector<HTMLElement>(`#g-${id}`)
-      setFilter(item?.dataset.kind ?? "all")
+      setFilter("all")
       open(galleryDrawer, from)
-      if (item) {
-        // Solo se desplaza el cuerpo del drawer, nunca la página.
-        const body = galleryDrawer.querySelector<HTMLElement>("[data-drawer-body]")!
-        setTimeout(() => {
-          const top = item.offsetTop - body.clientHeight / 2 + item.offsetHeight / 2
-          body.scrollTo({ top: Math.max(0, top), behavior: reduced ? "auto" : "smooth" })
-          item.classList.add("is-target")
-          setTimeout(() => item.classList.remove("is-target"), 1400)
-        }, 200)
-      }
     }
 
     const openCase = (slug: string, from?: HTMLElement | null) => {
@@ -492,12 +522,114 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       history.replaceState(null, "", `#work/${slug}`)
     }
 
+    // ── Visor de imagen: vuela desde la miniatura, fondo desenfocado ────
+    type GalleryDatum = { name: string; desc: string; src: string; ratio: number }
+    const galleryData: Record<string, GalleryDatum> = JSON.parse(root.querySelector("[data-gallery-data]")?.textContent ?? "{}")
+    const lightbox = root.querySelector<HTMLElement>("[data-lightbox]")
+    const lbImg = lightbox?.querySelector<HTMLImageElement>("[data-lightbox-img]")
+    const lbName = lightbox?.querySelector<HTMLElement>("[data-lightbox-name]")
+    const lbDesc = lightbox?.querySelector<HTMLElement>("[data-lightbox-desc]")
+    let lbSource: HTMLElement | null = null
+    let lbOpener: HTMLElement | null = null
+
+    type Rect = { left: number; top: number; width: number; height: number }
+    const rectOf = (el: Element): Rect => {
+      const r = el.getBoundingClientRect()
+      return { left: r.left, top: r.top, width: r.width, height: r.height }
+    }
+    const applyRect = (r: Rect) => {
+      if (!lbImg) return
+      lbImg.style.left = `${r.left}px`
+      lbImg.style.top = `${r.top}px`
+      lbImg.style.width = `${r.width}px`
+      lbImg.style.height = `${r.height}px`
+    }
+    const targetRect = (ratio: number): Rect => {
+      const maxW = Math.min(innerWidth * 0.9, 72 * 16)
+      const maxH = innerHeight * 0.78
+      let width = maxW
+      let height = width / ratio
+      if (height > maxH) {
+        height = maxH
+        width = height * ratio
+      }
+      return { left: (innerWidth - width) / 2, top: (innerHeight - height) / 2 - 24, width, height }
+    }
+
+    const openImage = (id: string, from: HTMLElement) => {
+      const datum = galleryData[id]
+      if (!lightbox || !lbImg || !datum) return
+      const thumb = (from.querySelector("img") ?? from) as HTMLElement
+      lbSource = thumb
+      lbOpener = from
+      lbImg.src = (thumb as HTMLImageElement).currentSrc || datum.src
+      lbImg.alt = datum.name
+      if (lbName) lbName.textContent = datum.name
+      if (lbDesc) lbDesc.textContent = datum.desc
+      lightbox.hidden = false
+      lightbox.classList.remove("is-settled")
+      // Arranca exactamente sobre la miniatura y vuela al centro.
+      lbImg.style.transition = "none"
+      lbImg.style.borderRadius = getComputedStyle(thumb).borderRadius
+      applyRect(rectOf(thumb))
+      void lbImg.offsetWidth
+      lbImg.style.transition = ""
+      lbImg.style.borderRadius = ""
+      lightbox.classList.add("is-open")
+      applyRect(targetRect(datum.ratio))
+      document.documentElement.style.overflow = "hidden"
+      setTimeout(() => lightbox.classList.add("is-settled"), reduced ? 0 : 460)
+      lightbox.querySelector<HTMLElement>(".lightbox__close")?.focus({ preventScroll: true })
+    }
+
+    const closeImage = () => {
+      if (!lightbox || !lbImg || lightbox.hidden) return
+      lightbox.classList.remove("is-settled")
+      lightbox.classList.remove("is-open")
+      // Vuelve a donde esté ahora la miniatura (el drawer puede haberse desplazado).
+      if (lbSource) {
+        applyRect(rectOf(lbSource))
+        lbImg.style.borderRadius = getComputedStyle(lbSource).borderRadius
+      }
+      const done = () => {
+        lightbox.hidden = true
+        lbImg.removeAttribute("src")
+        lbImg.style.borderRadius = ""
+        // Si no hay drawer abierto debajo, la página vuelve a desplazarse.
+        if (!openDrawer) document.documentElement.style.overflow = ""
+      }
+      if (reduced) done()
+      else setTimeout(done, 480)
+      lbOpener?.focus({ preventScroll: true })
+    }
+
+    for (const btn of lightbox?.querySelectorAll("[data-lightbox-close]") ?? []) btn.addEventListener("click", closeImage)
+    root.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Escape" && lightbox && !lightbox.hidden) {
+          event.preventDefault()
+          event.stopPropagation()
+          closeImage()
+        }
+      },
+      true,
+    )
+
+    const route = (target: HTMLElement) => {
+      const [kind, id] = target.dataset.open!.split(":")
+      if (kind === "case") openCase(id, target)
+      else if (kind === "image") openImage(id, target)
+      else if (kind === "gallery") openGallery(target)
+    }
+    galleryDrawer?.addEventListener("click", (event) => {
+      const el = (event.target as HTMLElement).closest<HTMLElement>("[data-open]")
+      if (el) route(el)
+    })
+
     canvas.addEventListener("click", (event) => {
       const piece = (event.target as HTMLElement).closest<HTMLElement>("[data-open]")
-      if (!piece) return
-      const [kind, id] = piece.dataset.open!.split(":")
-      if (kind === "case") openCase(id, piece)
-      else openGallery(id, piece)
+      if (piece) route(piece)
     })
 
     // Enlace profundo: /#work/huma abre el caso, al cargar o al cambiar el hash.
@@ -673,6 +805,10 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       inset 0 1px 0 rgba(255, 255, 255, 0.16);
   }
 
+  .canvas__layer--canvas .piece {
+    cursor: zoom-in;
+  }
+
   .canvas__layer--canvas .piece__tile {
     border-radius: 0.85rem;
   }
@@ -747,6 +883,16 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     translate: -50% 0;
   }
 
+  /* "See all": bajo la composición, encima del dock. */
+  .canvas__cta {
+    position: absolute;
+    left: 50%;
+    bottom: 5.8rem;
+    translate: -50% 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
   /* Con un drawer abierto, el lienzo y el dock quedan detrás del scrim. */
   .work__display.has-drawer .canvas {
     pointer-events: none;
@@ -798,6 +944,21 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
 
   .gallery__item.is-target {
     outline-color: var(--page-accent);
+  }
+
+  .gallery__thumb {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    border-radius: 0.9rem;
+    cursor: zoom-in;
+    transition: scale 220ms var(--ease-out);
+  }
+
+  .gallery__thumb:hover {
+    scale: 1.015;
   }
 
   .gallery__item img {
