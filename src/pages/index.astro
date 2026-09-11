@@ -13,18 +13,22 @@ import { siteName } from "../site.config"
 ---
 
 <BaseLayout title={`${siteName} | Product Engineer`}>
+  <a class="skip-link" href="#content">Skip to content</a>
+
   {/* Fija arriba; se enciende cuando el nombre del perfil sale del viewport. */}
   <StickyName />
 
-  <HeroIntro />
-  <SectionProfile />
-  <SectionBento />
-  <SectionProjects />
-  <SectionFrameworks />
-  <SectionOpenSource />
+  <main id="content">
+    <HeroIntro />
+    <SectionProfile />
+    <SectionBento />
+    <SectionProjects />
+    <SectionFrameworks />
+    <SectionOpenSource />
 
-  {/* Cierre: el tren, a sangre y sin marco, antes del pie. */}
-  <SectionScenery />
+    {/* Cierre: el tren, a sangre y sin marco, antes del pie. */}
+    <SectionScenery />
+  </main>
 
   <SiteFooter />
 </BaseLayout>

@@ -22,6 +22,7 @@ const socialImageUrl = new URL("/images/cover.jpg", Astro.site ?? siteUrl)
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content={browserThemeColor} />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="generator" content={Astro.generator} />
@@ -35,11 +36,14 @@ const socialImageUrl = new URL("/images/cover.jpg", Astro.site ?? siteUrl)
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image:alt" content={`${siteName} — portfolio cover`} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content={siteName} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={socialImageUrl} />
+    <meta name="twitter:image:alt" content={`${siteName} — portfolio cover`} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

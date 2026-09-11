@@ -43,7 +43,7 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
     <div class:list={[
       compact
         ? "flex h-9 w-full max-w-72 items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 text-xs font-medium text-neutral-100/76 shadow-[0_18px_38px_rgba(15,23,42,0.18)] backdrop-blur-xl"
-        : "flex h-9 w-64 items-center justify-center gap-2 rounded-lg border border-slate-800 bg-gradient-to-b from-transparent to-black/20 text-xs font-medium text-neutral-100/80 shadow",
+        : "flex h-9 w-64 items-center justify-center gap-2 rounded-lg border border-white/12 bg-white/4 text-xs font-medium text-neutral-100/80",
     ]}>
       <p>Cooked with love in</p>
       <svg
@@ -51,8 +51,10 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
         viewBox="0 0 12 12"
         fill="none"
         class="w-4"
-        aria-hidden="true"
+        role="img"
+        aria-label="Ecuador"
       >
+        <title>Ecuador</title>
         <g clip-path={`url(#${flagClipId})`}>
           <path
             d="M0 6C0 2.68631 2.68631 0 6 0C9.31369 0 12 2.68631 12 6L6 6.52174L0 6Z"

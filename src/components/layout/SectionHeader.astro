@@ -5,14 +5,16 @@
 interface Props {
   title: string
   lead?: string
+  /** id del h2, para que la sección lo referencie con aria-labelledby. */
+  titleId?: string
 }
 
-const { title, lead } = Astro.props
+const { title, lead, titleId } = Astro.props
 const hasLead = Boolean(lead) || Astro.slots.has("default")
 ---
 
 <header class="section-header">
-  <h2 class="section-header__title">{title}</h2>
+  <h2 class="section-header__title" id={titleId}>{title}</h2>
   {
     hasLead && (
       <p class="section-header__lead">

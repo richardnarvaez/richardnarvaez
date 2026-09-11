@@ -4,9 +4,9 @@ import SectionHeader from "../layout/SectionHeader.astro"
 import { socialLinks } from "../../site.config"
 ---
 
-<BlueprintSection id="open-source" class="oss" label="06 — code" close={true}>
+<BlueprintSection id="open-source" class="oss" label="06 — code" close={true} ariaLabelledby="open-source-title">
   <div class="oss__body">
-    <SectionHeader title="Open Source">
+    <SectionHeader title="Open Source" titleId="open-source-title">
       This portfolio is built on open-source software and open to anyone who
       wants to look under the hood. The code lives on
       <a href={socialLinks.github} target="_blank" rel="noreferrer noopener">GitHub</a>.

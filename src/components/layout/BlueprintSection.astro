@@ -15,6 +15,10 @@ interface Props {
   markers?: boolean
   /** Anotación en la esquina, estilo plano técnico. */
   label?: string
+  /** Nombre accesible: id del encabezado de la sección… */
+  ariaLabelledby?: string
+  /** …o un texto, si la sección no tiene encabezado visible. */
+  ariaLabel?: string
 }
 
 const {
@@ -24,6 +28,8 @@ const {
   close = false,
   markers = true,
   label,
+  ariaLabelledby,
+  ariaLabel,
 } = Astro.props
 ---
 
@@ -32,6 +38,8 @@ const {
   class:list={["bp-section", className]}
   data-bp-divider={divider}
   data-bp-close={close}
+  aria-labelledby={ariaLabelledby}
+  aria-label={ariaLabel}
 >
   <div class="bp-inner">
     {
