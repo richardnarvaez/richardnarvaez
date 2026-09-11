@@ -486,19 +486,24 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       true,
     )
 
-    // ── Diagrama: al pasar por una app se iluminan sus stacks y conectores; por un stack, sus apps ──
+    // ── Diagrama: los conectores solo se ven enteros para UNA app (la fijada);
+    //    el resto queda al 10%. Al pasar por una app o un stack se ilumina y lo
+    //    demás se atenúa; al salir, vuelve a la última fijada (Huma al cargar).
     const diagram = canvas.querySelector<HTMLElement>("[data-diagram]")
-    if (diagram && hoverable) {
+    if (diagram) {
       const nodes = [...diagram.querySelectorAll<HTMLElement>("[data-app]")]
       const chips = [...diagram.querySelectorAll<HTMLElement>("[data-stack]")]
       const paths = [...diagram.querySelectorAll<SVGPathElement>("path[data-link-app]")]
+      let pinned = nodes.some((n) => n.dataset.app === "huma") ? "huma" : nodes[0]?.dataset.app ?? ""
+
       const clear = () => {
         diagram.classList.remove("has-focus")
         for (const el of [...nodes, ...chips, ...paths]) el.classList.remove("is-lit")
       }
-      const focusApp = (id: string) => {
+      // dim: además de encender lo relacionado, apaga nodos y chips ajenos (solo con el puntero encima).
+      const focusApp = (id: string, dim: boolean) => {
         clear()
-        diagram.classList.add("has-focus")
+        diagram.classList.toggle("has-focus", dim)
         const node = nodes.find((n) => n.dataset.app === id)
         node?.classList.add("is-lit")
         const stacks = new Set((node?.dataset.stacks ?? "").split("|").filter(Boolean))
@@ -513,13 +518,23 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
         for (const node of nodes) if (apps.has(node.dataset.app!)) node.classList.add("is-lit")
         for (const path of paths) if (path.dataset.linkStack === name) path.classList.add("is-lit")
       }
+      const restore = () => focusApp(pinned, false)
+
       for (const node of nodes) {
-        node.addEventListener("pointerenter", () => focusApp(node.dataset.app!))
-        node.addEventListener("focus", () => focusApp(node.dataset.app!))
-        node.addEventListener("blur", clear)
+        const id = node.dataset.app!
+        node.addEventListener("pointerenter", () => {
+          pinned = id
+          focusApp(id, true)
+        })
+        node.addEventListener("focus", () => {
+          pinned = id
+          focusApp(id, true)
+        })
+        node.addEventListener("blur", restore)
       }
       for (const chip of chips) chip.addEventListener("pointerenter", () => focusStack(chip.dataset.stack!))
-      diagram.addEventListener("pointerleave", clear)
+      diagram.addEventListener("pointerleave", restore)
+      restore()
     }
 
     // ── Drawers ────────────────────────────────────────────────────────
@@ -939,26 +954,24 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     pointer-events: none;
   }
 
-  /* Conectores: discontinuos y tenues en reposo; el foco los enciende en el acento. */
+  /* Conectores: casi invisibles (10%) salvo los de la app fijada o enfocada, en el acento. */
   .diagram__links path {
     fill: none;
     stroke: var(--line-tint);
     stroke-width: 1.2;
     stroke-dasharray: 4 5;
     marker-end: url(#diagram-arrow);
+    opacity: 0.1;
     transition:
       stroke 220ms ease,
       opacity 220ms ease;
-  }
-
-  .diagram.has-focus .diagram__links path:not(.is-lit) {
-    opacity: 0.25;
   }
 
   .diagram__links path.is-lit {
     stroke: var(--page-accent);
     stroke-dasharray: none;
     stroke-width: 1.6;
+    opacity: 1;
   }
 
   /* Chips de stack: píldora oscura con logo a color y nombre; blanco solo al iluminarse. */
