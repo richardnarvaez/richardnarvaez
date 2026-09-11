@@ -322,7 +322,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     <WorkLightbox />
 
     {/* Datos de la galería para el visor: nombre, texto y proporción por id. */}
-    <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, full: g.full, ratio: g.ratio }])))} />
+    <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, full: g.full, ratio: g.ratio, kind: g.kind }])))} />
   </div>
 </BlueprintSection>
 
@@ -688,7 +688,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     }
 
     // ── Visor de imagen: vuela desde la miniatura, fondo desenfocado ────
-    type GalleryDatum = { name: string; desc: string; src: string; full: string; ratio: number }
+    type GalleryDatum = { name: string; desc: string; src: string; full: string; ratio: number; kind: string }
     const galleryData: Record<string, GalleryDatum> = JSON.parse(root.querySelector("[data-gallery-data]")?.textContent ?? "{}")
     const lightbox = root.querySelector<HTMLElement>("[data-lightbox]")
     const lbImg = lightbox?.querySelector<HTMLImageElement>("[data-lightbox-img]")
@@ -721,8 +721,10 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       }
       return "0px"
     }
-    const targetRect = (ratio: number): Rect => {
-      const maxW = Math.min(innerWidth * 0.9, 72 * 16)
+    const targetRect = (ratio: number, kind = "photo"): Rect => {
+      // Los iconos de app son pequeños de origen: en el visor no pasan de 320px.
+      const cap = kind === "app" ? 320 : 72 * 16
+      const maxW = Math.min(innerWidth * 0.9, cap)
       const maxH = innerHeight * 0.78
       let width = maxW
       let height = width / ratio
@@ -760,7 +762,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       lbImg.style.transition = ""
       lbImg.style.borderRadius = ""
       lightbox.classList.add("is-open")
-      applyRect(targetRect(datum.ratio))
+      applyRect(targetRect(datum.ratio, datum.kind))
       document.documentElement.style.overflow = "hidden"
       setTimeout(() => lightbox.classList.add("is-settled"), reduced ? 0 : 460)
       lightbox.querySelector<HTMLElement>(".lightbox__close")?.focus({ preventScroll: true })
@@ -1336,6 +1338,23 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     border-radius: 0.9rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: var(--surface-2);
+  }
+
+  /* Iconos de app: son pequeños de origen, así que van centrados a 96px en una celda cuadrada, no a sangre. */
+  .gallery__item[data-kind="app"] .gallery__thumb {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface-2);
+  }
+
+  .gallery__item[data-kind="app"] img {
+    width: 6rem;
+    height: 6rem;
+    border: 0;
+    border-radius: 24%;
+    box-shadow: 0 12px 28px -12px rgba(2, 6, 23, 0.8);
   }
 
   .gallery__item figcaption {
