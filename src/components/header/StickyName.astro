@@ -98,7 +98,9 @@ const ring = (list: Item[], r: number): Placed[] => {
 // Segunda fila: las redes en una línea recta bajo las secciones, cada una
 // centrada horizontalmente en el hueco entre dos secciones vecinas.
 const row = (list: Item[], above: Placed[]): Placed[] => {
-  const y = Math.max(...above.map((p) => p.y + DIAMETER[p.size] / 2)) + GAP + DIAMETER[list[0].size] / 2
+  // Un poco más de aire que entre vecinos: en pantallas estrechas las posiciones
+  // se encogen con --u pero los círculos no, y la fila se pegaba.
+  const y = Math.max(...above.map((p) => p.y + DIAMETER[p.size] / 2)) + GAP + 6 + DIAMETER[list[0].size] / 2
   return list.map((item, i) => {
     const a = above[i]
     const b = above[i + 1]
