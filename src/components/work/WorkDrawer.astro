@@ -1,8 +1,9 @@
 ---
-// Drawer inferior dentro de la pantalla del Mac. Un panel que sube desde el
-// borde con asa para arrastrar y cerrar, botón de cierre, scrim y cuerpo con
-// scroll. La apertura, el foco y el arrastre los gestiona el script de
-// SectionWork; este componente solo aporta marcado y estilo.
+// Drawer inferior a pantalla completa: un panel que sube desde el borde de la
+// ventana, con asa para arrastrar y cerrar, botón de cierre, scrim sobre toda
+// la página y cuerpo con scroll. La apertura, el foco y el arrastre los
+// gestiona el script de SectionWork; este componente solo aporta marcado y
+// estilo. Va fijo y por encima de la barra del nombre y del notch (z 40).
 interface Props {
   id: string
   /** id del encabezado que da nombre al diálogo. */
@@ -30,11 +31,12 @@ const { id, labelledby, class: className } = Astro.props
 
 <style>
   .drawer {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 5;
+    z-index: 60;
     display: flex;
     align-items: flex-end;
+    justify-content: center;
   }
 
   .drawer__scrim {
@@ -51,8 +53,8 @@ const { id, labelledby, class: className } = Astro.props
     position: relative;
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 92%;
+    width: min(100%, 64rem);
+    height: 92dvh;
     border-radius: 1.4rem 1.4rem 0 0;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-bottom: 0;
@@ -125,9 +127,16 @@ const { id, labelledby, class: className } = Astro.props
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0.25rem clamp(1.25rem, 4vw, 2.75rem) clamp(2rem, 5vh, 3rem);
+    padding: 0.25rem clamp(1.25rem, 5vw, 4rem) clamp(2rem, 5vh, 3rem);
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+
+  @media (max-width: 640px) {
+    .drawer__panel {
+      height: 96dvh;
+      border-radius: 1.1rem 1.1rem 0 0;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

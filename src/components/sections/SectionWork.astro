@@ -152,41 +152,6 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         </div>
 
         <MacDock items={dockItems} active="apps" />
-
-        {
-          published.map((entry) => (
-            <WorkDrawer id={`drawer-${entry.id}`} labelledby={`case-${entry.id}-title`}>
-              <CaseStudy entry={entry} headingLevel="h2" titleId={`case-${entry.id}-title`} />
-              <p class="work__fullpage">
-                <a class="btn btn--ghost btn--sm" href={`/work/${entry.id}`}>Open as a page</a>
-              </p>
-            </WorkDrawer>
-          ))
-        }
-
-        <WorkDrawer id="drawer-gallery" labelledby="gallery-title" class="drawer--gallery">
-          <header class="gallery__head">
-            <h2 class="gallery__title" id="gallery-title">Gallery</h2>
-            <div class="gallery__filters" role="group" aria-label="Filter">
-              <button type="button" class="chip chip--active" data-gallery-filter="all" aria-pressed="true">All</button>
-              <button type="button" class="chip" data-gallery-filter="illustration" aria-pressed="false">Illustrations</button>
-              <button type="button" class="chip" data-gallery-filter="photo" aria-pressed="false">Photography</button>
-            </div>
-          </header>
-          <div class="gallery" data-gallery>
-            {
-              gallery.map((item) => (
-                <figure class="gallery__item" id={`g-${item.id}`} data-kind={item.kind}>
-                  <img src={item.src} alt={item.name} loading="lazy" decoding="async" style={`aspect-ratio: ${item.ratio};`} />
-                  <figcaption>
-                    <span class="gallery__name">{item.name}</span>
-                    {item.desc && <span class="gallery__desc">{item.desc}</span>}
-                  </figcaption>
-                </figure>
-              ))
-            }
-          </div>
-        </WorkDrawer>
       </div>
     </div>
 
@@ -194,6 +159,42 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     <div class="work__base" aria-hidden="true">
       <img src="/images/teclado-mac.jpg" width="667" height="295" loading="lazy" decoding="async" alt="" />
     </div>
+
+    {/* Drawers: fijos a pantalla completa; viven aquí para que el script los encuentre. */}
+    {
+      published.map((entry) => (
+        <WorkDrawer id={`drawer-${entry.id}`} labelledby={`case-${entry.id}-title`}>
+          <CaseStudy entry={entry} headingLevel="h2" titleId={`case-${entry.id}-title`} />
+          <p class="work__fullpage">
+            <a class="btn btn--ghost btn--sm" href={`/work/${entry.id}`}>Open as a page</a>
+          </p>
+        </WorkDrawer>
+      ))
+    }
+
+    <WorkDrawer id="drawer-gallery" labelledby="gallery-title" class="drawer--gallery">
+      <header class="gallery__head">
+        <h2 class="gallery__title" id="gallery-title">Gallery</h2>
+        <div class="gallery__filters" role="group" aria-label="Filter">
+          <button type="button" class="chip chip--active" data-gallery-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="chip" data-gallery-filter="illustration" aria-pressed="false">Illustrations</button>
+          <button type="button" class="chip" data-gallery-filter="photo" aria-pressed="false">Photography</button>
+        </div>
+      </header>
+      <div class="gallery" data-gallery>
+        {
+          gallery.map((item) => (
+            <figure class="gallery__item" id={`g-${item.id}`} data-kind={item.kind}>
+              <img src={item.src} alt={item.name} loading="lazy" decoding="async" style={`aspect-ratio: ${item.ratio};`} />
+              <figcaption>
+                <span class="gallery__name">{item.name}</span>
+                {item.desc && <span class="gallery__desc">{item.desc}</span>}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </WorkDrawer>
   </div>
 </BlueprintSection>
 
@@ -335,7 +336,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     )
 
     // ── Drawers ────────────────────────────────────────────────────────
-    const drawers = [...display.querySelectorAll<HTMLElement>("[data-drawer]")]
+    const drawers = [...root.querySelectorAll<HTMLElement>("[data-drawer]")]
     let openDrawer: HTMLElement | null = null
     let opener: HTMLElement | null = null
 
@@ -351,6 +352,8 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       void drawer.offsetHeight
       drawer.classList.add("is-open")
       display.classList.add("has-drawer")
+      // La página no se desplaza mientras el drawer está abierto.
+      document.documentElement.style.overflow = "hidden"
       drawer.querySelector<HTMLElement>("[data-drawer-body]")?.scrollTo({ top: 0 })
       drawer.querySelector<HTMLElement>("[data-drawer-close]:not(.drawer__scrim)")?.focus()
     }
@@ -361,6 +364,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       openDrawer = null
       drawer.classList.remove("is-open")
       display.classList.remove("has-drawer")
+      document.documentElement.style.overflow = ""
       const done = () => {
         drawer.hidden = true
         drawer.querySelector<HTMLElement>("[data-drawer-panel]")!.style.translate = ""
@@ -414,7 +418,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       grip.addEventListener("pointercancel", release)
     }
 
-    display.addEventListener("keydown", (event) => {
+    root.addEventListener("keydown", (event) => {
       if (!openDrawer) return
       if (event.key === "Escape") {
         event.preventDefault()
@@ -437,7 +441,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     })
 
     // ── Galería: filtro y pieza destacada ───────────────────────────────
-    const galleryDrawer = display.querySelector<HTMLElement>("#drawer-gallery")
+    const galleryDrawer = root.querySelector<HTMLElement>("#drawer-gallery")
     const filterButtons = [...(galleryDrawer?.querySelectorAll<HTMLButtonElement>("[data-gallery-filter]") ?? [])]
     const galleryItems = [...(galleryDrawer?.querySelectorAll<HTMLElement>(".gallery__item") ?? [])]
 
@@ -469,7 +473,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     }
 
     const openCase = (slug: string, from?: HTMLElement | null) => {
-      const drawer = display.querySelector<HTMLElement>(`#drawer-${slug}`)
+      const drawer = root.querySelector<HTMLElement>(`#drawer-${slug}`)
       if (!drawer) return
       open(drawer, from)
       history.replaceState(null, "", `#work/${slug}`)
