@@ -1,0 +1,84 @@
+---
+name: "Huma Legends"
+tagline: "Learn English and Spanish vocabulary through illustrated stories from around the world."
+icon: "/images/apps/huma.webp"
+tint: "#3b2f7a"
+role: "Product, design & iOS development"
+period: "2023 — present"
+platform: "iOS"
+stack: ["Swift", "SwiftUI", "Convex", "Stripe"]
+links:
+  - label: "Website"
+    href: "https://huma.darkpixl.com"
+metrics:
+  - value: "2"
+    label: "languages"
+  - value: "iOS"
+    label: "native app"
+  - value: "100%"
+    label: "hand-drawn stories"
+order: 1
+---
+
+import Metric from "../../components/case/Metric.astro"
+import Flow from "../../components/case/Flow.astro"
+import Decision from "../../components/case/Decision.astro"
+import Figure from "../../components/case/Figure.astro"
+import Callout from "../../components/case/Callout.astro"
+
+## The problem
+
+Vocabulary apps drill words out of context. People memorize lists, forget them a week later and quit.
+
+Huma teaches words **inside a story**: a legend from a real place, illustrated by hand, where each new word appears where it matters.
+
+## What I built
+
+<Flow
+  steps={[
+    { label: "Story", note: "Illustrated legend, one chapter at a time" },
+    { label: "Words in context", note: "Tap any word, hear it, keep it" },
+    { label: "Review", note: "Spaced repetition on what you kept" },
+    { label: "Progress", note: "Streaks and a map of visited places" },
+  ]}
+/>
+
+## Key decisions
+
+<Decision
+  title="Native SwiftUI instead of cross-platform"
+  why="Reading and audio have to feel instant. Native gave the smoothest text rendering and offline playback with the least code."
+  tradeoff="Android has to wait."
+/>
+
+<Decision
+  title="Convex as the backend"
+  why="Realtime sync of progress between devices came for free, and the schema lives next to the client code."
+  tradeoff="A smaller ecosystem than Postgres; I keep the data model simple on purpose."
+/>
+
+<Decision
+  title="Stories before features"
+  why="Every release ships at least one new illustrated legend. The content is the product; features follow what readers ask for."
+/>
+
+## Architecture
+
+<Flow
+  direction="vertical"
+  steps={[
+    { label: "SwiftUI client", note: "Reader, audio, review engine, offline cache" },
+    { label: "Convex", note: "Auth, progress, story catalogue, realtime sync" },
+    { label: "Stripe", note: "Subscriptions and receipts" },
+    { label: "Content pipeline", note: "Illustrations and audio processed at build time" },
+  ]}
+/>
+
+<Callout>
+  Replace these notes with the real numbers and the screens you want to show.
+  Wireframes and diagrams go in with the `Figure` component, one image per figure.
+</Callout>
+
+## What I learned
+
+Short, illustrated chapters beat long lessons. The first version had ten-minute stories; nobody finished them. Two-minute chapters doubled completion.

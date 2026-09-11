@@ -1,0 +1,74 @@
+---
+// Decisión técnica o de producto, para leer en diagonal: qué se decidió, por
+// qué, y qué se sacrificó. Tres líneas, sin párrafos.
+interface Props {
+  title: string
+  why: string
+  tradeoff?: string
+}
+
+const { title, why, tradeoff } = Astro.props
+---
+
+<article class="decision">
+  <h4 class="decision__title">{title}</h4>
+  <dl class="decision__body">
+    <div class="decision__row">
+      <dt class="font-jetbrains">why</dt>
+      <dd>{why}</dd>
+    </div>
+    {
+      tradeoff && (
+        <div class="decision__row">
+          <dt class="font-jetbrains">cost</dt>
+          <dd>{tradeoff}</dd>
+        </div>
+      )
+    }
+  </dl>
+</article>
+
+<style>
+  .decision {
+    margin: 0.9rem 0;
+    padding: 1rem 1.1rem 1.05rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--line-tint);
+    border-left: 3px solid var(--page-accent);
+    background: var(--surface-2);
+  }
+
+  .decision__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .decision__body {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.65rem 0 0;
+  }
+
+  .decision__row {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0.6rem;
+    align-items: baseline;
+  }
+
+  .decision__row dt {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.45);
+  }
+
+  .decision__row dd {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.78);
+  }
+</style>

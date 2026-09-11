@@ -1,0 +1,75 @@
+---
+// Página propia de cada caso: la misma pieza que se abre en el drawer del
+// Mac, a página completa. Enlazable, indexable y accesible sin JavaScript.
+import { getCollection } from "astro:content"
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import CaseStudy from "../../components/case/CaseStudy.astro"
+import { siteName } from "../../site.config"
+
+export async function getStaticPaths() {
+  const entries = await getCollection("work", ({ data }) => !data.draft)
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+---
+
+<BaseLayout title={`${entry.data.name} | ${siteName}`} description={entry.data.tagline}>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="case-page__bar">
+    <a class="case-page__back" href="/#work">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Back to work
+    </a>
+    <span class="case-page__handle font-jetbrains">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
+  </header>
+
+  <main id="content" class="case-page">
+    <CaseStudy entry={entry} />
+  </main>
+</BaseLayout>
+
+<style>
+  .case-page__bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
+    background: rgb(var(--surface-rgb) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px dashed var(--bp-line);
+  }
+
+  .case-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgb(var(--text-rgb) / 0.75);
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .case-page__back:hover {
+    color: #fff;
+  }
+
+  .case-page__handle {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgb(var(--text-rgb) / 0.45);
+  }
+
+  .case-page {
+    width: 100%;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vh, 4rem) clamp(1.25rem, 4vw, 2rem) clamp(4rem, 10vh, 6rem);
+  }
+</style>

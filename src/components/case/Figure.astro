@@ -1,0 +1,45 @@
+---
+// Imagen con pie: capturas, wireframes o diagramas exportados. `frame`
+// la presenta como pantalla (borde y fondo) en vez de a sangre.
+interface Props {
+  src: string
+  alt: string
+  caption?: string
+  width?: number
+  height?: number
+  frame?: boolean
+}
+
+const { src, alt, caption, width, height, frame = false } = Astro.props
+---
+
+<figure class:list={["figure", { "figure--frame": frame }]}>
+  <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+  {caption && <figcaption class="figure__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    margin: 1.75rem 0;
+  }
+
+  .figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0.9rem;
+  }
+
+  .figure--frame img {
+    padding: 0.5rem;
+    border: 1px solid var(--line-tint);
+    background: var(--surface-2);
+  }
+
+  .figure__caption {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+</style>

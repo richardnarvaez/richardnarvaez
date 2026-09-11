@@ -1,0 +1,248 @@
+---
+// Un caso completo: cabecera (icono, nombre, tagline, rol, periodo, enlaces),
+// métricas y el cuerpo MDX. Se usa igual en la página /work/[slug] y dentro
+// del drawer del Mac, por eso no trae layout ni fondo propio.
+import { render, type CollectionEntry } from "astro:content"
+
+interface Props {
+  entry: CollectionEntry<"work">
+  /** Nivel del título: h1 en la página propia, h2 dentro del drawer. */
+  headingLevel?: "h1" | "h2"
+}
+
+const { entry, headingLevel = "h1" } = Astro.props
+const { data } = entry
+const { Content } = await render(entry)
+const Heading = headingLevel
+---
+
+<article class="case">
+  <header class="case__head">
+    <span class="case__icon" style={data.tint ? `background: ${data.tint};` : undefined}>
+      {data.icon ? <img src={data.icon} alt="" width="96" height="96" /> : <span class="case__initial">{data.name[0]}</span>}
+    </span>
+
+    <div class="case__intro">
+      <Heading class="case__name">{data.name}</Heading>
+      <p class="case__tagline">{data.tagline}</p>
+    </div>
+
+    <dl class="case__meta font-jetbrains">
+      <div><dt>role</dt><dd>{data.role}</dd></div>
+      <div><dt>period</dt><dd>{data.period}</dd></div>
+      {data.platform && <div><dt>platform</dt><dd>{data.platform}</dd></div>}
+      {data.stack.length > 0 && <div><dt>stack</dt><dd>{data.stack.join(" · ")}</dd></div>}
+    </dl>
+
+    {
+      data.links.length > 0 && (
+        <div class="case__links">
+          {data.links.map((link, i) => (
+            <a class:list={["btn", "btn--sm", i === 0 ? "btn--solid" : "btn--ghost"]} href={link.href} target="_blank" rel="noreferrer noopener">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  {
+    data.metrics.length > 0 && (
+      <ul class="case__metrics">
+        {data.metrics.map((m) => (
+          <li>
+            <span class="case__metric-value">{m.value}</span>
+            <span class="case__metric-label">{m.label}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <div class="case__body">
+    <Content />
+  </div>
+</article>
+
+<style>
+  .case {
+    color: rgb(var(--text-rgb) / 0.85);
+  }
+
+  /* ── Cabecera ────────────────────────────────────────────────────────── */
+  .case__head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.25rem;
+    align-items: start;
+  }
+
+  .case__icon {
+    grid-row: span 3;
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    overflow: hidden;
+    border-radius: 24%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--surface-2);
+  }
+
+  .case__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .case__initial {
+    font-family: var(--font-bellota);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .case__name {
+    margin: 0;
+    font-family: var(--font-bellota);
+    font-size: clamp(1.7rem, 3.2vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: #fff;
+  }
+
+  .case__tagline {
+    margin: 0.4rem 0 0;
+    font-size: 1.02rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.72);
+  }
+
+  .case__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.6rem;
+    margin: 0.9rem 0 0;
+    font-size: 0.7rem;
+  }
+
+  .case__meta div {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .case__meta dt {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.42);
+  }
+
+  .case__meta dd {
+    margin: 0;
+    color: rgb(var(--text-rgb) / 0.8);
+  }
+
+  .case__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  /* ── Métricas ────────────────────────────────────────────────────────── */
+  .case__metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__metrics li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--line-tint);
+    background: var(--surface-2);
+  }
+
+  .case__metric-value {
+    font-family: var(--font-bellota);
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .case__metric-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  /* ── Cuerpo MDX: tipografía para leer rápido ─────────────────────────── */
+  .case__body {
+    margin-top: 2rem;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .case__body :global(h2) {
+    margin: 2.25rem 0 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .case__body :global(h3) {
+    margin: 1.6rem 0 0.4rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .case__body :global(p) {
+    margin: 0 0 0.9rem;
+    max-width: 60ch;
+  }
+
+  .case__body :global(strong) {
+    color: #fff;
+  }
+
+  .case__body :global(ul),
+  .case__body :global(ol) {
+    margin: 0 0 1rem;
+    padding-left: 1.2rem;
+  }
+
+  .case__body :global(li) {
+    margin: 0.25rem 0;
+  }
+
+  .case__body :global(a) {
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
+    text-underline-offset: 3px;
+  }
+
+  @media (max-width: 640px) {
+    .case__head {
+      grid-template-columns: 1fr;
+    }
+
+    .case__icon {
+      grid-row: auto;
+      width: 3.75rem;
+      height: 3.75rem;
+    }
+  }
+</style>

@@ -1,0 +1,34 @@
+---
+// Nota destacada dentro de un caso: un aviso, una cifra o una cita corta.
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<aside class:list={["callout", className]}>
+  <slot />
+</aside>
+
+<style>
+  .callout {
+    margin: 1.5rem 0;
+    padding: 0.9rem 1.1rem;
+    border-radius: 0.9rem;
+    border: 1px dashed var(--line-tint);
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: rgb(var(--text-rgb) / 0.7);
+  }
+
+  .callout :global(p) {
+    margin: 0;
+  }
+
+  .callout :global(code) {
+    font-family: var(--font-jetbrains);
+    font-size: 0.82em;
+    color: #fff;
+  }
+</style>

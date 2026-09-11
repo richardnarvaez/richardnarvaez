@@ -1,0 +1,40 @@
+---
+// Cifra destacada suelta dentro del cuerpo de un caso (las de cabecera van
+// en el frontmatter). Úsese en fila: varias seguidas se alinean en rejilla.
+interface Props {
+  value: string
+  label: string
+}
+
+const { value, label } = Astro.props
+---
+
+<div class="metric">
+  <span class="metric__value">{value}</span>
+  <span class="metric__label">{label}</span>
+</div>
+
+<style>
+  .metric {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 7rem;
+    margin: 0.5rem 1.5rem 0.5rem 0;
+  }
+
+  .metric__value {
+    font-family: var(--font-bellota);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .metric__label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+</style>
