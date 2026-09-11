@@ -368,6 +368,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       const done = () => {
         drawer.hidden = true
         drawer.querySelector<HTMLElement>("[data-drawer-panel]")!.style.translate = ""
+        drawer.style.removeProperty("--drag")
       }
       if (reduced) done()
       else setTimeout(done, 480)
@@ -405,14 +406,20 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         last = event.clientY
         lastT = now
         panel.style.translate = `0 ${dy}px`
+        // El scrim se despeja en proporción a lo que ha bajado el panel.
+        drawer.style.setProperty("--drag", Math.min(1, dy / panel.offsetHeight).toFixed(3))
       })
       const release = () => {
         if (start === null) return
         const dy = last - start
         start = null
+        // Con las transiciones activas de nuevo, panel y scrim van de donde
+        // estén a su destino (cerrado o abierto) en un solo movimiento.
         drawer.classList.remove("is-dragging")
+        void drawer.offsetHeight
         if (dy > 120 || v > 0.6) close()
-        else panel.style.translate = ""
+        panel.style.translate = ""
+        drawer.style.removeProperty("--drag")
       }
       grip.addEventListener("pointerup", release)
       grip.addEventListener("pointercancel", release)

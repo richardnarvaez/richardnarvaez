@@ -31,6 +31,9 @@ const { id, labelledby, class: className } = Astro.props
 
 <style>
   .drawer {
+    /* 0 en reposo → 1 cuando el asa ha bajado toda la altura del panel (lo escribe el script al arrastrar). */
+    --drag: 0;
+
     position: fixed;
     inset: 0;
     z-index: 60;
@@ -39,14 +42,20 @@ const { id, labelledby, class: className } = Astro.props
     justify-content: center;
   }
 
+  /*
+    El scrim acompaña al arrastre: cuanto más baja el panel, menos velo y
+    menos desenfoque, hasta despejar la página al soltar.
+  */
   .drawer__scrim {
     position: absolute;
     inset: 0;
     background: rgb(var(--surface-rgb) / 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(calc(8px * (1 - var(--drag))));
+    -webkit-backdrop-filter: blur(calc(8px * (1 - var(--drag))));
     opacity: 0;
-    transition: opacity 320ms ease;
+    transition:
+      opacity 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      backdrop-filter 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .drawer__panel {
@@ -66,26 +75,46 @@ const { id, labelledby, class: className } = Astro.props
   }
 
   .drawer.is-open .drawer__scrim {
-    opacity: 1;
+    opacity: calc(1 - var(--drag));
   }
 
   .drawer.is-open .drawer__panel {
     translate: 0 0;
   }
 
-  /* Mientras se arrastra el asa, el panel sigue al dedo sin transición. */
-  .drawer.is-dragging .drawer__panel {
+  /* Mientras se arrastra el asa, panel y scrim siguen al dedo sin transición. */
+  .drawer.is-dragging .drawer__panel,
+  .drawer.is-dragging .drawer__scrim {
     transition: none;
   }
 
+  /*
+    El asa flota sobre el cuerpo: el contenido pasa por debajo y se funde con
+    un degradado del color del panel, sin corte.
+  */
   .drawer__grip {
     position: relative;
+    z-index: 1;
     flex: none;
     display: grid;
     place-items: center;
     height: 2.6rem;
+    margin-bottom: -2.6rem;
+    border-radius: 1.4rem 1.4rem 0 0;
+    background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface-raised) 55%, transparent 100%);
     cursor: grab;
     touch-action: none;
+  }
+
+  .drawer__grip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 1.6rem;
+    background: linear-gradient(180deg, rgb(22 21 31 / 0.9) 0%, transparent 100%);
+    pointer-events: none;
   }
 
   .drawer__grip:active {
@@ -127,7 +156,7 @@ const { id, labelledby, class: className } = Astro.props
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0.25rem clamp(1.25rem, 5vw, 4rem) clamp(2rem, 5vh, 3rem);
+    padding: 3rem clamp(1.25rem, 5vw, 4rem) clamp(2rem, 5vh, 3rem);
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
   }
