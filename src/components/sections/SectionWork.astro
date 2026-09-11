@@ -390,6 +390,9 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       let lastT = 0
       let v = 0
       grip.addEventListener("pointerdown", (event) => {
+        // El botón de cerrar vive dentro del asa: si el gesto empieza ahí, no
+        // es un arrastre (capturar el puntero le robaría el clic).
+        if ((event.target as HTMLElement).closest("[data-drawer-close]")) return
         start = event.clientY
         last = start
         lastT = performance.now()
