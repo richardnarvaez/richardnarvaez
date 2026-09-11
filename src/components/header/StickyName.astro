@@ -40,21 +40,19 @@ const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox,
 const DIAMETER: Record<Size, number> = { s: 40, l: 52, xl: 60 }
 // Hueco entre círculos vecinos, igual para todos.
 const GAP = 16
-// El handle es una píldora ancha: los anillos son elipses (KX estira el eje x).
-const KX = 1.5
+// El handle es una píldora ancha: el anillo es una elipse (KX estira el eje x).
+const KX = 1.85
 
-// Dos anillos alrededor del handle: las secciones cerca, las redes debajo.
-const sections: Item[] = [
-  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
-  { id: "work", label: "Work", href: "#work", size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
-  { id: "profile", label: "Profile", href: "#profile", size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
-  { id: "code", label: "Open Source", href: "#open-source", size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
-]
-const socials: Item[] = [
-  { id: "github", label: "GitHub", href: socialLinks.github, external: true, size: "s", ...brand("github") },
-  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, size: "s", ...brand("linkedin") },
-  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, size: "s", ...brand("instagram") },
-]
+// Un solo collar alrededor del handle: las secciones y, en cada hueco entre
+// ellas, una red social. Tamaños simétricos: l s xl s xl s l.
+const shortcuts: Item = { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` }
+const work: Item = { id: "work", label: "Work", href: "#work", size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` }
+const profile: Item = { id: "profile", label: "Profile", href: "#profile", size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` }
+const code: Item = { id: "code", label: "Open Source", href: "#open-source", size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` }
+const github: Item = { id: "github", label: "GitHub", href: socialLinks.github, external: true, size: "s", ...brand("github") }
+const linkedin: Item = { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, size: "s", ...brand("linkedin") }
+const instagram: Item = { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, size: "s", ...brand("instagram") }
+const order: Item[] = [shortcuts, github, work, linkedin, profile, instagram, code]
 
 type Placed = Item & { x: number; y: number }
 const point = (deg: number, r: number) => {
@@ -95,7 +93,7 @@ const ring = (list: Item[], r: number): Placed[] => {
   })
 }
 
-const items: Placed[] = [...ring(sections, 86), ...ring(socials, 152)]
+const items: Placed[] = ring(order, 104)
 
 // Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
 // anterior, ahora girando despacio detrás del racimo.
