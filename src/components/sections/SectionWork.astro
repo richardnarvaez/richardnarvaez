@@ -535,8 +535,11 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
     z-index: 1;
     padding: 0.7rem;
     border-radius: 1.6rem;
-    border: 1px solid rgba(84, 84, 88, 0.25);
     background: var(--bezel);
+    /* Sin borde: la tapa se separa de la página con sombra, de contacto y de caída. */
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.35),
+      0 30px 80px -30px rgba(0, 0, 0, 0.9);
   }
 
   .work__display {
