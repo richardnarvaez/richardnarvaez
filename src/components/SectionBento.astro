@@ -139,8 +139,9 @@ const toolRows = [
     <div
       class="grid w-full grid-cols-1 gap-4 lg:col-span-2 lg:grid-cols-2"
     >
-      <!-- auto + 1fr: la fila del botón mide lo que el botón; Gallery absorbe el resto. -->
-      <div class="grid grid-cols-1 grid-rows-[auto_1fr] gap-4">
+      <!-- En móvil y tablet van lado a lado; en escritorio apiladas: auto + 1fr,
+           la fila de Photography mide lo suyo y Gallery absorbe el resto. -->
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-1 lg:grid-rows-[auto_1fr]">
         {/* Tarjeta estática: lo de "About me" ya vive en la sección de perfil. */}
         <div
           class="bento-card group relative flex h-40 w-full items-center justify-center overflow-hidden rounded-3xl bg-(--surface-2) text-center"
@@ -167,7 +168,7 @@ const toolRows = [
           class="bento-card relative flex h-full cursor-default items-center overflow-hidden rounded-3xl border-2 border-dashed border-(--line-tint) p-6 font-bold text-white/70"
         >
           <span>
-            <span class="block text-3xl">Visit Gallery</span>
+            <span class="block text-2xl lg:text-3xl">Visit Gallery</span>
             <span class="text-md mt-3 block font-normal text-gray-200/50">
               Coming soon
             </span>
