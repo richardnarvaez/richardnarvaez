@@ -150,8 +150,10 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
                   })}
                 </div>
                 {layer.id === "gallery" && (
-                  <button type="button" class="btn btn--ghost btn--sm canvas__cta" data-open="gallery">
-                    See all {gallery.length}
+                  <button type="button" class="canvas__cta" data-open="gallery">
+                    <span>See all</span>
+                    <span class="canvas__cta-count font-jetbrains">{gallery.length}</span>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
                   </button>
                 )}
               </div>
@@ -883,14 +885,47 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     translate: -50% 0;
   }
 
-  /* "See all": bajo la composición, encima del dock. */
+  /* "See all": arriba a la derecha, lejos del dock. Píldora de cristal con contador. */
   .canvas__cta {
     position: absolute;
-    left: 50%;
-    bottom: 5.8rem;
-    translate: -50% 0;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.7rem 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transition:
+      background 180ms ease,
+      border-color 180ms ease,
+      translate 180ms ease;
+  }
+
+  .canvas__cta:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+    translate: 0 -1px;
+  }
+
+  .canvas__cta-count {
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+
+  .canvas__cta svg {
+    opacity: 0.8;
   }
 
   /* Con un drawer abierto, el lienzo y el dock quedan detrás del scrim. */
