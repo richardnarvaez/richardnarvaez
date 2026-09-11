@@ -368,7 +368,9 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       const done = () => {
         drawer.hidden = true
         drawer.querySelector<HTMLElement>("[data-drawer-panel]")!.style.translate = ""
-        drawer.style.removeProperty("--drag")
+        const scrim = drawer.querySelector<HTMLElement>(".drawer__scrim")!
+        scrim.style.backdropFilter = ""
+        scrim.style.removeProperty("-webkit-backdrop-filter")
       }
       if (reduced) done()
       else setTimeout(done, 480)
@@ -382,6 +384,7 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       // Arrastrar el asa hacia abajo cierra; si no llega, vuelve a su sitio.
       const grip = drawer.querySelector<HTMLElement>("[data-drawer-grip]")!
       const panel = drawer.querySelector<HTMLElement>("[data-drawer-panel]")!
+      const scrim = drawer.querySelector<HTMLElement>(".drawer__scrim")!
       let start: number | null = null
       let last = 0
       let lastT = 0
@@ -406,8 +409,11 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         last = event.clientY
         lastT = now
         panel.style.translate = `0 ${dy}px`
-        // El scrim se despeja en proporción a lo que ha bajado el panel.
-        drawer.style.setProperty("--drag", Math.min(1, dy / panel.offsetHeight).toFixed(3))
+        // El velo se despeja a medias en proporción a lo que ha bajado el panel: solo filtro, nunca opacidad.
+        const t = Math.min(1, dy / panel.offsetHeight) * 0.5
+        const filter = `blur(${(8 * (1 - t)).toFixed(2)}px) brightness(${(0.55 + 0.45 * t).toFixed(3)})`
+        scrim.style.backdropFilter = filter
+        scrim.style.setProperty("-webkit-backdrop-filter", filter)
       })
       const release = () => {
         if (start === null) return
@@ -419,7 +425,8 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
         void drawer.offsetHeight
         if (dy > 120 || v > 0.6) close()
         panel.style.translate = ""
-        drawer.style.removeProperty("--drag")
+        scrim.style.backdropFilter = ""
+        scrim.style.removeProperty("-webkit-backdrop-filter")
       }
       grip.addEventListener("pointerup", release)
       grip.addEventListener("pointercancel", release)
