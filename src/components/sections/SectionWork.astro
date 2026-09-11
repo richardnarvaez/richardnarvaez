@@ -861,8 +861,13 @@ const dockItems = layers.map(({ id, label, icon }) => ({ id, label, icon }))
       height: 1rem;
     }
 
+    /* Sin la base del teclado, el aire hasta el borde discontinuo lo pone el propio bloque. */
     .work__base {
       display: none;
+    }
+
+    .work__mac {
+      padding-bottom: clamp(2.5rem, 6vh, 4rem);
     }
 
     .canvas {
