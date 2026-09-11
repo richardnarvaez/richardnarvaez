@@ -1,6 +1,6 @@
 // Piezas de la galería (ilustraciones y fotografía) para el lienzo del Mac y
 // el drawer de galería. Las fotos son las propias publicadas en Unsplash.
-export type GalleryKind = "illustration" | "photo"
+export type GalleryKind = "illustration" | "photo" | "app"
 
 export interface GalleryItem {
   id: string
@@ -39,4 +39,10 @@ export const photos: GalleryItem[] = [
   { id: "harbor-silence", kind: "photo", name: "Harbor Silence", desc: "A narrow frame where water and distant relief almost flatten out.", ...unsplashPair("photo-1759424727855-772a29b2ee93"), ratio: 0.75 },
 ]
 
-export const gallery: GalleryItem[] = [...illustrations, ...photos]
+// Iconos de app: también son ilustración propia, y en miniatura apenas se ven.
+export const appIcons: GalleryItem[] = [
+  { id: "app-huma", kind: "app", name: "Huma Legends icon", desc: "App icon for Huma Legends.", ...local("/images/apps/huma.webp", "/images/apps/large/huma.webp"), ratio: 1 },
+  { id: "app-memory", kind: "app", name: "Memory ClickStudio icon", desc: "App icon for Memory ClickStudio.", ...local("/images/apps/memory.webp", "/images/apps/large/memory.webp"), ratio: 1 },
+]
+
+export const gallery: GalleryItem[] = [...illustrations, ...appIcons, ...photos]

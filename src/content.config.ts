@@ -26,6 +26,10 @@ const work = defineCollection({
       .array(z.object({ value: z.string(), label: z.string() }))
       .max(4)
       .default([]),
+    /** Año de arranque; ordena y etiqueta el diagrama. */
+    year: z.number().optional(),
+    /** Nota corta pegada al nodo en el diagrama ("Shipped 2023", "Offline first"). */
+    sticker: z.string().optional(),
     /** Orden en el lienzo (menor primero). */
     order: z.number().default(99),
     /** Borrador: no se publica como página ni aparece en el lienzo. */

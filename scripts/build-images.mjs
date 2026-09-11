@@ -73,6 +73,13 @@ const tasks = {
       .toFile(out("public/images/apps/memory.webp"))
     report("public/images/apps/huma.webp")
     report("public/images/apps/memory.webp")
+    // Grandes para el visor (el de Memory es un PNG pequeño: se deja a su tamaño real, ampliado por CSS).
+    await sharp("design/apps/huma.jpg").resize(1024, 1024, { fit: "cover", withoutEnlargement: true }).webp({ quality: 84 })
+      .toFile(out("public/images/apps/large/huma.webp"))
+    await sharp("design/apps/memory.png").resize(512, 512, { fit: "contain", background: "#dffcff", kernel: "nearest" }).webp({ quality: 90 })
+      .toFile(out("public/images/apps/large/memory.webp"))
+    report("public/images/apps/large/huma.webp")
+    report("public/images/apps/large/memory.webp")
   },
 
   // Miniaturas del lienzo de ilustraciones (tiles de hasta 200px, 2×).

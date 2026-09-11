@@ -16,6 +16,7 @@ import WorkDrawer from "../work/WorkDrawer.astro"
 import WorkLightbox from "../work/WorkLightbox.astro"
 import CaseStudy from "../case/CaseStudy.astro"
 import { gallery, type GalleryItem } from "../../data/gallery"
+import { toolLogoById } from "../../data/tool-logos"
 
 const cases = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order)
 const published = cases.filter((c) => !c.data.draft)
@@ -23,17 +24,76 @@ const published = cases.filter((c) => !c.data.draft)
 // ── Ranuras (px respecto al centro del lienzo) ──────────────────────────
 type Slot = { x: number; y: number; w: number; ratio?: number }
 
-// Apps: 3 grandes (88px) alrededor del centro y 6 pequeños (56px) en parejas
-// flanqueando cada hueco; radios para ~16px entre vecinos.
-const polar = (r: number, deg: number) => ({ x: Math.cos((deg * Math.PI) / 180) * r, y: Math.sin((deg * Math.PI) / 180) * r })
-const appSlots: Slot[] = [
-  ...[-90, 30, 150].map((deg) => ({ ...polar(60, deg), w: 88 })),
-  ...[-46.8, -13.2, 73.2, 106.8, 193.2, 226.8].map((deg) => ({ ...polar(123, deg), w: 56 })),
-]
+// ── Apps: diagrama app ↔ stack ─────────────────────────────────────────
+// Las apps en fila en el centro; los stacks, únicos, repartidos en dos
+// filas arriba y abajo; un conector por cada uso. Todo sale del frontmatter
+// de los MDX (stack, platform, sticker): añadir un caso redibuja el mapa.
+const APP_GAP = 190
+const CHIP_GAP = 150
+// Filas de chips: la de abajo queda por encima del dock (el lienzo mide ~544px de alto).
+const ROW_TOP = -196
+const ROW_BOTTOM = 148
+const APP_Y = -22
+
+type AppNode = {
+  id: string
+  name: string
+  src?: string
+  initial?: string
+  tint?: string
+  open?: string
+  soon?: boolean
+  sticker?: string
+  stacks: string[]
+  x: number
+  y: number
+  rot: number
+}
+
+const appNodes: AppNode[] = cases.map((entry, i) => ({
+  id: entry.id,
+  name: entry.data.name,
+  src: entry.data.icon || undefined,
+  initial: entry.data.icon ? undefined : entry.data.name[0],
+  tint: entry.data.tint,
+  open: entry.data.draft ? undefined : `case:${entry.id}`,
+  soon: entry.data.draft,
+  sticker: entry.data.sticker,
+  stacks: entry.data.stack,
+  x: (i - (cases.length - 1) / 2) * APP_GAP,
+  y: APP_Y,
+  rot: ((i * 137) % 17) - 8,
+}))
+
+// Stack → id de logo en tool-logos (los que no tienen logo salen solo con texto).
+const stackLogo: Record<string, string> = {
+  Swift: "swift", SwiftUI: "swift", Convex: "convex", Stripe: "stripe", "Next.js": "next", TypeScript: "typescript",
+  Postgres: "postgres", Kotlin: "kotlin", React: "react", Angular: "angular", Node: "node", AWS: "aws", Docker: "docker",
+  Vercel: "vercel", Figma: "figma", Strapi: "strapi", Railway: "railway",
+}
+
+const stackNames = [...new Set(appNodes.flatMap((n) => n.stacks))]
+const top = stackNames.filter((_, i) => i % 2 === 0)
+const bottom = stackNames.filter((_, i) => i % 2 === 1)
+const stackChips = [
+  ...top.map((name, j) => ({ name, x: (j - (top.length - 1) / 2) * CHIP_GAP, y: ROW_TOP })),
+  ...bottom.map((name, j) => ({ name, x: (j - (bottom.length - 1) / 2) * CHIP_GAP + CHIP_GAP / 2, y: ROW_BOTTOM })),
+].map((chip) => ({ ...chip, logo: stackLogo[chip.name] ? toolLogoById.get(stackLogo[chip.name]) : undefined }))
+const chipByName = new Map(stackChips.map((c) => [c.name, c]))
+
+// Conectores: curva en S vertical del centro del icono al centro del chip.
+const links = appNodes.flatMap((node) =>
+  node.stacks.flatMap((name) => {
+    const chip = chipByName.get(name)
+    if (!chip) return []
+    const midY = (node.y + chip.y) / 2
+    return [{ app: node.id, stack: name, d: `M${node.x} ${node.y} C${node.x} ${midY}, ${chip.x} ${midY}, ${chip.x} ${chip.y}` }]
+  }),
+)
 
 // Galería: lo principal de ilustración y fotografía en una sola composición
 // tipo mood board, 7 piezas alternando ambos tipos. El resto vive en el drawer.
-const featuredIds = ["madeira", "ill-1", "landing-path", "ill-2", "sail-line", "ill-4", "blue-valley"]
+const featuredIds = ["madeira", "ill-1", "landing-path", "ill-2", "sail-line", "ill-4", "blue-valley", "app-huma"]
 const gallerySlots: Slot[] = [
   { x: 0, y: -12, w: 168, ratio: 0.8 },
   { x: -176, y: -64, w: 128, ratio: 1 },
@@ -42,6 +102,7 @@ const gallerySlots: Slot[] = [
   { x: 164, y: 104, w: 92, ratio: 0.5625 },
   { x: 306, y: 24, w: 88, ratio: 0.7 },
   { x: -318, y: 14, w: 84, ratio: 0.8 },
+  { x: 24, y: 172, w: 72, ratio: 1 },
 ]
 const featured = featuredIds.map((id) => gallery.find((g) => g.id === id)!).filter(Boolean)
 
@@ -49,47 +110,26 @@ type Piece = {
   id: string
   name: string
   src?: string
-  initial?: string
-  tint?: string
-  /** "case:<slug>" o "image:<id>"; sin `open`, la pieza no es pulsable. */
+  /** "image:<id>" */
   open?: string
-  soon?: boolean
-  placeholder?: boolean
   x: number
   y: number
   w: number
   h: number
-  rot: number
 }
-
-const appPieces: Piece[] = appSlots.map((slot, i) => {
-  const entry = cases[i]
-  const base = { ...slot, h: slot.w, rot: ((i * 137) % 25) - 12 }
-  if (!entry) return { ...base, id: `slot-${i}`, name: "Coming soon", placeholder: true }
-  return {
-    ...base,
-    id: entry.id,
-    name: entry.data.name,
-    src: entry.data.icon || undefined,
-    initial: entry.data.icon ? undefined : entry.data.name[0],
-    tint: entry.data.tint,
-    open: entry.data.draft ? undefined : `case:${entry.id}`,
-    soon: entry.data.draft,
-  }
-})
 
 const galleryPieces = (items: GalleryItem[], slots: Slot[]): Piece[] =>
   items.slice(0, slots.length).map((item, i) => {
     const slot = slots[i]
-    return { id: item.id, name: item.name, src: item.src, open: `image:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1), rot: 0 }
+    return { id: item.id, name: item.name, src: item.src, open: `image:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1) }
   })
 
 const layers = [
   {
     id: "apps",
     label: "Apps",
-    kind: "icons",
-    pieces: appPieces,
+    kind: "diagram",
+    pieces: [] as Piece[],
     icon: `<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>`,
     tint: ["#5ac8fa", "#0a5fd6"] as [string, string],
   },
@@ -127,25 +167,61 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
                 hidden={layer.id !== "apps"}
               >
                 <div class="canvas__cluster">
+                  {layer.id === "apps" && (
+                    <div class="diagram" data-diagram>
+                      <svg class="diagram__links" viewBox="-640 -320 1280 640" width="1280" height="640" aria-hidden="true">
+                        {links.map((l) => <path d={l.d} data-link-app={l.app} data-link-stack={l.stack} />)}
+                        <defs>
+                          <marker id="diagram-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                            <path d="M0 0.5 7 4 0 7.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                          </marker>
+                        </defs>
+                      </svg>
+
+                      {stackChips.map((chip) => (
+                        <span class="chip-node" style={`--x: ${chip.x.toFixed(1)}px; --y: ${chip.y.toFixed(1)}px;`} data-stack={chip.name}>
+                          {chip.logo && <svg class="chip-node__logo" viewBox={chip.logo.viewBox} fill={chip.logo.fill} set:html={chip.logo.body} />}
+                          <span class="chip-node__label">{chip.name}</span>
+                        </span>
+                      ))}
+
+                      {appNodes.map((node) => {
+                        const style = `--x: ${node.x.toFixed(1)}px; --y: ${node.y.toFixed(1)}px; --w: 88px; --h: 88px; --rot: ${node.rot}deg;`
+                        const tile = (
+                          <span class="piece__tile" style={node.tint ? `background: ${node.tint};` : undefined}>
+                            {node.src && <img src={node.src} loading="lazy" decoding="async" draggable="false" alt="" />}
+                            {node.initial && <span class="piece__initial">{node.initial}</span>}
+                            {node.soon && <span class="piece__soon font-jetbrains">soon</span>}
+                          </span>
+                        )
+                        const inner = (
+                          <>
+                            {tile}
+                            <span class="node__name">{node.name}</span>
+                            {node.sticker && <span class="node__sticker" aria-hidden="true">{node.sticker}</span>}
+                          </>
+                        )
+                        return node.open ? (
+                          <button type="button" class="piece node" style={style} data-open={node.open} data-app={node.id} data-stacks={node.stacks.join("|")} aria-label={node.name}>
+                            {inner}
+                          </button>
+                        ) : (
+                          <span class="piece piece--static node" style={style} data-app={node.id} data-stacks={node.stacks.join("|")}>
+                            {inner}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
                   {layer.pieces.map((p) => {
-                    const style = `--x: ${p.x.toFixed(1)}px; --y: ${p.y.toFixed(1)}px; --w: ${p.w}px; --h: ${p.h.toFixed(1)}px; --rot: ${p.rot}deg;`
-                    const tile = (
-                      <span class="piece__tile" style={p.tint ? `background: ${p.tint};` : undefined}>
-                        {p.src && <img src={p.src} loading="lazy" decoding="async" draggable="false" alt="" />}
-                        {p.initial && <span class="piece__initial">{p.initial}</span>}
-                        {p.placeholder && <span class="piece__plus" aria-hidden="true">+</span>}
-                        {p.soon && <span class="piece__soon font-jetbrains">soon</span>}
-                      </span>
-                    )
-                    return p.open ? (
+                    const style = `--x: ${p.x.toFixed(1)}px; --y: ${p.y.toFixed(1)}px; --w: ${p.w}px; --h: ${p.h.toFixed(1)}px; --rot: 0deg;`
+                    return (
                       <button type="button" class="piece" style={style} data-open={p.open} aria-label={p.name}>
-                        {tile}
+                        <span class="piece__tile">
+                          {p.src && <img src={p.src} loading="lazy" decoding="async" draggable="false" alt="" />}
+                        </span>
                         <span class="piece__name" aria-hidden="true">{p.name}</span>
                       </button>
-                    ) : (
-                      <span class:list={["piece", "piece--static", { "piece--placeholder": p.placeholder }]} style={style} aria-hidden="true">
-                        {tile}
-                      </span>
                     )
                   })}
                 </div>
@@ -188,6 +264,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
         <div class="gallery__filters" role="group" aria-label="Filter">
           <button type="button" class="chip chip--active" data-gallery-filter="all" aria-pressed="true">All</button>
           <button type="button" class="chip" data-gallery-filter="illustration" aria-pressed="false">Illustrations</button>
+          <button type="button" class="chip" data-gallery-filter="app" aria-pressed="false">App icons</button>
           <button type="button" class="chip" data-gallery-filter="photo" aria-pressed="false">Photography</button>
         </div>
       </header>
@@ -292,8 +369,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     }
 
     // ── Desplazamiento del lienzo (arrastre con inercia) ────────────────
-    const BOUND_X = 280
-    const BOUND_Y = 190
+    const BOUND_X = 460
+    const BOUND_Y = 260
     const clamp = (v: number, b: number) => Math.max(-b, Math.min(b, v))
     let px = 0
     let py = 0
@@ -373,6 +450,42 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       },
       true,
     )
+
+    // ── Diagrama: al pasar por una app se iluminan sus stacks y conectores; por un stack, sus apps ──
+    const diagram = canvas.querySelector<HTMLElement>("[data-diagram]")
+    if (diagram && hoverable) {
+      const nodes = [...diagram.querySelectorAll<HTMLElement>("[data-app]")]
+      const chips = [...diagram.querySelectorAll<HTMLElement>("[data-stack]")]
+      const paths = [...diagram.querySelectorAll<SVGPathElement>("path[data-link-app]")]
+      const clear = () => {
+        diagram.classList.remove("has-focus")
+        for (const el of [...nodes, ...chips, ...paths]) el.classList.remove("is-lit")
+      }
+      const focusApp = (id: string) => {
+        clear()
+        diagram.classList.add("has-focus")
+        const node = nodes.find((n) => n.dataset.app === id)
+        node?.classList.add("is-lit")
+        const stacks = new Set((node?.dataset.stacks ?? "").split("|").filter(Boolean))
+        for (const chip of chips) if (stacks.has(chip.dataset.stack!)) chip.classList.add("is-lit")
+        for (const path of paths) if (path.dataset.linkApp === id) path.classList.add("is-lit")
+      }
+      const focusStack = (name: string) => {
+        clear()
+        diagram.classList.add("has-focus")
+        chips.find((c) => c.dataset.stack === name)?.classList.add("is-lit")
+        const apps = new Set(paths.filter((p) => p.dataset.linkStack === name).map((p) => p.dataset.linkApp!))
+        for (const node of nodes) if (apps.has(node.dataset.app!)) node.classList.add("is-lit")
+        for (const path of paths) if (path.dataset.linkStack === name) path.classList.add("is-lit")
+      }
+      for (const node of nodes) {
+        node.addEventListener("pointerenter", () => focusApp(node.dataset.app!))
+        node.addEventListener("focus", () => focusApp(node.dataset.app!))
+        node.addEventListener("blur", clear)
+      }
+      for (const chip of chips) chip.addEventListener("pointerenter", () => focusStack(chip.dataset.stack!))
+      diagram.addEventListener("pointerleave", clear)
+    }
 
     // ── Drawers ────────────────────────────────────────────────────────
     const drawers = [...root.querySelectorAll<HTMLElement>("[data-drawer]")]
@@ -773,6 +886,126 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     will-change: translate;
   }
 
+  /* ── Diagrama app ↔ stack ────────────────────────────────────────────── */
+  .diagram {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .diagram__links {
+    position: absolute;
+    left: -640px;
+    top: -320px;
+    overflow: visible;
+    color: rgba(139, 126, 210, 0.85);
+    pointer-events: none;
+  }
+
+  /* Conectores: discontinuos y tenues en reposo; el foco los enciende en el acento. */
+  .diagram__links path {
+    fill: none;
+    stroke: var(--line-tint);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 5;
+    marker-end: url(#diagram-arrow);
+    transition:
+      stroke 220ms ease,
+      opacity 220ms ease;
+  }
+
+  .diagram.has-focus .diagram__links path:not(.is-lit) {
+    opacity: 0.25;
+  }
+
+  .diagram__links path.is-lit {
+    stroke: var(--page-accent);
+    stroke-dasharray: none;
+    stroke-width: 1.6;
+  }
+
+  /* Chips de stack: píldora oscura con logo a color y nombre; blanco solo al iluminarse. */
+  .chip-node {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.75rem 0.4rem 0.6rem;
+    translate: -50% -50%;
+    border-radius: 999px;
+    border: 1px solid var(--line-tint);
+    background: var(--surface-2);
+    font-size: 0.74rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: rgb(var(--text-rgb) / 0.78);
+    cursor: default;
+    transition:
+      opacity 220ms ease,
+      border-color 220ms ease,
+      color 220ms ease,
+      background 220ms ease;
+  }
+
+  .chip-node__logo {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+
+  .diagram.has-focus .chip-node:not(.is-lit) {
+    opacity: 0.35;
+  }
+
+  .chip-node.is-lit {
+    border-color: rgba(255, 255, 255, 0.35);
+    background: var(--surface-3);
+    color: #fff;
+  }
+
+  /* Nodo de app: icono + nombre debajo, siempre visible. */
+  .node {
+    transition:
+      scale 260ms var(--ease-out),
+      opacity 220ms ease;
+  }
+
+  .diagram.has-focus .node:not(.is-lit) {
+    opacity: 0.4;
+  }
+
+  .node__name {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    translate: -50% 0;
+    font-size: 0.74rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: rgb(var(--text-rgb) / 0.82);
+  }
+
+  /* Sticker: nota corta pegada a la esquina del icono, ligeramente girada. */
+  .node__sticker {
+    position: absolute;
+    right: -1.6rem;
+    top: -1.1rem;
+    padding: 0.22rem 0.5rem;
+    rotate: 6deg;
+    border-radius: 0.3rem;
+    background: #f3e7c4;
+    font-family: var(--font-jetbrains);
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: #2b2a45;
+    box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.8);
+  }
+
   /* ── Piezas ──────────────────────────────────────────────────────────── */
   .piece {
     position: absolute;
@@ -877,7 +1110,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     color: rgba(255, 255, 255, 0.8);
   }
 
-  /* Nombre bajo la pieza al pasar el puntero. */
+  /* Nombre bajo la pieza de galería al pasar el puntero (los nodos de app lo llevan fijo). */
   .piece__name {
     position: absolute;
     top: calc(100% + 0.5rem);
