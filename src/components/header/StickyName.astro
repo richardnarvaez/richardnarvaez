@@ -31,25 +31,34 @@ type Item = {
   viewBox?: string
   /** Logo relleno (Simple Icons) en vez de trazo. */
   filled?: boolean
-  /** Posición respecto al centro del racimo, en px de diseño (se escala con --u). */
-  x: number
-  y: number
+  /** Ángulo desde el centro del handle: 0° a la derecha, 90° hacia abajo. */
+  angle: number
+  /** Distancia al handle en px de diseño (se escala con --u). */
+  r: number
   size: Size
 }
 const logo = (id: string) => toolLogoById.get(id)!
 const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox, filled: true })
 
-// Racimo asimétrico, como el boceto: grandes y pequeños mezclados, más ancho
-// que alto, colgando bajo el handle de la barra.
+// Todo se mide desde el nombre: cada burbuja tiene un ángulo y una distancia
+// al centro del handle, y se reparten por el medio anillo inferior. El
+// handle es una píldora ancha, así que el anillo es elíptico (KX) para que
+// las de los lados no se le monten. Distancias mezcladas, como el racimo del
+// perfil antiguo.
+const KX = 1.35
 const items: Item[] = [
-  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", x: -150, y: -47, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
-  { id: "github", label: "GitHub", href: socialLinks.github, external: true, x: -52, y: -55, size: "s", ...brand("github") },
-  { id: "code", label: "Open Source", href: "#open-source", x: 48, y: -55, size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
-  { id: "profile", label: "Profile", href: "#profile", x: 150, y: -6, size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
-  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, x: -108, y: 40, size: "s", ...brand("linkedin") },
-  { id: "work", label: "Work", href: "#work", x: -20, y: 58, size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
-  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, x: 73, y: 52, size: "s", ...brand("instagram") },
+  { id: "code", label: "Open Source", href: "#open-source", angle: 78, r: 74, size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
+  { id: "github", label: "GitHub", href: socialLinks.github, external: true, angle: 118, r: 84, size: "s", ...brand("github") },
+  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", angle: 140, r: 108, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
+  { id: "profile", label: "Profile", href: "#profile", angle: 45, r: 112, size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
+  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, angle: 126, r: 160, size: "s", ...brand("linkedin") },
+  { id: "work", label: "Work", href: "#work", angle: 90, r: 145, size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
+  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, angle: 62, r: 155, size: "s", ...brand("instagram") },
 ]
+const place = (item: Item) => {
+  const a = (item.angle * Math.PI) / 180
+  return { x: Math.round(Math.cos(a) * item.r * KX), y: Math.round(Math.sin(a) * item.r) }
+}
 
 // Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
 // anterior, ahora girando despacio detrás del racimo.
@@ -78,12 +87,12 @@ const arcs = [
       (Sin clip-path: un ancestro con clip-path forma un backdrop root y las
       capas dejarían de ver la página.) */}
   <div class="site-menu__blur">
-    <GradualBlur position="top" height="140dvh" strength={2.6} divCount={8} curve="ease-out" exponential zIndex={0} />
+    <GradualBlur position="top" height="140dvh" strength={1.3} divCount={8} curve="ease-out" exponential zIndex={0} />
   </div>
   <div class="site-menu__scrim" data-menu-close></div>
 
   {/* El centro de todo es el handle de la barra: los anillos giran en torno
-      a él y el racimo cuelga debajo. */}
+      a él y las burbujas se reparten a su alrededor, medidas desde él. */}
   <div class="site-menu__stage">
     <div class="site-menu__orbit" aria-hidden="true">
         <svg class="site-menu__rings" viewBox="0 0 1251 1251" fill="none">
@@ -109,7 +118,7 @@ const arcs = [
       <ul class="site-menu__list">
         {
           items.map((item, i) => (
-            <li class="site-menu__slot" style={`--x: ${item.x}; --y: ${item.y}; --i: ${i};`}>
+            <li class="site-menu__slot" style={`--x: ${place(item).x}; --y: ${place(item).y}; --i: ${i};`}>
               <a
                 class:list={["site-menu__item", `site-menu__item--${item.size}`]}
                 href={item.href}
@@ -231,6 +240,12 @@ const arcs = [
       rgb(var(--surface-rgb) / 0.75) 40%,
       transparent 100%
     );
+    transition: opacity 320ms ease;
+  }
+
+  /* Con el menú abierto el contraste lo da el scrim, y las burbujas cercanas al handle caen dentro de esta franja: fuera. */
+  .sticky-name.is-open .sticky-name__tint {
+    opacity: 0;
   }
 
   /* El handle es un botón: solo recibe eventos cuando la barra está encendida (ver keyframes). */
@@ -353,18 +368,17 @@ const arcs = [
   }
 
   /*
-    Racimo: un punto (0×0) a --drop bajo el botón. Los círculos se colocan
+    Racimo: un punto (0×0) en el centro del handle. Los círculos se colocan
     desde ahí con --x/--y en px de diseño multiplicados por --u, que encoge en
-    pantallas estrechas. Al abrir salen del botón: parten reunidos arriba
-    (translate hacia el handle, escala pequeña) y se abren escalonados.
+    pantallas estrechas. Al abrir salen del handle: parten reunidos en él,
+    encogidos, y se abren escalonados.
   */
   .site-menu__cluster {
-    --u: 0.72;
-    --drop: clamp(6rem, 12.5vh, 6.75rem);
+    --u: 1;
 
     position: absolute;
     left: 50%;
-    top: calc(var(--anchor) + var(--drop));
+    top: var(--anchor);
     width: 0;
     height: 0;
     pointer-events: auto;
@@ -419,7 +433,7 @@ const arcs = [
 
   /* Cerrado: todos reunidos en el nombre, encogidos. */
   .site-menu:not(.is-open) .site-menu__slot {
-    translate: 0 calc(-1 * var(--drop));
+    translate: 0 0;
     transition-delay: calc(var(--i) * 15ms);
     transition-duration: 260ms;
     transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
@@ -510,13 +524,13 @@ const arcs = [
 
   @media (max-width: 560px) {
     .site-menu__cluster {
-      --u: 0.62;
+      --u: 0.86;
     }
   }
 
   @media (max-width: 400px) {
     .site-menu__cluster {
-      --u: 0.54;
+      --u: 0.74;
     }
 
     .site-menu__item {
