@@ -31,45 +31,71 @@ type Item = {
   viewBox?: string
   /** Logo relleno (Simple Icons) en vez de trazo. */
   filled?: boolean
-  /** Ángulo desde el centro del handle: 0° a la derecha, 90° hacia abajo. */
-  angle: number
-  /** Distancia al handle en px de diseño (se escala con --u). */
-  r: number
   size: Size
 }
 const logo = (id: string) => toolLogoById.get(id)!
 const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox, filled: true })
 
-// Todo se mide desde el nombre: cada burbuja tiene un ángulo y una distancia
-// al centro del handle. Dos anillos elípticos (KX estira el eje horizontal
-// porque el handle es una píldora ancha): el interior cuelga justo bajo la
-// píldora y el exterior más abajo. Cada anillo dibuja un arco hacia abajo, y
-// los huecos pequeños se rellenan con puntos decorativos.
-const KX = 1.35
-const items: Item[] = [
-  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", angle: 150, r: 100, size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
-  { id: "github", label: "GitHub", href: socialLinks.github, external: true, angle: 112, r: 78, size: "s", ...brand("github") },
-  { id: "code", label: "Open Source", href: "#open-source", angle: 68, r: 78, size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
-  { id: "profile", label: "Profile", href: "#profile", angle: 32, r: 96, size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
-  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, angle: 125, r: 150, size: "s", ...brand("linkedin") },
-  { id: "work", label: "Work", href: "#work", angle: 90, r: 150, size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
-  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, angle: 55, r: 150, size: "s", ...brand("instagram") },
+// Diámetros en px de diseño (coinciden con --d en el CSS).
+const DIAMETER: Record<Size, number> = { s: 40, l: 52, xl: 60 }
+// Hueco entre círculos vecinos, igual para todos.
+const GAP = 16
+// El handle es una píldora ancha: los anillos son elipses (KX estira el eje x).
+const KX = 1.5
+
+// Dos anillos alrededor del handle: las secciones cerca, las redes debajo.
+const sections: Item[] = [
+  { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
+  { id: "work", label: "Work", href: "#work", size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
+  { id: "profile", label: "Profile", href: "#profile", size: "xl", icon: `<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>` },
+  { id: "code", label: "Open Source", href: "#open-source", size: "l", icon: `<path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/>` },
 ]
-// Puntos sin función que completan los arcos donde queda hueco. Tamaños y
-// radios desparejos a propósito, como gotas que se quedaron colgadas.
-const dots = [
-  { angle: 90, r: 92, d: 9 },
-  { angle: 108, r: 148, d: 14 },
-  { angle: 72, r: 153, d: 7 },
-  { angle: 166, r: 116, d: 12 },
-  { angle: 14, r: 122, d: 6 },
-  { angle: 138, r: 196, d: 8 },
-  { angle: 44, r: 190, d: 11 },
+const socials: Item[] = [
+  { id: "github", label: "GitHub", href: socialLinks.github, external: true, size: "s", ...brand("github") },
+  { id: "linkedin", label: "LinkedIn", href: socialLinks.linkedin, external: true, size: "s", ...brand("linkedin") },
+  { id: "instagram", label: "Instagram", href: socialLinks.instagram, external: true, size: "s", ...brand("instagram") },
 ]
-const place = (node: { angle: number; r: number }) => {
-  const a = (node.angle * Math.PI) / 180
-  return { x: Math.round(Math.cos(a) * node.r * KX), y: Math.round(Math.sin(a) * node.r) }
+
+type Placed = Item & { x: number; y: number }
+const point = (deg: number, r: number) => {
+  const a = (deg * Math.PI) / 180
+  return { x: Math.cos(a) * r * KX, y: Math.sin(a) * r }
 }
+
+// Reparte un anillo sobre la elipse de radio vertical r, de izquierda a
+// derecha, de modo que el borde de cada círculo quede a GAP del siguiente.
+// Como la elipse no es uniforme, se recorre a pasos finos y se recentra en
+// 90° (justo debajo del handle) en varias pasadas.
+const ring = (list: Item[], r: number): Placed[] => {
+  const walk = (start: number) => {
+    const angles = [start]
+    for (let i = 1; i < list.length; i++) {
+      const need = DIAMETER[list[i - 1].size] / 2 + DIAMETER[list[i].size] / 2 + GAP
+      const prev = point(angles[i - 1], r)
+      let deg = angles[i - 1]
+      while (deg > -180) {
+        deg -= 0.05
+        const cur = point(deg, r)
+        if (Math.hypot(cur.x - prev.x, cur.y - prev.y) >= need) break
+      }
+      angles.push(deg)
+    }
+    return angles
+  }
+  let start = 180
+  let angles = walk(start)
+  for (let pass = 0; pass < 4; pass++) {
+    const span = angles[0] - angles[angles.length - 1]
+    start = 90 + span / 2
+    angles = walk(start)
+  }
+  return list.map((item, i) => {
+    const p = point(angles[i], r)
+    return { ...item, x: Math.round(p.x), y: Math.round(p.y) }
+  })
+}
+
+const items: Placed[] = [...ring(sections, 86), ...ring(socials, 152)]
 
 // Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
 // anterior, ahora girando despacio detrás del racimo.
@@ -130,7 +156,7 @@ const arcs = [
       <ul class="site-menu__list">
         {
           items.map((item, i) => (
-            <li class="site-menu__slot" style={`--x: ${place(item).x}; --y: ${place(item).y}; --i: ${i};`}>
+            <li class="site-menu__slot" style={`--x: ${item.x}; --y: ${item.y}; --i: ${i};`}>
               <a
                 class:list={["site-menu__item", `site-menu__item--${item.size}`]}
                 href={item.href}
@@ -161,13 +187,6 @@ const arcs = [
                 }
                 <span class="site-menu__label">{item.label}</span>
               </a>
-            </li>
-          ))
-        }
-        {
-          dots.map((dot, i) => (
-            <li class="site-menu__slot site-menu__slot--dot" style={`--x: ${place(dot).x}; --y: ${place(dot).y}; --i: ${items.length + i}; --d: ${dot.d}px;`} aria-hidden="true">
-              <span class="site-menu__dot"></span>
             </li>
           ))
         }
@@ -595,31 +614,6 @@ const arcs = [
     height: 62%;
   }
 
-  /* Puntos decorativos: mismo material y misma entrada que las burbujas. */
-  .site-menu__slot--dot {
-    pointer-events: none;
-  }
-
-  .site-menu__dot {
-    display: block;
-    width: var(--d);
-    height: var(--d);
-    translate: -50% -50%;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.7);
-    transition:
-      scale 520ms cubic-bezier(0.22, 1.4, 0.36, 1) calc(120ms + var(--i) * 40ms),
-      opacity 220ms ease calc(120ms + var(--i) * 40ms);
-  }
-
-  .site-menu:not(.is-open) .site-menu__dot {
-    scale: 0.35;
-    opacity: 0;
-    transition-delay: 0ms;
-    transition-duration: 220ms;
-  }
-
   /* Etiqueta sobre el círculo, solo al pasar el puntero o enfocar. */
   .site-menu__label {
     position: absolute;
@@ -684,7 +678,6 @@ const arcs = [
     .site-menu__orbit,
     .site-menu__slot,
     .site-menu__item,
-    .site-menu__dot,
     .site-menu__scrim,
     .site-menu__blur {
       transition: none;
