@@ -1,0 +1,121 @@
+---
+// Cinta infinita de baldosas con logos de herramientas: sustituye al PNG
+// inclinado del bento. Varias filas que se desplazan en bucle, en sentidos
+// alternos y a velocidades distintas.
+//
+// Bucle sin costura y sin JavaScript: cada fila repite su juego de baldosas
+// REPEATS veces y la animación traslada exactamente un juego (100% / REPEATS).
+// El hueco entre baldosas va como margen de cada una (no como `gap` de la
+// fila) para que el ancho del juego lo incluya y el salto de vuelta coincida.
+//
+// Solo se anima `translate`: composición en GPU, sin repintados.
+import { toolLogoById } from "../../data/tool-logos"
+
+interface Props {
+  /** Filas: listas de ids de `toolLogos`. */
+  rows: string[][]
+  class?: string
+}
+
+const { rows, class: className } = Astro.props
+const REPEATS = 3
+// Duraciones distintas por fila para que no se lean como una sola pieza.
+const DURATIONS_S = [46, 58, 52, 64]
+
+const resolved = rows.map((ids) =>
+  ids.map((id) => {
+    const logo = toolLogoById.get(id)
+    if (!logo) throw new Error(`ToolMarquee: logo desconocido "${id}"`)
+    return logo
+  }),
+)
+---
+
+<div class:list={["tool-marquee", className]} aria-hidden="true">
+  {
+    resolved.map((logos, r) => (
+      <div
+        class:list={["tool-marquee__row", { "tool-marquee__row--reverse": r % 2 === 1 }]}
+        style={`--duration: ${DURATIONS_S[r % DURATIONS_S.length]}s`}
+      >
+        {Array.from({ length: REPEATS }, () =>
+          logos.map((logo) => (
+            <span class:list={["tool-marquee__tile", { "tool-marquee__tile--wide": logo.wide }]}>
+              <svg viewBox={logo.viewBox} fill={logo.fill} set:html={logo.body} />
+            </span>
+          )),
+        )}
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  /*
+    La caja ocupa el ancho que le den (el contenedor decide el pivote de la
+    rotación); las filas desbordan por la derecha con su ancho máximo.
+  */
+  .tool-marquee {
+    --tile: 3.75rem;
+    --gap: 0.5rem;
+
+    display: grid;
+    justify-items: start;
+    gap: var(--gap);
+    width: 100%;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .tool-marquee__row {
+    display: flex;
+    width: max-content;
+    animation: toolMarquee var(--duration) linear infinite;
+    will-change: translate;
+  }
+
+  .tool-marquee__row--reverse {
+    animation-direction: reverse;
+  }
+
+  /* Un juego = 1/3 del ancho de la fila (ver REPEATS). */
+  @keyframes toolMarquee {
+    to {
+      translate: calc(-100% / 3) 0;
+    }
+  }
+
+  /* Baldosa blanca plana, esquinas al 22% como un icono de app. */
+  .tool-marquee__tile {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--tile);
+    height: var(--tile);
+    margin-inline-end: var(--gap);
+    border-radius: 22%;
+    background: #fff;
+  }
+
+  /* Wordmarks apaisados (AWS, Stripe, Next.js): dos huecos de ancho. */
+  .tool-marquee__tile--wide {
+    width: calc(var(--tile) * 2 + var(--gap));
+    border-radius: 0.85rem;
+  }
+
+  .tool-marquee__tile svg {
+    width: 52%;
+    height: 52%;
+  }
+
+  .tool-marquee__tile--wide svg {
+    width: 64%;
+    height: 46%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tool-marquee__row {
+      animation: none;
+    }
+  }
+</style>

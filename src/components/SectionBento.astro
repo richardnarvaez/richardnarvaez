@@ -2,16 +2,28 @@
 import BlueprintSection from "./layout/BlueprintSection.astro"
 import { socialLinks } from "../site.config"
 import GradualBlur from "./ui/GradualBlur.astro"
+import ToolMarquee from "./ui/ToolMarquee.astro"
 
 const resumeHref =
   "https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
 const figmaHref = "https://www.figma.com/community/file/1270173776891030529"
 const humaHref = "https://huma.darkpixl.com"
 
+// Cinta de herramientas del bento: tres filas, en sentidos alternos.
+// Herramientas que destacan hoy, más que lenguajes. Los wordmarks (aws,
+// stripe, next) ocupan dos huecos.
+const toolRows = [
+  ["claude-code", "stripe", "docker", "vercel", "next", "railway"],
+  ["aws", "codex", "figma", "github", "cursor", "strapi"],
+  ["openai", "framer", "figma", "claude-code", "stripe", "docker"],
+  ["next", "github", "codex", "vercel", "aws", "cursor"],
+  ["strapi", "claude-code", "openai", "docker", "figma", "railway"],
+]
+
 ---
 
 {/* El nombre y el rol viven en la sección de perfil, justo encima. */}
-<BlueprintSection id="main" class="section-bento" label="02 — shortcuts">
+<BlueprintSection id="shortcuts" class="section-bento" label="02 — shortcuts" ariaLabel="Shortcuts">
   <div class="py-14">
 
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -55,20 +67,18 @@ const humaHref = "https://huma.darkpixl.com"
 
     <!-- Huma Legends -->
     <div
-      class="bento-card group relative z-10 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl bg-[#23293C] p-4 font-bold lg:col-span-2"
+      class="bento-card group relative z-10 flex w-full flex-col items-center justify-center overflow-hidden rounded-3xl bg-(--surface-2) p-4 font-bold lg:col-span-2"
     >
       <img
         alt="Background Huma Legends"
         src="/images/blog/huma/huma-bg.jpg"
         width="960"
         height="540"
-        class="absolute top-0 size-full scale-105 object-cover opacity-75 blur-sm transition-all duration-500 group-hover:scale-125"
+        class="absolute top-0 size-full scale-105 object-cover transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-sm"
       />
-      <p
-        class="z-10 rounded-full border-4 border-white/30 bg-white/70 px-4 py-1 text-sm text-black/60"
-      >
-        NEW
-      </p>
+      {/* Como en la tarjeta del CV: la foto nítida arriba, desenfoque progresivo bajo el contenido y desenfoque total al hacer hover. */}
+      <GradualBlur position="bottom" height="78%" strength={1} divCount={5} curve="bezier" exponential />
+      
       <div
         class="z-10 m-4 mx-auto flex size-24 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white"
       >
@@ -99,27 +109,30 @@ const humaHref = "https://huma.darkpixl.com"
           </span>
         </div>
       </div>
-      <div class="absolute inset-0 bg-black/30"></div>
+      <div class="absolute inset-0 bg-black/30 transition-colors duration-500 group-hover:bg-black/40"></div>
     </div>
 
     <!-- Tools & Frameworks (no internal /#stack route: non-linking) -->
     <div
-      class="bento-card group relative h-[500px] w-full overflow-hidden rounded-3xl bg-[#23293C] md:h-full lg:h-auto"
+      class="bento-card group relative h-[500px] w-full overflow-hidden rounded-3xl bg-(--surface-2) md:h-full lg:h-auto"
     >
       <div
         class="absolute z-20 w-full p-4 font-bold"
-        style="background: linear-gradient(180deg, #23293c, transparent);"
+        style="background: linear-gradient(180deg, var(--surface-2), transparent);"
       >
         <p class="text-md text-white/75">TECHNOLOGIES</p>
         <p class="text-3xl">Tools and Frameworks</p>
       </div>
-      <img
-        alt=""
-        class="absolute -bottom-8 -right-8 w-full -rotate-12 scale-125 transition-transform duration-500 ease-out group-hover:scale-150"
-        src="/images/IconsTech.png"
-        width="800"
-        height="800"
-      />
+      {/*
+        Cinta infinita de logos en vez del PNG: inclinada como estaba la
+        imagen, recortada por la tarjeta, y escala un poco al hacer hover.
+      */}
+      <div
+        class="tools-belt absolute -rotate-12 transition-transform duration-500 ease-out group-hover:scale-110"
+        aria-hidden="true"
+      >
+        <ToolMarquee rows={toolRows} />
+      </div>
     </div>
 
     <!-- Column: Photography + Gallery -->
@@ -130,27 +143,28 @@ const humaHref = "https://huma.darkpixl.com"
       <div class="grid grid-cols-1 grid-rows-[auto_1fr] gap-4">
         {/* Tarjeta estática: lo de "About me" ya vive en la sección de perfil. */}
         <div
-          class="bento-card group relative flex h-40 w-full items-center justify-center overflow-hidden rounded-3xl bg-slate-800 text-center"
+          class="bento-card group relative flex h-40 w-full items-center justify-center overflow-hidden rounded-3xl bg-(--surface-2) text-center"
         >
-          {/* Madeira Cliffs, la misma foto que abre el lienzo de Fotografía. */}
-          <img
-            alt=""
-            class="absolute inset-0 size-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-            src="https://images.unsplash.com/photo-1764025721609-2bd1cf185f32?auto=format&fit=crop&q=75&w=700"
-            width="700"
-            height="875"
-            loading="lazy"
-            decoding="async"
-          />
-          <div
-            class="absolute inset-0 flex items-center justify-center bg-black/50 transition-colors group-hover:bg-black/40"
+          {/* Cámara a líneas, grande, algo girada y recortada, en el mismo gris tenue que el logo de Figma de al lado. */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="absolute -right-6 -top-14 size-64 -rotate-12 text-black/10 transition-colors duration-500 group-hover:text-black/20"
+            aria-hidden="true"
           >
-            <p class="text-2xl font-bold">Photography</p>
-          </div>
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+            <circle cx="12" cy="13" r="3"></circle>
+          </svg>
+          <p class="relative text-2xl font-bold">Photography</p>
         </div>
 
         <span
-          class="bento-card relative flex h-full cursor-default items-center overflow-hidden rounded-3xl border-2 border-dashed border-white/20 p-6 font-bold text-white/70"
+          class="bento-card relative flex h-full cursor-default items-center overflow-hidden rounded-3xl border-2 border-dashed border-(--line-tint) p-6 font-bold text-white/70"
         >
           <span>
             <span class="block text-3xl">Visit Gallery</span>
@@ -175,7 +189,7 @@ const humaHref = "https://huma.darkpixl.com"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 26 26"
               fill="none"
-              class="absolute right-8 top-0 size-96 text-gray-200/5 transition-all duration-500 group-hover:top-8 group-hover:size-20 group-hover:text-gray-200/20"
+              class="absolute right-8 top-0 size-96 text-gray-200/5 transition-all duration-[420ms] ease-[cubic-bezier(0.15,0.7,0.3,1)] group-hover:top-8 group-hover:size-20 group-hover:text-gray-200/20"
             >
               <title>Figma</title>
               <path
@@ -263,3 +277,17 @@ const humaHref = "https://huma.darkpixl.com"
   </div>
   </div>
 </BlueprintSection>
+
+<style>
+  /*
+    Cinta de herramientas: nace bajo el título y desborda la tarjeta por los
+    tres lados restantes; el `overflow-hidden` de la tarjeta la recorta.
+  */
+  .tools-belt {
+    top: 30%;
+    left: -30%;
+    width: 160%;
+    /* Pivote en el centro de la tarjeta: la caja mide 160% y está centrada. */
+    transform-origin: center;
+  }
+</style>
