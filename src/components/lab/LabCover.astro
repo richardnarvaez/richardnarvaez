@@ -9,6 +9,7 @@
 // etiquetas, el prototipo el alambre de un dispositivo. El título no va
 // dentro: lo pone la tarjeta debajo, una sola vez. Todo son trazos:
 // nada de rellenos de color.
+import GradualBlur from "../ui/GradualBlur.astro"
 import { KIND_LABEL, type LabEntry } from "./lab"
 
 interface Props {
@@ -60,13 +61,6 @@ const hot = 4
                 </marker>
               </defs>
             </svg>
-            <span class="cover__title">{data.title}</span>
-            {data.complexity && (
-              <span class="cover__chips font-jetbrains">
-                <span>time {data.complexity.time}</span>
-                <span>space {data.complexity.space}</span>
-              </span>
-            )}
           </>
         )}
 
@@ -88,7 +82,6 @@ const hot = 4
                 </marker>
               </defs>
             </svg>
-            <span class="cover__title">{data.title}</span>
           </>
         )}
 
@@ -97,9 +90,26 @@ const hot = 4
             <div class:list={["cover__device", `cover__device--${device}`]}>
               <span class="cover__screen"></span>
             </div>
-            <span class="cover__title">{data.title}</span>
           </>
         )}
+
+        {/* Pie: el título siempre; al pasar suben el resumen y los chips sobre
+            un desenfoque progresivo que crece desde abajo (solo blur). */}
+        <GradualBlur position="bottom" height="42%" strength={1.4} divCount={5} curve="ease-in" zIndex={1} class="cover__fade" />
+        <div class="cover__foot">
+          <span class="cover__title">{data.title}</span>
+          <div class="cover__more">
+            <div class="cover__more-inner">
+              <span class="cover__summary">{data.summary}</span>
+              {data.complexity && (
+                <span class="cover__chips font-jetbrains">
+                  <span>time {data.complexity.time}</span>
+                  <span>space {data.complexity.space}</span>
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </>
     )
   }
@@ -112,10 +122,11 @@ const hot = 4
 
     position: relative;
     display: grid;
-    grid-template-rows: auto 1fr auto auto;
+    grid-template-rows: auto 1fr;
     gap: 0.6rem;
     aspect-ratio: 4 / 3;
-    padding: 0.85rem 0.95rem 0.95rem;
+    /* Abajo queda sitio para el título, que va en el pie absoluto. */
+    padding: 0.85rem 0.95rem 3rem;
     overflow: hidden;
     /* Esquinas rectas, como las secciones del plano: los marcadores piden ángulo, no radio. */
     border: 1px dashed var(--line-tint);
@@ -176,7 +187,25 @@ const hot = 4
     min-height: 3.2rem;
   }
 
-  /* Título abajo, una o dos líneas, en la tipografía de display. */
+  /* Desenfoque del borde inferior: crece al pasar el puntero (altura, no opacidad). */
+  .cover :global(.cover__fade) {
+    transition: height 380ms var(--ease-out);
+  }
+
+  /* El componente fija su alto con --gb-size en línea: aquí se pisa la propiedad, no la variable. */
+  .cover:hover :global(.cover__fade) {
+    height: 92%;
+  }
+
+  .cover__foot {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.6rem 0.95rem 0.85rem;
+  }
+
   .cover__title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -187,6 +216,34 @@ const hot = 4
     font-weight: 700;
     line-height: 1.15;
     text-wrap: balance;
+  }
+
+  /* Lo extra se despliega en alto (0fr → 1fr): sube desde debajo del título. */
+  .cover__more {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 380ms var(--ease-out);
+  }
+
+  .cover:hover .cover__more {
+    grid-template-rows: 1fr;
+  }
+
+  .cover__more-inner {
+    display: grid;
+    gap: 0.5rem;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .cover__summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgb(var(--text-rgb) / 0.75);
   }
 
   .cover__chips {
@@ -231,5 +288,12 @@ const hot = 4
   .cover__device--phone .cover__screen {
     aspect-ratio: 9 / 16;
     border-radius: 0.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cover :global(.cover__fade),
+    .cover__more {
+      transition: none;
+    }
   }
 </style>
