@@ -51,6 +51,7 @@ export const appIcons: GalleryItem[] = [
   { id: "app-little-king", kind: "app", name: "The Little King icon", desc: "Game icon for The Little King.", ...local("/images/apps/little-king.webp", "/images/apps/large/little-king.webp"), ratio: 1 },
   { id: "app-little-king-logo", kind: "app", name: "The Little King logo", desc: "Wordmark for The Little King.", ...local("/images/apps/little-king-logo.webp", "/images/apps/large/little-king-logo.webp"), ratio: 1 },
   { id: "app-relax-puzzle", kind: "app", name: "Relax Puzzle logo", desc: "Wordmark for Relax Puzzle.", ...local("/images/apps/relax-puzzle.webp", "/images/apps/large/relax-puzzle.webp"), ratio: 2.33 },
+  { id: "app-trendy-music", kind: "app", name: "Trendy Music icon", desc: "App icon for Trendy Music.", ...local("/images/apps/trendy-music.webp", "/images/apps/large/trendy-music.webp"), ratio: 1 },
 ]
 
 export const gallery: GalleryItem[] = [...illustrations, ...appIcons, ...photos]

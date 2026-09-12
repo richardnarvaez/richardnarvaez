@@ -79,6 +79,7 @@ const tasks = {
       { id: "little-king", src: "design/apps/little-king-icon.png", extract: { left: 100, top: 100, width: 824, height: 824 } },
       { id: "thelist", src: "design/apps/thelist.png", fit: "contain", background: "#fff" },
       { id: "zodiac", src: "design/apps/zodiac.png" },
+      { id: "trendy-music", src: "design/apps/trendy-music.png", fit: "contain", background: "#fff" },
     ]
     for (const icon of icons) {
       const base = () => (icon.extract ? sharp(icon.src).extract(icon.extract) : sharp(icon.src))
@@ -96,6 +97,8 @@ const tasks = {
     const marks = [
       { id: "relax-puzzle", src: "design/apps/relax-puzzle.png" },
       { id: "little-king-logo", src: "design/apps/little-king-logo.png" },
+      // Versión alternativa del icono de Trendy Music: solo como referencia en el caso.
+      { id: "trendy-music-alt", src: "design/apps/trendy-music-alt.png" },
     ]
     for (const mark of marks) {
       const thumb = out(`public/images/apps/${mark.id}.webp`)

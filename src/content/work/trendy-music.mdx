@@ -1,8 +1,8 @@
 ---
 name: "Trendy Music"
 tagline: "Music app that reached more than 400k downloads, built natively in Java when that was the top of Android."
-icon: ""
-tint: "#ff512f"
+icon: "/images/apps/trendy-music.webp"
+tint: "#fff"
 role: "Android developer"
 period: "2016 — 2018"
 platform: "Android"
@@ -12,18 +12,45 @@ sticker: "+400k downloads"
 metrics:
   - value: "400k+"
     label: "downloads"
+  - value: "$25k+"
+    label: "revenue"
   - value: "Java"
     label: "native Android"
 status: "discontinued"
 order: 6
 ---
 
+import Figure from "../../components/case/Figure.astro"
 import Callout from "../../components/case/Callout.astro"
 
 ## The product
 
-A music app for Android that grew past 400k downloads. Built natively in Java, which was the standard for Android at the time.
+One of my first apps on Google Play, with several versions, and one of the most popular I have ever shipped. It did five things well:
+
+- Music download
+- Offline player
+- Automatic cover art lookup
+- Metadata search
+- Lyrics
+
+## Reach
+
+<Figure src="/images/work/trendy-music/reach-map.webp" alt="Heat map of downloads: strongest in Mexico, Colombia, Argentina and Chile, with spots in Spain, France and the United States" caption="Where the downloads came from. Latin America first, then Spain, France and the US." width={1600} height={849} />
+
+<Figure src="/images/work/trendy-music/countries.svg" alt="World map with every country the app reached shaded in blue" caption="Every country the app reached." frame width={393} height={278} />
+
+## Google banned me
+
+Read the policies. I was young and built the app people wanted, but it broke some Google Play rules. I did not measure that risk, and Google closed my developer account for good. A hard hit while I was still learning.
 
 <Callout>
-  Draft. Add what the app did, how it grew, the hardest technical problem and what you would do differently today.
+  The lesson stuck: a product that lives on someone else's platform lives by their rules. Every project since starts by reading them.
 </Callout>
+
+## What it left
+
+Good earnings and a bigger lesson. After this I moved into the web: frontend, backend, servers. With Google Play closed to me, mobile had to wait a while.
+
+## The icon
+
+<Figure src="/images/apps/large/trendy-music-alt.webp" alt="Alternate Trendy Music icon in red" caption="The red alternative explored for the icon. The blue one shipped." icon />

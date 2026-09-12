@@ -8,12 +8,14 @@ interface Props {
   width?: number
   height?: number
   frame?: boolean
+  /** Icono de app: se muestra pequeño (100px) con el pie al lado, no a todo el ancho. */
+  icon?: boolean
 }
 
-const { src, alt, caption, width, height, frame = false } = Astro.props
+const { src, alt, caption, width, height, frame = false, icon = false } = Astro.props
 ---
 
-<figure class:list={["figure", { "figure--frame": frame }]}>
+<figure class:list={["figure", { "figure--frame": frame, "figure--icon": icon }]}>
   <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
   {caption && <figcaption class="figure__caption">{caption}</figcaption>}
 </figure>
@@ -34,6 +36,24 @@ const { src, alt, caption, width, height, frame = false } = Astro.props
     padding: 0.5rem;
     border: 1px solid var(--line-tint);
     background: var(--surface-2);
+  }
+
+  /* Iconos cuadrados: nunca más de 100px, con el pie a la derecha. */
+  .figure--icon {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .figure--icon img {
+    width: 6.25rem;
+    height: 6.25rem;
+    flex: none;
+    border-radius: 24%;
+  }
+
+  .figure--icon .figure__caption {
+    margin-top: 0;
   }
 
   .figure__caption {
