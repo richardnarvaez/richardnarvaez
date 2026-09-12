@@ -142,9 +142,11 @@ const toolRows = [
       <!-- En móvil y tablet van lado a lado; en escritorio apiladas: auto + 1fr,
            la fila de Photography mide lo suyo y Gallery absorbe el resto. -->
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-1 lg:grid-rows-[auto_1fr]">
-        {/* Tarjeta estática: lo de "About me" ya vive en la sección de perfil. */}
-        <div
-          class="bento-card group relative flex h-40 w-full items-center justify-center overflow-hidden rounded-3xl bg-(--surface-2) text-center"
+        {/* Abre el drawer de galería ya filtrado en fotos (lo enruta el script de SectionWork). */}
+        <button
+          type="button"
+          class="bento-card group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-0 bg-(--surface-2) p-0 text-center text-inherit"
+          data-open="gallery:photo"
         >
           {/* Cámara a líneas, grande, algo girada y recortada, en el mismo gris tenue que el logo de Figma de al lado. */}
           <svg
@@ -162,18 +164,19 @@ const toolRows = [
             <circle cx="12" cy="13" r="3"></circle>
           </svg>
           <p class="relative text-2xl font-bold">Photography</p>
-        </div>
+        </button>
 
-        <span
-          class="bento-card relative flex h-full cursor-default items-center overflow-hidden rounded-3xl border-2 border-dashed border-(--line-tint) p-6 font-bold text-white/70"
+        <a
+          class="bento-card relative flex h-full items-center overflow-hidden rounded-3xl border-2 border-dashed border-(--line-tint) p-6 font-bold text-white/70 no-underline transition-colors duration-300 hover:border-(--page-accent) hover:text-white"
+          href="#lab"
         >
           <span>
-            <span class="block text-2xl lg:text-3xl">Visit Gallery</span>
+            <span class="block text-2xl lg:text-3xl">Visit the Lab</span>
             <span class="text-md mt-3 block font-normal text-gray-200/50">
-              Coming soon
+              System design, exercises & prototypes
             </span>
           </span>
-        </span>
+        </a>
       </div>
 
       <!-- 1fr + auto: Figma absorbe el resto; la fila de iconos mide lo que los iconos. -->

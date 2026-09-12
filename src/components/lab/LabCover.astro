@@ -1,0 +1,189 @@
+---
+// Portada 4:3 de una entrada del Lab. Si la entrada trae `cover`, va la
+// imagen; si no, se compone aquí desde el frontmatter, distinta por tipo:
+// el ejercicio es una ficha con la idea clave y la complejidad, el system
+// design un esquema de cajas con sus etiquetas, el prototipo un dispositivo.
+// Así todas las tarjetas tienen portada desde el primer día y con el mismo marco.
+import { accentOf, KIND_LABEL, type LabEntry } from "./lab"
+
+interface Props {
+  entry: LabEntry
+  class?: string
+}
+
+const { entry, class: className } = Astro.props
+const { data } = entry
+const accent = accentOf(entry)
+const boxes = (data.tags.length >= 3 ? data.tags.slice(0, 3) : ["Client", "Service", "Store"]).map((t) => t.slice(0, 12))
+const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
+---
+
+<div class:list={["cover", `cover--${data.kind}`, className]} style={`--accent: ${accent};`} aria-hidden="true">
+  {
+    data.cover ? (
+      <img class="cover__img" src={data.cover} alt="" loading="lazy" decoding="async" />
+    ) : (
+      <>
+        <span class="cover__kind font-jetbrains">
+          {KIND_LABEL[data.kind]}
+          {data.difficulty && <span class="cover__dot">·</span>}
+          {data.difficulty}
+        </span>
+
+        {data.kind === "exercise" && (
+          <div class="cover__sheet">
+            <span class="cover__title">{data.title}</span>
+            {data.keyIdea && <span class="cover__idea">{data.keyIdea}</span>}
+            {data.complexity && (
+              <span class="cover__chips font-jetbrains">
+                <span>time {data.complexity.time}</span>
+                <span>space {data.complexity.space}</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {data.kind === "system" && (
+          <div class="cover__system">
+            <svg class="cover__schematic" viewBox="0 0 320 120" fill="none">
+              {boxes.map((label, i) => (
+                <>
+                  <rect x={12 + i * 108} y="34" width="88" height="52" rx="10" stroke="rgba(255,255,255,0.55)" fill="rgba(255,255,255,0.08)" />
+                  <text x={56 + i * 108} y="64" text-anchor="middle" fill="#fff" font-size="12" font-weight="600" font-family="var(--font-sans)">
+                    {label}
+                  </text>
+                  {i < boxes.length - 1 && <path d={`M${100 + i * 108} 60 H${120 + i * 108}`} stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-dasharray="3 3" />}
+                </>
+              ))}
+            </svg>
+            <span class="cover__title cover__title--small">{data.title}</span>
+          </div>
+        )}
+
+        {data.kind === "prototype" && (
+          <div class:list={["cover__device", `cover__device--${device}`]}>
+            <span class="cover__screen">
+              <span class="cover__title cover__title--small">{data.title}</span>
+            </span>
+          </div>
+        )}
+      </>
+    )
+  }
+</div>
+
+<style>
+  .cover {
+    position: relative;
+    display: grid;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .cover__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cover__kind {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.95rem;
+    display: inline-flex;
+    gap: 0.35rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .cover__title {
+    display: block;
+    font-family: var(--font-bellota);
+    font-size: clamp(1.15rem, 1.8cqw + 0.6rem, 1.6rem);
+    font-weight: 700;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .cover__title--small {
+    font-size: 1.05rem;
+  }
+
+  /* Ejercicio: ficha en la mitad inferior. */
+  .cover__sheet {
+    align-self: end;
+    display: grid;
+    gap: 0.5rem;
+    margin: 0.75rem;
+    padding: 0.95rem 1rem 1rem;
+    border-radius: 0.75rem;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .cover__idea {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .cover__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+
+  .cover__chips span {
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+  }
+
+  /* System design: esquema centrado y título abajo. */
+  .cover__system {
+    display: grid;
+    align-content: center;
+    gap: 0.5rem;
+    padding: 2.4rem 0.95rem 0.95rem;
+  }
+
+  .cover__schematic {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Prototipo: silueta de dispositivo asomando por abajo. */
+  .cover__device {
+    align-self: end;
+    justify-self: center;
+    width: 78%;
+    margin-bottom: -6%;
+    padding: 0.55rem 0.55rem 0;
+    border-radius: 1rem 1rem 0 0;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .cover__device--phone {
+    width: 42%;
+    border-radius: 1.4rem 1.4rem 0 0;
+  }
+
+  .cover__screen {
+    display: grid;
+    align-content: end;
+    aspect-ratio: 16 / 11;
+    padding: 0.8rem;
+    border-radius: 0.6rem 0.6rem 0 0;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .cover__device--phone .cover__screen {
+    aspect-ratio: 9 / 12;
+  }
+</style>

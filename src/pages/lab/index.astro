@@ -1,0 +1,140 @@
+---
+// Índice del Lab: todas las entradas como tarjetas, agrupadas por tipo.
+// Misma lista que el drawer del home, pero como página enlazable.
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import LabCard from "../../components/lab/LabCard.astro"
+import { KIND_LABEL, labEntries, type LabKind } from "../../components/lab/lab"
+import { siteName } from "../../site.config"
+
+const entries = await labEntries()
+const kinds: LabKind[] = ["system", "exercise", "prototype"]
+const groups = kinds.map((kind) => ({ kind, items: entries.filter((e) => e.data.kind === kind) })).filter((g) => g.items.length > 0)
+---
+
+<BaseLayout title={`Lab | ${siteName}`} description="System design, interview exercises solved step by step, and small prototypes.">
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="lab-index__bar">
+    <a class="lab-index__back" href="/#lab">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Back home
+    </a>
+    <span class="lab-index__handle font-jetbrains">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
+  </header>
+
+  <main id="content" class="lab-index">
+    <h1 class="lab-index__title">Lab</h1>
+    <p class="lab-index__lead">System design, interview exercises solved step by step, and small prototypes. Written down mostly so I learn them properly.</p>
+
+    {
+      groups.map((group) => (
+        <section class="lab-index__group" aria-labelledby={`lab-${group.kind}`}>
+          <h2 class="lab-index__kind font-jetbrains" id={`lab-${group.kind}`}>
+            {KIND_LABEL[group.kind]} <span>{group.items.length}</span>
+          </h2>
+          <div class="lab-index__grid">{group.items.map((entry) => <LabCard entry={entry} />)}</div>
+        </section>
+      ))
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .lab-index__bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
+    background: rgb(var(--surface-rgb) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px dashed var(--bp-line);
+  }
+
+  .lab-index__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgb(var(--text-rgb) / 0.75);
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .lab-index__back:hover {
+    color: #fff;
+  }
+
+  .lab-index__handle {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgb(var(--text-rgb) / 0.45);
+  }
+
+  .lab-index {
+    width: 100%;
+    max-width: var(--bp-max);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vh, 4rem) clamp(1.25rem, 4vw, 2rem) clamp(4rem, 10vh, 6rem);
+  }
+
+  .lab-index__title {
+    margin: 0;
+    font-family: var(--font-bellota);
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .lab-index__lead {
+    max-width: 40rem;
+    margin: 0.8rem 0 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgb(var(--text-rgb) / 0.62);
+  }
+
+  .lab-index__group {
+    margin-top: 3rem;
+  }
+
+  .lab-index__kind {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed var(--bp-line);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.6);
+  }
+
+  .lab-index__kind span {
+    color: rgb(var(--text-rgb) / 0.35);
+  }
+
+  .lab-index__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem 1.25rem;
+  }
+
+  @media (max-width: 900px) {
+    .lab-index__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .lab-index__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

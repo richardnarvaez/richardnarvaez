@@ -1,0 +1,266 @@
+---
+// 03 — Lab: vitrina de seis entradas (las destacadas y las más recientes) y
+// un drawer con la lista completa filtrable por tipo. Cada entrada tiene su
+// página en /lab/slug; el drawer solo navega.
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
+import WorkDrawer from "../work/WorkDrawer.astro"
+import LabCard from "../lab/LabCard.astro"
+import LabCover from "../lab/LabCover.astro"
+import { formatDate, KIND_LABEL, labEntries, pickFeatured } from "../lab/lab"
+
+const entries = await labEntries()
+const featured = pickFeatured(entries, 6)
+const counts = {
+  system: entries.filter((e) => e.data.kind === "system").length,
+  exercise: entries.filter((e) => e.data.kind === "exercise").length,
+  prototype: entries.filter((e) => e.data.kind === "prototype").length,
+}
+---
+
+<BlueprintSection id="lab" class="lab" label="03 — lab" ariaLabelledby="lab-title">
+  <div class="lab__body">
+    <SectionHeader title="Lab" titleId="lab-title">
+      System design, interview exercises solved step by step, and small
+      prototypes. Written down mostly so I learn them properly.
+    </SectionHeader>
+
+    {
+      featured.length > 0 ? (
+        <div class="lab__grid">{featured.map((entry) => <LabCard entry={entry} />)}</div>
+      ) : (
+        <p class="lab__empty">The first entries are being written.</p>
+      )
+    }
+
+    {
+      entries.length > 0 && (
+        <div class="lab__actions">
+          <button type="button" class="btn btn--ghost" data-lab-open>
+            See all <span class="lab__count font-jetbrains">{entries.length}</span>
+          </button>
+          <a class="lab__page" href="/lab">Open as a page</a>
+        </div>
+      )
+    }
+
+    <WorkDrawer id="drawer-lab" labelledby="lab-drawer-title" class="drawer--lab">
+      <header class="lab-list__head">
+        <h2 class="lab-list__title" id="lab-drawer-title">Lab</h2>
+        <div class="lab-list__filters" role="group" aria-label="Filter">
+          <button type="button" class="chip chip--active" data-lab-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="chip" data-lab-filter="system" aria-pressed="false">System design <span>{counts.system}</span></button>
+          <button type="button" class="chip" data-lab-filter="exercise" aria-pressed="false">Exercises <span>{counts.exercise}</span></button>
+          <button type="button" class="chip" data-lab-filter="prototype" aria-pressed="false">Prototypes <span>{counts.prototype}</span></button>
+        </div>
+      </header>
+      <ul class="lab-list" data-lab-list>
+        {
+          entries.map((entry) => (
+            <li class="lab-list__item" data-kind={entry.data.kind}>
+              <a class="lab-row" href={`/lab/${entry.id}`}>
+                <LabCover entry={entry} class="lab-row__cover" />
+                <span class="lab-row__text">
+                  <span class="lab-row__meta font-jetbrains">
+                    {KIND_LABEL[entry.data.kind]}
+                    {entry.data.difficulty && <span> · {entry.data.difficulty}</span>}
+                    <span> · {formatDate(entry.data.date)}</span>
+                  </span>
+                  <span class="lab-row__title">{entry.data.title}</span>
+                  <span class="lab-row__summary">{entry.data.summary}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </WorkDrawer>
+  </div>
+</BlueprintSection>
+
+<script>
+  import { initDrawers } from "../../scripts/drawers"
+
+  const root = document.querySelector<HTMLElement>("#lab")
+  const drawer = root?.querySelector<HTMLElement>("#drawer-lab")
+
+  if (root && drawer) {
+    const drawers = initDrawers(root, {
+      onClose: () => {
+        if (location.hash === "#lab/all") history.replaceState(null, "", "#lab")
+      },
+    })
+
+    const filters = [...drawer.querySelectorAll<HTMLButtonElement>("[data-lab-filter]")]
+    const items = [...drawer.querySelectorAll<HTMLElement>(".lab-list__item")]
+    const setFilter = (kind: string) => {
+      for (const btn of filters) {
+        const on = btn.dataset.labFilter === kind
+        btn.classList.toggle("chip--active", on)
+        btn.setAttribute("aria-pressed", String(on))
+      }
+      for (const item of items) item.hidden = kind !== "all" && item.dataset.kind !== kind
+    }
+    for (const btn of filters) btn.addEventListener("click", () => setFilter(btn.dataset.labFilter!))
+
+    const openAll = (from?: HTMLElement | null) => {
+      setFilter("all")
+      drawers.open(drawer, from)
+      history.replaceState(null, "", "#lab/all")
+    }
+    root.querySelector<HTMLElement>("[data-lab-open]")?.addEventListener("click", (event) => openAll(event.currentTarget as HTMLElement))
+
+    // Enlace profundo: /#lab/all abre la lista completa.
+    const openFromHash = () => {
+      if (location.hash !== "#lab/all") return
+      root.scrollIntoView({ block: "start" })
+      openAll(null)
+    }
+    requestAnimationFrame(openFromHash)
+    window.addEventListener("hashchange", openFromHash)
+  }
+</script>
+
+<style>
+  .lab__body {
+    padding: clamp(2.5rem, 6vh, 4rem) var(--bp-gutter) clamp(3rem, 7vh, 4.5rem);
+  }
+
+  .lab__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.75rem 1.25rem;
+    margin-top: 2.5rem;
+  }
+
+  .lab__empty {
+    margin: 2.5rem 0 0;
+    text-align: center;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab__actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 2.25rem;
+  }
+
+  .lab__count {
+    margin-left: 0.35rem;
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+
+  .lab__page {
+    font-size: 0.85rem;
+    color: rgb(var(--text-rgb) / 0.6);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.25);
+    text-underline-offset: 3px;
+    transition: color 180ms ease;
+  }
+
+  .lab__page:hover {
+    color: #fff;
+  }
+
+  /* ── Drawer: lista completa ─────────────────────────────────────────── */
+  .lab-list__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .lab-list__title {
+    margin: 0;
+    font-family: var(--font-bellota);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .lab-list__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .lab-list__filters .chip span {
+    margin-left: 0.3rem;
+    opacity: 0.55;
+  }
+
+  .lab-list {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lab-row {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1.1rem;
+    align-items: center;
+    padding: 0.7rem;
+    border-radius: 1.1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: background 180ms ease;
+  }
+
+  .lab-row:hover {
+    background: var(--surface-2);
+  }
+
+  .lab-row :global(.lab-row__cover) {
+    border-radius: 0.75rem;
+  }
+
+  .lab-row__text {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .lab-row__meta {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab-row__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .lab-row__summary {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.62);
+  }
+
+  @media (max-width: 900px) {
+    .lab__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 560px) {
+    .lab__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .lab-row {
+      grid-template-columns: 6rem 1fr;
+      gap: 0.8rem;
+    }
+  }
+</style>

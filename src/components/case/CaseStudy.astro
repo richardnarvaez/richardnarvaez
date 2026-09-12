@@ -219,6 +219,15 @@ const Heading = headingLevel
     color: #fff;
   }
 
+  /* Tailwind quita las viñetas por defecto: aquí el texto es de lectura y las quiere. */
+  .case__body :global(ul) {
+    list-style: disc;
+  }
+
+  .case__body :global(ol) {
+    list-style: decimal;
+  }
+
   .case__body :global(ul),
   .case__body :global(ol) {
     margin: 0 0 1rem;

@@ -1,0 +1,135 @@
+---
+title: "LRU cache in O(1)"
+summary: "Get and put in constant time with a hash map pointing into a doubly linked list."
+kind: "exercise"
+difficulty: "medium"
+source: "LeetCode 146 · classic interview"
+tags: ["hash map", "linked list", "caching"]
+date: 2026-09-12
+featured: true
+keyIdea: "The map finds the node; the list remembers the order. Neither can do both."
+complexity:
+  time: "O(1)"
+  space: "O(capacity)"
+status: "solved"
+draft: true
+---
+
+import Callout from "../../components/case/Callout.astro"
+import Flow from "../../components/case/Flow.astro"
+
+## The problem
+
+Design a cache with a fixed capacity. `get(key)` returns the value or -1. `put(key, value)` inserts or updates. When the cache is full, evict the item that was **least recently used**. Both operations must run in O(1).
+
+## Questions I would ask first
+
+- Does `get` count as a use? Yes: reading refreshes the item.
+- Does updating an existing key count as a use? Also yes.
+- Capacity of 0? Treat as always empty.
+- Single thread? For the interview, yes. See "in the real world" for the rest.
+
+## Brute force
+
+Keep an array ordered by recency. `get` scans it (O(n)), moves the hit to the front (O(n)). `put` does the same and pops the tail when full. Correct, and too slow: every operation touches the whole array.
+
+## Where it hurts
+
+Two things need to be fast at once: **finding** a key and **moving** an item to the front. An array finds slowly and moves slowly. A hash map finds fast but has no order. A linked list moves fast but finds slowly.
+
+## The key idea
+
+Use both, and let each do the one thing it is good at.
+
+<Flow
+  steps={[
+    { label: "Hash map", note: "key → node, O(1) lookup" },
+    { label: "Doubly linked list", note: "most recent at the head, least at the tail" },
+    { label: "Sentinels", note: "fake head and tail so no edge cases on insert or remove" },
+  ]}
+/>
+
+A `get` looks the node up in the map, unlinks it and relinks it at the head. A `put` on a new key links a node at the head and, if over capacity, drops the tail node and deletes its key from the map.
+
+## Solution
+
+```ts
+class Node {
+  constructor(
+    public key: number,
+    public value: number,
+    public prev: Node | null = null,
+    public next: Node | null = null,
+  ) {}
+}
+
+class LRUCache {
+  private map = new Map<number, Node>()
+  private head = new Node(0, 0) // sentinel: most recent side
+  private tail = new Node(0, 0) // sentinel: least recent side
+
+  constructor(private capacity: number) {
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  get(key: number): number {
+    const node = this.map.get(key)
+    if (!node) return -1
+    this.moveToFront(node)
+    return node.value
+  }
+
+  put(key: number, value: number): void {
+    const existing = this.map.get(key)
+    if (existing) {
+      existing.value = value
+      this.moveToFront(existing)
+      return
+    }
+    const node = new Node(key, value)
+    this.map.set(key, node)
+    this.linkAtFront(node)
+    if (this.map.size > this.capacity) {
+      const victim = this.tail.prev!
+      this.unlink(victim)
+      this.map.delete(victim.key)
+    }
+  }
+
+  private unlink(node: Node) {
+    node.prev!.next = node.next
+    node.next!.prev = node.prev
+  }
+
+  private linkAtFront(node: Node) {
+    node.next = this.head.next
+    node.prev = this.head
+    this.head.next!.prev = node
+    this.head.next = node
+  }
+
+  private moveToFront(node: Node) {
+    this.unlink(node)
+    this.linkAtFront(node)
+  }
+}
+```
+
+## Complexity
+
+`get` and `put` are a map lookup plus a constant number of pointer changes: **O(1)**. Memory is one node per entry plus the map: **O(capacity)**.
+
+## Variants worth knowing
+
+- **LFU** (least frequently used): a map of frequency → its own LRU list, plus a `minFreq` counter. Still O(1), twice the bookkeeping.
+- **TTL**: store an expiry per node and treat expired hits as misses; evict lazily on access.
+- **JavaScript shortcut**: `Map` keeps insertion order, so `delete` + `set` moves a key to the end. Shorter code, same complexity, and worth mentioning before writing the list by hand.
+
+## In the real world
+
+Redis implements approximate LRU by sampling a few keys instead of keeping an exact list: exactness is not worth the memory per key. HTTP caches and CPU caches do the same trade. The interview answer is the exact version; production usually is not.
+
+<Callout>
+  Trip-up I made the first time: forgetting to delete the evicted key from the map. The list was right and the map kept growing.
+</Callout>

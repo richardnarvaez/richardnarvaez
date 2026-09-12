@@ -1,0 +1,44 @@
+---
+title: "URL shortener"
+summary: "Short codes from a counter, not a hash, and a read path that almost never touches the database."
+kind: "system"
+difficulty: "easy"
+source: "Classic system design"
+tags: ["Postgres", "cache", "redirects"]
+date: 2026-09-05
+status: "in-progress"
+draft: true
+---
+
+import Flow from "../../components/case/Flow.astro"
+import Decision from "../../components/case/Decision.astro"
+
+## The problem
+
+Turn a long URL into a short one. Redirect fast. Never hand out the same code twice.
+
+## Requirements and scale assumed
+
+- 100 writes per second, 10k redirects per second. Reads dominate by two orders of magnitude.
+- Codes should be short (7 characters) and not guessable in sequence.
+
+## Design
+
+<Flow
+  direction="vertical"
+  steps={[
+    { label: "Write", note: "Take the next id from a counter, encode in base62, store id → url" },
+    { label: "Read", note: "Cache lookup first; on a miss, one primary-key read and fill the cache" },
+    { label: "Redirect", note: "301 for permanent links, 302 when click analytics matter" },
+  ]}
+/>
+
+<Decision
+  title="Counter plus base62, not a hash of the URL"
+  why="A counter never collides. A hash needs a collision check and a retry path on every write."
+  tradeoff="Codes are sequential and reveal volume. Multiply the id by a large odd constant modulo 62^7 before encoding to scramble them."
+/>
+
+## Still to write
+
+Analytics pipeline, custom aliases, and what happens when the counter range runs out.

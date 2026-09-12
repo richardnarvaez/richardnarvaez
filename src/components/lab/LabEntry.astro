@@ -1,0 +1,273 @@
+---
+// Una entrada del Lab a página completa: cabecera con tipo, dificultad,
+// fuente y fecha, complejidad si la hay, tira de capturas en su proporción
+// nativa a alto fijo, y el cuerpo MDX con la misma tipografía que los casos.
+import { render } from "astro:content"
+import { formatDate, KIND_LABEL, type LabEntry } from "./lab"
+
+interface Props {
+  entry: LabEntry
+}
+
+const { entry } = Astro.props
+const { data } = entry
+const { Content } = await render(entry)
+const STATUS: Record<typeof data.status, string> = { solved: "Solved", "in-progress": "In progress", idea: "Idea" }
+---
+
+<article class="lab-entry">
+  <header class="lab-entry__head">
+    <p class="lab-entry__meta font-jetbrains">
+      <span class="lab-entry__kind">{KIND_LABEL[data.kind]}</span>
+      {data.difficulty && <span>{data.difficulty}</span>}
+      <span>{STATUS[data.status]}</span>
+      <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
+    </p>
+    <h1 class="lab-entry__title">{data.title}</h1>
+    <p class="lab-entry__summary">{data.summary}</p>
+    <dl class="lab-entry__facts font-jetbrains">
+      {data.source && <div><dt>source</dt><dd>{data.source}</dd></div>}
+      {data.tags.length > 0 && <div><dt>tags</dt><dd>{data.tags.join(" · ")}</dd></div>}
+    </dl>
+  </header>
+
+  {
+    data.complexity && (
+      <ul class="lab-entry__metrics">
+        <li><span class="lab-entry__metric-value">{data.complexity.time}</span><span class="lab-entry__metric-label">time</span></li>
+        <li><span class="lab-entry__metric-value">{data.complexity.space}</span><span class="lab-entry__metric-label">space</span></li>
+      </ul>
+    )
+  }
+
+  {
+    data.shots.length > 0 && (
+      <div class="lab-entry__shots" role="list">
+        {data.shots.map((shot) => (
+          <figure class:list={["shot", `shot--${shot.frame}`]} role="listitem">
+            <img src={shot.src} alt={shot.alt} loading="lazy" decoding="async" />
+          </figure>
+        ))}
+      </div>
+    )
+  }
+
+  <div class="lab-entry__body">
+    <Content />
+  </div>
+</article>
+
+<style>
+  .lab-entry {
+    color: rgb(var(--text-rgb) / 0.85);
+  }
+
+  .lab-entry__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.9rem;
+    margin: 0;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab-entry__kind {
+    color: var(--page-accent);
+  }
+
+  .lab-entry__title {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-bellota);
+    font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    color: #fff;
+    text-wrap: balance;
+  }
+
+  .lab-entry__summary {
+    margin: 0.7rem 0 0;
+    max-width: 60ch;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.72);
+  }
+
+  .lab-entry__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.6rem;
+    margin: 1rem 0 0;
+    font-size: 0.7rem;
+  }
+
+  .lab-entry__facts div {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .lab-entry__facts dt {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.42);
+  }
+
+  .lab-entry__facts dd {
+    margin: 0;
+    color: rgb(var(--text-rgb) / 0.8);
+  }
+
+  .lab-entry__metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 12rem));
+    gap: 0.75rem;
+    margin: 1.75rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lab-entry__metrics li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--line-tint);
+    background: var(--surface-2);
+  }
+
+  .lab-entry__metric-value {
+    font-family: var(--font-jetbrains);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .lab-entry__metric-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  /*
+    Capturas: tira horizontal de alto fijo. Cada imagen conserva su
+    proporción (móvil vertical, web apaisada) y solo comparten la altura,
+    como la App Store. Nada se recorta.
+  */
+  .lab-entry__shots {
+    display: flex;
+    gap: 0.9rem;
+    margin: 2rem calc(-1 * clamp(1.25rem, 4vw, 2rem)) 0;
+    padding: 0.25rem clamp(1.25rem, 4vw, 2rem);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  .shot {
+    flex: none;
+    height: clamp(16rem, 44vh, 26rem);
+    margin: 0;
+    scroll-snap-align: start;
+  }
+
+  .shot img {
+    display: block;
+    height: 100%;
+    width: auto;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--surface-2);
+  }
+
+  .shot--phone img {
+    border-radius: 1.6rem;
+  }
+
+  /* ── Cuerpo MDX ─────────────────────────────────────────────────────── */
+  .lab-entry__body {
+    margin-top: 2rem;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .lab-entry__body :global(h2) {
+    margin: 2.25rem 0 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab-entry__body :global(h3) {
+    margin: 1.6rem 0 0.4rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .lab-entry__body :global(p) {
+    margin: 0 0 0.9rem;
+    max-width: 62ch;
+  }
+
+  .lab-entry__body :global(strong) {
+    color: #fff;
+  }
+
+  /* Tailwind quita las viñetas por defecto: aquí el texto es de lectura y las quiere. */
+  .lab-entry__body :global(ul) {
+    list-style: disc;
+  }
+
+  .lab-entry__body :global(ol) {
+    list-style: decimal;
+  }
+
+  .lab-entry__body :global(ul),
+  .lab-entry__body :global(ol) {
+    margin: 0 0 1rem;
+    padding-left: 1.2rem;
+  }
+
+  .lab-entry__body :global(li) {
+    margin: 0.25rem 0;
+  }
+
+  .lab-entry__body :global(a) {
+    color: #fff;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.35);
+    text-underline-offset: 3px;
+  }
+
+  .lab-entry__body :global(code) {
+    font-family: var(--font-jetbrains);
+    font-size: 0.86em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.35rem;
+    background: var(--surface-2);
+    color: #fff;
+  }
+
+  .lab-entry__body :global(pre) {
+    margin: 1.25rem 0;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    border-radius: 0.9rem;
+    border: 1px solid var(--line-tint);
+    background: var(--surface-raised) !important;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .lab-entry__body :global(pre code) {
+    padding: 0;
+    background: none;
+  }
+</style>

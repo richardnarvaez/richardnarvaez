@@ -1,0 +1,74 @@
+---
+// Página propia de cada entrada del Lab. Enlazable e indexable.
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import LabEntry from "../../components/lab/LabEntry.astro"
+import { labEntries } from "../../components/lab/lab"
+import { siteName } from "../../site.config"
+
+export async function getStaticPaths() {
+  const entries = await labEntries()
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+const { entry } = Astro.props
+---
+
+<BaseLayout title={`${entry.data.title} | Lab | ${siteName}`} description={entry.data.summary}>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <header class="lab-page__bar">
+    <a class="lab-page__back" href="/lab">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      Back to the Lab
+    </a>
+    <span class="lab-page__handle font-jetbrains">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
+  </header>
+
+  <main id="content" class="lab-page">
+    <LabEntry entry={entry} />
+  </main>
+</BaseLayout>
+
+<style>
+  .lab-page__bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
+    background: rgb(var(--surface-rgb) / 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px dashed var(--bp-line);
+  }
+
+  .lab-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgb(var(--text-rgb) / 0.75);
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+
+  .lab-page__back:hover {
+    color: #fff;
+  }
+
+  .lab-page__handle {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: rgb(var(--text-rgb) / 0.45);
+  }
+
+  .lab-page {
+    width: 100%;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vh, 4rem) clamp(1.25rem, 4vw, 2rem) clamp(4rem, 10vh, 6rem);
+  }
+</style>

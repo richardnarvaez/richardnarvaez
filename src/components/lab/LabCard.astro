@@ -1,0 +1,103 @@
+---
+// Tarjeta de la vitrina: portada 4:3 y, debajo, tipo, dificultad, fecha,
+// título y resumen. Enlaza a la página de la entrada.
+import LabCover from "./LabCover.astro"
+import { formatDate, KIND_LABEL, type LabEntry } from "./lab"
+
+interface Props {
+  entry: LabEntry
+}
+
+const { entry } = Astro.props
+const { data } = entry
+---
+
+<a class="lab-card" href={`/lab/${entry.id}`}>
+  <LabCover entry={entry} class="lab-card__cover" />
+  <span class="lab-card__meta font-jetbrains">
+    <span class="lab-card__kind">{KIND_LABEL[data.kind]}</span>
+    {data.difficulty && <span class:list={["lab-card__level", `lab-card__level--${data.difficulty}`]}>{data.difficulty}</span>}
+    <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
+    {data.draft && <span class="lab-card__draft">draft</span>}
+  </span>
+  <span class="lab-card__title">{data.title}</span>
+  <span class="lab-card__summary">{data.summary}</span>
+</a>
+
+<style>
+  .lab-card {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 1rem;
+    outline-offset: 6px;
+  }
+
+  .lab-card :global(.lab-card__cover) {
+    transition:
+      scale 260ms var(--ease-out),
+      box-shadow 260ms ease;
+    box-shadow: 0 12px 28px -14px rgba(2, 6, 23, 0.7);
+  }
+
+  .lab-card:hover :global(.lab-card__cover) {
+    scale: 1.015;
+    box-shadow: 0 20px 40px -16px rgba(2, 6, 23, 0.85);
+  }
+
+  .lab-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.7rem;
+    margin-top: 0.5rem;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab-card__kind {
+    color: rgb(var(--text-rgb) / 0.8);
+  }
+
+  .lab-card__level::before {
+    content: "";
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.35rem;
+    border-radius: 50%;
+    background: #34d399;
+    vertical-align: 1px;
+  }
+
+  .lab-card__level--medium::before {
+    background: #fbbf24;
+  }
+
+  .lab-card__level--hard::before {
+    background: var(--page-accent);
+  }
+
+  .lab-card__draft {
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    border: 1px dashed var(--line-tint);
+  }
+
+  .lab-card__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  .lab-card__summary {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.62);
+  }
+</style>
