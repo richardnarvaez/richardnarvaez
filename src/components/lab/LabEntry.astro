@@ -27,8 +27,18 @@ const STATUS: Record<typeof data.status, string> = { solved: "Solved", "in-progr
     <p class="lab-entry__summary">{data.summary}</p>
     <dl class="lab-entry__facts font-jetbrains">
       {data.source && <div><dt>source</dt><dd>{data.source}</dd></div>}
+      {data.stack.length > 0 && <div><dt>stack</dt><dd>{data.stack.join(" · ")}</dd></div>}
       {data.tags.length > 0 && <div><dt>tags</dt><dd>{data.tags.join(" · ")}</dd></div>}
     </dl>
+
+    {
+      (data.link || data.repo) && (
+        <div class="lab-entry__links">
+          {data.link && <a class="btn btn--sm btn--solid" href={data.link} target="_blank" rel="noreferrer noopener">Open the prototype</a>}
+          {data.repo && <a class="btn btn--sm btn--ghost" href={data.repo} target="_blank" rel="noreferrer noopener">Source</a>}
+        </div>
+      )
+    }
   </header>
 
   {
@@ -117,6 +127,13 @@ const STATUS: Record<typeof data.status, string> = { solved: "Solved", "in-progr
   .lab-entry__facts dd {
     margin: 0;
     color: rgb(var(--text-rgb) / 0.8);
+  }
+
+  .lab-entry__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
   }
 
   .lab-entry__metrics {

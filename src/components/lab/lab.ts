@@ -4,10 +4,13 @@ import { getCollection, type CollectionEntry } from "astro:content"
 export type LabEntry = CollectionEntry<"lab">
 export type LabKind = LabEntry["data"]["kind"]
 
+/** Orden de los tipos en filtros, índice y destacados: los prototipos primero, que son la mezcla de los otros dos. */
+export const KINDS: LabKind[] = ["prototype", "system", "exercise"]
+
 export const KIND_LABEL: Record<LabKind, string> = {
+  prototype: "Prototype",
   system: "System design",
   exercise: "Exercise",
-  prototype: "Prototype",
 }
 
 /** Color plano de portada por tipo, si la entrada no trae el suyo. */
@@ -28,9 +31,10 @@ export async function labEntries(): Promise<LabEntry[]> {
   return all.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 }
 
-/** Destacados primero, el resto por fecha, hasta `count`. */
+/** Destacados primero; el resto por tipo (prototipos antes) y fecha, hasta `count`. */
 export function pickFeatured(entries: LabEntry[], count: number): LabEntry[] {
-  const featured = entries.filter((e) => e.data.featured)
-  const rest = entries.filter((e) => !e.data.featured)
+  const rank = (e: LabEntry) => KINDS.indexOf(e.data.kind)
+  const featured = entries.filter((e) => e.data.featured).sort((a, b) => rank(a) - rank(b))
+  const rest = entries.filter((e) => !e.data.featured).sort((a, b) => rank(a) - rank(b) || b.data.date.getTime() - a.data.date.getTime())
   return [...featured, ...rest].slice(0, count)
 }

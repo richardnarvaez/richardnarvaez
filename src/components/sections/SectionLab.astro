@@ -7,22 +7,19 @@ import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import LabCard from "../lab/LabCard.astro"
 import LabCover from "../lab/LabCover.astro"
-import { formatDate, KIND_LABEL, labEntries, pickFeatured } from "../lab/lab"
+import { formatDate, KIND_LABEL, KINDS, labEntries, pickFeatured } from "../lab/lab"
 
 const entries = await labEntries()
 const featured = pickFeatured(entries, 6)
-const counts = {
-  system: entries.filter((e) => e.data.kind === "system").length,
-  exercise: entries.filter((e) => e.data.kind === "exercise").length,
-  prototype: entries.filter((e) => e.data.kind === "prototype").length,
-}
+const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.data.kind === k).length])) as Record<(typeof KINDS)[number], number>
 ---
 
 <BlueprintSection id="lab" class="lab" label="03 — lab" ariaLabelledby="lab-title">
   <div class="lab__body">
     <SectionHeader title="Lab" titleId="lab-title">
-      System design, interview exercises solved step by step, and small
-      prototypes. Written down mostly so I learn them properly.
+      Prototypes built for real, and behind them the system design and the
+      interview exercises, solved step by step. Written down mostly so I learn
+      them properly.
     </SectionHeader>
 
     {
@@ -49,9 +46,11 @@ const counts = {
         <h2 class="lab-list__title" id="lab-drawer-title">Lab</h2>
         <div class="lab-list__filters" role="group" aria-label="Filter">
           <button type="button" class="chip chip--active" data-lab-filter="all" aria-pressed="true">All</button>
-          <button type="button" class="chip" data-lab-filter="system" aria-pressed="false">System design <span>{counts.system}</span></button>
-          <button type="button" class="chip" data-lab-filter="exercise" aria-pressed="false">Exercises <span>{counts.exercise}</span></button>
-          <button type="button" class="chip" data-lab-filter="prototype" aria-pressed="false">Prototypes <span>{counts.prototype}</span></button>
+          {KINDS.map((k) => (
+            <button type="button" class="chip" data-lab-filter={k} aria-pressed="false">
+              {KIND_LABEL[k]}s <span>{counts[k]}</span>
+            </button>
+          ))}
         </div>
       </header>
       <ul class="lab-list" data-lab-list>

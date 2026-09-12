@@ -39,8 +39,9 @@ const work = defineCollection({
   }),
 })
 
-// Lab: system design, ejercicios de entrevista resueltos paso a paso y
-// prototipos. Un MDX por entrada en src/content/lab. La portada 4:3 de la
+// Lab: prototipos (productos pequeños construidos de verdad, en Next.js, en
+// otro repo), system design y ejercicios de entrevista resueltos paso a
+// paso. Un MDX por entrada en src/content/lab; aquí solo vive la documentación. La portada 4:3 de la
 // tarjeta se compone desde estos datos si no hay imagen `cover`.
 const lab = defineCollection({
   loader: glob({ pattern: "**/*.mdx", base: "./src/content/lab" }),
@@ -68,6 +69,10 @@ const lab = defineCollection({
       .array(z.object({ src: z.string(), alt: z.string(), frame: z.enum(["phone", "web", "none"]).default("none") }))
       .default([]),
     status: z.enum(["solved", "in-progress", "idea"]).default("solved"),
+    /** Prototipos: dónde está el producto vivo y su código. Se construyen en Next.js, en otro repo. */
+    link: z.url().optional(),
+    repo: z.url().optional(),
+    stack: z.array(z.string()).default([]),
     /** Borrador: solo se ve en desarrollo. */
     draft: z.boolean().default(false),
   }),

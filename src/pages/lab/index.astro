@@ -3,15 +3,14 @@
 // Misma lista que el drawer del home, pero como página enlazable.
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import LabCard from "../../components/lab/LabCard.astro"
-import { KIND_LABEL, labEntries, type LabKind } from "../../components/lab/lab"
+import { KIND_LABEL, KINDS, labEntries } from "../../components/lab/lab"
 import { siteName } from "../../site.config"
 
 const entries = await labEntries()
-const kinds: LabKind[] = ["system", "exercise", "prototype"]
-const groups = kinds.map((kind) => ({ kind, items: entries.filter((e) => e.data.kind === kind) })).filter((g) => g.items.length > 0)
+const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.kind === kind) })).filter((g) => g.items.length > 0)
 ---
 
-<BaseLayout title={`Lab | ${siteName}`} description="System design, interview exercises solved step by step, and small prototypes.">
+<BaseLayout title={`Lab | ${siteName}`} description="Prototypes built for real, plus the system design and interview exercises behind them.">
   <a class="skip-link" href="#content">Skip to content</a>
 
   <header class="lab-index__bar">
@@ -24,13 +23,13 @@ const groups = kinds.map((kind) => ({ kind, items: entries.filter((e) => e.data.
 
   <main id="content" class="lab-index">
     <h1 class="lab-index__title">Lab</h1>
-    <p class="lab-index__lead">System design, interview exercises solved step by step, and small prototypes. Written down mostly so I learn them properly.</p>
+    <p class="lab-index__lead">Prototypes built for real, and behind them the system design and the interview exercises, solved step by step. Written down mostly so I learn them properly.</p>
 
     {
       groups.map((group) => (
         <section class="lab-index__group" aria-labelledby={`lab-${group.kind}`}>
           <h2 class="lab-index__kind font-jetbrains" id={`lab-${group.kind}`}>
-            {KIND_LABEL[group.kind]} <span>{group.items.length}</span>
+            {KIND_LABEL[group.kind]}s <span>{group.items.length}</span>
           </h2>
           <div class="lab-index__grid">{group.items.map((entry) => <LabCard entry={entry} />)}</div>
         </section>
