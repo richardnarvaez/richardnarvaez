@@ -2,7 +2,7 @@
 // Tarjeta de la vitrina: solo la portada 4:3, con tipo, figura y título
 // dentro. El resumen va en el nombre accesible del enlace y en la página.
 import LabCover from "./LabCover.astro"
-import { hrefOf, isUnsolved, type LabEntry } from "./lab"
+import { hrefOf, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
@@ -12,13 +12,7 @@ const { entry } = Astro.props
 const { data } = entry
 ---
 
-<a
-  class="lab-card"
-  href={hrefOf(entry)}
-  target={isUnsolved(entry) ? "_blank" : undefined}
-  rel={isUnsolved(entry) ? "noreferrer noopener" : undefined}
-  aria-label={`${data.title}. ${data.summary}`}
->
+<a class="lab-card" href={hrefOf(entry)} aria-label={`${data.title}. ${data.summary}`}>
   <LabCover entry={entry} class="lab-card__cover" />
 </a>
 

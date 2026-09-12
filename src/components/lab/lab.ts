@@ -32,11 +32,11 @@ export const STATUS_LABEL: Record<LabEntry["data"]["status"], string> = {
   unsolved: "To solve",
 }
 
-/** Pendiente de resolver: sin página propia, la tarjeta lleva al enunciado. */
+/** Pendiente de resolver: tiene página igual (con el enunciado enlazado dentro), pero no entra en destacados. */
 export const isUnsolved = (entry: LabEntry) => entry.data.status === "unsolved"
 
-/** Destino de una tarjeta: la página de la entrada, o el enunciado si aún no está resuelta. */
-export const hrefOf = (entry: LabEntry) => (isUnsolved(entry) && entry.data.link ? entry.data.link : `/lab/${entry.id}`)
+/** Toda entrada tiene página propia; el enunciado y la lista de origen se enlazan dentro. */
+export const hrefOf = (entry: LabEntry) => `/lab/${entry.id}`
 
 /** Entradas visibles: en desarrollo también los borradores. Lo resuelto o en marcha antes que lo pendiente; dentro, por `order` y fecha. */
 export async function labEntries(): Promise<LabEntry[]> {
@@ -49,12 +49,9 @@ export async function labEntries(): Promise<LabEntry[]> {
   )
 }
 
-/** Con página propia: todo menos lo pendiente. */
-export const withPage = (entries: LabEntry[]) => entries.filter((e) => !isUnsolved(e))
-
 /** Destacados primero; el resto por tipo (prototipos antes) y fecha, hasta `count`. Lo pendiente nunca. */
 export function pickFeatured(entries: LabEntry[], count: number): LabEntry[] {
-  const pool = withPage(entries)
+  const pool = entries.filter((e) => !isUnsolved(e))
   const rank = (e: LabEntry) => KINDS.indexOf(e.data.kind)
   const featured = pool.filter((e) => e.data.featured).sort((a, b) => rank(a) - rank(b))
   const rest = pool.filter((e) => !e.data.featured).sort((a, b) => rank(a) - rank(b) || b.data.date.getTime() - a.data.date.getTime())
