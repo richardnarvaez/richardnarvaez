@@ -6,13 +6,15 @@ import { hrefOf, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
+  /** En el home abre la entrada en un drawer; el href queda como respaldo sin JS. */
+  drawer?: boolean
 }
 
-const { entry } = Astro.props
+const { entry, drawer = false } = Astro.props
 const { data } = entry
 ---
 
-<a class="lab-card" href={hrefOf(entry)} aria-label={`${data.title}. ${data.summary}`}>
+<a class="lab-card" href={hrefOf(entry)} data-open={drawer ? `lab:${entry.id}` : undefined} aria-label={`${data.title}. ${data.summary}`}>
   <LabCover entry={entry} class="lab-card__cover" />
 </a>
 

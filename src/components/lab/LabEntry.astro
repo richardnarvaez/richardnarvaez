@@ -7,11 +7,16 @@ import { formatDate, KIND_LABEL, STATUS_LABEL, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
+  /** h1 en la página propia, h2 dentro del drawer. */
+  headingLevel?: "h1" | "h2"
+  /** id del título, para que el drawer lo referencie con aria-labelledby. */
+  titleId?: string
 }
 
-const { entry } = Astro.props
+const { entry, headingLevel = "h1", titleId } = Astro.props
 const { data } = entry
 const { Content } = await render(entry)
+const Heading = headingLevel
 ---
 
 <article class="lab-entry">
@@ -22,7 +27,7 @@ const { Content } = await render(entry)
       <span>{STATUS_LABEL[data.status]}</span>
       <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
     </p>
-    <h1 class="lab-entry__title">{data.title}</h1>
+    <Heading class="lab-entry__title" id={titleId}>{data.title}</Heading>
     <p class="lab-entry__summary">{data.summary}</p>
     <dl class="lab-entry__facts font-jetbrains">
       {data.source && <div><dt>source</dt><dd>{data.source}</dd></div>}

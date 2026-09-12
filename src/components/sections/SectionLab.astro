@@ -1,18 +1,16 @@
 ---
-// 03 — Lab: vitrina de seis entradas (las destacadas y las más recientes) y
-// un drawer con la lista completa filtrable por tipo. Cada entrada tiene su
-// página en /lab/slug; el drawer solo navega.
+// 03 — Lab: vitrina de seis entradas (las destacadas y las más recientes).
+// Cada tarjeta abre su MDX en un drawer, con enlace a la página propia; la
+// lista completa es una página, /lab.
 import BlueprintSection from "../layout/BlueprintSection.astro"
 import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import LabCard from "../lab/LabCard.astro"
-import LabCover from "../lab/LabCover.astro"
-import { formatDate, hrefOf, isUnsolved, KIND_LABEL, KINDS, labEntries, pickFeatured, STATUS_LABEL } from "../lab/lab"
+import LabEntry from "../lab/LabEntry.astro"
+import { labEntries, pickFeatured } from "../lab/lab"
 
 const entries = await labEntries()
 const featured = pickFeatured(entries, 6)
-const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.data.kind === k).length])) as Record<(typeof KINDS)[number], number>
-const unsolvedCount = entries.filter(isUnsolved).length
 ---
 
 <BlueprintSection id="lab" class="lab" label="03 — lab" ariaLabelledby="lab-title">
@@ -25,7 +23,7 @@ const unsolvedCount = entries.filter(isUnsolved).length
 
     {
       featured.length > 0 ? (
-        <div class="lab__grid">{featured.map((entry) => <LabCard entry={entry} />)}</div>
+        <div class="lab__grid">{featured.map((entry) => <LabCard entry={entry} drawer />)}</div>
       ) : (
         <p class="lab__empty">The first entries are being written.</p>
       )
@@ -34,56 +32,24 @@ const unsolvedCount = entries.filter(isUnsolved).length
     {
       entries.length > 0 && (
         <div class="lab__actions">
-          <button type="button" class="btn btn--ghost" data-lab-open>
+          <a class="btn btn--ghost" href="/lab">
             See all <span class="lab__count font-jetbrains">{entries.length}</span>
-          </button>
-          <a class="lab__page" href="/lab">Open as a page</a>
+          </a>
         </div>
       )
     }
 
-    <WorkDrawer id="drawer-lab" labelledby="lab-drawer-title" class="drawer--lab">
-      <header class="lab-list__head">
-        <h2 class="lab-list__title" id="lab-drawer-title">Lab</h2>
-        <div class="lab-list__filters" role="group" aria-label="Filter">
-          <button type="button" class="chip chip--active" data-lab-filter="all" aria-pressed="true">All</button>
-          {KINDS.map((k) => (
-            <button type="button" class="chip" data-lab-filter={k} aria-pressed="false">
-              {KIND_LABEL[k]}s <span>{counts[k]}</span>
-            </button>
-          ))}
-        </div>
-        {
-          unsolvedCount > 0 && (
-            <label class="lab-list__toggle font-jetbrains">
-              <input type="checkbox" data-lab-show-unsolved checked />
-              Show the {unsolvedCount} still to solve
-            </label>
-          )
-        }
-      </header>
-      <ul class="lab-list" data-lab-list>
-        {
-          entries.map((entry) => (
-            <li class="lab-list__item" data-kind={entry.data.kind} data-unsolved={isUnsolved(entry)}>
-              <a class="lab-row" href={hrefOf(entry)}>
-                <LabCover entry={entry} class="lab-row__cover" fade={false} />
-                <span class="lab-row__text">
-                  <span class="lab-row__meta font-jetbrains">
-                    {KIND_LABEL[entry.data.kind]}
-                    {entry.data.difficulty && <span> · {entry.data.difficulty}</span>}
-                    <span> · {isUnsolved(entry) ? STATUS_LABEL.unsolved : formatDate(entry.data.date)}</span>
-                    {entry.data.source && <span> · {entry.data.source}</span>}
-                  </span>
-                  <span class="lab-row__title">{entry.data.title}</span>
-                  <span class="lab-row__summary">{entry.data.summary}</span>
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </WorkDrawer>
+    {/* Drawers: uno por destacado, fijos a pantalla completa. */}
+    {
+      featured.map((entry) => (
+        <WorkDrawer id={`drawer-lab-${entry.id}`} labelledby={`lab-${entry.id}-title`}>
+          <LabEntry entry={entry} headingLevel="h2" titleId={`lab-${entry.id}-title`} />
+          <p class="lab__fullpage">
+            <a class="btn btn--ghost btn--sm" href={`/lab/${entry.id}`}>Open as a page</a>
+          </p>
+        </WorkDrawer>
+      ))
+    }
   </div>
 </BlueprintSection>
 
@@ -91,50 +57,36 @@ const unsolvedCount = entries.filter(isUnsolved).length
   import { initDrawers } from "../../scripts/drawers"
 
   const root = document.querySelector<HTMLElement>("#lab")
-  const drawer = root?.querySelector<HTMLElement>("#drawer-lab")
 
-  if (root && drawer) {
+  if (root) {
     const drawers = initDrawers(root, {
       onClose: () => {
-        if (location.hash === "#lab/all") history.replaceState(null, "", "#lab")
+        if (location.hash.startsWith("#lab/")) history.replaceState(null, "", "#lab")
       },
     })
 
-    const filters = [...drawer.querySelectorAll<HTMLButtonElement>("[data-lab-filter]")]
-    const items = [...drawer.querySelectorAll<HTMLElement>(".lab-list__item")]
-    const showUnsolved = drawer.querySelector<HTMLInputElement>("[data-lab-show-unsolved]")
-    let kind = "all"
-    const apply = () => {
-      for (const btn of filters) {
-        const on = btn.dataset.labFilter === kind
-        btn.classList.toggle("chip--active", on)
-        btn.setAttribute("aria-pressed", String(on))
-      }
-      const unsolvedOk = showUnsolved?.checked ?? true
-      for (const item of items) {
-        const kindOk = kind === "all" || item.dataset.kind === kind
-        item.hidden = !kindOk || (!unsolvedOk && item.dataset.unsolved === "true")
-      }
-    }
-    const setFilter = (next: string) => {
-      kind = next
-      apply()
-    }
-    for (const btn of filters) btn.addEventListener("click", () => setFilter(btn.dataset.labFilter!))
-    showUnsolved?.addEventListener("change", apply)
-
-    const openAll = (from?: HTMLElement | null) => {
-      setFilter("all")
+    const openEntry = (slug: string, from?: HTMLElement | null) => {
+      const drawer = root.querySelector<HTMLElement>(`#drawer-lab-${slug}`)
+      if (!drawer) return false
       drawers.open(drawer, from)
-      history.replaceState(null, "", "#lab/all")
+      history.replaceState(null, "", `#lab/${slug}`)
+      return true
     }
-    root.querySelector<HTMLElement>("[data-lab-open]")?.addEventListener("click", (event) => openAll(event.currentTarget as HTMLElement))
 
-    // Enlace profundo: /#lab/all abre la lista completa.
+    // Las tarjetas abren el drawer; sin JS (o sin drawer) siguen su href.
+    root.addEventListener("click", (event) => {
+      const card = (event.target as HTMLElement).closest<HTMLElement>('[data-open^="lab:"]')
+      if (!card) return
+      const slug = card.dataset.open!.slice(4)
+      if (openEntry(slug, card)) event.preventDefault()
+    })
+
+    // Enlace profundo: /#lab/slug abre la entrada, al cargar o al cambiar el hash.
     const openFromHash = () => {
-      if (location.hash !== "#lab/all") return
+      const match = location.hash.match(/^#lab\/([\w-]+)$/)
+      if (!match) return
       root.scrollIntoView({ block: "start" })
-      openAll(null)
+      openEntry(match[1], null)
     }
     requestAnimationFrame(openFromHash)
     window.addEventListener("hashchange", openFromHash)
@@ -149,7 +101,7 @@ const unsolvedCount = entries.filter(isUnsolved).length
   .lab__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.75rem 1.25rem;
+    gap: 1.25rem;
     margin-top: 2.5rem;
   }
 
@@ -161,9 +113,7 @@ const unsolvedCount = entries.filter(isUnsolved).length
 
   .lab__actions {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 1.25rem;
     margin-top: 2.25rem;
   }
 
@@ -172,115 +122,10 @@ const unsolvedCount = entries.filter(isUnsolved).length
     color: rgb(var(--text-rgb) / 0.55);
   }
 
-  .lab__page {
-    font-size: 0.85rem;
-    color: rgb(var(--text-rgb) / 0.6);
-    text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.25);
-    text-underline-offset: 3px;
-    transition: color 180ms ease;
-  }
-
-  .lab__page:hover {
-    color: #fff;
-  }
-
-  /* ── Drawer: lista completa ─────────────────────────────────────────── */
-  .lab-list__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .lab-list__title {
-    margin: 0;
-    font-family: var(--font-bellota);
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .lab-list__filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .lab-list__filters .chip span {
-    margin-left: 0.3rem;
-    opacity: 0.55;
-  }
-
-  .lab-list__toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    font-size: 0.66rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgb(var(--text-rgb) / 0.55);
-    cursor: pointer;
-  }
-
-  .lab-list__toggle input {
-    accent-color: var(--page-accent);
-  }
-
-  .lab-list {
-    display: grid;
-    gap: 0.6rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .lab-row {
-    display: grid;
-    grid-template-columns: 8.5rem 1fr;
-    gap: 1.1rem;
-    align-items: center;
-    padding: 0.7rem;
-    border-radius: 0.75rem;
-    text-decoration: none;
-    color: inherit;
-    transition: background 180ms ease;
-  }
-
-  .lab-row:hover {
-    background: var(--surface-2);
-  }
-
-  .lab-row__text {
-    display: grid;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-
-  .lab-row__meta {
-    font-size: 0.62rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgb(var(--text-rgb) / 0.5);
-  }
-
-  .lab-row__title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .lab-row__summary {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: rgb(var(--text-rgb) / 0.62);
+  .lab__fullpage {
+    margin: 2.5rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px dashed var(--bp-line);
   }
 
   @media (max-width: 900px) {
@@ -292,11 +137,6 @@ const unsolvedCount = entries.filter(isUnsolved).length
   @media (max-width: 560px) {
     .lab__grid {
       grid-template-columns: 1fr;
-    }
-
-    .lab-row {
-      grid-template-columns: 6rem 1fr;
-      gap: 0.8rem;
     }
   }
 </style>

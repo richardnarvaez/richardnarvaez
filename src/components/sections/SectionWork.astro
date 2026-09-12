@@ -1266,12 +1266,14 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     background: var(--surface-2);
   }
 
+  /* Mismo ancho que los iconos y el alto según proporción: los logotipos apaisados no se aplastan. La sombra sigue la silueta (drop-shadow), no la caja. */
   .gallery__item[data-kind="app"] img {
     width: 6rem;
-    height: 6rem;
+    height: auto;
+    object-fit: contain;
     border: 0;
-    border-radius: 24%;
-    box-shadow: 0 12px 28px -12px rgba(2, 6, 23, 0.8);
+    border-radius: 1.4rem;
+    filter: drop-shadow(0 12px 16px rgba(2, 6, 23, 0.6));
   }
 
   .gallery__item figcaption {
