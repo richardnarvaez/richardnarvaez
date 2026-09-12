@@ -10,14 +10,16 @@
 // dentro: lo pone la tarjeta debajo, una sola vez. Todo son trazos:
 // nada de rellenos de color.
 import GradualBlur from "../ui/GradualBlur.astro"
-import { KIND_LABEL, type LabEntry } from "./lab"
+import { isUnsolved, KIND_LABEL, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
   class?: string
+  /** Sin desenfoque ni despliegue al pasar: para listas largas (el drawer), donde pesarían. */
+  fade?: boolean
 }
 
-const { entry, class: className } = Astro.props
+const { entry, class: className, fade = true } = Astro.props
 const { data } = entry
 const boxes = (data.tags.length >= 3 ? data.tags.slice(0, 3) : ["Client", "Service", "Store"]).map((t) => t.slice(0, 12))
 const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
@@ -40,6 +42,7 @@ const hot = 4
         <span class="cover__kind font-jetbrains">
           {KIND_LABEL[data.kind]}
           {data.difficulty && <span class="cover__level">· {data.difficulty}</span>}
+          {isUnsolved(entry) && <span class="cover__todo">· to solve</span>}
         </span>
 
         {data.kind === "exercise" && (
@@ -95,10 +98,10 @@ const hot = 4
 
         {/* Pie: el título siempre; al pasar suben el resumen y los chips sobre
             un desenfoque progresivo que crece desde abajo (solo blur). */}
-        <GradualBlur position="bottom" height="42%" strength={1.4} divCount={5} curve="ease-in" zIndex={1} class="cover__fade" />
+        {fade && <GradualBlur position="bottom" height="42%" strength={1.4} divCount={5} curve="ease-in" zIndex={1} class="cover__fade" />}
         <div class="cover__foot">
           <span class="cover__title">{data.title}</span>
-          <div class="cover__more">
+          <div class:list={["cover__more", { "cover__more--static": !fade }]}>
             <div class="cover__more-inner">
               <span class="cover__summary">{data.summary}</span>
               {data.complexity && (
@@ -179,6 +182,10 @@ const hot = 4
     color: var(--page-accent);
   }
 
+  .cover__todo {
+    color: rgb(var(--text-rgb) / 0.4);
+  }
+
   .cover__figure {
     align-self: center;
     width: 100%;
@@ -227,6 +234,10 @@ const hot = 4
 
   .cover:hover .cover__more {
     grid-template-rows: 1fr;
+  }
+
+  .cover__more--static {
+    display: none;
   }
 
   .cover__more-inner {

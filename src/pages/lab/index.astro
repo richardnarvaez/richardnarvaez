@@ -3,11 +3,14 @@
 // Misma lista que el drawer del home, pero como página enlazable.
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import LabCard from "../../components/lab/LabCard.astro"
-import { KIND_LABEL, KINDS, labEntries } from "../../components/lab/lab"
+import { isUnsolved, KIND_LABEL, KINDS, labEntries, withPage } from "../../components/lab/lab"
 import { siteName } from "../../site.config"
 
-const entries = await labEntries()
+const all = await labEntries()
+const entries = withPage(all)
 const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.kind === kind) })).filter((g) => g.items.length > 0)
+// Lista de estudio: lo pendiente, como checklist, enlazando al enunciado.
+const todo = all.filter(isUnsolved)
 ---
 
 <BaseLayout title={`Lab | ${siteName}`} description="Prototypes built for real, plus the system design and interview exercises behind them.">
@@ -34,6 +37,28 @@ const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.
           <div class="lab-index__grid">{group.items.map((entry) => <LabCard entry={entry} />)}</div>
         </section>
       ))
+    }
+
+    {
+      todo.length > 0 && (
+        <section class="lab-index__group" aria-labelledby="lab-todo">
+          <h2 class="lab-index__kind font-jetbrains" id="lab-todo">
+            To solve <span>{todo.length}</span>
+          </h2>
+          <ul class="todo">
+            {todo.map((entry) => (
+              <li class="todo__item">
+                <a class="todo__link" href={entry.data.link} target="_blank" rel="noreferrer noopener">
+                  <span class:list={["todo__level", `todo__level--${entry.data.difficulty ?? "medium"}`]} aria-label={entry.data.difficulty} />
+                  <span class="todo__title">{entry.data.title}</span>
+                  <span class="todo__meta font-jetbrains">{entry.data.tags.slice(0, 3).join(" · ")}</span>
+                  <span class="todo__source font-jetbrains">{entry.data.source?.replace(" · LeetCode", "")}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
     }
   </main>
 </BaseLayout>
@@ -123,6 +148,72 @@ const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem 1.25rem;
+  }
+
+  /* ── Lista de estudio ───────────────────────────────────────────────── */
+  .todo {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .todo__item + .todo__item {
+    border-top: 1px dashed var(--bp-line);
+  }
+
+  .todo__link {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.7rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: background 160ms ease;
+  }
+
+  .todo__link:hover {
+    background: var(--surface-2);
+  }
+
+  .todo__level {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: #34d399;
+  }
+
+  .todo__level--medium {
+    background: #fbbf24;
+  }
+
+  .todo__level--hard {
+    background: var(--page-accent);
+  }
+
+  .todo__title {
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .todo__meta,
+  .todo__source {
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.45);
+  }
+
+  @media (max-width: 640px) {
+    .todo__link {
+      grid-template-columns: auto 1fr;
+    }
+
+    .todo__meta,
+    .todo__source {
+      grid-column: 2;
+    }
   }
 
   @media (max-width: 900px) {

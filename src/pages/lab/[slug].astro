@@ -2,11 +2,11 @@
 // Página propia de cada entrada del Lab. Enlazable e indexable.
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import LabEntry from "../../components/lab/LabEntry.astro"
-import { labEntries } from "../../components/lab/lab"
+import { labEntries, withPage } from "../../components/lab/lab"
 import { siteName } from "../../site.config"
 
 export async function getStaticPaths() {
-  const entries = await labEntries()
+  const entries = withPage(await labEntries())
   return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
 }
 

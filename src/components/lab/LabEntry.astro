@@ -3,7 +3,7 @@
 // fuente y fecha, complejidad si la hay, tira de capturas en su proporción
 // nativa a alto fijo, y el cuerpo MDX con la misma tipografía que los casos.
 import { render } from "astro:content"
-import { formatDate, KIND_LABEL, type LabEntry } from "./lab"
+import { formatDate, KIND_LABEL, STATUS_LABEL, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
@@ -12,7 +12,6 @@ interface Props {
 const { entry } = Astro.props
 const { data } = entry
 const { Content } = await render(entry)
-const STATUS: Record<typeof data.status, string> = { solved: "Solved", "in-progress": "In progress", idea: "Idea" }
 ---
 
 <article class="lab-entry">
@@ -20,7 +19,7 @@ const STATUS: Record<typeof data.status, string> = { solved: "Solved", "in-progr
     <p class="lab-entry__meta font-jetbrains">
       <span class="lab-entry__kind">{KIND_LABEL[data.kind]}</span>
       {data.difficulty && <span>{data.difficulty}</span>}
-      <span>{STATUS[data.status]}</span>
+      <span>{STATUS_LABEL[data.status]}</span>
       <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
     </p>
     <h1 class="lab-entry__title">{data.title}</h1>

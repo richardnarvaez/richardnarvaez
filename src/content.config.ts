@@ -68,11 +68,14 @@ const lab = defineCollection({
     shots: z
       .array(z.object({ src: z.string(), alt: z.string(), frame: z.enum(["phone", "web", "none"]).default("none") }))
       .default([]),
-    status: z.enum(["solved", "in-progress", "idea"]).default("solved"),
+    /** unsolved: en la lista de estudio; la tarjeta enlaza al enunciado y no hay página propia todavía. */
+    status: z.enum(["solved", "in-progress", "idea", "unsolved"]).default("solved"),
     /** Prototipos: dónde está el producto vivo y su código. Se construyen en Next.js, en otro repo. */
     link: z.url().optional(),
     repo: z.url().optional(),
     stack: z.array(z.string()).default([]),
+    /** Orden dentro de la lista de estudio (menor primero): la frecuencia con que sale en entrevistas. */
+    order: z.number().optional(),
     /** Borrador: solo se ve en desarrollo. */
     draft: z.boolean().default(false),
   }),

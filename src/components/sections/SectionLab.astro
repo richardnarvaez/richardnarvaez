@@ -7,11 +7,12 @@ import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import LabCard from "../lab/LabCard.astro"
 import LabCover from "../lab/LabCover.astro"
-import { formatDate, KIND_LABEL, KINDS, labEntries, pickFeatured } from "../lab/lab"
+import { formatDate, hrefOf, isUnsolved, KIND_LABEL, KINDS, labEntries, pickFeatured, STATUS_LABEL } from "../lab/lab"
 
 const entries = await labEntries()
 const featured = pickFeatured(entries, 6)
 const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.data.kind === k).length])) as Record<(typeof KINDS)[number], number>
+const unsolvedCount = entries.filter(isUnsolved).length
 ---
 
 <BlueprintSection id="lab" class="lab" label="03 — lab" ariaLabelledby="lab-title">
@@ -52,18 +53,27 @@ const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.d
             </button>
           ))}
         </div>
+        {
+          unsolvedCount > 0 && (
+            <label class="lab-list__toggle font-jetbrains">
+              <input type="checkbox" data-lab-show-unsolved checked />
+              Show the {unsolvedCount} still to solve
+            </label>
+          )
+        }
       </header>
       <ul class="lab-list" data-lab-list>
         {
           entries.map((entry) => (
-            <li class="lab-list__item" data-kind={entry.data.kind}>
-              <a class="lab-row" href={`/lab/${entry.id}`}>
-                <LabCover entry={entry} class="lab-row__cover" />
+            <li class="lab-list__item" data-kind={entry.data.kind} data-unsolved={isUnsolved(entry)}>
+              <a class="lab-row" href={hrefOf(entry)} target={isUnsolved(entry) ? "_blank" : undefined} rel={isUnsolved(entry) ? "noreferrer noopener" : undefined}>
+                <LabCover entry={entry} class="lab-row__cover" fade={false} />
                 <span class="lab-row__text">
                   <span class="lab-row__meta font-jetbrains">
                     {KIND_LABEL[entry.data.kind]}
                     {entry.data.difficulty && <span> · {entry.data.difficulty}</span>}
-                    <span> · {formatDate(entry.data.date)}</span>
+                    <span> · {isUnsolved(entry) ? STATUS_LABEL.unsolved : formatDate(entry.data.date)}</span>
+                    {entry.data.source && <span> · {entry.data.source}</span>}
                   </span>
                   <span class="lab-row__title">{entry.data.title}</span>
                   <span class="lab-row__summary">{entry.data.summary}</span>
@@ -92,15 +102,26 @@ const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.d
 
     const filters = [...drawer.querySelectorAll<HTMLButtonElement>("[data-lab-filter]")]
     const items = [...drawer.querySelectorAll<HTMLElement>(".lab-list__item")]
-    const setFilter = (kind: string) => {
+    const showUnsolved = drawer.querySelector<HTMLInputElement>("[data-lab-show-unsolved]")
+    let kind = "all"
+    const apply = () => {
       for (const btn of filters) {
         const on = btn.dataset.labFilter === kind
         btn.classList.toggle("chip--active", on)
         btn.setAttribute("aria-pressed", String(on))
       }
-      for (const item of items) item.hidden = kind !== "all" && item.dataset.kind !== kind
+      const unsolvedOk = showUnsolved?.checked ?? true
+      for (const item of items) {
+        const kindOk = kind === "all" || item.dataset.kind === kind
+        item.hidden = !kindOk || (!unsolvedOk && item.dataset.unsolved === "true")
+      }
+    }
+    const setFilter = (next: string) => {
+      kind = next
+      apply()
     }
     for (const btn of filters) btn.addEventListener("click", () => setFilter(btn.dataset.labFilter!))
+    showUnsolved?.addEventListener("change", apply)
 
     const openAll = (from?: HTMLElement | null) => {
       setFilter("all")
@@ -191,6 +212,22 @@ const counts = Object.fromEntries(KINDS.map((k) => [k, entries.filter((e) => e.d
   .lab-list__filters .chip span {
     margin-left: 0.3rem;
     opacity: 0.55;
+  }
+
+  .lab-list__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(var(--text-rgb) / 0.55);
+    cursor: pointer;
+  }
+
+  .lab-list__toggle input {
+    accent-color: var(--page-accent);
   }
 
   .lab-list {
