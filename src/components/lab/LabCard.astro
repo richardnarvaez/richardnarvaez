@@ -31,20 +31,17 @@ const { data } = entry
     align-content: start;
     text-decoration: none;
     color: inherit;
-    border-radius: 1rem;
+    border-radius: 0.5rem;
     outline-offset: 6px;
   }
 
   .lab-card :global(.lab-card__cover) {
-    transition:
-      scale 260ms var(--ease-out),
-      box-shadow 260ms ease;
-    box-shadow: 0 12px 28px -14px rgba(2, 6, 23, 0.7);
+    transition: border-color 220ms ease;
   }
 
+  /* Al pasar, el borde discontinuo se enciende en el naranja de la página. */
   .lab-card:hover :global(.lab-card__cover) {
-    scale: 1.015;
-    box-shadow: 0 20px 40px -16px rgba(2, 6, 23, 0.85);
+    border-color: var(--page-accent);
   }
 
   .lab-card__meta {

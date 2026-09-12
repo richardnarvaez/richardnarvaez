@@ -1,10 +1,14 @@
 ---
-// Portada 4:3 de una entrada del Lab. Si la entrada trae `cover`, va la
+// Portada 4:3 de una entrada del Lab, en el lenguaje del plano técnico del
+// resto de la página: superficie violeta con retícula de puntos, borde
+// discontinuo, esquinas casi rectas, trazos en la tinta de los rieles y el
+// naranja de la página solo como acento. Si la entrada trae `cover`, va la
 // imagen; si no, se compone aquí desde el frontmatter, distinta por tipo:
-// el ejercicio es una ficha con la idea clave y la complejidad, el system
-// design un esquema de cajas con sus etiquetas, el prototipo un dispositivo.
-// Así todas las tarjetas tienen portada desde el primer día y con el mismo marco.
-import { accentOf, KIND_LABEL, type LabEntry } from "./lab"
+// el ejercicio dibuja una estructura de celdas con su idea clave y la
+// complejidad, el system design un esquema de cajas conectadas con sus
+// etiquetas, el prototipo el alambre de un dispositivo. Todo son trazos:
+// nada de rellenos de color.
+import { KIND_LABEL, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
@@ -13,12 +17,19 @@ interface Props {
 
 const { entry, class: className } = Astro.props
 const { data } = entry
-const accent = accentOf(entry)
 const boxes = (data.tags.length >= 3 ? data.tags.slice(0, 3) : ["Client", "Service", "Store"]).map((t) => t.slice(0, 12))
 const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
+// Celdas del ejercicio: una fila indexada, con una marcada en naranja.
+const cells = 7
+const hot = 4
 ---
 
-<div class:list={["cover", `cover--${data.kind}`, className]} style={`--accent: ${accent};`} aria-hidden="true">
+<div class:list={["cover", `cover--${data.kind}`, className]} aria-hidden="true">
+  <span class="cover__mark cover__mark--tl"></span>
+  <span class="cover__mark cover__mark--tr"></span>
+  <span class="cover__mark cover__mark--bl"></span>
+  <span class="cover__mark cover__mark--br"></span>
+
   {
     data.cover ? (
       <img class="cover__img" src={data.cover} alt="" loading="lazy" decoding="async" />
@@ -26,46 +37,74 @@ const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
       <>
         <span class="cover__kind font-jetbrains">
           {KIND_LABEL[data.kind]}
-          {data.difficulty && <span class="cover__dot">·</span>}
-          {data.difficulty}
+          {data.difficulty && <span class="cover__level">· {data.difficulty}</span>}
         </span>
 
         {data.kind === "exercise" && (
-          <div class="cover__sheet">
-            <span class="cover__title">{data.title}</span>
-            {data.keyIdea && <span class="cover__idea">{data.keyIdea}</span>}
+          <>
+            <svg class="cover__figure" viewBox="0 0 320 96" fill="none">
+              {Array.from({ length: cells }, (_, i) => (
+                <>
+                  <rect x={8 + i * 44} y="30" width="36" height="36" rx="3" stroke={i === hot ? "var(--page-accent)" : "var(--ink)"} stroke-width={i === hot ? 1.5 : 1} fill={i === hot ? "rgb(var(--accent-rgb) / 0.12)" : "none"} />
+                  <text x={26 + i * 44} y="20" text-anchor="middle" fill="var(--ink-text)" font-size="9" font-family="var(--font-jetbrains)">
+                    {i}
+                  </text>
+                </>
+              ))}
+              <path d={`M${26 + hot * 44} 66 V84 H${26}`} stroke="var(--page-accent)" stroke-width="1" stroke-dasharray="3 3" />
+              <path d="M26 84 V70" stroke="var(--page-accent)" stroke-width="1" marker-end="url(#lab-arrow)" />
+              <defs>
+                <marker id="lab-arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M0 0 8 4 0 8" fill="var(--page-accent)" />
+                </marker>
+              </defs>
+            </svg>
+            <div class="cover__text">
+              <span class="cover__title">{data.title}</span>
+              {data.keyIdea && <span class="cover__idea">{data.keyIdea}</span>}
+            </div>
             {data.complexity && (
               <span class="cover__chips font-jetbrains">
                 <span>time {data.complexity.time}</span>
                 <span>space {data.complexity.space}</span>
               </span>
             )}
-          </div>
+          </>
         )}
 
         {data.kind === "system" && (
-          <div class="cover__system">
-            <svg class="cover__schematic" viewBox="0 0 320 120" fill="none">
+          <>
+            <svg class="cover__figure cover__figure--system" viewBox="0 0 320 110" fill="none">
               {boxes.map((label, i) => (
                 <>
-                  <rect x={12 + i * 108} y="34" width="88" height="52" rx="10" stroke="rgba(255,255,255,0.55)" fill="rgba(255,255,255,0.08)" />
-                  <text x={56 + i * 108} y="64" text-anchor="middle" fill="#fff" font-size="12" font-weight="600" font-family="var(--font-sans)">
+                  <rect x={10 + i * 108} y="30" width="90" height="48" rx="4" stroke={i === 1 ? "var(--page-accent)" : "var(--ink)"} stroke-width={i === 1 ? 1.5 : 1} fill={i === 1 ? "rgb(var(--accent-rgb) / 0.1)" : "none"} />
+                  <text x={55 + i * 108} y="58" text-anchor="middle" fill="var(--ink-text)" font-size="11" font-family="var(--font-jetbrains)">
                     {label}
                   </text>
-                  {i < boxes.length - 1 && <path d={`M${100 + i * 108} 60 H${120 + i * 108}`} stroke="rgba(255,255,255,0.55)" stroke-width="1.5" stroke-dasharray="3 3" />}
+                  {i < boxes.length - 1 && <path d={`M${100 + i * 108} 54 H${116 + i * 108}`} stroke="var(--ink)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#lab-arrow-s)" />}
                 </>
               ))}
+              <defs>
+                <marker id="lab-arrow-s" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M0 0 8 4 0 8" fill="var(--ink)" />
+                </marker>
+              </defs>
             </svg>
-            <span class="cover__title cover__title--small">{data.title}</span>
-          </div>
+            <div class="cover__text">
+              <span class="cover__title">{data.title}</span>
+            </div>
+          </>
         )}
 
         {data.kind === "prototype" && (
-          <div class:list={["cover__device", `cover__device--${device}`]}>
-            <span class="cover__screen">
-              <span class="cover__title cover__title--small">{data.title}</span>
-            </span>
-          </div>
+          <>
+            <div class:list={["cover__device", `cover__device--${device}`]}>
+              <span class="cover__screen"></span>
+            </div>
+            <div class="cover__text">
+              <span class="cover__title">{data.title}</span>
+            </div>
+          </>
         )}
       </>
     )
@@ -74,61 +113,99 @@ const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
 
 <style>
   .cover {
+    --ink: rgba(139, 126, 210, 0.55);
+    --ink-text: rgb(var(--text-rgb) / 0.7);
+
     position: relative;
     display: grid;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 0.5rem;
     aspect-ratio: 4 / 3;
+    padding: 0.85rem 0.95rem 0.95rem;
     overflow: hidden;
-    border-radius: 1rem;
-    background: var(--accent);
+    border-radius: 0.5rem;
+    border: 1px dashed var(--line-tint);
+    background-color: var(--surface-2);
+    background-image: radial-gradient(circle, var(--bp-line) 1px, transparent 1.6px);
+    background-size: 14px 14px;
     color: #fff;
   }
 
+  /* Marcadores de esquina, como los de las secciones. */
+  .cover__mark {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: var(--bp-marker);
+    border: 1px solid var(--line-tint);
+  }
+
+  .cover__mark--tl {
+    top: -1px;
+    left: -1px;
+  }
+  .cover__mark--tr {
+    top: -1px;
+    right: -1px;
+  }
+  .cover__mark--bl {
+    bottom: -1px;
+    left: -1px;
+  }
+  .cover__mark--br {
+    bottom: -1px;
+    right: -1px;
+  }
+
   .cover__img {
+    grid-row: 1 / -1;
     width: 100%;
     height: 100%;
+    margin: -0.85rem -0.95rem -0.95rem;
     object-fit: cover;
   }
 
   .cover__kind {
-    position: absolute;
-    top: 0.85rem;
-    left: 0.95rem;
-    display: inline-flex;
-    gap: 0.35rem;
     font-size: 0.62rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.72);
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+
+  .cover__level {
+    color: var(--page-accent);
+  }
+
+  .cover__figure {
+    align-self: center;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    min-height: 3.2rem;
+  }
+
+  .cover__text {
+    display: grid;
+    gap: 0.3rem;
   }
 
   .cover__title {
-    display: block;
     font-family: var(--font-bellota);
-    font-size: clamp(1.15rem, 1.8cqw + 0.6rem, 1.6rem);
+    font-size: 1.2rem;
     font-weight: 700;
     line-height: 1.1;
     text-wrap: balance;
   }
 
-  .cover__title--small {
-    font-size: 1.05rem;
-  }
-
-  /* Ejercicio: ficha en la mitad inferior. */
-  .cover__sheet {
-    align-self: end;
-    display: grid;
-    gap: 0.5rem;
-    margin: 0.75rem;
-    padding: 0.95rem 1rem 1rem;
-    border-radius: 0.75rem;
-    background: rgba(0, 0, 0, 0.22);
-  }
-
+  /* Dos líneas como mucho: el resto del alto es para la figura. */
   .cover__idea {
-    font-size: 0.78rem;
-    line-height: 1.45;
-    color: rgba(255, 255, 255, 0.78);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 0.76rem;
+    line-height: 1.4;
+    color: rgb(var(--text-rgb) / 0.62);
   }
 
   .cover__chips {
@@ -137,53 +214,41 @@ const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
     gap: 0.35rem;
     font-size: 0.6rem;
     letter-spacing: 0.04em;
+    color: rgb(var(--text-rgb) / 0.75);
   }
 
   .cover__chips span {
     padding: 0.2rem 0.5rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0.3rem;
+    border: 1px solid var(--line-tint);
   }
 
-  /* System design: esquema centrado y título abajo. */
-  .cover__system {
-    display: grid;
-    align-content: center;
-    gap: 0.5rem;
-    padding: 2.4rem 0.95rem 0.95rem;
-  }
-
-  .cover__schematic {
-    width: 100%;
-    height: auto;
-  }
-
-  /* Prototipo: silueta de dispositivo asomando por abajo. */
+  /* Prototipo: alambre de dispositivo, solo trazo. */
   .cover__device {
-    align-self: end;
+    align-self: center;
     justify-self: center;
-    width: 78%;
-    margin-bottom: -6%;
-    padding: 0.55rem 0.55rem 0;
-    border-radius: 1rem 1rem 0 0;
-    background: rgba(0, 0, 0, 0.35);
+    width: 70%;
+    padding: 0.4rem 0.4rem 0.6rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--ink);
   }
 
   .cover__device--phone {
-    width: 42%;
-    border-radius: 1.4rem 1.4rem 0 0;
+    width: 34%;
+    padding: 0.5rem 0.3rem;
+    border-radius: 0.9rem;
   }
 
   .cover__screen {
-    display: grid;
-    align-content: end;
-    aspect-ratio: 16 / 11;
-    padding: 0.8rem;
-    border-radius: 0.6rem 0.6rem 0 0;
-    background: rgba(255, 255, 255, 0.1);
+    display: block;
+    aspect-ratio: 16 / 10;
+    border-radius: 0.25rem;
+    border: 1px dashed var(--line-tint);
+    background: rgb(var(--accent-rgb) / 0.06);
   }
 
   .cover__device--phone .cover__screen {
-    aspect-ratio: 9 / 12;
+    aspect-ratio: 9 / 16;
+    border-radius: 0.5rem;
   }
 </style>
