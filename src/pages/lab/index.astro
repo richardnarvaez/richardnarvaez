@@ -13,7 +13,7 @@ const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.
 const todo = all.filter(isUnsolved)
 ---
 
-<BaseLayout title={`Lab | ${siteName}`} description="Prototypes built for real, plus the system design and interview exercises behind them.">
+<BaseLayout title={`Lab | ${siteName}`} description="Prototypes built for real, plus the system design and interview exercises behind them, explained in my own words.">
   <a class="skip-link" href="#content">Skip to content</a>
 
   <header class="lab-index__bar">
@@ -26,7 +26,7 @@ const todo = all.filter(isUnsolved)
 
   <main id="content" class="lab-index">
     <h1 class="lab-index__title">Lab</h1>
-    <p class="lab-index__lead">Prototypes built for real, and behind them the system design and the interview exercises, solved step by step. Written down mostly so I learn them properly.</p>
+    <p class="lab-index__lead">Prototypes built for real, and behind them the system design and the interview exercises, solved step by step in my own words. Teaching is learning twice.</p>
 
     {
       groups.map((group) => (
@@ -45,6 +45,14 @@ const todo = all.filter(isUnsolved)
           <h2 class="lab-index__kind font-jetbrains" id="lab-todo">
             To solve <span>{todo.length}</span>
           </h2>
+          <p class="lab-index__note">
+            Lists from
+            <a href="https://github.com/liquidslr/leetcode-company-wise-problems" target="_blank" rel="noreferrer noopener">liquidslr/leetcode-company-wise-problems</a>:
+            <a href={"https://github.com/liquidslr/leetcode-company-wise-problems/blob/main/Google/1.%20Thirty%20Days.csv"} target="_blank" rel="noreferrer noopener">Google, thirty days</a>
+            and
+            <a href={"https://github.com/liquidslr/leetcode-company-wise-problems/blob/main/Stripe/5.%20All.csv"} target="_blank" rel="noreferrer noopener">Stripe, all</a>.
+            Ranked by how often they come up.
+          </p>
           <ul class="todo">
             {todo.map((entry) => (
               <li class="todo__item">
@@ -148,6 +156,20 @@ const todo = all.filter(isUnsolved)
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem 1.25rem;
+  }
+
+  .lab-index__note {
+    margin: -0.5rem 0 1.25rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgb(var(--text-rgb) / 0.5);
+  }
+
+  .lab-index__note a {
+    color: rgb(var(--text-rgb) / 0.8);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.25);
+    text-underline-offset: 3px;
   }
 
   /* ── Lista de estudio ───────────────────────────────────────────────── */

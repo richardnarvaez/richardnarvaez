@@ -33,8 +33,9 @@ const { Content } = await render(entry)
     {
       (data.link || data.repo) && (
         <div class="lab-entry__links">
-          {data.link && <a class="btn btn--sm btn--solid" href={data.link} target="_blank" rel="noreferrer noopener">Open the prototype</a>}
-          {data.repo && <a class="btn btn--sm btn--ghost" href={data.repo} target="_blank" rel="noreferrer noopener">Source</a>}
+          {data.link && data.kind !== "exercise" && <a class="btn btn--sm btn--solid" href={data.link} target="_blank" rel="noreferrer noopener">Open the prototype</a>}
+          {data.repo && <a class="btn btn--sm btn--ghost" href={data.repo} target="_blank" rel="noreferrer noopener">{data.kind === "exercise" ? "Problem list" : "Source"}</a>}
+          {data.kind === "exercise" && data.link && !data.link.includes(data.repo ?? "\u0000") && <a class="btn btn--sm btn--ghost" href={data.link} target="_blank" rel="noreferrer noopener">Statement</a>}
         </div>
       )
     }
