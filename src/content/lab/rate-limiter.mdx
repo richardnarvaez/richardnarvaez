@@ -1,77 +1,238 @@
 ---
-title: "Distributed rate limiter"
-summary: "One user works, a hundred work, a thousand explode. Three strategies in front of an AI provider you can break without paying for it."
+title: "Where does it break? Rate limiting an AI provider"
+summary: "Users upload PDFs, every page is a call to an AI provider. One user works, three break it. Five cases, with diagrams and measured numbers, and a lab you can run."
 kind: "system"
 difficulty: "medium"
-source: "Classic system design"
-tags: ["token bucket", "work queue", "AI providers"]
-date: 2026-09-10
+source: "Own case · production incident"
+tags: ["token bucket", "work queue", "AI providers", "backpressure"]
+date: 2026-09-13
 featured: true
 status: "in-progress"
 repo: "https://github.com/richardnarvaez/lab/tree/main/rate-limiter"
 draft: true
 ---
 
-import Flow from "../../components/case/Flow.astro"
+import Schematic from "../../components/case/Schematic.astro"
 import Decision from "../../components/case/Decision.astro"
 import Callout from "../../components/case/Callout.astro"
 
 ## The problem
 
-Limit each API client to N requests per minute across a fleet of stateless API servers. Rejected requests get a 429 with a `Retry-After` header. The limiter itself must add well under 5 ms to a request.
+Users upload PDFs. **Every page is one call to an AI provider** that extracts and structures the text. A book is a hundred pages, so one upload is a hundred calls.
 
-## Requirements and scale assumed
+Me alone, uploading three or four books one after another: fine. All pages in parallel: still fine. Then we opened it to everyone, a huge queue formed, and the provider said no.
 
-- 10k clients, 20k requests per second at peak across 20 servers.
-- Limits are per client, configurable, and can change without a deploy.
-- Slightly over-admitting for a second is acceptable; dropping all traffic when the limiter is down is not.
-
-## Algorithm
-
-<Decision
-  title="Token bucket over sliding window log"
-  why="A bucket is two numbers per client: tokens and last refill time. A sliding log stores one timestamp per request, which is memory proportional to the limit."
-  tradeoff="Bursts up to the bucket size are allowed. That is usually a feature."
-/>
-
-Each bucket holds up to `capacity` tokens and refills at `rate` tokens per second. A request takes one token or is rejected.
-
-## Where the state lives
-
-<Flow
-  direction="vertical"
-  steps={[
-    { label: "API server", note: "Middleware calls the limiter before the handler" },
-    { label: "Redis", note: "One hash per client: tokens, last refill. Lua script does read + refill + take atomically" },
-    { label: "Config", note: "Limits per client in a small table, cached in each server for 30s" },
-  ]}
-/>
-
-<Decision
-  title="Lua script in Redis, not two round trips"
-  why="Refill and take must be atomic or two servers admit the same last token. A script runs on the Redis side in one round trip."
-  tradeoff="Logic lives in a Lua string. Keep it under 30 lines and test it in isolation."
-/>
-
-<Decision
-  title="Local fallback when Redis is unreachable"
-  why="Each server keeps an in-memory bucket per client sized at limit divided by the server count. If Redis times out, the local bucket decides. Traffic keeps flowing at roughly the right rate."
-  tradeoff="Uneven load balancing makes the fallback inexact. Acceptable for seconds, not for hours: alert on fallback rate."
-/>
-
-## The critical path
-
-1. Middleware reads the client id from the API key.
-2. It calls the Lua script with `key`, `capacity`, `rate`, `now`.
-3. The script computes `tokens = min(capacity, tokens + (now - last) * rate)`, then takes one if available and writes back.
-4. Allowed: the request continues. Rejected: 429 with `Retry-After = ceil((1 - tokens) / rate)`.
-
-## What breaks first
-
-- **Hot clients**: one client at 5k rps hammers one Redis key. Shard the bucket into K sub-buckets and pick one by hashing the request id.
-- **Clock skew**: servers pass their own `now`. Use Redis `TIME` inside the script instead.
-- **Redis latency spikes**: this is why the local fallback exists. Timeout at 2 ms.
+The provider in the lab is a stand-in with the limits real ones have: 1,500 requests and 300,000 tokens per minute, 200 calls in flight at most, three dollars per million tokens. A page is about 800 tokens and takes about two seconds. Nothing leaves your machine and nothing costs money.
 
 <Callout>
-  Numbers here are assumptions to make the design concrete, not measurements.
+  Every case below has a **Run this case** button in the lab, which needs the lab running locally: `node provider/server.mjs` and `PROVIDER_URL=http://localhost:9090 node api/server.mjs` from the repo, then open http://localhost:8080. The numbers quoted are from those runs.
+</Callout>
+
+## Case 1 · One user, one page after another
+
+The first version. A user uploads a book and we process it page by page: send one page, wait for the answer, send the next. **One call in flight per user.**
+
+<Schematic
+  height={150}
+  boxes={[
+    { x: 20, y: 40, w: 110, h: 56, label: "User\n1 book · 100 pages" },
+    { x: 240, y: 40, w: 130, h: 56, label: "Our API\nfor page of book:\nawait call(page)" },
+    { x: 490, y: 30, w: 130, h: 76, label: "AI provider\n1,500 req/min\n300k tok/min\n200 in flight" },
+  ]}
+  arrows={[
+    { x1: 130, y1: 68, x2: 240, y2: 68, label: "1 page at a time" },
+    { x1: 370, y1: 68, x2: 490, y2: 68, label: "~2 s each" },
+  ]}
+  caption="One call in flight. Safe, and slow: about three and a half minutes per book."
+/>
+
+```ts
+for (const page of book.pages) {
+  await provider.complete(page) // one after another
+}
+```
+
+It works and it is safe. The provider sees one call every two seconds and nobody complains, because nobody else is using it yet. [Run case 1](http://localhost:8080/?case=1)
+
+## Case 2 · All pages at once, and a few more users
+
+Three minutes per book is too slow, so we fire the hundred calls together with `Promise.all`. One user: the book finishes in seconds. Then two, three users try at the same time. **Every user is now a burst of a hundred calls and eighty thousand tokens.**
+
+<Schematic
+  height={190}
+  boxes={[
+    { x: 20, y: 20, w: 90, h: 40, label: "User A" },
+    { x: 20, y: 75, w: 90, h: 40, label: "User B" },
+    { x: 20, y: 130, w: 90, h: 40, label: "User C" },
+    { x: 240, y: 60, w: 130, h: 70, label: "Our API\nPromise.all(\n  pages.map(call))" },
+    { x: 490, y: 57, w: 130, h: 76, label: "AI provider\n1,500 req/min\n300k tok/min\n200 in flight", hot: true },
+  ]}
+  fans={[
+    { x1: 110, y1: 40, x2: 240, y2: 90, n: 7, spread: 30 },
+    { x1: 110, y1: 95, x2: 240, y2: 95, n: 7, spread: 30 },
+    { x1: 110, y1: 150, x2: 240, y2: 100, n: 7, spread: 30 },
+  ]}
+  arrows={[{ x1: 370, y1: 95, x2: 490, y2: 95, label: "300 at once", hot: true }]}
+  notes={[{ x: 555, y: 150, text: "503 in flight · 429 tokens", hot: true, anchor: "middle" }]}
+  caption="Three books at once are 300 calls against 200 allowed in flight, and 240k of the 300k tokens per minute."
+/>
+
+```ts
+await Promise.all(book.pages.map((page) => provider.complete(page)))
+// 100 calls at once per user; nothing slows them down
+```
+
+The provider answers **503 Overloaded** for what does not fit in flight and **429 Too Many Requests** with a `retry-after` once the minute's tokens run out. Pages die, the user sees a broken book, and we still pay for every page that got through.
+
+Measured: with three users it breaks in the first second. In fifteen seconds, 2,122 pages died at the provider, 3 of 25 books came out clean, and the bill was $0.90 for pages that mostly ended up in broken books. This is the day we opened it. [Run case 2](http://localhost:8080/?case=2)
+
+<Callout>
+  Video placeholder: a short replay of this run, chart and counters, goes here.
+</Callout>
+
+## Case 3 · A rate limiter in front: the token bucket
+
+First fix: never let more through than the provider accepts. Two buckets. **One per user**, small, five pages in a burst and two more per second, so one person cannot flood us. **One global**, pinned to the provider's requests per minute, so the sum of everyone never exceeds it. A page takes a token from both or is refused by us, instantly and for free, with our own 429.
+
+<Schematic
+  height={180}
+  boxes={[
+    { x: 20, y: 20, w: 80, h: 36, label: "User A" },
+    { x: 20, y: 72, w: 80, h: 36, label: "User B" },
+    { x: 20, y: 124, w: 80, h: 36, label: "User C" },
+    { x: 160, y: 60, w: 120, h: 60, label: "bucket per user\ncap 5 · +2/s", dashed: true },
+    { x: 330, y: 60, w: 120, h: 60, label: "global bucket\ncap 25 · +25/s", dashed: true },
+    { x: 495, y: 52, w: 130, h: 76, label: "AI provider\n1,500 req/min\n300k tok/min\n200 in flight" },
+  ]}
+  arrows={[
+    { x1: 100, y1: 38, x2: 160, y2: 70 },
+    { x1: 100, y1: 90, x2: 160, y2: 90 },
+    { x1: 100, y1: 142, x2: 160, y2: 110 },
+    { x1: 280, y1: 90, x2: 330, y2: 90 },
+    { x1: 450, y1: 90, x2: 495, y2: 90, label: "≤ provider pace" },
+    { x1: 220, y1: 120, x2: 220, y2: 165, label: "429 ours", hot: true, dy: 52 },
+    { x1: 390, y1: 120, x2: 390, y2: 165, label: "429 ours", hot: true, dy: 52 },
+  ]}
+  caption="Two gates. Whatever does not fit is refused by us, before it costs anything."
+/>
+
+```ts
+// token bucket, per key
+tokens = Math.min(capacity, tokens + elapsed * refillPerSec)
+if (tokens >= 1) { tokens -= 1; allow() }
+else reject({ retryAfterMs: ((1 - tokens) / refillPerSec) * 1000 })
+```
+
+<Decision
+  title="Token bucket over a fixed window"
+  why="A bucket is two numbers per key and lets a user burst a few pages, which is how people actually behave. A fixed per-minute counter is simpler but lets twice the limit through at the minute boundary."
+  tradeoff="Bursts up to the bucket size are allowed by design."
+/>
+
+<Decision
+  title="The same bucket as a Lua script in Redis when there is more than one API instance"
+  why="Read, refill and take must be one atomic step or two instances spend the same last token. Redis runs the script whole, and its own clock removes skew between servers."
+  tradeoff="Logic lives in a Lua string. Keep it short and test it alone."
+/>
+
+The provider never sees the excess again: zero 429 on their side, zero wasted spend. But the failure only **moved**. Now it is our limiter answering 429 to real people, and a book of a hundred pages against a bucket of five still comes out broken. Good for protecting a paid API; not enough for this product. [Run case 3](http://localhost:8080/?case=3)
+
+## Case 4 · A work queue: say yes, later
+
+The users are not abusing anything; they are uploading books, which is the product. So instead of saying no, **hold the page and send it when the provider can take it**.
+
+<Schematic
+  height={200}
+  boxes={[
+    { x: 20, y: 20, w: 70, h: 32, label: "A" },
+    { x: 20, y: 62, w: 70, h: 32, label: "B" },
+    { x: 20, y: 104, w: 70, h: 32, label: "C" },
+    { x: 150, y: 30, w: 130, h: 100, label: "queue\nlane per user\nround-robin\n·\ndoor: wait > 60 s → busy", dashed: true },
+    { x: 340, y: 40, w: 130, h: 80, label: "dispatcher\nreq budget +25/s\ntok budget +5k/s\n≤ 32 in flight", dashed: true },
+    { x: 500, y: 42, w: 130, h: 76, label: "AI provider\n1,500 req/min\n300k tok/min\n200 in flight" },
+  ]}
+  arrows={[
+    { x1: 90, y1: 36, x2: 150, y2: 60 },
+    { x1: 90, y1: 78, x2: 150, y2: 78 },
+    { x1: 90, y1: 120, x2: 150, y2: 96 },
+    { x1: 280, y1: 80, x2: 340, y2: 80, label: "next turn" },
+    { x1: 470, y1: 80, x2: 500, y2: 80 },
+    { x1: 215, y1: 130, x2: 215, y2: 158, hot: true },
+  ]}
+  notes={[{ x: 215, y: 175, text: "503 busy + position", hot: true, anchor: "middle" }]}
+  caption="Two budgets because the provider has two limits. Fairness between users. A door that says no early when the wait would be absurd."
+/>
+
+```ts
+// the dispatch loop
+while (inFlight < concurrency && queue.size > 0) {
+  const job = peek(nextUserInTurn())
+  if (requestBudget < 1 || tokenBudget < job.tokens) break // wait for the next token
+  requestBudget -= 1
+  tokenBudget -= job.tokens
+  dispatch(take(job))
+}
+// at the door: if (estimateWait(job) > maxWaitMs) reject busy(position)
+```
+
+<Decision
+  title="Drain on two budgets, requests and tokens"
+  why="Providers limit both, and a page is heavy in tokens. A queue that only counts requests would still hit the token ceiling."
+  tradeoff="You need an estimate of tokens per job before sending it. For pages, the size of the text is a good enough proxy."
+/>
+
+<Decision
+  title="Round-robin between users, not first come first served"
+  why="One user uploading ten books must not delay everyone else by ten books. A lane per user and a turn each keeps the wait proportional to what you asked for."
+  tradeoff="More bookkeeping than a single FIFO."
+/>
+
+<Decision
+  title="Backpressure at the door"
+  why="Accepting work you cannot finish in reasonable time is worse than a fast no. The queue estimates the wait on entry and refuses past a minute, with a position so the client can decide."
+  tradeoff="Some users get busy on a spike even though the system is healthy. That is the point: it is honest."
+/>
+
+No provider errors, no wasted spend, and users get **waiting instead of failing**: a page might take twenty seconds, but the book arrives whole. The honest part shows up too: the queue protects the provider, it does not create capacity. When more books arrive than the provider can process per minute, the wait grows until the door starts saying busy. Past that point the answer is a bigger tier or more keys, and the numbers tell you exactly when. [Run case 4](http://localhost:8080/?case=4)
+
+<Callout>
+  Video placeholder: a short replay of this run, chart and counters, goes here.
+</Callout>
+
+## Case 5 · What actually happened: the queue nobody designed
+
+In production there was no queue and no limiter. So where did "a huge queue formed" come from? From the HTTP client. Every client library keeps a **connection pool**; ours allowed a couple of hundred connections to the provider. When thousands of pages arrived at once, they did not fail immediately: they **waited for a free connection**, in a queue we never wrote, with no fairness, no budget and no door. Latency climbed to minutes, users retried, the pool filled again, and when pages finally reached the provider they hit its limits anyway.
+
+<Schematic
+  height={170}
+  boxes={[
+    { x: 20, y: 30, w: 80, h: 100, label: "Users\n×N\nall pages\nat once" },
+    { x: 160, y: 50, w: 110, h: 60, label: "Our API\nno control" },
+    { x: 330, y: 30, w: 150, h: 100, label: "HTTP client\nconnection pool\n256 in flight\n…and 4,000 waiting", hot: true },
+    { x: 500, y: 42, w: 130, h: 76, label: "AI provider\n1,500 req/min\n300k tok/min\n200 in flight", hot: true },
+  ]}
+  arrows={[
+    { x1: 100, y1: 80, x2: 160, y2: 80, label: "thousands" },
+    { x1: 270, y1: 80, x2: 330, y2: 80 },
+    { x1: 480, y1: 80, x2: 500, y2: 80 },
+  ]}
+  notes={[{ x: 405, y: 155, text: "the hidden queue", hot: true, anchor: "middle" }]}
+  caption="There is always a queue. The only choice is whether you designed it."
+/>
+
+Cases 3 and 4 are the same waiting, made explicit and given rules. That is the whole lesson: **there is always a queue; the only choice is whether you designed it.** [Run case 5](http://localhost:8080/?case=5)
+
+## Where it breaks
+
+The lab has a ramp that adds users every three seconds, 1, 2, 3, 5, 8, 12, 20, 30, 50, 80…, and notes the first failure. With all pages at once and nothing in front, it broke with **3 users at second 7**, on tokens per minute. With the same crowd and the limiter, the provider stayed clean and our own 429 started at the same point. With the queue, nothing failed at the provider; the wait grew instead, and the door started saying busy when it would have passed a minute.
+
+## What I would do in production
+
+- Pages one after another per user was never the answer; parallel with a queue in front is.
+- Size the queue's budgets from the provider's documented limits, not from guesses, and alert when the wait p95 crosses a threshold: that is the signal to buy a bigger tier.
+- Show the position in the queue to the user. Waiting with a number is fine; waiting in the dark is what makes people retry and make it worse.
+- Treat the HTTP client's pool as a queue you own: size it, measure it, and never let it be the only thing between you and a 503.
+
+<Callout>
+  Draft in my own words pending: the structure and the numbers are real, the prose is a first pass. See the [repo](https://github.com/richardnarvaez/lab/tree/main/rate-limiter) for the code.
 </Callout>

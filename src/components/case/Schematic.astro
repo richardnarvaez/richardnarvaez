@@ -1,0 +1,187 @@
+---
+// Esquema de cajas y flechas en SVG, en el lenguaje del plano: trazo en la
+// tinta de los rieles, esquinas casi rectas, el naranja solo para lo que
+// falla o manda. Se escribe como datos desde el MDX, con la misma API que
+// usa el panel del laboratorio (repo lab), así los diagramas coinciden en
+// los dos sitios.
+//
+//   <Schematic height={150} boxes={[{ x, y, w, h, label, hot?, dashed? }]}
+//              arrows={[{ x1, y1, x2, y2, label?, hot?, dashed? }]}
+//              fans={[{ x1, y1, x2, y2, n, spread }]}
+//              notes={[{ x, y, text, hot?, anchor? }]} caption="…" />
+//
+// El lienzo mide 640 de ancho; `label` admite saltos de línea con "\n".
+interface Box {
+  x: number
+  y: number
+  w: number
+  h: number
+  label: string
+  hot?: boolean
+  dashed?: boolean
+}
+interface Arrow {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  label?: string
+  hot?: boolean
+  dashed?: boolean
+  /** Desplaza la etiqueta en vertical (para flechas verticales). */
+  dy?: number
+}
+interface Fan {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  n: number
+  spread: number
+}
+interface Note {
+  x: number
+  y: number
+  text: string
+  hot?: boolean
+  anchor?: "start" | "middle" | "end"
+}
+interface Props {
+  height?: number
+  boxes?: Box[]
+  arrows?: Arrow[]
+  fans?: Fan[]
+  notes?: Note[]
+  caption?: string
+  class?: string
+}
+
+const { height = 160, boxes = [], arrows = [], fans = [], notes = [], caption, class: className } = Astro.props
+const uid = Math.random().toString(36).slice(2, 8)
+---
+
+<figure class:list={["schematic", className]}>
+  <svg viewBox={`0 0 640 ${height}`} role="img" aria-label={caption}>
+    <defs>
+      <marker id={`a-${uid}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8" class="schematic__tip" /></marker>
+      <marker id={`ah-${uid}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8" class="schematic__tip--hot" /></marker>
+    </defs>
+    {fans.map((f) => Array.from({ length: f.n }, (_, i) => <path d={`M${f.x1} ${f.y1 - f.spread / 2 + (i * f.spread) / (f.n - 1)} L${f.x2} ${f.y2}`} class="schematic__fan" />))}
+    {
+      boxes.map((b) => {
+        const lines = b.label.split("\n")
+        return (
+          <>
+            <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="2" class:list={["schematic__box", { "is-hot": b.hot, "is-dashed": b.dashed }]} />
+            {lines.map((l, i) => (
+              <text x={b.x + b.w / 2} y={b.y + b.h / 2 + (i - (lines.length - 1) / 2) * 13 + 4} text-anchor="middle" class:list={["schematic__label", { "is-hot": b.hot }]}>
+                {l}
+              </text>
+            ))}
+          </>
+        )
+      })
+    }
+    {
+      arrows.map((a) => (
+        <>
+          <path d={`M${a.x1} ${a.y1} L${a.x2} ${a.y2}`} class:list={["schematic__arrow", { "is-hot": a.hot, "is-dashed": a.dashed }]} marker-end={`url(#${a.hot ? "ah" : "a"}-${uid})`} />
+          {a.label && (
+            <text x={(a.x1 + a.x2) / 2} y={Math.min(a.y1, a.y2) - 6 + (a.dy ?? 0)} text-anchor="middle" class:list={["schematic__note", { "is-hot": a.hot }]}>
+              {a.label}
+            </text>
+          )}
+        </>
+      ))
+    }
+    {notes.map((n) => <text x={n.x} y={n.y} text-anchor={n.anchor ?? "start"} class:list={["schematic__note", { "is-hot": n.hot }]}>{n.text}</text>)}
+  </svg>
+  {caption && <figcaption class="schematic__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .schematic {
+    margin: 1.5rem 0;
+    padding: 0.75rem;
+    border: 1px dashed var(--line-tint);
+    background: var(--surface-2);
+  }
+
+  .schematic svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: var(--font-jetbrains);
+  }
+
+  .schematic__box {
+    fill: none;
+    stroke: rgba(139, 126, 210, 0.7);
+    stroke-width: 1;
+  }
+
+  .schematic__box.is-dashed {
+    stroke-dasharray: 4 3;
+  }
+
+  .schematic__box.is-hot {
+    fill: rgb(var(--accent-rgb) / 0.1);
+    stroke: var(--page-accent);
+    stroke-width: 1.5;
+  }
+
+  .schematic__label {
+    font-size: 11px;
+    fill: rgb(var(--text-rgb) / 0.85);
+  }
+
+  .schematic__label.is-hot {
+    fill: var(--page-accent);
+  }
+
+  .schematic__arrow {
+    fill: none;
+    stroke: rgba(139, 126, 210, 0.7);
+    stroke-width: 1;
+  }
+
+  .schematic__arrow.is-dashed {
+    stroke-dasharray: 4 3;
+  }
+
+  .schematic__arrow.is-hot {
+    stroke: var(--page-accent);
+    stroke-width: 1.5;
+  }
+
+  .schematic__fan {
+    fill: none;
+    stroke: rgba(139, 126, 210, 0.7);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+
+  .schematic__tip {
+    fill: rgba(139, 126, 210, 0.7);
+  }
+
+  .schematic__tip--hot {
+    fill: var(--page-accent);
+  }
+
+  .schematic__note {
+    font-size: 10px;
+    fill: rgb(var(--text-rgb) / 0.6);
+  }
+
+  .schematic__note.is-hot {
+    fill: var(--page-accent);
+  }
+
+  .schematic__caption {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+</style>
