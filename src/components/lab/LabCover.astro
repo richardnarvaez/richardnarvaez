@@ -60,7 +60,7 @@ const hot = 4
                 </marker>
               </defs>
             </svg>
-            {data.keyIdea && <span class="cover__idea">{data.keyIdea}</span>}
+            <span class="cover__title">{data.title}</span>
             {data.complexity && (
               <span class="cover__chips font-jetbrains">
                 <span>time {data.complexity.time}</span>
@@ -88,6 +88,7 @@ const hot = 4
                 </marker>
               </defs>
             </svg>
+            <span class="cover__title">{data.title}</span>
           </>
         )}
 
@@ -96,6 +97,7 @@ const hot = 4
             <div class:list={["cover__device", `cover__device--${device}`]}>
               <span class="cover__screen"></span>
             </div>
+            <span class="cover__title">{data.title}</span>
           </>
         )}
       </>
@@ -174,15 +176,17 @@ const hot = 4
     min-height: 3.2rem;
   }
 
-  /* Dos líneas como mucho: el resto del alto es para la figura. */
-  .cover__idea {
+  /* Título abajo, una o dos líneas, en la tipografía de display. */
+  .cover__title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
-    font-size: 0.76rem;
-    line-height: 1.4;
-    color: rgb(var(--text-rgb) / 0.62);
+    font-family: var(--font-bellota);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-wrap: balance;
   }
 
   .cover__chips {

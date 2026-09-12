@@ -1,9 +1,8 @@
 ---
-// Tarjeta de la vitrina: portada 4:3 (tipo, dificultad y figura) y, debajo,
-// título, resumen y fecha. Nada se repite entre portada y texto. Enlaza a la
-// página de la entrada.
+// Tarjeta de la vitrina: solo la portada 4:3, con tipo, figura y título
+// dentro. El resumen va en el nombre accesible del enlace y en la página.
 import LabCover from "./LabCover.astro"
-import { formatDate, type LabEntry } from "./lab"
+import type { LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
@@ -13,21 +12,13 @@ const { entry } = Astro.props
 const { data } = entry
 ---
 
-<a class="lab-card" href={`/lab/${entry.id}`}>
+<a class="lab-card" href={`/lab/${entry.id}`} aria-label={`${data.title}. ${data.summary}`}>
   <LabCover entry={entry} class="lab-card__cover" />
-  <span class="lab-card__title">{data.title}</span>
-  <span class="lab-card__summary">{data.summary}</span>
-  <span class="lab-card__date font-jetbrains">
-    <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>
-    {data.draft && <span> · draft</span>}
-  </span>
 </a>
 
 <style>
   .lab-card {
-    display: grid;
-    gap: 0.35rem;
-    align-content: start;
+    display: block;
     text-decoration: none;
     color: inherit;
     outline-offset: 6px;
@@ -40,36 +31,5 @@ const { data } = entry
   /* Al pasar, el borde discontinuo se enciende en el naranja de la página. */
   .lab-card:hover :global(.lab-card__cover) {
     border-color: var(--page-accent);
-  }
-
-  .lab-card__date {
-    font-size: 0.64rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgb(var(--text-rgb) / 0.45);
-  }
-
-  /* Título y resumen recortados con puntos suspensivos: todas las tarjetas miden lo mismo. */
-  .lab-card__title,
-  .lab-card__summary {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .lab-card__title {
-    -webkit-line-clamp: 2;
-    margin-top: 0.5rem;
-    font-size: 1.05rem;
-    font-weight: 700;
-    line-height: 1.3;
-    color: #fff;
-  }
-
-  .lab-card__summary {
-    -webkit-line-clamp: 2;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: rgb(var(--text-rgb) / 0.62);
   }
 </style>
