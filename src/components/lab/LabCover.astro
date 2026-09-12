@@ -236,7 +236,11 @@ const hot = 4
     text-wrap: balance;
   }
 
-  /* Lo extra se despliega en alto (0fr → 1fr): sube desde debajo del título. */
+  /*
+    Lo extra se despliega en alto (0fr → 1fr) bajo el título. El borde que
+    recorta se difumina con una máscara y el texto entra con opacidad y un
+    leve desplazamiento, así aparece en vez de asomar cortado.
+  */
   .cover__more {
     display: grid;
     grid-template-rows: 0fr;
@@ -256,6 +260,22 @@ const hot = 4
     gap: 0.5rem;
     min-height: 0;
     overflow: hidden;
+    padding-top: 0.15rem;
+    mask-image: linear-gradient(to bottom, transparent, #000 0.6rem);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 0.6rem);
+    opacity: 0;
+    translate: 0 0.35rem;
+    transition:
+      opacity 240ms ease,
+      translate 380ms var(--ease-out);
+  }
+
+  .cover:hover .cover__more-inner {
+    opacity: 1;
+    translate: 0 0;
+    transition:
+      opacity 260ms ease 90ms,
+      translate 380ms var(--ease-out);
   }
 
   .cover__summary {
@@ -337,7 +357,8 @@ const hot = 4
 
   @media (prefers-reduced-motion: reduce) {
     .cover :global(.cover__fade),
-    .cover__more {
+    .cover__more,
+    .cover__more-inner {
       transition: none;
     }
   }
