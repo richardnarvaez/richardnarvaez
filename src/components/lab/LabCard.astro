@@ -84,7 +84,16 @@ const { data } = entry
     border: 1px dashed var(--line-tint);
   }
 
+  /* Título y resumen recortados con puntos suspensivos: todas las tarjetas miden lo mismo. */
+  .lab-card__title,
+  .lab-card__summary {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .lab-card__title {
+    -webkit-line-clamp: 2;
     font-size: 1.05rem;
     font-weight: 700;
     line-height: 1.3;
@@ -92,6 +101,7 @@ const { data } = entry
   }
 
   .lab-card__summary {
+    -webkit-line-clamp: 2;
     font-size: 0.85rem;
     line-height: 1.5;
     color: rgb(var(--text-rgb) / 0.62);
