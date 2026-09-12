@@ -7,10 +7,12 @@ import { hrefOf, isUnsolved, KIND_LABEL, KINDS, labEntries } from "../../compone
 import { siteName } from "../../site.config"
 
 const all = await labEntries()
-const entries = all.filter((e) => !isUnsolved(e))
-const groups = KINDS.map((kind) => ({ kind, items: entries.filter((e) => e.data.kind === kind) })).filter((g) => g.items.length > 0)
-// Lista de estudio: lo pendiente, como checklist; cada fila abre su página, que enlaza al enunciado.
-const todo = all.filter(isUnsolved)
+// Por tipo: tarjetas para lo resuelto o en marcha y, en el mismo grupo, la
+// lista de lo pendiente. Al resolver uno cambia de estado y sube solo a las tarjetas.
+const groups = KINDS.map((kind) => {
+  const items = all.filter((e) => e.data.kind === kind)
+  return { kind, done: items.filter((e) => !isUnsolved(e)), todo: items.filter(isUnsolved) }
+}).filter((g) => g.done.length + g.todo.length > 0)
 ---
 
 <BaseLayout title={`Lab | ${siteName}`} description="Prototypes built for real, plus the system design and interview exercises behind them, explained in my own words.">
@@ -32,33 +34,26 @@ const todo = all.filter(isUnsolved)
       groups.map((group) => (
         <section class="lab-index__group" aria-labelledby={`lab-${group.kind}`}>
           <h2 class="lab-index__kind font-jetbrains" id={`lab-${group.kind}`}>
-            {KIND_LABEL[group.kind]}s <span>{group.items.length}</span>
+            {KIND_LABEL[group.kind]}s <span>{group.done.length + group.todo.length}</span>
+            {group.todo.length > 0 && <em>{group.done.length} solved · {group.todo.length} to solve</em>}
           </h2>
-          <div class="lab-index__grid">{group.items.map((entry) => <LabCard entry={entry} />)}</div>
+          {group.done.length > 0 && <div class="lab-index__grid">{group.done.map((entry) => <LabCard entry={entry} />)}</div>}
+          {group.todo.length > 0 && (
+            <ul class:list={["todo", { "todo--after-grid": group.done.length > 0 }]}>
+              {group.todo.map((entry) => (
+                <li class="todo__item">
+                  <a class="todo__link" href={hrefOf(entry)}>
+                    <span class:list={["todo__level", `todo__level--${entry.data.difficulty ?? "medium"}`]} aria-label={entry.data.difficulty} />
+                    <span class="todo__title">{entry.data.title}</span>
+                    <span class="todo__meta font-jetbrains">{entry.data.tags.slice(0, 3).join(" · ")}</span>
+                    <span class="todo__source font-jetbrains">{entry.data.source?.replace(" · LeetCode", "")}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       ))
-    }
-
-    {
-      todo.length > 0 && (
-        <section class="lab-index__group" aria-labelledby="lab-todo">
-          <h2 class="lab-index__kind font-jetbrains" id="lab-todo">
-            To solve <span>{todo.length}</span>
-          </h2>
-          <ul class="todo">
-            {todo.map((entry) => (
-              <li class="todo__item">
-                <a class="todo__link" href={hrefOf(entry)}>
-                  <span class:list={["todo__level", `todo__level--${entry.data.difficulty ?? "medium"}`]} aria-label={entry.data.difficulty} />
-                  <span class="todo__title">{entry.data.title}</span>
-                  <span class="todo__meta font-jetbrains">{entry.data.tags.slice(0, 3).join(" · ")}</span>
-                  <span class="todo__source font-jetbrains">{entry.data.source?.replace(" · LeetCode", "")}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )
     }
   </main>
 </BaseLayout>
@@ -144,6 +139,13 @@ const todo = all.filter(isUnsolved)
     color: rgb(var(--text-rgb) / 0.35);
   }
 
+  .lab-index__kind em {
+    margin-left: auto;
+    font-style: normal;
+    letter-spacing: 0.06em;
+    color: rgb(var(--text-rgb) / 0.4);
+  }
+
   .lab-index__grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -156,6 +158,12 @@ const todo = all.filter(isUnsolved)
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Tras las tarjetas del mismo grupo, la lista respira un poco y se separa con su propia línea. */
+  .todo--after-grid {
+    margin-top: 2rem;
+    border-top: 1px dashed var(--bp-line);
   }
 
   .todo__item + .todo__item {
