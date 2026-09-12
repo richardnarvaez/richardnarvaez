@@ -70,6 +70,10 @@ const lab = defineCollection({
       .default([]),
     /** unsolved: en la lista de estudio; la tarjeta enlaza al enunciado y no hay página propia todavía. */
     status: z.enum(["solved", "in-progress", "idea", "unsolved"]).default("solved"),
+    /** Prototipos que son la misma app que un caso de Work: id del caso. La portada reutiliza su icono y color. */
+    app: z.string().optional(),
+    /** Icono propio (cuadrado) para prototipos sin caso en Work. */
+    icon: z.string().optional(),
     /** Prototipos: dónde está el producto vivo y su código. Se construyen en Next.js, en otro repo. */
     link: z.url().optional(),
     repo: z.url().optional(),

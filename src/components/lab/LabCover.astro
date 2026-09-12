@@ -9,6 +9,7 @@
 // etiquetas, el prototipo el alambre de un dispositivo. El título no va
 // dentro: lo pone la tarjeta debajo, una sola vez. Todo son trazos:
 // nada de rellenos de color.
+import { getEntry } from "astro:content"
 import GradualBlur from "../ui/GradualBlur.astro"
 import { isUnsolved, KIND_LABEL, type LabEntry } from "./lab"
 
@@ -21,6 +22,10 @@ interface Props {
 
 const { entry, class: className, fade = true } = Astro.props
 const { data } = entry
+// Prototipo que es la misma app que un caso de Work: comparte icono y color.
+const app = data.app ? await getEntry("work", data.app) : undefined
+const icon = data.icon ?? app?.data.icon
+const tint = app?.data.tint
 const boxes = (data.tags.length >= 3 ? data.tags.slice(0, 3) : ["Client", "Service", "Store"]).map((t) => t.slice(0, 12))
 const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
 // Celdas del ejercicio: una fila indexada, con una marcada en naranja.
@@ -90,9 +95,15 @@ const hot = 4
 
         {data.kind === "prototype" && (
           <>
-            <div class:list={["cover__device", `cover__device--${device}`]}>
-              <span class="cover__screen"></span>
-            </div>
+            {icon ? (
+              <span class="cover__app" style={tint ? `background: ${tint};` : undefined}>
+                <img src={icon} alt="" loading="lazy" decoding="async" />
+              </span>
+            ) : (
+              <div class:list={["cover__device", `cover__device--${device}`]}>
+                <span class="cover__screen"></span>
+              </div>
+            )}
           </>
         )}
 
@@ -270,6 +281,29 @@ const hot = 4
     padding: 0.2rem 0.5rem;
     border-radius: 2px;
     border: 1px solid var(--line-tint);
+  }
+
+  /* Prototipo con app: el mismo icono que en el diagrama de Work, mismo radio y sombra. */
+  .cover__app {
+    align-self: center;
+    justify-self: center;
+    display: block;
+    width: 34%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 24%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--surface-3);
+    box-shadow:
+      0 12px 28px -10px rgba(2, 6, 23, 0.7),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  .cover__app img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   /* Prototipo: alambre de dispositivo, solo trazo. */
