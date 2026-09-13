@@ -1193,6 +1193,9 @@ const links = appNodes.flatMap((node) =>
 
   /* ── App ↔ stack diagram ─────────────────────────────────────────────── */
   .diagram {
+    /* How far the unrelated pieces recede when something is focused. */
+    --blur-away: 3.2px;
+
     position: absolute;
     left: 0;
     top: 0;
@@ -1283,7 +1286,7 @@ const links = appNodes.flatMap((node) =>
 
   .diagram.has-focus .chip-node:not(.is-lit) {
     opacity: 0.35;
-    filter: grayscale(1) blur(1.6px);
+    filter: grayscale(1) blur(var(--blur-away));
   }
 
   .chip-node.is-lit {
@@ -1302,13 +1305,13 @@ const links = appNodes.flatMap((node) =>
   }
 
   /*
-    Lo ajeno se desenfoca además de apagarse: da profundidad y separa lo
-    señalado del resto. Corto a propósito, 1.6px, que el objetivo es
-    alejarlo, no borrarlo.
+    The unrelated pieces blur as well as dim: it gives depth and separates what
+    is pointed at. Blurred per piece, not behind one layer, so the dotted grid
+    stays crisp and anchors the drag.
   */
   .diagram.has-focus .node:not(.is-lit) {
     opacity: 0.4;
-    filter: blur(1.6px);
+    filter: blur(var(--blur-away));
   }
 
   .node__name {
