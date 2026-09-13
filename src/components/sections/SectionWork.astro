@@ -1,41 +1,71 @@
 ---
-// Sección de trabajo: la pantalla de un MacBook como escenario. Dentro, un
-// lienzo de puntos que se puede desplazar (arrastrando, con inercia) con
-// las piezas de la capa activa; un dock con tres capas (Apps, Illustrations,
-// Photography); y drawers inferiores: uno por caso de estudio (MDX) y uno
-// para la galería con filtro simple. Sin arrastrar piezas: las posiciones
-// son fijas y la interacción es leer, no ordenar.
+// Work section: a MacBook screen as the stage, holding a pannable dot canvas
+// with the app ↔ stack diagram and one bottom drawer per case study (MDX).
+// Pieces are not draggable: the interaction is reading, not arranging.
 //
-// Cada caso existe además como página propia en /work/[slug]; el drawer es
-// la misma pieza montada aquí. Al abrir uno, la URL pasa a #work/<slug>, y
-// al cargar con ese hash se abre solo.
+// The gallery drawer and the lightbox are still mounted here even though the
+// gallery lives in its own section: they are fixed layers opened by
+// delegation on document.
+//
+// Each case is also a page at /work/[slug]; opening a drawer sets #work/<slug>
+// and loading with that hash opens it on its own.
 import { getCollection } from "astro:content"
 import BlueprintSection from "../layout/BlueprintSection.astro"
-import MacDock from "../work/MacDock.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import WorkLightbox from "../work/WorkLightbox.astro"
 import CaseStudy from "../case/CaseStudy.astro"
-import { gallery, type GalleryItem } from "../../data/gallery"
+import { gallery } from "../../data/gallery"
 import { toolLogoById } from "../../data/tool-logos"
+import savedLayouts from "../../data/diagram-layout.json"
 
 const cases = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order)
 const published = cases.filter((c) => !c.data.draft)
 
-// ── Ranuras (px respecto al centro del lienzo) ──────────────────────────
-type Slot = { x: number; y: number; w: number; ratio?: number }
-
 // ── Apps: diagrama app ↔ stack ─────────────────────────────────────────
-// Huma en el centro y el resto de apps en anillo a su alrededor; los stacks,
-// únicos, en dos columnas a los lados; un conector por cada uso. Todo sale
-// del frontmatter de los MDX (stack, status, sticker): añadir un caso
-// redibuja el mapa.
+// Built from the MDX frontmatter (stack, status, sticker): adding a case
+// redraws the map. Both geometries only differ in the coordinates they
+// produce, so switching this constant back is the whole revert.
+type Layout = "orbit" | "concentric"
+const LAYOUT: Layout = "concentric"
+// The cast stops TS narrowing to the literal, which would make the
+// comparisons below look impossible.
+const isOrbit = (LAYOUT as Layout) === "orbit"
+
+// orbit
 const HUB_SIZE = 96
 const RING_SIZE = 72
 const RING_RX = 256
 const RING_RY = 138
-const CLUSTER_Y = -28
 const COL_X = 392
 const COL_GAP = 40
+
+// concentric. The canvas is 1280×640, so every ring is an ellipse.
+const CORE_GAP = 40
+const APP_RX = 248
+const APP_RY = 165
+/* One band for mid and exclusive stacks: two do not fit. Between the app ring
+   and the edge there are 108px, and the chips are 125 wide. */
+const OUT_RX = 424
+const OUT_RY = 270
+/* Anchored by their outer edge: centring them on the ring wasted half a chip
+   of radial budget per side. */
+const OUT_PULL = 40
+/** Alternates the radius inwards to clear neighbours on the same ring. */
+const OUT_STAGGER = 0.05
+const OUT_GAP = 26
+/*
+  Deterministic, not random. The multiplier must spread well modulo 13: one
+  that is ≡ 1 collapses the sequence to j and tilts every chip the same way.
+*/
+const CHIP_TILT = 4
+const tiltOf = (j: number) => ((((j * 7) % 13) - 6) / 6) * CHIP_TILT
+
+/** Gap between the two core columns. */
+const CORE_COL_X = 72
+
+/* concentric is radial and symmetric: any offset reads as a gap at the bottom. */
+const CLUSTER_Y = isOrbit ? -28 : 0
 
 type AppNode = {
   id: string
@@ -45,11 +75,11 @@ type AppNode = {
   tint?: string
   open?: string
   soon?: boolean
-  /** Retirada hace años: blanco y negro y etiqueta R.I.P. */
+  /** Retired years ago: greyscale plus an R.I.P. label. */
   dead?: boolean
   sticker?: string
   stacks: string[]
-  /** Baldosa clara: la inicial va en oscuro. */
+  /** Light tile: the initial goes dark. */
   light?: boolean
   x: number
   y: number
@@ -57,33 +87,110 @@ type AppNode = {
   rot: number
 }
 
-const hubIndex = Math.max(0, cases.findIndex((c) => c.id === "huma"))
-const ring = cases.filter((_, i) => i !== hubIndex)
-const appNodes: AppNode[] = cases.map((entry, i) => {
-  const isHub = i === hubIndex
-  const k = ring.indexOf(entry)
-  // Anillo: arranca arriba y gira en sentido horario, en orden de `order`.
-  const angle = (-90 + (360 / Math.max(1, ring.length)) * k) * (Math.PI / 180)
-  return {
-    id: entry.id,
-    name: entry.data.name,
-    src: entry.data.icon || undefined,
-    initial: entry.data.icon ? undefined : entry.data.name[0],
-    tint: entry.data.tint,
-    open: entry.data.draft ? undefined : `case:${entry.id}`,
-    soon: entry.data.draft && entry.data.status !== "discontinued",
-    dead: entry.data.status === "discontinued",
-    sticker: entry.data.sticker,
-    stacks: entry.data.stack,
-    x: isHub ? 0 : Math.cos(angle) * RING_RX,
-    y: CLUSTER_Y + (isHub ? 0 : Math.sin(angle) * RING_RY),
-    size: isHub ? HUB_SIZE : RING_SIZE,
-    rot: isHub ? -6 : ((k * 137) % 17) - 8,
-    light: entry.data.tint?.toLowerCase() === "#fff",
-  }
-})
+const RAD = Math.PI / 180
 
-// Stack → id de logo en tool-logos (los que no tienen logo salen solo con texto).
+/*
+  Superellipse, not ellipse: the canvas is a rectangle and an inscribed
+  ellipse leaves the corners dead. Same size on the axes, fuller diagonals.
+*/
+const SUPER_P = 0.62
+const sup = (v: number) => Math.sign(v) * Math.abs(v) ** SUPER_P
+const base = cases.map((entry) => ({
+  id: entry.id,
+  name: entry.data.name,
+  src: entry.data.icon || undefined,
+  initial: entry.data.icon ? undefined : entry.data.name[0],
+  tint: entry.data.tint,
+  open: entry.data.draft ? undefined : `case:${entry.id}`,
+  soon: entry.data.draft && entry.data.status !== "discontinued",
+  dead: entry.data.status === "discontinued",
+  sticker: entry.data.sticker,
+  stacks: entry.data.stack as string[],
+  light: entry.data.tint?.toLowerCase() === "#fff",
+}))
+
+// ── orbit ───────────────────────────────────────────────────────────────
+const orbitNodes = (): AppNode[] => {
+  const hubIndex = Math.max(0, cases.findIndex((c) => c.id === "huma"))
+  const ring = base.filter((_, i) => i !== hubIndex)
+  return base.map((entry, i) => {
+    const isHub = i === hubIndex
+    const k = ring.indexOf(entry)
+    const angle = (-90 + (360 / Math.max(1, ring.length)) * k) * RAD
+    return {
+      ...entry,
+      x: isHub ? 0 : Math.cos(angle) * RING_RX,
+      y: CLUSTER_Y + (isHub ? 0 : Math.sin(angle) * RING_RY),
+      size: isHub ? HUB_SIZE : RING_SIZE,
+      rot: isHub ? -6 : ((k * 137) % 17) - 8,
+    }
+  })
+}
+
+// ── concentric ──────────────────────────────────────────────────────────
+/* Greedy seriation: each app lands next to the one it shares most stack with,
+   so the connectors into the core do not cross. */
+const seriate = (nodes: typeof base) => {
+  const rest = [...nodes]
+  const first = rest.reduce((bi, n, i) => (n.stacks.length > rest[bi].stacks.length ? i : bi), 0)
+  const out = [rest.splice(first, 1)[0]]
+  while (rest.length) {
+    const prev = out[out.length - 1]
+    let bi = 0
+    let best = -1
+    rest.forEach((n, i) => {
+      const shared = n.stacks.filter((x) => prev.stacks.includes(x)).length
+      if (shared > best) {
+        best = shared
+        bi = i
+      }
+    })
+    out.push(rest.splice(bi, 1)[0])
+  }
+  return out
+}
+
+const degree = new Map<string, number>()
+for (const n of base) for (const st of n.stacks) degree.set(st, (degree.get(st) ?? 0) + 1)
+const deg = (name: string) => degree.get(name) ?? 0
+
+const concentricNodes = (): AppNode[] => {
+  const order = seriate(base)
+  const degs = base.map((n) => n.stacks.length)
+  const lo = Math.min(...degs)
+  const hi = Math.max(...degs)
+  return base.map((entry) => {
+    const k = order.indexOf(entry)
+    /* The 20° offset keeps an icon from sitting right above the core stack. */
+    const angle = (-70 + (360 / order.length) * k) * RAD
+    // Size carries weight too: more stack, bigger icon.
+    const t = hi === lo ? 1 : (entry.stacks.length - lo) / (hi - lo)
+    return {
+      ...entry,
+      x: sup(Math.cos(angle)) * APP_RX,
+      y: CLUSTER_Y + sup(Math.sin(angle)) * APP_RY,
+      size: Math.round(56 + t * 16),
+      rot: ((k * 137) % 15) - 7,
+    }
+  })
+}
+
+/* Hand-placed exceptions from the dev editor, applied per piece: anything
+   not saved keeps placing itself. */
+// The JSON starts empty and TS infers `{}`, hence the double cast.
+const saved: Record<string, [number, number]> =
+  (savedLayouts as unknown as Record<string, Record<string, [number, number]>>)[LAYOUT] ?? {}
+const pin = <T extends { x: number; y: number }>(key: string, item: T): T => {
+  const at = saved[key]
+  return at ? { ...item, x: at[0], y: at[1] } : item
+}
+
+const appNodes: AppNode[] = (isOrbit ? orbitNodes() : concentricNodes()).map((n) =>
+  pin(`app:${n.id}`, n),
+)
+const angleOf = (n: AppNode) => Math.atan2(n.y - CLUSTER_Y, n.x)
+
+// Stack → logo id in tool-logos. Anything missing renders as text only.
 const stackLogo: Record<string, string> = {
   Swift: "swift", SwiftUI: "swift", Convex: "convex", Stripe: "stripe", "Next.js": "next", TypeScript: "typescript",
   Postgres: "postgres", Kotlin: "kotlin", React: "react", Angular: "angular", Node: "node", AWS: "aws", Docker: "docker",
@@ -91,117 +198,141 @@ const stackLogo: Record<string, string> = {
   Directus: "directus", Unity: "unity", Firebase: "firebase", "Node.js": "node", "React Native": "react", Python: "python",
 }
 
-// Logos negros o muy oscuros: van sobre un círculo blanco; el resto, tal cual.
+// Black or very dark logos sit on a white circle; the rest render as-is.
 const darkLogos = new Set(["Next.js", "Railway", "AWS"])
 
-// Cada stack cae en la columna del lado donde más lo usan sus apps; así los
-// conectores cruzan poco. Dentro de cada columna, en orden de aparición.
+// ── Stacks and connectors ──────────────────────────────────────────────
 const stackNames = [...new Set(appNodes.flatMap((n) => n.stacks))]
-const sideOf = (name: string) => {
-  const users = appNodes.filter((n) => n.stacks.includes(name))
-  const meanX = users.reduce((acc, n) => acc + n.x, 0) / Math.max(1, users.length)
-  return meanX < 0 ? "left" : "right"
+const withLogo = <T extends { name: string }>(c: T) => ({
+  ...c,
+  logo: stackLogo[c.name] ? toolLogoById.get(stackLogo[c.name]) : undefined,
+})
+
+// orbit: each stack falls on the side where most of its apps sit.
+const orbitChips = () => {
+  const sideOf = (name: string) => {
+    const users = appNodes.filter((n) => n.stacks.includes(name))
+    const meanX = users.reduce((acc, n) => acc + n.x, 0) / Math.max(1, users.length)
+    return meanX < 0 ? "left" : "right"
+  }
+  const left = stackNames.filter((n) => sideOf(n) === "left")
+  const right = stackNames.filter((n) => sideOf(n) === "right")
+  while (left.length - right.length > 1) right.unshift(left.pop()!)
+  while (right.length - left.length > 1) left.push(right.shift()!)
+  const column = (names: string[], x: number) =>
+    names.map((name, j) => ({ name, x, y: CLUSTER_Y + (j - (names.length - 1) / 2) * COL_GAP }))
+  return [...column(left, -COL_X), ...column(right, COL_X)].map((c) => ({ ...c, rot: 0 }))
 }
-let left = stackNames.filter((n) => sideOf(n) === "left")
-let right = stackNames.filter((n) => sideOf(n) === "right")
-// Equilibra las columnas si una queda muy cargada.
-while (left.length - right.length > 1) right.unshift(left.pop()!)
-while (right.length - left.length > 1) left.push(right.shift()!)
-const column = (names: string[], x: number) => names.map((name, j) => ({ name, x, y: CLUSTER_Y + (j - (names.length - 1) / 2) * COL_GAP }))
-const stackChips = [...column(left, -COL_X), ...column(right, COL_X)].map((chip) => ({
-  ...chip,
-  logo: stackLogo[chip.name] ? toolLogoById.get(stackLogo[chip.name]) : undefined,
-}))
+
+/*
+  Three bands by degree: core (4+ apps) at the centre, mid (2-3) at the mean
+  angle of the apps sharing them, and exclusives hanging off their own app.
+*/
+const concentricChips = () => {
+  const core = stackNames.filter((n) => deg(n) >= 4)
+  const outer = stackNames.filter((n) => deg(n) < 4)
+
+  /* Two columns offset half a row: as a list it read like a menu, the only
+     orthogonal thing on a scattered canvas. */
+  const coreRows = Math.ceil(core.length / 2)
+  const coreChips = core.map((name, j) => {
+    const col = j % 2 === 0 ? -1 : 1
+    const row = Math.floor(j / 2)
+    return {
+      name,
+      rot: tiltOf(j),
+      x: col * CORE_COL_X + (((j * 29) % 17) - 8),
+      y: CLUSTER_Y + (row - (coreRows - 1) / 2) * CORE_GAP + (col > 0 ? CORE_GAP / 2 : 0),
+    }
+  })
+
+  /* Circular mean of its apps: unit vectors are summed because the arithmetic
+     mean breaks when crossing ±180°. */
+  const wanted = outer.map((name) => {
+    const users = appNodes.filter((n) => n.stacks.includes(name))
+    const sx = users.reduce((a, n) => a + Math.cos(angleOf(n)), 0)
+    const sy = users.reduce((a, n) => a + Math.sin(angleOf(n)), 0)
+    let a = Math.atan2(sy, sx)
+    if (a < 0) a += 2 * Math.PI
+    return { name, a }
+  })
+
+  const sorted = [...wanted].sort((p, q) => p.a - q.a)
+
+  /*
+    Angle is shared by chip width, not evenly: they run 49px to 125px and an
+    even split left the wide ones overlapping. Width is estimated from the text.
+  */
+  const chipWidth = (name: string) => (stackLogo[name] ? 53 : 26) + name.length * 5.7
+  const weights = sorted.map(({ name }) => chipWidth(name) + OUT_GAP)
+  const total = weights.reduce((a, b) => a + b, 0)
+
+  let acc = 0
+  const outerChips = sorted.map(({ name }, j) => {
+    const a = sorted[0].a + ((acc + weights[j] / 2) / total) * 2 * Math.PI
+    acc += weights[j]
+    const k = 1 - (j % 2) * OUT_STAGGER
+    const x = sup(Math.cos(a)) * OUT_RX * k
+    return {
+      name,
+      rot: tiltOf(j),
+      x: x - Math.sign(x) * OUT_PULL,
+      y: CLUSTER_Y + sup(Math.sin(a)) * OUT_RY * k,
+    }
+  })
+
+  return [...coreChips, ...outerChips]
+}
+
+const stackChips = (isOrbit ? orbitChips() : concentricChips())
+  .map(withLogo)
+  .map((c) => pin(`stack:${c.name}`, c))
 const chipByName = new Map(stackChips.map((c) => [c.name, c]))
 
-// Conectores: curva en S horizontal del centro del icono al centro del chip.
+// orbit bends in a horizontal S; concentric bows towards the centre so the
+// radii converge instead of crossing.
+const linkPath = (ax: number, ay: number, bx: number, by: number) => {
+  if (isOrbit) {
+    const midX = (ax + bx) / 2
+    return `M${ax} ${ay} C${midX} ${ay}, ${midX} ${by}, ${bx} ${by}`
+  }
+  const k = 0.14
+  const cx = ((ax + bx) / 2) * (1 - k)
+  const cy = CLUSTER_Y + ((ay + by) / 2 - CLUSTER_Y) * (1 - k)
+  return `M${ax} ${ay} Q${cx.toFixed(1)} ${cy.toFixed(1)}, ${bx} ${by}`
+}
+
 const links = appNodes.flatMap((node) =>
   node.stacks.flatMap((name) => {
     const chip = chipByName.get(name)
     if (!chip) return []
-    const midX = (node.x + chip.x) / 2
-    return [{ app: node.id, stack: name, d: `M${node.x} ${node.y} C${midX} ${node.y}, ${midX} ${chip.y}, ${chip.x} ${chip.y}` }]
+    return [{ app: node.id, stack: name, d: linkPath(node.x, node.y, chip.x, chip.y) }]
   }),
 )
 
-// Galería: lo principal de ilustración y fotografía en una sola composición
-// tipo mood board, 7 piezas alternando ambos tipos. El resto vive en el drawer.
-const featuredIds = ["madeira", "ill-1", "landing-path", "ill-2", "sail-line", "ill-4", "blue-valley", "app-huma"]
-const gallerySlots: Slot[] = [
-  { x: 0, y: -12, w: 168, ratio: 0.8 },
-  { x: -176, y: -64, w: 128, ratio: 1 },
-  { x: 168, y: -56, w: 108, ratio: 0.75 },
-  { x: -168, y: 92, w: 108, ratio: 1.43 },
-  { x: 164, y: 104, w: 92, ratio: 0.5625 },
-  { x: 306, y: 24, w: 88, ratio: 0.7 },
-  { x: -318, y: 14, w: 84, ratio: 0.8 },
-  { x: 24, y: 172, w: 72, ratio: 1 },
-]
-const featured = featuredIds.map((id) => gallery.find((g) => g.id === id)!).filter(Boolean)
 
-type Piece = {
-  id: string
-  name: string
-  src?: string
-  /** "image:<id>" */
-  open?: string
-  x: number
-  y: number
-  w: number
-  h: number
-}
 
-const galleryPieces = (items: GalleryItem[], slots: Slot[]): Piece[] =>
-  items.slice(0, slots.length).map((item, i) => {
-    const slot = slots[i]
-    return { id: item.id, name: item.name, src: item.src, open: `image:${item.id}`, x: slot.x, y: slot.y, w: slot.w, h: slot.w / (slot.ratio ?? 1) }
-  })
-
-const layers = [
-  {
-    id: "apps",
-    label: "Apps",
-    kind: "diagram",
-    pieces: [] as Piece[],
-    icon: `<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>`,
-    tint: ["#5ac8fa", "#0a5fd6"] as [string, string],
-  },
-  {
-    id: "gallery",
-    label: "Gallery",
-    kind: "canvas",
-    pieces: galleryPieces(featured, gallerySlots),
-    icon: `<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m21 15-4.5-4.5L8 19"/>`,
-    tint: ["#ff9f5a", "#e0402f"] as [string, string],
-  },
-] as const
-
-const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, tint }))
 ---
 
-{/* Sin divisor ni título: continúa el bloque 02 (shortcuts & work) que abre el bento. */}
-<BlueprintSection id="work" class="work" divider={false} ariaLabel="Projects and products">
+<BlueprintSection id="work" class="work" label="03 — work" ariaLabelledby="work-title">
+  <SectionHeader
+    class="work__header"
+    claim="Products that shipped, not demos."
+    context="The stack behind each one, and the decision that cost the most. Drag the canvas, open any app to read it."
+    titleId="work-title"
+  />
+
   <div class="work__mac">
-    {/* Tapa: bisel negro fino, muesca y pantalla. */}
+    {/* Lid: thin black bezel, notch and screen. */}
     <div class="work__screen">
-      <div class="work__display" data-display>
+      <div class="work__display" data-display data-layout={LAYOUT}>
         <span class="work__notch" aria-hidden="true"></span>
 
         <div class="canvas" data-canvas>
           <div class="canvas__dots" aria-hidden="true"></div>
-          {
-            layers.map((layer) => (
-              <div
-                class:list={["canvas__layer", `canvas__layer--${layer.kind}`]}
-                id={`layer-${layer.id}`}
-                role="tabpanel"
-                aria-labelledby={`dock-${layer.id}`}
-                data-layer={layer.id}
-                hidden={layer.id !== "apps"}
-              >
-                <div class="canvas__cluster">
-                  {layer.id === "apps" && (
-                    <div class="diagram" data-diagram>
+          <div class="canvas__layer canvas__layer--diagram" id="layer-apps">
+            <div class="canvas__cluster">
+                    <div class="diagram" data-diagram data-cluster-y={CLUSTER_Y}>
                       <svg class="diagram__links" viewBox="-640 -320 1280 640" width="1280" height="640" aria-hidden="true">
                         {links.map((l) => <path d={l.d} data-link-app={l.app} data-link-stack={l.stack} />)}
                         <defs>
@@ -212,7 +343,11 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
                       </svg>
 
                       {stackChips.map((chip) => (
-                        <span class="chip-node" style={`--x: ${chip.x.toFixed(1)}px; --y: ${chip.y.toFixed(1)}px;`} data-stack={chip.name}>
+                        <span
+                          class="chip-node"
+                          style={`--x: ${chip.x.toFixed(1)}px; --y: ${chip.y.toFixed(1)}px; --rot: ${chip.rot.toFixed(2)}deg;`}
+                          data-stack={chip.name}
+                        >
                           {chip.logo && (
                             <svg class:list={["chip-node__logo", { "chip-node__logo--badge": darkLogos.has(chip.name) }]} viewBox={chip.logo.viewBox} fill={chip.logo.fill} set:html={chip.logo.body} />
                           )}
@@ -246,41 +381,113 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
                         )
                       })}
                     </div>
-                  )}
-                  {layer.pieces.map((p) => {
-                    const style = `--x: ${p.x.toFixed(1)}px; --y: ${p.y.toFixed(1)}px; --w: ${p.w}px; --h: ${p.h.toFixed(1)}px; --rot: 0deg;`
-                    return (
-                      <button type="button" class="piece" style={style} data-open={p.open} aria-label={p.name}>
-                        <span class="piece__tile">
-                          {p.src && <img src={p.src} loading="lazy" decoding="async" draggable="false" alt="" />}
-                        </span>
-                        <span class="piece__name" aria-hidden="true">{p.name}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-                {layer.id === "gallery" && (
-                  <button type="button" class="canvas__cta" data-open="gallery">
-                    <span>See all</span>
-                    <span class="canvas__cta-count font-jetbrains">{gallery.length}</span>
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
-                  </button>
-                )}
-              </div>
-            ))
-          }
+            </div>
+          </div>
         </div>
 
-        <MacDock items={dockItems} active="apps" />
+        {/*
+          Herramientas del lienzo, en fila: al aparecer el botón de centrar
+          los chips del editor se apartan solos en vez de dejarle un hueco
+          reservado que casi siempre está vacío.
+        */}
+        <div class="work__tools">
+          {
+            /* Dev only: Vite replaces import.meta.env.DEV with false at build time. */
+            import.meta.env.DEV && (
+              <>
+            <style is:inline>
+  .dev-layout {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .dev-layout button {
+    display: inline-flex;
+    align-items: center;
+    height: 2.25rem;
+    padding: 0 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-tint);
+    background: rgb(var(--surface-rgb) / 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgb(var(--text-rgb) / 0.75);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .dev-layout button:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .dev-layout button.is-on {
+    background: var(--page-accent);
+    border-color: var(--page-accent);
+    color: #fff;
+  }
+
+  .dev-layout__status {
+    font-size: 0.68rem;
+    color: rgb(var(--text-rgb) / 0.6);
+    white-space: nowrap;
+  }
+
+  .diagram.is-editing .chip-node,
+  .diagram.is-editing .node {
+    cursor: grab;
+  }
+
+  .diagram.is-editing .chip-node:active,
+  .diagram.is-editing .node:active {
+    cursor: grabbing;
+  }
+
+  .diagram.is-editing .node:hover,
+  .diagram.is-editing .chip-node:hover {
+    scale: 1;
+  }
+              /* Not on mobile: development happens on desktop. */
+              @media (max-width: 900px) {
+                .dev-layout {
+                  display: none;
+                }
+              }
+            </style>
+
+              <div class="dev-layout" data-dev-layout>
+                <button type="button" data-dev-edit>Mover piezas</button>
+                <button type="button" data-dev-save hidden>Guardar</button>
+                <button type="button" data-dev-clear hidden>Borrar guardadas</button>
+                <span class="dev-layout__status" data-dev-status />
+              </div>
+              </>
+            )
+          }
+
+          <button type="button" class="work__recenter" data-recenter aria-label="Recentre the canvas">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.2" />
+              <path d="M12 2.6v3.2M12 18.2v3.2M2.6 12h3.2M18.2 12h3.2" />
+            </svg>
+          </button>
+        </div>
+
       </div>
     </div>
 
-    {/* Base con el teclado, detrás de la tapa. */}
+    {/* Keyboard base, behind the lid. */}
     <div class="work__base" aria-hidden="true">
       <img src="/images/teclado-mac.jpg" width="667" height="295" loading="lazy" decoding="async" alt="" />
     </div>
 
-    {/* Drawers: fijos a pantalla completa; viven aquí para que el script los encuentre. */}
+    {/* Drawers are fixed full-screen; they live here so the script finds them. */}
     {
       published.map((entry) => (
         <WorkDrawer id={`drawer-${entry.id}`} labelledby={`case-${entry.id}-title`}>
@@ -321,7 +528,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
 
     <WorkLightbox />
 
-    {/* Datos de la galería para el visor: nombre, texto y proporción por id. */}
+    {/* Gallery data for the viewer: name, text and ratio by id. */}
     <script type="application/json" data-gallery-data set:html={JSON.stringify(Object.fromEntries(gallery.map((g) => [g.id, { name: g.name, desc: g.desc ?? "", src: g.src, full: g.full, ratio: g.ratio, kind: g.kind }])))} />
   </div>
 </BlueprintSection>
@@ -332,94 +539,45 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
   const root = document.querySelector<HTMLElement>("#work")
   const display = root?.querySelector<HTMLElement>("[data-display]")
   const canvas = root?.querySelector<HTMLElement>("[data-canvas]")
-  const dock = root?.querySelector<HTMLElement>("[data-dock]")
 
-  if (root && display && canvas && dock) {
-    const hoverable = matchMedia("(hover: hover)").matches
+  if (root && display && canvas) {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
 
-    // ── Capas ↔ dock (pestañas) ─────────────────────────────────────────
-    const tabs = [...dock.querySelectorAll<HTMLButtonElement>("[data-dock-item]")]
-    const layersEl = [...canvas.querySelectorAll<HTMLElement>("[data-layer]")]
-
-    const showLayer = (id: string) => {
-      for (const tab of tabs) {
-        const on = tab.dataset.dockItem === id
-        tab.setAttribute("aria-selected", String(on))
-        tab.tabIndex = on ? 0 : -1
-      }
-      for (const layer of layersEl) layer.hidden = layer.dataset.layer !== id
-      // Cada capa vuelve al centro: sus piezas están compuestas para él.
-      setPan(0, 0)
-    }
-
-    for (const tab of tabs) tab.addEventListener("click", () => showLayer(tab.dataset.dockItem!))
-    dock.addEventListener("keydown", (event) => {
-      const i = tabs.findIndex((t) => t === document.activeElement)
-      if (i < 0) return
-      const next = event.key === "ArrowRight" ? i + 1 : event.key === "ArrowLeft" ? i - 1 : -1
-      if (next < 0) return
-      event.preventDefault()
-      const tab = tabs[(next + tabs.length) % tabs.length]
-      showLayer(tab.dataset.dockItem!)
-      tab.focus()
-    })
-
-    // ── Magnificación del dock ──────────────────────────────────────────
-    if (hoverable) {
-      const RANGE = 96
-      const GAIN = 0.55
-      // La barra se ensancha simétricamente al magnificar (está centrada), así
-      // que se comparan posiciones respecto a su centro: los centros de los
-      // iconos se miden en reposo y el puntero se refiere al centro actual.
-      // Sin realimentación: la medida no depende del estado magnificado.
-      let centers: number[] = []
-      const measure = () => {
-        for (const tab of tabs) tab.style.setProperty("--s", "1")
-        const mid = dock.getBoundingClientRect()
-        const dockMid = mid.left + mid.width / 2
-        centers = tabs.map((tab) => {
-          const box = tab.getBoundingClientRect()
-          return box.left + box.width / 2 - dockMid
-        })
-      }
-      dock.addEventListener("pointerenter", () => {
-        measure()
-        dock.classList.remove("is-idle")
-      })
-      dock.addEventListener("pointermove", (event) => {
-        const box = dock.getBoundingClientRect()
-        const x = event.clientX - (box.left + box.width / 2)
-        tabs.forEach((tab, i) => {
-          const d = Math.abs(x - centers[i])
-          // Caída en coseno: suave en el centro y en los bordes, como el Dock.
-          const t = Math.max(0, 1 - d / RANGE)
-          const s = 1 + GAIN * (0.5 - 0.5 * Math.cos(Math.PI * t))
-          tab.style.setProperty("--s", s.toFixed(3))
-        })
-      })
-      dock.addEventListener("pointerleave", () => {
-        dock.classList.add("is-idle")
-        for (const tab of tabs) tab.style.setProperty("--s", "1")
-      })
-    }
-
-    // ── Desplazamiento del lienzo (arrastre con inercia) ────────────────
+    // ── Canvas panning (drag with inertia) ─────────────────────────────
     const BOUND_X = 460
     const BOUND_Y = 260
     const clamp = (v: number, b: number) => Math.max(-b, Math.min(b, v))
     let px = 0
     let py = 0
+    const recenter = root.querySelector<HTMLElement>("[data-recenter]")
     const setPan = (x: number, y: number) => {
       px = clamp(x, BOUND_X)
       py = clamp(y, BOUND_Y)
       canvas.style.setProperty("--px", `${px.toFixed(1)}px`)
       canvas.style.setProperty("--py", `${py.toFixed(1)}px`)
+      // 24px of slack so a micro-drag does not light the button.
+      recenter?.classList.toggle("is-on", Math.hypot(px, py) > 24)
     }
 
     let drag: { id: number; sx: number; sy: number; bx: number; by: number; lx: number; ly: number; lt: number; vx: number; vy: number } | null = null
     let panning = false
     let inertia = 0
+
+    recenter?.addEventListener("click", () => {
+      // Shares the inertia handle, so starting a drag cancels the trip home.
+      cancelAnimationFrame(inertia)
+      if (reduced) return setPan(0, 0)
+      const fromX = px
+      const fromY = py
+      const start = performance.now()
+      const glideHome = (now: number) => {
+        const t = Math.min(1, (now - start) / 520)
+        const eased = 1 - Math.pow(1 - t, 3)
+        setPan(fromX * (1 - eased), fromY * (1 - eased))
+        if (t < 1) inertia = requestAnimationFrame(glideHome)
+      }
+      inertia = requestAnimationFrame(glideHome)
+    })
 
     canvas.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return
@@ -439,7 +597,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
         try {
           canvas.setPointerCapture(drag.id)
         } catch {
-          /* sin captura: sigue funcionando mientras el puntero esté encima */
+          /* no capture: still works while the pointer stays over it */
         }
       }
       const now = performance.now()
@@ -458,7 +616,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       drag = null
       if (!panning) return
       canvas.classList.remove("is-panning")
-      // Un clic justo después de arrastrar no debe abrir nada.
+      // A click right after a drag must not open anything.
       suppressClick = true
       setTimeout(() => (suppressClick = false), 0)
       if (reduced) return
@@ -472,7 +630,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       }
       inertia = requestAnimationFrame(glide)
     }
-    // En window: si se suelta fuera del lienzo, el arrastre no puede quedarse armado.
+    // On window: releasing outside the canvas must not leave the drag armed.
     window.addEventListener("pointerup", endDrag)
     window.addEventListener("pointercancel", endDrag)
 
@@ -488,9 +646,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       true,
     )
 
-    // ── Diagrama: los conectores solo se ven enteros para UNA app (la fijada);
-    //    el resto queda al 10%. Al pasar por una app o un stack se ilumina y lo
-    //    demás se atenúa; al salir, vuelve a la última fijada (Huma al cargar).
+    // ── Diagram: only ONE app shows full connectors, the pinned one; the
+    //    rest sit at 10%. Hovering lights its own and dims everything else.
     const diagram = canvas.querySelector<HTMLElement>("[data-diagram]")
     if (diagram) {
       const nodes = [...diagram.querySelectorAll<HTMLElement>("[data-app]")]
@@ -502,7 +659,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
         diagram.classList.remove("has-focus")
         for (const el of [...nodes, ...chips, ...paths]) el.classList.remove("is-lit")
       }
-      // dim: además de encender lo relacionado, apaga nodos y chips ajenos (solo con el puntero encima).
+      // Also dims unrelated nodes and chips, but only while a pointer is over one.
       const focusApp = (id: string, dim: boolean) => {
         clear()
         diagram.classList.toggle("has-focus", dim)
@@ -540,8 +697,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     }
 
     // ── Drawers ────────────────────────────────────────────────────────
-    // Apertura, foco, Escape y arrastre viven en scripts/drawers.ts (los
-    // comparte con la sección Lab). Aquí solo lo propio del Mac.
+    // Opening, focus, Escape and drag live in scripts/drawers.ts, shared with
+    // the Lab section. Only the Mac-specific parts stay here.
     const drawers = initDrawers(root, {
       onOpen: () => display.classList.add("has-drawer"),
       onClose: () => {
@@ -551,7 +708,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     })
     const open = drawers.open
 
-    // ── Galería: filtro ─────────────────────────────────────────────────
+    // ── Gallery filter ─────────────────────────────────────────────────
     const galleryDrawer = root.querySelector<HTMLElement>("#drawer-gallery")
     const filterButtons = [...(galleryDrawer?.querySelectorAll<HTMLButtonElement>("[data-gallery-filter]") ?? [])]
     const galleryItems = [...(galleryDrawer?.querySelectorAll<HTMLElement>(".gallery__item") ?? [])]
@@ -579,7 +736,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       history.replaceState(null, "", `#work/${slug}`)
     }
 
-    // ── Visor de imagen: vuela desde la miniatura, fondo desenfocado ────
+    // ── Image viewer: flies from the thumbnail over a blurred backdrop ──
     type GalleryDatum = { name: string; desc: string; src: string; full: string; ratio: number; kind: string }
     const galleryData: Record<string, GalleryDatum> = JSON.parse(root.querySelector("[data-gallery-data]")?.textContent ?? "{}")
     const lightbox = root.querySelector<HTMLElement>("[data-lightbox]")
@@ -601,8 +758,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       lbImg.style.width = `${r.width}px`
       lbImg.style.height = `${r.height}px`
     }
-    // Radio visible de la miniatura: el <img> no lo tiene, lo recorta su
-    // contenedor. Se sube por los ancestros hasta encontrarlo; si no, 0.
+    // The thumbnail's visible radius lives on an ancestor, not the <img>:
+    // walk up until one has it, else 0.
     const radiusOf = (el: HTMLElement, stopAt: HTMLElement) => {
       let node: HTMLElement | null = el
       while (node) {
@@ -614,7 +771,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       return "0px"
     }
     const targetRect = (ratio: number, kind = "photo"): Rect => {
-      // Los iconos de app son pequeños de origen: en el visor no pasan de 320px.
+      // App icons are small to begin with: the viewer caps them at 320px.
       const cap = kind === "app" ? 320 : 72 * 16
       const maxW = Math.min(innerWidth * 0.9, cap)
       const maxH = innerHeight * 0.78
@@ -633,7 +790,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       const thumb = (from.querySelector("img") ?? from) as HTMLElement
       lbSource = thumb
       lbOpener = from
-      // Arranca con la miniatura (ya en caché) y cambia a la grande en cuanto carga.
+      // Starts from the cached thumbnail and swaps to the full size on load.
       lbImg.src = (thumb as HTMLImageElement).currentSrc || datum.src
       lbImg.alt = datum.name
       const large = new Image()
@@ -646,7 +803,6 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       if (lbDesc) lbDesc.textContent = datum.desc
       lightbox.hidden = false
       lightbox.classList.remove("is-settled")
-      // Arranca exactamente sobre la miniatura y vuela al centro.
       lbImg.style.transition = "none"
       lbImg.style.borderRadius = radiusOf(thumb, from)
       applyRect(rectOf(thumb))
@@ -664,7 +820,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       if (!lightbox || !lbImg || lightbox.hidden) return
       lightbox.classList.remove("is-settled")
       lightbox.classList.remove("is-open")
-      // Vuelve a donde esté ahora la miniatura (el drawer puede haberse desplazado).
+      // Returns to wherever the thumbnail is now: the drawer may have moved.
       if (lbSource) {
         applyRect(rectOf(lbSource))
         lbImg.style.borderRadius = radiusOf(lbSource, lbOpener ?? lbSource)
@@ -673,7 +829,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
         lightbox.hidden = true
         lbImg.removeAttribute("src")
         lbImg.style.borderRadius = ""
-        // Si no hay drawer abierto debajo, la página vuelve a desplazarse.
+        // With no drawer open underneath, the page scrolls again.
         if (!drawers.current()) document.documentElement.style.overflow = ""
       }
       if (reduced) done()
@@ -711,8 +867,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       if (piece) route(piece)
     })
 
-    // Disparadores fuera de la sección (la tarjeta Photography del bento abre
-    // la galería filtrada): solo los que apuntan a casos, imágenes o galería.
+    // Triggers outside this section, like the bento's Photography card: only
+    // the ones pointing at cases, images or the gallery.
     document.addEventListener("click", (event) => {
       const el = (event.target as HTMLElement).closest<HTMLElement>("[data-open]")
       if (!el || root.contains(el)) return
@@ -720,7 +876,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       if (kind === "case" || kind === "image" || kind === "gallery") route(el)
     })
 
-    // Enlace profundo: /#work/huma abre el caso, al cargar o al cambiar el hash.
+    // Deep link: /#work/huma opens the case, on load or on hash change.
     const openFromHash = () => {
       const match = location.hash.match(/^#work\/([\w-]+)$/)
       if (!match) return
@@ -729,21 +885,150 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     }
     requestAnimationFrame(openFromHash)
     window.addEventListener("hashchange", openFromHash)
+
+    /*
+      Position editor, dev only. It sends just the pieces you moved and the
+      server merges them, so everything else keeps placing itself.
+    */
+    if (import.meta.env.DEV && diagram) {
+      const bar = root.querySelector<HTMLElement>("[data-dev-layout]")
+      const cluster = root.querySelector<HTMLElement>(".canvas__cluster")
+      const editBtn = bar?.querySelector<HTMLButtonElement>("[data-dev-edit]")
+      const saveBtn = bar?.querySelector<HTMLButtonElement>("[data-dev-save]")
+      const clearBtn = bar?.querySelector<HTMLButtonElement>("[data-dev-clear]")
+      const status = bar?.querySelector<HTMLElement>("[data-dev-status]")
+
+      if (bar && cluster && editBtn && saveBtn && clearBtn && status) {
+        const layout = display.dataset.layout ?? "concentric"
+        const clusterY = Number(diagram.dataset.clusterY ?? 0)
+        const moved = new Set<string>()
+        let editing = false
+
+        // The cluster is scaled on narrow screens: divide the pointer delta
+        // by that scale or the piece moves twice as far.
+        const scaleOf = () => parseFloat(getComputedStyle(cluster).scale) || 1
+        const at = (el: HTMLElement) => ({
+          x: parseFloat(el.style.getPropertyValue("--x")) || 0,
+          y: parseFloat(el.style.getPropertyValue("--y")) || 0,
+        })
+        const keyOf = (el: HTMLElement) =>
+          el.dataset.stack ? `stack:${el.dataset.stack}` : el.dataset.app ? `app:${el.dataset.app}` : null
+
+        // Same path the server computes, so connectors follow while dragging.
+        const redraw = () => {
+          for (const path of diagram.querySelectorAll<SVGPathElement>("[data-link-app]")) {
+            const node = diagram.querySelector<HTMLElement>(`.node[data-app="${path.dataset.linkApp}"]`)
+            const chip = diagram.querySelector<HTMLElement>(`.chip-node[data-stack="${path.dataset.linkStack}"]`)
+            if (!node || !chip) continue
+            const a = at(node)
+            const b = at(chip)
+            if (layout === "orbit") {
+              const mx = (a.x + b.x) / 2
+              path.setAttribute("d", `M${a.x} ${a.y} C${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`)
+            } else {
+              const k = 0.14
+              const cx = ((a.x + b.x) / 2) * (1 - k)
+              const cy = clusterY + ((a.y + b.y) / 2 - clusterY) * (1 - k)
+              path.setAttribute("d", `M${a.x} ${a.y} Q${cx.toFixed(1)} ${cy.toFixed(1)}, ${b.x} ${b.y}`)
+            }
+          }
+        }
+
+        editBtn.addEventListener("click", () => {
+          editing = !editing
+          diagram.classList.toggle("is-editing", editing)
+          editBtn.classList.toggle("is-on", editing)
+          editBtn.textContent = editing ? "Terminar" : "Mover piezas"
+          saveBtn.hidden = !editing
+          clearBtn.hidden = !editing
+          status.textContent = editing ? "arrastra las piezas" : ""
+        })
+
+        let moving: { el: HTMLElement; sx: number; sy: number; ox: number; oy: number } | null = null
+
+        diagram.addEventListener("pointerdown", (event) => {
+          if (!editing) return
+          const el = (event.target as HTMLElement).closest<HTMLElement>(".chip-node, .node")
+          if (!el) return
+          // Stop here or the whole canvas starts panning.
+          event.preventDefault()
+          event.stopPropagation()
+          const p = at(el)
+          moving = { el, sx: event.clientX, sy: event.clientY, ox: p.x, oy: p.y }
+          try {
+            el.setPointerCapture(event.pointerId)
+          } catch {
+            /* no capture: still works while the pointer stays over it */
+          }
+        })
+
+        window.addEventListener("pointermove", (event) => {
+          if (!moving) return
+          const k = scaleOf()
+          moving.el.style.setProperty("--x", `${(moving.ox + (event.clientX - moving.sx) / k).toFixed(1)}px`)
+          moving.el.style.setProperty("--y", `${(moving.oy + (event.clientY - moving.sy) / k).toFixed(1)}px`)
+          redraw()
+        })
+
+        window.addEventListener("pointerup", () => {
+          if (!moving) return
+          const key = keyOf(moving.el)
+          if (key) {
+            moved.add(key)
+            status.textContent = `${moved.size} movida${moved.size === 1 ? "" : "s"} — sin guardar`
+          }
+          moving = null
+          // Releasing after a drag must not open the case.
+          suppressClick = true
+          setTimeout(() => (suppressClick = false), 0)
+        })
+
+        const post = (body: unknown) =>
+          fetch("/__diagram-layout", { method: "POST", body: JSON.stringify(body) }).then((r) => r.json())
+
+        saveBtn.addEventListener("click", async () => {
+          const positions: Record<string, [number, number]> = {}
+          for (const key of moved) {
+            const el = diagram.querySelector<HTMLElement>(
+              key.startsWith("stack:")
+                ? `.chip-node[data-stack="${key.slice(6)}"]`
+                : `.node[data-app="${key.slice(4)}"]`,
+            )
+            if (!el) continue
+            const p = at(el)
+            positions[key] = [Math.round(p.x), Math.round(p.y)]
+          }
+          status.textContent = "guardando…"
+          const out = await post({ layout, positions })
+          status.textContent = out.ok ? `guardadas ${out.saved}` : `error: ${out.error}`
+          if (out.ok) moved.clear()
+        })
+
+        clearBtn.addEventListener("click", async () => {
+          const out = await post({ layout, positions: {}, reset: true })
+          status.textContent = out.ok ? "borradas — recarga" : `error: ${out.error}`
+        })
+      }
+    }
   }
 </script>
 
 <style>
   /* ── MacBook ─────────────────────────────────────────────────────────── */
-  /* El aire superior lo pone el bento, que cierra su propio bloque con relleno. */
+  /* Top air comes from the bento, which closes its own block with padding. */
+
+  /* Rendered by SectionHeader with its own scope: only :global reaches it. */
+  :global(.work__header) {
+    padding-block: var(--section-y) 0;
+  }
+
   .work__mac {
     margin-top: 0;
   }
 
-  /* Bisel: negro casi puro, fino, con filo de separador de Apple. */
   .work__screen {
-    /* Color plano: el resultado de negro al 30% sobre la superficie de la
-       página (#131222 · 0.7 = #0d0d18), sin transparencia para que bisel y
-       muesca no dependan de lo que tengan detrás. */
+    /* Flat colour, not transparency, so bezel and notch do not depend on
+       whatever sits behind them. */
     --bezel: #0d0d18;
 
     position: relative;
@@ -751,7 +1036,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     padding: 0.7rem;
     border-radius: 1.6rem;
     background: var(--bezel);
-    /* Sin borde: la tapa se separa de la página con sombra, de contacto y de caída. */
+    /* No border: the lid separates from the page with shadow alone. */
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.35),
       0 30px 80px -30px rgba(0, 0, 0, 0.9);
@@ -760,11 +1045,76 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
   .work__display {
     position: relative;
     height: clamp(22rem, 52vw, 34rem);
+    /* Height is tied to the layout: going back to "orbit" restores it too. */
     overflow: clip;
     border-radius: 1rem;
     background: var(--page-accent-surface);
-    /* Contexto propio: los drawers y el dock se apilan dentro de la pantalla. */
+    /* Own stacking context: drawers pile up inside the screen. */
     isolation: isolate;
+  }
+
+  .work__display[data-layout="concentric"] {
+    height: clamp(22rem, 54vw, 40rem);
+  }
+
+  /* Focuses in rather than appearing, like the menu circles. */
+  .work__recenter {
+    display: grid;
+    place-items: center;
+    flex: none;
+    /* Collapses to zero width and eats the flex gap, so neighbours shift. */
+    width: 0;
+    margin-left: -0.4rem;
+    height: 2.25rem;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 999px;
+    border: 1px solid var(--line-tint);
+    background: rgb(var(--surface-rgb) / 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgb(var(--text-rgb) / 0.75);
+    cursor: pointer;
+    opacity: 0;
+    filter: blur(6px);
+    scale: 0.78;
+    pointer-events: none;
+    transition:
+      width 380ms var(--ease-out),
+      margin-left 380ms var(--ease-out),
+      opacity 320ms var(--ease-out),
+      filter 380ms var(--ease-out),
+      scale 380ms var(--ease-out),
+      color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  .work__recenter.is-on {
+    width: 2.25rem;
+    margin-left: 0;
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+    pointer-events: auto;
+  }
+
+  .work__recenter svg {
+    flex: none;
+  }
+
+  .work__recenter:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .work__tools {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
   }
 
   .work__notch {
@@ -793,7 +1143,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     mask-image: radial-gradient(ellipse 70% 80% at 50% 55%, #000 45%, transparent 100%);
   }
 
-  /* ── Lienzo ──────────────────────────────────────────────────────────── */
+  /* ── Canvas ──────────────────────────────────────────────────────────── */
   .canvas {
     --px: 0px;
     --py: 0px;
@@ -810,12 +1160,11 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     cursor: grabbing;
   }
 
-  /* Las piezas no reciben eventos mientras se arrastra: no hay hover ni clic accidental. */
+  /* Pieces take no events while panning: no stray hover or click. */
   .canvas.is-panning .piece {
     pointer-events: none;
   }
 
-  /* Retícula de puntos, con paralaje a la mitad del desplazamiento. */
   .canvas__dots {
     position: absolute;
     inset: -60%;
@@ -842,7 +1191,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     will-change: translate;
   }
 
-  /* ── Diagrama app ↔ stack ────────────────────────────────────────────── */
+  /* ── App ↔ stack diagram ─────────────────────────────────────────────── */
   .diagram {
     position: absolute;
     left: 0;
@@ -860,7 +1209,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     pointer-events: none;
   }
 
-  /* Conectores: casi invisibles (10%) salvo los de la app fijada o enfocada, en el acento. */
+  /* Connectors sit at 10% unless their app is pinned or focused. */
   .diagram__links path {
     fill: none;
     stroke: var(--line-tint);
@@ -873,18 +1222,16 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       opacity 220ms ease;
   }
 
-  /* Fijada: sus conectores enteros, discontinuos y en la tinta base. */
+  /* Pinned: full connectors, dashed, in the base ink. */
   .diagram__links path.is-lit {
     opacity: 1;
   }
 
-  /* Solo con el puntero encima pasan al naranja. */
   .diagram.has-focus .diagram__links path.is-lit {
     stroke: var(--page-accent);
     stroke-width: 1.5;
   }
 
-  /* Chips de stack: píldora oscura con logo a color y nombre; blanco solo al iluminarse. */
   .chip-node {
     position: absolute;
     left: var(--x);
@@ -894,16 +1241,25 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     gap: 0.45rem;
     padding: 0.4rem 0.75rem 0.4rem 0.6rem;
     translate: -50% -50%;
+    rotate: var(--rot, 0deg);
     border-radius: 999px;
     border: 1px solid var(--line-tint);
     background: var(--surface-2);
     font-size: 0.74rem;
     font-weight: 600;
     white-space: nowrap;
-    color: rgb(var(--text-rgb) / 0.78);
+    color: rgb(var(--text-rgb) / 0.95);
+    /*
+      Grey at rest: what competed with the icons was colour, not brightness,
+      so colour becomes the signal. Note greyscale already marks retired apps
+      in .piece__tile--dead.
+    */
+    filter: grayscale(1);
+    opacity: 0.78;
     cursor: default;
     transition:
       opacity 220ms ease,
+      filter 260ms ease,
       border-color 220ms ease,
       color 220ms ease,
       background 220ms ease;
@@ -916,7 +1272,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     flex: none;
   }
 
-  /* Solo los logos negros u oscuros (Next.js, Railway, AWS) van sobre un círculo blanco. */
+  /* Only the dark logos (Next.js, Railway, AWS) get a white circle. */
   .chip-node__logo--badge {
     width: 1.35rem;
     height: 1.35rem;
@@ -930,12 +1286,13 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
   }
 
   .chip-node.is-lit {
+    filter: grayscale(0);
+    opacity: 1;
     border-color: rgba(255, 255, 255, 0.35);
     background: var(--surface-3);
     color: #fff;
   }
 
-  /* Nodo de app: icono + nombre debajo, siempre visible. */
   .node {
     transition:
       scale 260ms var(--ease-out),
@@ -957,7 +1314,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     color: rgb(var(--text-rgb) / 0.82);
   }
 
-  /* Sticker: nota corta pegada al lateral del icono, ligeramente girada (así no pisa nombres vecinos). */
+  /* Sticker: rotated slightly so it does not land on a neighbour's name. */
   .node__sticker {
     position: absolute;
     left: calc(100% - 0.6rem);
@@ -967,7 +1324,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     rotate: 6deg;
     border-radius: 0.3rem;
     background: #f3e7c4;
-    font-family: var(--font-jetbrains);
+    font-family: var(--font-sans);
     font-size: 0.58rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
@@ -975,7 +1332,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.8);
   }
 
-  /* ── Piezas ──────────────────────────────────────────────────────────── */
+  /* ── Pieces ──────────────────────────────────────────────────────────── */
   .piece {
     position: absolute;
     left: var(--x);
@@ -991,9 +1348,8 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     transition: scale 260ms var(--ease-out);
   }
 
-  /* Zona de hover generosa: 8px alrededor del icono, y en los nodos del
-     diagrama baja hasta cubrir el nombre. Así icono, hueco y nombre son un
-     solo objetivo y el puntero no "sale" al pasar del uno al otro. */
+  /* Generous hover area: icon, gap and name are one target, so the pointer
+     never "leaves" while moving between them. */
   .piece::before {
     content: "";
     position: absolute;
@@ -1014,6 +1370,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     z-index: 2;
   }
 
+  /* The icon face: app corners (24%), hairline border, contact shadow. */
   .piece__tile {
     position: relative;
     display: flex;
@@ -1041,14 +1398,6 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       inset 0 1px 0 rgba(255, 255, 255, 0.16);
   }
 
-  .canvas__layer--canvas .piece {
-    cursor: zoom-in;
-  }
-
-  .canvas__layer--canvas .piece__tile {
-    border-radius: 0.85rem;
-  }
-
   .piece__tile img {
     width: 100%;
     height: 100%;
@@ -1072,7 +1421,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     background: rgba(19, 18, 34, 0.75);
   }
 
-  /* Retiradas: en blanco y negro y algo más oscuras. Opacas: los conectores no deben verse a través. */
+  /* Retired: greyscale and darker. Opaque so connectors do not show through. */
   .piece__tile--dead {
     filter: grayscale(1) brightness(0.82);
   }
@@ -1110,89 +1459,24 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     color: rgba(255, 255, 255, 0.8);
   }
 
-  /* Nombre bajo la pieza de galería al pasar el puntero (los nodos de app lo llevan fijo). */
-  .piece__name {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 50%;
-    padding: 0.25rem 0.55rem;
-    translate: -50% 4px;
-    border-radius: 0.4rem;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: rgba(20, 19, 34, 0.92);
-    font-size: 0.7rem;
-    font-weight: 600;
-    white-space: nowrap;
-    color: #fff;
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity 140ms ease,
-      translate 140ms ease;
-  }
 
-  .piece:hover .piece__name,
-  .piece:focus-visible .piece__name {
-    opacity: 1;
-    translate: -50% 0;
-  }
 
-  /* "See all": arriba a la derecha, lejos del dock. Píldora de cristal con contador. */
-  .canvas__cta {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.7rem 0.45rem 0.9rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.92);
-    cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    transition:
-      background 180ms ease,
-      border-color 180ms ease,
-      translate 180ms ease;
-  }
 
-  .canvas__cta:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.3);
-    translate: 0 -1px;
-  }
 
-  .canvas__cta-count {
-    padding: 0.1rem 0.45rem;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.14);
-    font-size: 0.66rem;
-    letter-spacing: 0.04em;
-  }
 
-  .canvas__cta svg {
-    opacity: 0.8;
-  }
 
-  /* Con un drawer abierto, el lienzo y el dock quedan detrás del scrim. */
   .work__display.has-drawer .canvas {
     pointer-events: none;
   }
 
-  /* ── Drawer de caso: enlace a la página propia ───────────────────────── */
+  /* ── Case drawer: link to its own page ───────────────────────────────── */
   .work__fullpage {
     margin: 2.5rem 0 0;
     padding-top: 1.5rem;
     border-top: 1px dashed var(--bp-line);
   }
 
-  /* ── Galería ─────────────────────────────────────────────────────────── */
+  /* ── Gallery ─────────────────────────────────────────────────────────── */
   .gallery__head {
     display: flex;
     flex-wrap: wrap;
@@ -1257,7 +1541,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     background: var(--surface-2);
   }
 
-  /* Iconos de app: son pequeños de origen, así que van centrados a 96px en una celda cuadrada, no a sangre. */
+  /* App icons are small to begin with: centred at 96px, not full bleed. */
   .gallery__item[data-kind="app"] .gallery__thumb {
     display: grid;
     place-items: center;
@@ -1266,7 +1550,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
     background: var(--surface-2);
   }
 
-  /* Mismo ancho que los iconos y el alto según proporción: los logotipos apaisados no se aplastan. La sombra sigue la silueta (drop-shadow), no la caja. */
+  /* Same width as the icons, height by ratio, so wide logos are not squashed. */
   .gallery__item[data-kind="app"] img {
     width: 6rem;
     height: auto;
@@ -1311,7 +1595,10 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       border-radius: 1.1rem;
     }
 
-    .work__display {
+    /* Repeated here: the attribute selector wins on specificity and would
+       otherwise override the mobile height. */
+    .work__display,
+    .work__display[data-layout="concentric"] {
       height: min(72vh, 34rem);
       border-radius: 0.8rem;
     }
@@ -1321,7 +1608,7 @@ const dockItems = layers.map(({ id, label, icon, tint }) => ({ id, label, icon, 
       height: 1rem;
     }
 
-    /* Sin la base del teclado, el aire hasta el borde discontinuo lo pone el propio bloque. */
+    /* Without the keyboard base, the block itself provides the bottom air. */
     .work__base {
       display: none;
     }

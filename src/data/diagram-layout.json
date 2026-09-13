@@ -1,0 +1,76 @@
+{
+  "concentric": {
+    "app:mobile-games": [
+      -26,
+      -164
+    ],
+    "stack:AWS": [
+      -30,
+      -51
+    ],
+    "app:hmi": [
+      -118,
+      151
+    ],
+    "stack:Swift": [
+      -131,
+      -218
+    ],
+    "stack:React Native": [
+      54,
+      -222
+    ],
+    "app:huma": [
+      102,
+      -114
+    ],
+    "stack:Convex": [
+      215,
+      -216
+    ],
+    "stack:Next.js": [
+      108,
+      98
+    ],
+    "app:ubrand": [
+      174,
+      177
+    ],
+    "app:thelist": [
+      246,
+      35
+    ],
+    "stack:Stripe": [
+      371,
+      73
+    ],
+    "stack:Strapi": [
+      294,
+      154
+    ],
+    "stack:SendGrid": [
+      -49,
+      283
+    ],
+    "stack:Kotlin": [
+      -231,
+      164
+    ],
+    "stack:Node.js": [
+      -54,
+      60
+    ],
+    "stack:TypeScript": [
+      -99,
+      1
+    ],
+    "stack:Postgres": [
+      66,
+      44
+    ],
+    "app:deliverycat": [
+      7,
+      166
+    ]
+  }
+}
