@@ -1,24 +1,38 @@
 ---
-// Cabecera de sección: título en la tipografía de display y una entradilla
-// opcional (por prop o por slot, para poder meter enlaces). El espaciado
-// exterior lo pone cada sección.
+// Two-tone section header: the claim at full contrast and the continuation
+// dimmed, at the same relative size. Two elements and not one, so the <h2>
+// carries only the claim and stays short when announced.
 interface Props {
-  title: string
-  lead?: string
-  /** id del h2, para que la sección lo referencie con aria-labelledby. */
+  /* One sentence, not a folder label. */
+  claim: string
+  /* One or two sentences, never three. */
+  context?: string
+  /* Section status. Not in the eyebrow: that one is aria-hidden ornament. */
+  badge?: string
+  /* Short centred title: closings and full-bleed blocks. */
+  centered?: boolean
+  /* No bottom margin. Separate from `centered`: they are different things. */
+  flush?: boolean
+  /* id for the section's aria-labelledby. */
   titleId?: string
+  class?: string
 }
 
-const { title, lead, titleId } = Astro.props
-const hasLead = Boolean(lead) || Astro.slots.has("default")
+const { claim, context, badge, centered = false, flush = false, titleId, class: className } = Astro.props
+const hasContext = Boolean(context) || Astro.slots.has("default")
 ---
 
-<header class="section-header">
-  <h2 class="section-header__title" id={titleId}>{title}</h2>
+<header
+  class:list={["section-header", className, { "section-header--centered": centered, "section-header--flush": flush }]}
+>
+  <div class="section-header__head">
+    <h2 class="section-header__title" id={titleId}>{claim}</h2>
+    {badge && <span class="section-header__badge">{badge}</span>}
+  </div>
   {
-    hasLead && (
-      <p class="section-header__lead">
-        {lead}
+    hasContext && (
+      <p class="section-header__context">
+        {context}
         <slot />
       </p>
     )
@@ -27,22 +41,108 @@ const hasLead = Boolean(lead) || Astro.slots.has("default")
 
 <style>
   .section-header {
-    text-align: center;
+    /*
+      One value governs the pair: the context derives from the title, so the
+      step can never drift again.
+    */
+    --title-size: var(--fs-2xl);
+    /* The air below the header lives here, not in each section. */
+    margin-block-end: var(--space-4);
+    text-align: left;
+  }
+
+  /* `baseline` and not `center`: the chip does not shift when the title wraps. */
+  .section-header__head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.35rem var(--space-2);
+  }
+
+  /*
+    Colour makes it visible without being read, which a tooltip cannot do — and
+    a tooltip does not exist on touch at all.
+  */
+  .section-header__badge {
+    flex: none;
+    margin-inline-start: auto;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--accent-rgb) / 0.45);
+    background: rgb(var(--accent-rgb) / 0.12);
+    padding: 0.28rem 0.75rem;
+    font-size: var(--fs-2xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: var(--page-accent);
   }
 
   .section-header__title {
     margin: 0;
+    max-width: 26ch;
     font-family: var(--font-bellota);
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
-    font-weight: 700;
+    font-size: var(--title-size);
+    font-weight: 400;
+    line-height: var(--lh-heading);
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
     color: #fff;
   }
 
-  .section-header__lead {
+  .section-header__context {
+    max-width: 46ch;
+    margin: var(--space-2) 0 0;
+    font-size: calc(var(--title-size) * 0.72);
+    line-height: var(--lh-body);
+    text-wrap: pretty;
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+
+  /*
+    When narrow the chip does not fit alongside and dropped to a third line
+    pinned right. Above, it reads as the status label it is.
+  */
+  @media (max-width: 640px) {
+    .section-header__head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .section-header--centered .section-header__head {
+      align-items: center;
+    }
+
+    .section-header__badge {
+      order: -1;
+      margin-inline-start: 0;
+    }
+  }
+
+  .section-header--centered {
+    text-align: center;
+  }
+
+  /* Last block in its section: the section supplies the air below. */
+  .section-header--flush {
+    margin-block-end: 0;
+  }
+
+  .section-header--centered .section-header__head {
+    justify-content: center;
+  }
+
+  .section-header--centered .section-header__badge {
+    margin-inline-start: 0;
+  }
+
+  .section-header--centered .section-header__title {
+    max-width: none;
+  }
+
+  .section-header--centered .section-header__context {
     max-width: 36rem;
-    margin: 0.8rem auto 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: rgb(var(--text-rgb) / 0.6);
+    margin-inline: auto;
+    font-size: var(--fs-base);
   }
 </style>

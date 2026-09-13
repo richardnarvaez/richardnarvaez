@@ -3,29 +3,66 @@
 :root {
   color-scheme: dark;
 
-  /* Texto corrido y UI: sobria. Bellota queda para el hero y los títulos de sección. */
+  /* Body and UI. Bellota is kept for the hero and section titles. */
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --font-bellota: "Bellota Text", ui-rounded, system-ui, sans-serif;
-  --font-jetbrains: "JetBrains Mono", ui-monospace, monospace;
+  /* System mono: 0 KB. Real code and technical diagrams only. */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   --page-accent-surface: #131222;
   --page-accent: #ff512f;
-  /* Versiones RGB para componer alfas: rgb(var(--text-rgb) / 0.6). */
+  /* RGB versions for composing alphas: rgb(var(--text-rgb) / 0.6). */
   --text-rgb: 226 232 240;
   --accent-rgb: 255 81 47;
   --surface-rgb: 19 18 34;
-  /* Superficie elevada (tarjetas, botón sólido sobre claro). */
+  /* Raised surface: cards, and the solid button on light. */
   --surface-raised: #16151f;
-  /* Variantes claras del fondo (misma tinta violeta, no gris) para tarjetas y trazos. */
+  /* Lighter page tints (same violet ink, not grey) for cards and strokes. */
   --surface-2: #1e1c36;
   --surface-3: #2a2748;
   --line-tint: rgba(139, 126, 210, 0.3);
-  /* Curva de salida suave usada en toda la página. */
+  /* Soft ease-out used across the page. */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  /* Azul del lienzo de Figma: bordes y tiradores de selección. */
+  /* Figma canvas blue: selection borders and handles. */
   --figma-select: #60a5fa;
 
-  /* Retícula de plano técnico: rieles verticales, divisores y marcadores. */
+  /*
+    ── Type scale ──────────────────────────────────────────────────────
+    Seven steps. The --fs-2xs floor applies to text that informs; declared
+    ornament (.bp-label, aria-hidden) is exempt on purpose.
+  */
+  --fs-2xs: 0.75rem; /* 12px — micro-etiquetas */
+  --fs-xs: 0.8125rem; /* 13px */
+  --fs-sm: 0.875rem; /* 14px */
+  --fs-base: 1rem; /* 16px — texto corrido */
+  --fs-lg: 1.125rem; /* 18px */
+  --fs-xl: clamp(1.25rem, 2vw, 1.5rem); /* subtítulos, títulos de tarjeta */
+  --fs-2xl: clamp(1.75rem, 3.5vw, 2.5rem); /* títulos de sección */
+  --fs-3xl: clamp(2.5rem, 6vw, 4rem); /* display */
+
+  /*
+    Line height and tracking by role: the bigger the text, the tighter the
+    leading and the more negative the tracking.
+  */
+  --lh-display: 1.06;
+  --lh-heading: 1.18;
+  --lh-body: 1.6;
+  --tracking-display: -0.02em;
+  --tracking-label: 0.18em;
+
+  /*
+    ── Spacing scale ───────────────────────────────────────────────────
+    --section-y is the vertical air of each section.
+  */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: 6rem;
+  --section-y: clamp(4rem, 9vh, 7rem);
+
+  /* Blueprint grid: vertical rails, dividers and markers. */
   --bp-max: 68rem;
   --bp-gutter: 1.5rem;
   --bp-line: rgba(139, 126, 210, 0.18);
@@ -39,9 +76,9 @@ html {
 }
 
 /*
-  Red de seguridad contra el scroll horizontal. `clip` y no `hidden`: hidden
-  convertiría a body en contenedor de scroll y rompería las animaciones
-  dirigidas por scroll (la franja del tren) y cualquier sticky.
+  Safety net against horizontal scroll. `clip` and not `hidden`: hidden
+  would turn body into a scroll container and break the scroll-driven
+  animations and every sticky.
 */
 html,
 body {
@@ -50,7 +87,7 @@ body {
 
 body {
   margin: 0;
-  /* Abre el alcance de la view-timeline del nombre del perfil a toda la página (StickyName). */
+  /* Opens the profile name's view-timeline to the whole page (StickyName). */
   timeline-scope: --profile-name;
   background: var(--page-accent-surface);
   color: rgb(var(--text-rgb));
@@ -60,7 +97,7 @@ body {
     "calt" 1;
 }
 
-/* Tipografía de display (hero y títulos de sección). */
+/* Display type: hero and section titles. */
 .font-bellota,
 .font-display {
   font-family: var(--font-bellota);
@@ -88,9 +125,8 @@ body {
 }
 
 /*
-  Sólido tipo "light UI control": cara ligeramente convexa (degradado de
-  blanco arriba a gris perla abajo), borde fino gris, filo de luz interior
-  arriba, sombra de contacto y texto grabado. Al pulsar se hunde.
+  Solid "light UI control": a slightly convex face, hairline grey border,
+  inner top highlight, contact shadow and engraved text. Sinks when pressed.
 */
 .btn--solid {
   border: 1px solid #cfd3dc;
@@ -173,18 +209,26 @@ body {
   color: var(--surface-raised);
 }
 
-.font-jetbrains {
-  font-family: var(--font-jetbrains);
+/* Micro-labels: the blueprint feel comes from tracking, not a separate family. */
+.label {
+  font-family: var(--font-sans);
+  letter-spacing: 0.18em;
 }
 
-/* Foco visible y consistente para teclado, en el acento de la marca. */
+/* Figures that get compared or change: fixed width so they do not dance. */
+.num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visible, consistent keyboard focus in the brand accent. */
 :focus-visible {
   outline: 2px solid var(--page-accent);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-/* Enlace "saltar al contenido": oculto hasta que recibe el foco. */
+/* "Skip to content" link: hidden until focused. */
 .skip-link {
   position: fixed;
   top: 0.75rem;
@@ -205,15 +249,13 @@ body {
 }
 
 /*
-  Marco de plano.
+  Blueprint frame.
 
-  Los rieles verticales viven en cada sección enmarcada: al apilarse, sus
-  bordes forman una línea continua de arriba abajo. Cada sección aporta
-  además su propio divisor horizontal superior.
+  The vertical rails live in each framed section: stacked, their edges form a
+  continuous line. Each section also brings its own top divider.
 
-  Las secciones a sangre (la franja de imagen, el footer) simplemente no
-  usan .bp-inner, así que el riel se corta ahí — que es justo lo que se
-  quiere: el marco delimita el contenido, no la página entera.
+  Full-bleed sections simply skip .bp-inner, so the rail stops there — which
+  is the point: the frame bounds the content, not the page.
 */
 .bp-section {
   position: relative;
@@ -229,11 +271,16 @@ body {
   border-inline: 1px dashed var(--bp-line);
 }
 
+/* No frame: the rail stops here because the previous section broke it. */
+.bp-inner--no-rails {
+  border-inline-color: transparent;
+}
+
 .bp-section[data-bp-divider="true"] .bp-inner {
   border-top: 1px dashed var(--bp-line);
 }
 
-/* Cierra el marco cuando la siguiente sección va a sangre. */
+/* Closes the frame when the next section is full bleed. */
 .bp-section[data-bp-close="true"] .bp-inner {
   border-bottom: 1px dashed var(--bp-line);
 }
@@ -265,11 +312,9 @@ body {
 }
 
 /*
-  Cuando el viewport no supera el ancho del marco (--bp-max, 68rem), los
-  rieles caen justo en el borde de la pantalla y los marcadores sobresalen
-  por la derecha provocando scroll horizontal. Ahí el marco deja de tener
-  sentido: se ocultan rieles y marcadores. Los bordes pasan a transparente
-  (no a 0) para que el ancho útil no cambie ni un píxel.
+  Below --bp-max the rails land on the screen edge and the markers cause
+  horizontal scroll, so both are hidden. The borders go transparent rather
+  than to 0, so the usable width does not change by a pixel.
 */
 @media (max-width: 68rem) {
   .bp-inner {
