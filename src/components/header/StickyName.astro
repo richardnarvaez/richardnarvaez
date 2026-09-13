@@ -1,20 +1,7 @@
 ---
-// Barra fija tipo Apple: cuando el nombre grande del perfil sale por arriba,
-// aparece aquí en pequeño como "richard.vinueza", sobre un degradado del
-// color de la página que se disuelve hacia abajo para que el texto contraste
-// con lo que pase por debajo.
-//
-// Sin JS para aparecer: la barra escucha la posición del <h2> del perfil vía
-// una view-timeline con nombre (--profile-name) cuyo alcance abre `body` con
-// `timeline-scope` en global.css. Mientras el h2 sale del viewport, el h2
-// se encoge y esta barra se enciende: leído en conjunto, el nombre se
-// transforma en el handle.
-//
-// El handle es un botón con chevrón: abre un menú flotante que bloquea el
-// scroll, desenfoca la página de arriba abajo (GradualBlur) y muestra el
-// nombre en el centro con las secciones y redes orbitando alrededor, en un
-// giro lento. Cada círculo contragira para no volcarse; al pasar el puntero
-// la órbita se detiene para poder pulsar.
+// Sticky Apple-style bar: when the big profile name scrolls out of view,
+// "richard.vinueza" appears here over a gradient of the page colour, and the
+// chevron opens a floating menu of circles orbiting the handle.
 import { siteName, socialLinks } from "../../site.config"
 import { toolLogoById } from "../../data/tool-logos"
 import GradualBlur from "../ui/GradualBlur.astro"
@@ -29,21 +16,20 @@ type Item = {
   external?: boolean
   icon: string
   viewBox?: string
-  /** Logo relleno (Simple Icons) en vez de trazo. */
+  /** Filled logo (Simple Icons) instead of a stroke. */
   filled?: boolean
   size: Size
 }
 const logo = (id: string) => toolLogoById.get(id)!
 const brand = (id: string) => ({ icon: logo(id).body, viewBox: logo(id).viewBox, filled: true })
 
-// Diámetros en px de diseño (coinciden con --d en el CSS).
+// Diameters in design px, matching --d in the CSS.
 const DIAMETER: Record<Size, number> = { s: 40, l: 52, xl: 60 }
-// Hueco entre círculos vecinos, igual para todos.
 const GAP = 16
-// El handle es una píldora ancha: los anillos son elipses (KX estira el eje x).
+// The handle is a wide pill, so the rings are ellipses (KX stretches x).
 const KX = 1.5
 
-// Dos filas alrededor del handle: las secciones en arco, las redes debajo en línea.
+// Two rows: sections on an arc, socials on a straight line below.
 const sections: Item[] = [
   { id: "shortcuts", label: "Shortcuts", href: "#shortcuts", size: "l", icon: `<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/>` },
   { id: "work", label: "Work", href: "#work", size: "xl", icon: `<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/>` },
@@ -62,10 +48,8 @@ const point = (deg: number, r: number) => {
   return { x: Math.cos(a) * r * KX, y: Math.sin(a) * r }
 }
 
-// Reparte un anillo sobre la elipse de radio vertical r, de izquierda a
-// derecha, de modo que el borde de cada círculo quede a GAP del siguiente.
-// Como la elipse no es uniforme, se recorre a pasos finos y se recentra en
-// 90° (justo debajo del handle) en varias pasadas.
+// Walks the ellipse in fine steps so each circle's edge keeps GAP from the
+// next, then recentres on 90° over several passes.
 const ring = (list: Item[], r: number): Placed[] => {
   const walk = (start: number) => {
     const angles = [start]
@@ -95,11 +79,10 @@ const ring = (list: Item[], r: number): Placed[] => {
   })
 }
 
-// Segunda fila: las redes en una línea recta bajo las secciones, cada una
-// centrada horizontalmente en el hueco entre dos secciones vecinas.
+// Second row: socials on a straight line, each centred in the gap above.
 const row = (list: Item[], above: Placed[]): Placed[] => {
-  // Un poco más de aire que entre vecinos: en pantallas estrechas las posiciones
-  // se encogen con --u pero los círculos no, y la fila se pegaba.
+  // Extra air: on narrow screens positions shrink with --u but the circles do
+  // not, and the row used to stick together.
   const y = Math.max(...above.map((p) => p.y + DIAMETER[p.size] / 2)) + GAP + 6 + DIAMETER[list[0].size] / 2
   return list.map((item, i) => {
     const a = above[i]
@@ -109,19 +92,17 @@ const row = (list: Item[], above: Placed[]): Placed[] => {
     return { ...item, x: Math.round(x + n.x), y: Math.round(y + n.y) }
   })
 }
-// Ajuste a ojo: los extremos de la segunda fila suben y se abren un poco,
-// siguiendo la curva de la primera.
+// By eye: the ends of the second row lift and open, following the first.
 const NUDGE = [
-  { x: -20, y: -26 },
+  { x: -24, y: -26 },
   { x: 0, y: 0 },
-  { x: 20, y: -26 },
+  { x: 24, y: -26 },
 ]
 
 const inner = ring(sections, 86)
 const items: Placed[] = [...inner, ...row(socials, inner)]
 
-// Anillos concéntricos y arcos con degradado: el gráfico de órbita del hero
-// anterior, ahora girando despacio detrás del racimo.
+// Concentric rings and gradient arcs, turning slowly behind the cluster.
 const rings = [285, 395, 505, 625]
 const arcs = [
   { d: "M244.5 730.5C226 660 231.5 630.338 272.353 625.726C313.206 621.113 338.5 624 344 581C349.501 538.001 373 490 383.001 475.501", x1: 308, y1: 553, x2: 255.414, y2: 714.876 },
@@ -140,20 +121,19 @@ const arcs = [
 </div>
 
 <div class="site-menu" id="site-menu" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1" data-site-menu hidden>
-  {/* Fondo: la página se desenfoca de arriba abajo. La franja sin desenfoque
-      del GradualBlur queda fuera de pantalla (alto 140dvh), así todo el
-      viewport recibe algo y la barra recibe lo máximo. Al abrir, el script
-      sube el radio de cada capa de 0 a su valor (y lo baja al cerrar): solo
-      filtro, nunca opacidad, y sin bordes que se muevan. (Nada de clip-path
-      ni mask en el contenedor: formarían un backdrop root y las capas
-      dejarían de ver la página.) */}
+  {/*
+    Background: the page blurs top to bottom. The unblurred band under the bar
+    keeps the handle readable.
+  */}
   <div class="site-menu__blur">
     <GradualBlur position="top" height="140dvh" strength={1.3} divCount={8} curve="ease-out" exponential zIndex={0} />
   </div>
   <div class="site-menu__scrim" data-menu-close></div>
 
-  {/* El centro de todo es el handle de la barra: los anillos giran en torno
-      a él y las burbujas se reparten a su alrededor, medidas desde él. */}
+  {/*
+    Everything centres on the bar handle: the rings turn around it and the
+    bubbles spread from it.
+  */}
   <div class="site-menu__stage">
     <div class="site-menu__orbit" aria-hidden="true">
         <svg class="site-menu__rings" viewBox="0 0 1251 1251" fill="none">
@@ -227,9 +207,8 @@ const arcs = [
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches
     let open = false
 
-    // Rampa del desenfoque: cada capa del GradualBlur guarda su radio final y
-    // el script lo escala de 0 a 1. Safari no acepta calc() dentro de blur(),
-    // por eso se escribe el valor ya resuelto en vez de animar una variable.
+    // Blur ramp: Safari rejects calc() inside blur(), so the resolved value is
+    // written out instead of animating a variable.
     const BLUR_MS = 520
     const layers = [...menu.querySelectorAll<HTMLElement>(".gradual-blur__layer")].map((el) => {
       const rem = parseFloat(/blur\(([\d.]+)rem\)/.exec(el.style.backdropFilter ?? "")?.[1] ?? "0")
@@ -264,9 +243,17 @@ const arcs = [
     }
     paintBlur(0)
 
+    /*
+      Hiding is deferred so the close animation shows, but it must be
+      cancellable: closing and reopening within BLUR_MS used to leave `hidden`
+      on an open menu, with scroll locked and nothing visible to click.
+    */
+    let hideTimer = 0
+
     const setOpen = (next: boolean) => {
       if (next === open) return
       open = next
+      clearTimeout(hideTimer)
       toggle.setAttribute("aria-expanded", String(open))
       bar.classList.toggle("is-open", open)
       if (open) {
@@ -275,8 +262,8 @@ const arcs = [
         menu.classList.add("is-open")
         rampBlur(1)
         document.documentElement.style.overflow = "hidden"
-        // El foco va al diálogo, no al primer enlace: con ratón no aparece
-        // ningún anillo ni etiqueta; con Tab se entra al primer círculo.
+        // Focus goes to the dialog, not the first link: no ring or label
+        // appears with a mouse, and Tab still enters the first circle.
         menu.focus({ preventScroll: true })
       } else {
         menu.classList.remove("is-open")
@@ -284,7 +271,7 @@ const arcs = [
         document.documentElement.style.overflow = ""
         const done = () => (menu.hidden = true)
         if (reduced) done()
-        else setTimeout(done, BLUR_MS)
+        else hideTimer = window.setTimeout(done, BLUR_MS)
         toggle.focus({ preventScroll: true })
       }
     }
@@ -292,7 +279,7 @@ const arcs = [
     toggle.addEventListener("click", () => setOpen(!open))
     for (const el of menu.querySelectorAll("[data-menu-close]")) el.addEventListener("click", () => setOpen(false))
 
-    // Un enlace interno cierra el menú y deja que el ancla haga el scroll.
+    // An internal link closes the menu and lets the anchor do the scrolling.
     for (const link of menu.querySelectorAll<HTMLAnchorElement>("[data-menu-link]")) {
       link.addEventListener("click", () => setOpen(false))
     }
@@ -327,11 +314,11 @@ const arcs = [
 </script>
 
 <style>
-  /* ── Barra ───────────────────────────────────────────────────────────── */
+  /* ── Bar ─────────────────────────────────────────────────────────────── */
   .sticky-name {
     position: fixed;
     inset: 0 0 auto 0;
-    /* Por encima del menú (que va a 39): el chevrón sigue accesible para cerrarlo. */
+    /* Above the menu (39) so the chevron stays reachable to close it. */
     z-index: 41;
     height: 5.5rem;
     pointer-events: none;
@@ -345,7 +332,6 @@ const arcs = [
     animation-range: exit -3.25rem exit 0.75rem;
   }
 
-  /* Color de página que se disuelve hacia abajo. */
   .sticky-name__tint {
     position: absolute;
     inset: 0;
@@ -358,12 +344,15 @@ const arcs = [
     transition: opacity 320ms ease;
   }
 
-  /* Con el menú abierto el contraste lo da el scrim, y las burbujas cercanas al handle caen dentro de esta franja: fuera. */
+  /*
+    With the menu open the scrim carries the contrast, and bubbles near the
+    handle fall inside this band, so it goes.
+  */
   .sticky-name.is-open .sticky-name__tint {
     opacity: 0;
   }
 
-  /* El handle es un botón: solo recibe eventos cuando la barra está encendida (ver keyframes). */
+  /* The handle only takes events while the bar is lit, see the keyframes. */
   .sticky-name__toggle {
     position: absolute;
     top: 0.65rem;
@@ -414,7 +403,7 @@ const arcs = [
     rotate: 180deg;
   }
 
-  /* `visibility` acompaña a la opacidad: con la barra apagada el botón no existe para el puntero ni el teclado. */
+  /* `visibility` rides along: with the bar off the button exists for neither pointer nor keyboard. */
   @keyframes stickyNameIn {
     from {
       opacity: 0;
@@ -428,14 +417,14 @@ const arcs = [
     }
   }
 
-  /* Sin scroll-driven animations la barra quedaría fija encendida: se oculta. */
+  /* Without scroll-driven animations the bar would stay lit, so hide it. */
   @supports not (animation-timeline: view()) {
     .sticky-name {
       display: none;
     }
   }
 
-  /* ── Menú flotante ───────────────────────────────────────────────────── */
+  /* ── Floating menu ───────────────────────────────────────────────────── */
   .site-menu {
     position: fixed;
     inset: 0;
@@ -443,7 +432,6 @@ const arcs = [
     outline: none;
   }
 
-  /* Solo filtro, nunca opacidad ni tinte: oscurece lo que hay detrás mientras el GradualBlur lo desenfoca. */
   .site-menu__scrim {
     position: absolute;
     inset: 0;
@@ -455,9 +443,13 @@ const arcs = [
       -webkit-backdrop-filter 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
+  /*
+    Filter only, no tint. Plain brightness halved the page's violet and read as
+    black, so it dims less and gets its saturation back.
+  */
   .site-menu.is-open .site-menu__scrim {
-    backdrop-filter: brightness(0.5);
-    -webkit-backdrop-filter: brightness(0.5);
+    backdrop-filter: brightness(0.62) saturate(1.35);
+    -webkit-backdrop-filter: brightness(0.62) saturate(1.35);
   }
 
   .site-menu__blur {
@@ -465,7 +457,7 @@ const arcs = [
     inset: 0;
   }
 
-  /* Todo se ancla al centro del botón de la barra (--anchor). */
+  /* Everything anchors to the centre of the bar button (--anchor). */
   .site-menu__stage {
     --anchor: 1.5rem;
 
@@ -476,25 +468,26 @@ const arcs = [
   }
 
   /*
-    Racimo: un punto (0×0) en el centro del handle. Los círculos se colocan
-    desde ahí con --x/--y en px de diseño; --u escala el conjunto en
-    pantallas estrechas. Al abrir salen del handle: parten reunidos en él,
-    encogidos, y se abren escalonados.
+    Cluster: a 0×0 point at the handle's centre. Circles place themselves from
+    there with --x/--y; --u scales the whole set on narrow screens.
   */
   .site-menu__cluster {
     --u: 1;
+    /* Staggered entrance: the last circle starts at 172ms. */
+    --enter-base: 40ms;
+    --enter-step: 22ms;
 
     position: absolute;
     left: 50%;
     top: var(--anchor);
     width: 0;
     height: 0;
-    /* En pantallas estrechas encoge el racimo entero (posiciones y círculos), así los huecos se mantienen en proporción. */
+    /* Shrinks positions and circles together so the gaps stay in proportion. */
     scale: var(--u);
     pointer-events: auto;
   }
 
-  /* Anillos girando despacio en torno al handle; entran girando y creciendo como en el hero anterior. */
+  /* Rings turning slowly around the handle; they enter spinning and growing. */
   .site-menu__orbit {
     position: absolute;
     left: 50%;
@@ -539,11 +532,12 @@ const arcs = [
     top: 0;
     translate: calc(var(--x) * 1px) calc(var(--y) * 1px);
     transition:
-      translate 620ms cubic-bezier(0.22, 1.2, 0.36, 1) calc(120ms + var(--i) * 40ms),
+      translate 620ms cubic-bezier(0.22, 1.2, 0.36, 1)
+        calc(var(--enter-base) + var(--i) * var(--enter-step)),
       opacity 220ms ease;
   }
 
-  /* El círculo activo (y su etiqueta) pasa por delante de sus vecinos, y los demás se apagan un poco. */
+  /* The active circle comes forward and the rest dim a little. */
   .site-menu__slot:hover,
   .site-menu__slot:focus-within {
     z-index: 2;
@@ -553,7 +547,7 @@ const arcs = [
     opacity: 0.5;
   }
 
-  /* Cerrado: todos reunidos en el nombre, encogidos. */
+  /* Closed: gathered on the name, shrunk. */
   .site-menu:not(.is-open) .site-menu__slot {
     translate: 0 0;
     transition-delay: calc(var(--i) * 15ms);
@@ -577,24 +571,34 @@ const arcs = [
     box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.7);
     scale: 1;
     opacity: 1;
+    filter: blur(0);
     transition:
-      scale 520ms cubic-bezier(0.22, 1.4, 0.36, 1) calc(120ms + var(--i) * 40ms),
-      opacity 220ms ease calc(120ms + var(--i) * 40ms),
+      scale 520ms cubic-bezier(0.22, 1.4, 0.36, 1)
+        calc(var(--enter-base) + var(--i) * var(--enter-step)),
+      opacity 420ms cubic-bezier(0.22, 1, 0.36, 1)
+        calc(var(--enter-base) + var(--i) * var(--enter-step)),
+      filter 460ms cubic-bezier(0.22, 1, 0.36, 1)
+        calc(var(--enter-base) + var(--i) * var(--enter-step)),
       box-shadow 200ms ease;
   }
 
+  /*
+    Closed: gathered on the handle, shrunk and blurred. Each circle focuses in
+    as it grows, so the entrance resolves rather than popping.
+  */
   .site-menu:not(.is-open) .site-menu__item {
     scale: 0.35;
     opacity: 0;
+    filter: blur(7px);
     transition-delay: 0ms;
-    transition-duration: 220ms;
+    transition-duration: 240ms;
   }
 
   .site-menu__item--l {
     --d: 3.25rem;
   }
 
-  /* Ninguno pasa de 60px. */
+  /* None goes over 60px. */
   .site-menu__item--xl {
     --d: 3.75rem;
   }
@@ -611,14 +615,14 @@ const arcs = [
 
   .site-menu__item:hover,
   .site-menu__item:focus-visible {
-    /* Solo escala el círculo, no el hueco: la vecindad no se mueve. */
+    /* Scales the circle, not the slot, so neighbours stay put. */
     scale: 1.1;
     box-shadow: 0 18px 36px -12px rgba(0, 0, 0, 0.8);
     transition-delay: 0ms;
     transition-duration: 220ms;
   }
 
-  /* Enlaces externos: un satélite pequeño con la flecha de "sale a otra pestaña". */
+  /* External links get a small satellite with the new-tab arrow. */
   .site-menu__ext {
     position: absolute;
     right: -0.2rem;
@@ -639,7 +643,7 @@ const arcs = [
     height: 62%;
   }
 
-  /* Etiqueta sobre el círculo, solo al pasar el puntero o enfocar. */
+  /* Label above the circle, only on hover or focus. */
   .site-menu__label {
     position: absolute;
     bottom: calc(100% + 0.55rem);
