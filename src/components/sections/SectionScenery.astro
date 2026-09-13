@@ -1,17 +1,9 @@
 ---
-// Franja a sangre: vagón semifijo en primer plano (PNG con las ventanas en
-// alfa) y paisaje ampliado detrás que se desplaza de derecha a izquierda
-// conforme se hace scroll. La ilusión de viaje la conduce el scroll, no el
-// tiempo: cuanto más bajas, más avanza el tren.
-//
-// Animación dirigida por scroll en CSS puro (animation-timeline). Donde no
-// exista soporte, cae a un vaivén lento por tiempo; con reduced-motion,
-// queda fijo en el fotograma central.
-//
-// Acotada al ancho del marco de plano (mismo max-width que .bp-inner) para
-// no estirar ni recortar el vagón en pantallas anchas; sin rieles ni
-// divisores: los bordes se funden con el fondo de la página por los cuatro
-// lados (degradados arriba y abajo, máscara a los costados).
+// Full-bleed strip: a half-fixed carriage in front (PNG with alpha windows) and
+// an enlarged landscape behind it, driven by scroll rather than time.
+// 
+// Pure CSS scroll-driven animation. Without support it falls back to a slow
+// time-based sway; with reduced-motion it holds the middle frame.
 import GradualBlur from "../ui/GradualBlur.astro"
 
 const landscape = "/images/home/fondo.webp"
@@ -30,9 +22,8 @@ const wagon = "/images/home/vagones.webp"
   />
 
   {/*
-    Como en el hero, los costados se desenfocan hacia el borde; pero solo el
-    paisaje: van entre las dos capas (z 0, antes del vagón en el árbol), así
-    que el vagón queda nítido encima.
+    As in the hero, the sides blur towards the edge, but only the landscape: they
+    sit between the two layers, so the carriage stays sharp on top.
   */}
   <GradualBlur position="left" height="20%" strength={1.5} divCount={5} curve="bezier" exponential zIndex={0} />
   <GradualBlur position="right" height="20%" strength={1.5} divCount={5} curve="bezier" exponential zIndex={0} />
@@ -53,18 +44,18 @@ const wagon = "/images/home/vagones.webp"
 
 <style>
   /*
-    La proporción es la del PNG del vagón, para no recortar las ventanas.
-    `overflow: clip` (no hidden) para no convertir la sección en contenedor
-    de scroll, que confundiría a la línea de tiempo de vista.
+    Ratio comes from the carriage PNG so the windows are never cropped.
+    `clip` and not `hidden`: hidden would create a scroll container and confuse
+    the view timeline.
   */
   .scenery {
-    /* Cuánto más ancho que la sección es el paisaje: define el recorrido. */
+    /* How much wider than the section the landscape is: this sets the travel. */
     --scenery-span: 1.7;
 
     position: relative;
     width: 100%;
     max-width: var(--bp-max);
-    /* Aire respecto al cierre del marco de la sección anterior. */
+    /* Air from the frame closing above. */
     margin: clamp(3rem, 8vh, 5rem) auto 0;
     aspect-ratio: 1628 / 847;
     max-height: 36rem;
@@ -75,13 +66,13 @@ const wagon = "/images/home/vagones.webp"
     */
     background: var(--page-accent-surface);
     view-timeline: --scenery block;
-    /* Costados fundidos con la página, ya que no hay rieles que los enmarquen. */
+    /* Sides faded into the page, since no rails frame them. */
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
 
   /*
-    Paisaje ampliado: arranca alineado al borde izquierdo y, al salir la
-    sección por arriba, ha recorrido todo el sobrante hacia la izquierda.
+    Enlarged landscape: starts flush left and travels the whole overflow as the
+    section scrolls out.
   */
   .scenery__landscape {
     position: absolute;
@@ -98,7 +89,7 @@ const wagon = "/images/home/vagones.webp"
     animation-range: cover 0% cover 100%;
   }
 
-  /* Vagón semifijo: ligera deriva vertical, más lenta que la página. */
+  /* Half-fixed carriage: a slight vertical drift, slower than the page. */
   .scenery__wagon {
     position: absolute;
     inset: 0;
@@ -111,7 +102,7 @@ const wagon = "/images/home/vagones.webp"
     animation-range: cover 0% cover 100%;
   }
 
-  /* Velo del color de la página sobre toda la escena: la integra en la paleta. */
+  /* A veil of page colour over the whole scene, tying it to the palette. */
   .scenery__tint {
     position: absolute;
     inset: 0;
@@ -121,13 +112,9 @@ const wagon = "/images/home/vagones.webp"
   }
 
   /*
-    Funde techo y asientos con el fondo de la página, arriba y abajo. Dos
-    degradados independientes cuya altura es un % de la sección: así el
-    fundido escala con ella y en móvil (donde la sección mide ~200px) no se
-    come la escena entera, como pasaba con una altura fija en px.
-    70% equivale a los 400px que se ven en escritorio (566px de alto).
-    Los primeros tramos son opacos del todo: un degradado lineal a secas
-    solo llega al 100% en el último píxel y el borde se leía como un corte.
+    Fades roof and seats into the page, top and bottom. The gradient height is a
+    % of the section so it scales with it: a fixed px height ate the whole scene
+    on mobile.
   */
   .scenery__vignette {
     --scenery-fade: 70%;
@@ -143,7 +130,7 @@ const wagon = "/images/home/vagones.webp"
     pointer-events: none;
   }
 
-  /* El sobrante (span − 1) expresado como % del propio paisaje. */
+  /* The overflow (span − 1) expressed as a % of the landscape itself. */
   @keyframes sceneryTravel {
     from {
       transform: translateX(0);
@@ -162,7 +149,7 @@ const wagon = "/images/home/vagones.webp"
     }
   }
 
-  /* Sin scroll-driven animations: vaivén lento por tiempo. */
+  /* Without scroll-driven animations: a slow time-based sway. */
   @supports not (animation-timeline: view()) {
     .scenery__landscape {
       animation: sceneryTravel 40s ease-in-out infinite alternate;

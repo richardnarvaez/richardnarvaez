@@ -7,6 +7,7 @@ import SectionWork from "../components/sections/SectionWork.astro"
 import SectionLab from "../components/sections/SectionLab.astro"
 import SectionScenery from "../components/sections/SectionScenery.astro"
 import SectionOpenSource from "../components/sections/SectionOpenSource.astro"
+import SectionGallery from "../components/sections/SectionGallery.astro"
 import SiteFooter from "../components/footer/SiteFooter.astro"
 import StickyName from "../components/header/StickyName.astro"
 import { siteName } from "../site.config"
@@ -15,7 +16,7 @@ import { siteName } from "../site.config"
 <BaseLayout title={`${siteName} | Product Engineer`}>
   <a class="skip-link" href="#content">Skip to content</a>
 
-  {/* Fija arriba; se enciende cuando el nombre del perfil sale del viewport. */}
+  {/* Sticky; lights up when the profile name leaves the viewport. */}
   <StickyName />
 
   <main id="content">
@@ -26,8 +27,9 @@ import { siteName } from "../site.config"
     <SectionLab />
     <SectionOpenSource />
 
-    {/* Cierre: el tren, a sangre y sin marco, antes del pie. */}
+    {/* The train is the hinge: it closes the work and opens what is not software. */}
     <SectionScenery />
+    <SectionGallery />
   </main>
 
   <SiteFooter />

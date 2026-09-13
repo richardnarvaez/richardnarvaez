@@ -1,0 +1,201 @@
+---
+// Galería: lo que hago que no es software. Va debajo del tren, que es la
+// bisagra entre el trabajo y la vida.
+//
+// Doce piezas en una composición tipo mood board (columnas CSS: cada pieza
+// conserva su proporción y la columna se acomoda sola). El resto vive en el
+// drawer que ya monta SectionWork; el botón lo abre por la delegación en
+// document, así que aquí no hace falta script.
+import BlueprintSection from "../layout/BlueprintSection.astro"
+import SectionHeader from "../layout/SectionHeader.astro"
+import { gallery } from "../../data/gallery"
+
+// Mezcla deliberada: fotografía de viaje al frente, ilustración intercalada
+// y dos iconos — un icono también es algo que dibujé, no software.
+const featuredIds = [
+  "madeira",
+  "ill-5",
+  "landing-path",
+  "app-huma",
+  "sail-line",
+  "ill-1",
+  "flag-street",
+  "ill-4",
+  "blue-valley",
+  "app-trendy-music",
+  "green-rise",
+  "ill-6",
+]
+const featured = featuredIds.map((id) => gallery.find((g) => g.id === id)).filter((g) => g !== undefined)
+---
+
+<BlueprintSection
+  id="gallery"
+  class="gallery-section"
+  divider={false}
+  rails={false}
+  markers={false}
+  ariaLabelledby="not-software-title"
+>
+  <div class="gallery-section__body">
+    {/*
+      El título va montado sobre el fundido inferior del tren: ahí la escena
+      ya es casi el color de la página, así que se lee limpio y el bloque
+      entero (tren + galería) se percibe como uno solo.
+    */}
+    <SectionHeader
+      class="gallery-section__header"
+      centered
+      claim="Not everything I make is software."
+      context="Photography from the road, illustrations, and the icons behind the apps above."
+      titleId="not-software-title"
+    />
+
+    <div class="mood">
+      {
+        featured.map((item) => (
+          <button
+            type="button"
+            class:list={["mood__item", { "mood__item--icon": item.kind === "app" }]}
+            data-open={`image:${item.id}`}
+            aria-label={`Open ${item.name}`}
+          >
+            <img
+              src={item.src}
+              width="960"
+              height={Math.round(960 / item.ratio)}
+              style={`aspect-ratio: ${item.ratio};`}
+              loading="lazy"
+              decoding="async"
+              alt={item.name}
+            />
+            <span class="mood__name" aria-hidden="true">{item.name}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <p class="gallery-section__actions">
+      <button type="button" class="btn btn--ghost" data-open="gallery">
+        See more <span class="gallery-section__count num">{gallery.length}</span>
+      </button>
+    </p>
+  </div>
+</BlueprintSection>
+
+<style>
+  .gallery-section__body {
+    padding-block: 0 var(--section-y);
+  }
+
+  /* Lo renderiza SectionHeader y lleva su scope: solo se alcanza con :global. */
+  :global(.gallery-section__header) {
+    position: relative;
+    z-index: 1;
+    /*
+      El tirón es proporcional, no fijo: el tren mide 566px en escritorio y ~195 en
+      móvil, así que un valor en píxeles daría solapes muy distintos. 9vw mantiene
+      el ~17% de la escena, y el tope lo congela cuando la escena deja de crecer.
+    */
+    margin-block-start: calc(min(9vw, var(--space-6)) * -1);
+  }
+
+  /* Columnas y no grid: cada pieza conserva su alto natural y la columna se
+     rellena sola, que es la composición de mood board. */
+  .mood {
+    columns: 3;
+    column-gap: var(--space-3);
+  }
+
+  .mood__item {
+    display: block;
+    position: relative;
+    width: 100%;
+    margin: 0 0 var(--space-3);
+    padding: 0;
+    border: 0;
+    border-radius: 0.9rem;
+    overflow: hidden;
+    break-inside: avoid;
+    background: var(--surface-2);
+    cursor: pointer;
+    transition: transform 240ms var(--ease-out);
+  }
+
+  .mood__item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: opacity 240ms var(--ease-out);
+  }
+
+  /* Un icono no es una foto: con columnas de ~450px se ampliaba a 450×450. */
+  .mood__item--icon {
+    display: grid;
+    place-items: center;
+    padding: var(--space-4);
+  }
+
+  .mood__item--icon img {
+    width: min(100%, 140px);
+    aspect-ratio: 1;
+    border-radius: 22%;
+  }
+
+  .mood__item:hover {
+    transform: translateY(-2px);
+  }
+
+  .mood__item:hover img,
+  .mood__item:focus-visible img {
+    opacity: 0.72;
+  }
+
+  /* El nombre solo aparece al pasar por encima: en reposo manda la imagen. */
+  .mood__name {
+    position: absolute;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: var(--space-2);
+    font-size: var(--fs-2xs);
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: left;
+    color: #fff;
+    text-shadow: 0 1px 6px rgb(var(--surface-rgb) / 0.9);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 240ms var(--ease-out),
+      transform 240ms var(--ease-out);
+  }
+
+  .mood__item:hover .mood__name,
+  .mood__item:focus-visible .mood__name {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Mismo tratamiento que el contador del Lab: separado y en tono más bajo. */
+  .gallery-section__count {
+    margin-left: 0.35rem;
+    color: rgb(var(--text-rgb) / 0.55);
+  }
+
+  .gallery-section__actions {
+    margin: var(--space-4) 0 0;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .mood {
+      columns: 2;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .mood {
+      columns: 1;
+    }
+  }
+</style>

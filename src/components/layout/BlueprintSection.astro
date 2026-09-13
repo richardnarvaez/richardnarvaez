@@ -1,23 +1,29 @@
 ---
-// Sección dentro del marco de plano: rieles discontinuos a los lados,
-// divisor horizontal propio y marcadores en las esquinas superiores.
-//
-// Las secciones a sangre (franja de imagen, footer) no usan este componente:
-// así el riel se interrumpe donde el contenido deja de estar acotado.
+// A section inside the blueprint frame: dashed rails at the sides, its own top
+// divider and markers in the upper corners.
+// 
+// Full-bleed sections skip this component, so the rail stops where the content
+// stops being bounded.
 interface Props {
   id?: string
   class?: string
-  /** Divisor horizontal en el borde superior. */
+  /* Horizontal divider on the top edge. */
   divider?: boolean
-  /** Cierra el marco por abajo (usar en la última antes de una sección a sangre). */
+  /* Closes the frame at the bottom; use on the last one before a full-bleed section. */
   close?: boolean
-  /** Marcadores cuadrados en las esquinas. */
+  /* Square corner markers. */
   markers?: boolean
-  /** Anotación en la esquina, estilo plano técnico. */
+  /*
+    Vertical side rails. Turned off when the section follows a full-bleed one that
+    already broke the frame: with no divider, two loose rails frame nothing. They
+    go transparent, not to zero, so the usable width never changes.
+  */
+  rails?: boolean
+  /* Corner annotation, blueprint style. */
   label?: string
-  /** Nombre accesible: id del encabezado de la sección… */
+  /* Accessible name: the id of the section heading… */
   ariaLabelledby?: string
-  /** …o un texto, si la sección no tiene encabezado visible. */
+  /* …or a string, when the section has no visible heading. */
   ariaLabel?: string
 }
 
@@ -27,6 +33,7 @@ const {
   divider = true,
   close = false,
   markers = true,
+  rails = true,
   label,
   ariaLabelledby,
   ariaLabel,
@@ -41,7 +48,7 @@ const {
   aria-labelledby={ariaLabelledby}
   aria-label={ariaLabel}
 >
-  <div class="bp-inner">
+  <div class:list={["bp-inner", { "bp-inner--no-rails": !rails }]}>
     {
       markers && divider && (
         <>
@@ -61,7 +68,7 @@ const {
 
     {
       label && (
-        <p class="bp-label font-jetbrains" aria-hidden="true">
+        <p class="bp-label label" aria-hidden="true">
           {label}
         </p>
       )
