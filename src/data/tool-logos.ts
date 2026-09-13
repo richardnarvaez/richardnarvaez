@@ -1,16 +1,14 @@
-// Logos de herramientas para la cinta del bento. Recuperados de la versión
-// Next.js del sitio (components/Icons/brands, public/images) y, para Docker,
-// GitHub y Cursor, de Simple Icons (CC0). Trazos negros o de marca sobre
-// baldosa blanca. `wide` ocupa dos huecos (marcas con wordmark apaisado).
+// Tool logos for the bento marquee, recovered from the Next.js version and,
+// for Docker, GitHub and Cursor, from Simple Icons (CC0). `wide` takes two slots.
 export interface ToolLogo {
   id: string
   label: string
   viewBox: string
-  /** Marcado interno del SVG (paths, defs). */
+  /* Inner SVG markup (paths, defs). */
   body: string
-  /** Relleno del <svg> raíz para logos monocromos sin fill propio. */
+  /* Root <svg> fill, for monochrome logos with no fill of their own. */
   fill?: string
-  /** Baldosa doble de ancho. */
+  /* Double-width tile. */
   wide?: boolean
 }
 

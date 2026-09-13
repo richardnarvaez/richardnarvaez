@@ -1,30 +1,25 @@
 ---
-// Desenfoque progresivo: N capas apiladas, cada una con su propio
-// backdrop-filter y una máscara que la limita a una franja. Al solaparse, el
-// radio de desenfoque crece de forma continua hacia el borde.
-//
-// Portado del GradualBlur de la versión Next.js (components/ui/gradual-blur.tsx).
-// Toda la aritmética ocurre aquí, en build: el cliente recibe solo divs con
-// estilos inline, sin JS ni dependencias.
-//
-// No existe (todavía) un `linear-blur()` nativo en CSS; hay una propuesta
-// abierta en el CSSWG (csswg-drafts#13285), pero ningún navegador la implementa.
+// Progressive blur: N stacked layers, each with its own backdrop-filter and a
+// mask limiting it to a band. Overlapping, the radius grows towards the edge.
+// 
+// All the arithmetic happens at build: the client gets divs with inline styles,
+// no JS. There is no native `linear-blur()` in CSS yet (csswg-drafts#13285).
 
 type Position = "top" | "bottom" | "left" | "right"
 type Curve = "linear" | "bezier" | "ease-in" | "ease-out" | "ease-in-out"
 
 interface Props {
-  /** Borde desde el que crece el desenfoque. */
+  /** Edge the blur grows from. */
   position?: Position
-  /** Alto (o ancho, si es lateral) de la zona desenfocada. */
+  /** Height, or width when horizontal, of the blurred band. */
   height?: string
-  /** Multiplicador del radio de desenfoque. */
+  /** Blur radius multiplier. */
   strength?: number
-  /** Número de capas. Más capas, transición más suave. */
+  /** Layer count: more layers, smoother ramp. */
   divCount?: number
-  /** Curva que reparte el desenfoque entre las capas. */
+  /** Curve spreading the blur across layers. */
   curve?: Curve
-  /** Crecimiento exponencial del radio en vez de lineal. */
+  /** Exponential radius growth instead of linear. */
   exponential?: boolean
   opacity?: number
   zIndex?: number
@@ -70,8 +65,7 @@ const layers = Array.from({ length: divCount }, (_, index) => {
     ? Math.pow(2, progress * 4) * 0.0625 * strength
     : 0.0625 * (progress * divCount + 1) * strength
 
-  // Franja de la capa: sube de transparente a opaco, se mantiene una franja
-  // y vuelve a transparente. Las últimas capas se cortan en 100%.
+  // Each layer fades in, holds a band and fades out; the last sit at the edge.
   const p1 = round1(increment * i - increment)
   const p2 = round1(increment * i)
   const p3 = round1(increment * i + increment)

@@ -1,15 +1,13 @@
-// Controlador de drawers inferiores (WorkDrawer): apertura y cierre con
-// bloqueo de scroll, foco atrapado, Escape, y arrastre del asa para cerrar
-// con el velo (solo filtro) despejándose a medias mientras baja el panel.
-//
-// Lo comparten la sección Work (casos y galería) y la sección Lab. Cada
-// sección crea su controlador sobre su propia raíz y pasa callbacks para lo
-// que le sea propio (clase en la pantalla del Mac, limpieza del hash).
+// Bottom drawer controller (WorkDrawer): open and close with scroll lock,
+// focus trap, Escape, and a grip drag that clears the scrim as the panel drops.
+// 
+// Shared by the Work section (cases and gallery) and the Lab section. Each one
+// builds its controller on its own root and passes callbacks for what is theirs.
 
 export interface DrawerController {
   open(drawer: HTMLElement, from?: HTMLElement | null): void
   close(restoreFocus?: boolean): void
-  /** Drawer abierto ahora mismo, si lo hay. */
+  /** The drawer open right now, if any. */
   current(): HTMLElement | null
 }
 
@@ -32,10 +30,10 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
     opener = from ?? (document.activeElement as HTMLElement | null)
     openDrawer = drawer
     drawer.hidden = false
-    // Fuerza el layout con el panel abajo antes de animarlo hacia arriba.
+    // Forces layout with the panel down before animating it up.
     void drawer.offsetHeight
     drawer.classList.add("is-open")
-    // La página no se desplaza mientras el drawer está abierto.
+    // The page does not scroll while a drawer is open.
     document.documentElement.style.overflow = "hidden"
     drawer.querySelector<HTMLElement>("[data-drawer-body]")?.scrollTo({ top: 0 })
     drawer.querySelector<HTMLElement>("[data-drawer-close]:not(.drawer__scrim)")?.focus()
@@ -64,7 +62,7 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
   for (const drawer of drawers) {
     for (const btn of drawer.querySelectorAll("[data-drawer-close]")) btn.addEventListener("click", () => close())
 
-    // Arrastrar el asa hacia abajo cierra; si no llega, vuelve a su sitio.
+    // Dragging the grip down closes; short of that it snaps back.
     const grip = drawer.querySelector<HTMLElement>("[data-drawer-grip]")!
     const panel = drawer.querySelector<HTMLElement>("[data-drawer-panel]")!
     const scrim = drawer.querySelector<HTMLElement>(".drawer__scrim")!
@@ -73,8 +71,8 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
     let lastT = 0
     let v = 0
     grip.addEventListener("pointerdown", (event) => {
-      // El botón de cerrar vive dentro del asa: si el gesto empieza ahí, no
-      // es un arrastre (capturar el puntero le robaría el clic).
+      // The close button lives inside the grip: a gesture starting there is not a
+      // drag, and capturing the pointer would kill the click.
       if ((event.target as HTMLElement).closest("[data-drawer-close]")) return
       start = event.clientY
       last = start
@@ -84,7 +82,7 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
       try {
         grip.setPointerCapture(event.pointerId)
       } catch {
-        /* sin captura seguimos igual */
+        /* fine without capture */
       }
     })
     grip.addEventListener("pointermove", (event) => {
@@ -95,7 +93,7 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
       last = event.clientY
       lastT = now
       panel.style.translate = `0 ${dy}px`
-      // El velo se despeja a medias en proporción a lo que ha bajado el panel: solo filtro, nunca opacidad.
+      // The scrim clears in proportion to how far the panel dropped: filter only.
       const t = Math.min(1, dy / panel.offsetHeight) * 0.5
       const filter = `blur(${(8 * (1 - t)).toFixed(2)}px) brightness(${(0.55 + 0.45 * t).toFixed(3)})`
       scrim.style.backdropFilter = filter
@@ -105,8 +103,7 @@ export function initDrawers(root: HTMLElement, options: Options = {}): DrawerCon
       if (start === null) return
       const dy = last - start
       start = null
-      // Con las transiciones activas de nuevo, panel y scrim van de donde
-      // estén a su destino (cerrado o abierto) en un solo movimiento.
+      // With transitions back on, panel and scrim travel to their destination.
       drawer.classList.remove("is-dragging")
       void drawer.offsetHeight
       if (dy > 120 || v > 0.6) close()

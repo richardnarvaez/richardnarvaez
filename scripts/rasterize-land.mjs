@@ -1,12 +1,6 @@
-// Genera la máscara de tierra de src/components/sections/WorldDotMap.astro.
-//
-// Uso:
-//   curl -sL -o /tmp/land.geojson https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_land.geojson
-//   node scripts/rasterize-land.mjs /tmp/land.geojson
-//
-// Imprime las filas ("#" tierra, "." agua) listas para pegar en el array
-// `land` del componente. Ajusta COLS y el recorte de latitud aquí y en el
-// componente (COLS, STEP_DEG, LAT_MAX deben coincidir).
+// Generates the land mask for src/components/sections/WorldDotMap.astro.
+// Prints the rows ("#" land, "." water) ready to paste into the component's
+// `land` array. Adjust COLS and the latitude crop here and in the component.
 import { readFileSync } from "node:fs"
 
 const COLS = 120

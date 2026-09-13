@@ -1,5 +1,5 @@
-// Piezas de la galería (ilustraciones y fotografía) para el lienzo del Mac y
-// el drawer de galería. Las fotos son las propias publicadas en Unsplash.
+// Gallery pieces (illustration and photography) for the Mac canvas and the
+// gallery drawer. The photos are my own, published on Unsplash.
 export type GalleryKind = "illustration" | "photo" | "app"
 
 export interface GalleryItem {
@@ -7,15 +7,15 @@ export interface GalleryItem {
   kind: GalleryKind
   name: string
   desc?: string
-  /** Miniatura: lienzo y drawer. */
+  /* Thumbnail: canvas and drawer. */
   src: string
-  /** Versión grande para el visor (≤1600px). */
+  /* Full size for the viewer (≤1600px). */
   full: string
-  /** Ancho / alto de la imagen, para reservar el hueco antes de cargar. */
+  /* Width / height, to reserve the slot before it loads. */
   ratio: number
 }
 
-// Miniaturas a 960px (drawer en retina) y grandes a 1600px para el visor.
+// Thumbnails at 960px for retina drawers, full sizes at 1600px.
 const unsplash = (id: string, w = 960) => `https://images.unsplash.com/${id}?auto=format&fit=crop&q=75&w=${w}`
 const unsplashPair = (id: string) => ({ src: unsplash(id), full: unsplash(id, 1600) })
 const local = (thumb: string, large: string) => ({ src: thumb, full: large })
@@ -40,7 +40,7 @@ export const photos: GalleryItem[] = [
   { id: "harbor-silence", kind: "photo", name: "Harbor Silence", desc: "A narrow frame where water and distant relief almost flatten out.", ...unsplashPair("photo-1759424727855-772a29b2ee93"), ratio: 0.75 },
 ]
 
-// Iconos de app: también son ilustración propia, y en miniatura apenas se ven.
+// App icons are illustration too, and barely read as thumbnails.
 export const appIcons: GalleryItem[] = [
   { id: "app-huma", kind: "app", name: "Huma Legends icon", desc: "App icon for Huma Legends.", ...local("/images/apps/huma.webp", "/images/apps/large/huma.webp"), ratio: 1 },
   { id: "app-memory", kind: "app", name: "Memory ClickStudio icon", desc: "App icon for Memory ClickStudio.", ...local("/images/apps/memory.webp", "/images/apps/large/memory.webp"), ratio: 1 },

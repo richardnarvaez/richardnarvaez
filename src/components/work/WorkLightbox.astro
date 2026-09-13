@@ -1,8 +1,7 @@
 ---
-// Visor de imagen a pantalla completa. La miniatura pulsada "vuela" hasta
-// el centro (el script mide su rectángulo y anima desde ahí) mientras el
-// fondo se desenfoca y oscurece solo con filtro, nunca con opacidad. Cierra
-// con el botón, con Escape o pulsando fuera, volviendo a la miniatura.
+// Full-screen image viewer. The tapped thumbnail flies to the centre while the
+// background blurs and darkens with filter alone, never opacity. Closes on the
+// button, Escape or an outside click, returning to the thumbnail.
 ---
 
 <div class="lightbox" data-lightbox role="dialog" aria-modal="true" aria-label="Image" hidden>
@@ -46,7 +45,7 @@
     pointer-events: none;
   }
 
-  /* El script fija left/top/width/height (px) y los anima entre origen y destino. */
+  /* The script sets left/top/width/height in px and animates between the two. */
   .lightbox__img {
     position: fixed;
     display: block;
@@ -71,7 +70,7 @@
     translate: -50% 0;
     text-align: center;
     color: #fff;
-    /* Aparece cuando la imagen ha llegado; se esconde antes de que vuelva. */
+    /* Appears once the image has landed; hides before it travels back. */
     opacity: 0;
     transition: opacity 220ms ease;
   }

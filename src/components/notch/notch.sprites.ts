@@ -1,5 +1,5 @@
-// Datos puros del pet de píxeles del notch: geometría de la silueta,
-// clases de tono y los fotogramas de cada animación.
+// Pure data for the notch pixel pet: silhouette geometry, tone classes and the
+// frames of each animation.
 export const deviceNotchMetrics = {
   baseHeight: 24,
   leftTopInnerX: 12.1115,

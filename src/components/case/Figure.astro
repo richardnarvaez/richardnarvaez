@@ -1,6 +1,6 @@
 ---
-// Imagen con pie: capturas, wireframes o diagramas exportados. `frame`
-// la presenta como pantalla (borde y fondo) en vez de a sangre.
+// Image with a caption: screenshots, wireframes or exported diagrams. `frame`
+// presents it as a screen instead of full bleed.
 interface Props {
   src: string
   alt: string
@@ -8,7 +8,7 @@ interface Props {
   width?: number
   height?: number
   frame?: boolean
-  /** Icono de app: se muestra pequeño (100px) con el pie al lado, no a todo el ancho. */
+  /* App icon: shown small (100px) with the caption beside it. */
   icon?: boolean
 }
 
@@ -38,7 +38,7 @@ const { src, alt, caption, width, height, frame = false, icon = false } = Astro.
     background: var(--surface-2);
   }
 
-  /* Iconos cuadrados: nunca más de 100px, con el pie a la derecha. */
+  /* Square icons never exceed 100px, caption on the right. */
   .figure--icon {
     display: flex;
     align-items: center;

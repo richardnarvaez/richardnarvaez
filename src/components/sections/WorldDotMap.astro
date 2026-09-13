@@ -1,17 +1,14 @@
 ---
-// Mapa de puntos decorativo, generado en build desde una máscara de tierra
-// real: Natural Earth 110m rasterizado a celdas de 3° (120 × 47, sin
-// Antártida). Nada de esto llega al cliente: solo el SVG resultante.
+// Decorative dot map, built from a real land mask (Natural Earth 110m in 3°
+// cells). None of that reaches the client, only the resulting SVG.
 //
-// Rendimiento: los ~1700 puntos no son <circle> sino UN solo <path> hecho de
-// segmentos de longitud ~0 con `stroke-linecap: round`. Un nodo DOM en vez
-// de miles, y el navegador lo pinta de una pasada.
+// The ~1700 dots are a single <path> of zero-length segments with round
+// linecaps, not <circle> elements: one DOM node instead of thousands.
 //
-// Para regenerar la máscara con otra resolución o recorte:
-// scripts/rasterize-land.mjs (point-in-polygon sobre el GeoJSON de Natural Earth).
+// To regenerate the mask at another resolution: scripts/rasterize-land.mjs
 
 interface Props {
-  /** Ventana visible, en grados. Por defecto, todo el mapa. */
+  /* Visible window in degrees. Defaults to the whole map. */
   lonMin?: number
   lonMax?: number
   latMin?: number
@@ -22,7 +19,7 @@ const COLS = 120
 const STEP_DEG = 3
 const LAT_MAX = 84
 
-// Una celda = UNIT unidades del viewBox; el punto va en el centro.
+// One cell = UNIT viewBox units; the dot sits at its centre.
 const UNIT = 10
 
 const land = [
@@ -91,7 +88,7 @@ const project = ({ lat, lon }: { lat: number; lon: number }) => ({
   y: ((LAT_MAX - lat) / STEP_DEG) * UNIT,
 })
 
-// Ventana del viewBox a partir del recorte en grados.
+// viewBox window derived from the crop in degrees.
 const topLeft = project({ lat: latMax, lon: lonMin })
 const bottomRight = project({ lat: latMin, lon: lonMax })
 const viewBox = [
@@ -103,10 +100,8 @@ const viewBox = [
   .map((n) => Math.round(n * 10) / 10)
   .join(" ")
 
-// "M x y h.1" por punto: el .1 evita que algún motor descarte un segmento de
-// longitud exactamente cero antes de aplicarle el linecap redondo.
-// Solo se emiten los puntos dentro de la ventana: el resto no se vería y
-// solo engordaría el HTML.
+// "M x y h.1" per dot: the .1 stops an engine discarding a zero-length segment
+// before applying the round linecap. Only dots inside the window are emitted.
 let dotsPath = ""
 land.forEach((row, r) => {
   const lat = LAT_MAX - (r + 0.5) * STEP_DEG
@@ -119,7 +114,7 @@ land.forEach((row, r) => {
   }
 })
 
-// Marcadores de actividad en lat/lon reales. Editar aquí.
+// Activity markers in real lat/lon. Edit here.
 const places = [
   { name: "Quito", lat: -0.18, lon: -78.47 },
   { name: "Lima", lat: -12.05, lon: -77.04 },
@@ -159,7 +154,7 @@ const pins = places
     height: 100%;
   }
 
-  /* El grosor del trazo es el diámetro del punto; el linecap lo hace redondo. */
+  /* Stroke width is the dot diameter; the linecap makes it round. */
   .world-map__dots {
     stroke: rgba(139, 126, 210, 0.32); /* variante clara del fondo, no gris */
     stroke-width: 4.2;

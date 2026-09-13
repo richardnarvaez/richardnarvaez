@@ -760,13 +760,13 @@ function initDeviceNotch(root: HTMLElement, signal: AbortSignal) {
 
 let notchAbortController: AbortController | null = null
 
-/** Monta el pet. Idempotente: llamarlo dos veces no duplica listeners. */
+/* Mounts the pet. Idempotent: calling it twice does not duplicate listeners. */
 export function initNotchPet(root: HTMLElement = document.body) {
   notchAbortController ??= new AbortController()
   initDeviceNotch(root, notchAbortController.signal)
 }
 
-/** Libera listeners, timers, tweens y el AudioContext. */
+/* Releases listeners, timers, tweens and the AudioContext. */
 export function destroyNotchPet() {
   notchAbortController?.abort()
   notchAbortController = null

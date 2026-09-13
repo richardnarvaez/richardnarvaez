@@ -1,12 +1,12 @@
 ---
-// Tarjeta de la vitrina: solo la portada 4:3, con tipo, figura y título
-// dentro. El resumen va en el nombre accesible del enlace y en la página.
+// Showcase card: just the 4:3 cover, with kind, figure and title inside. The
+// summary lives in the link's accessible name and on the page.
 import LabCover from "./LabCover.astro"
 import { hrefOf, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
-  /** En el home abre la entrada en un drawer; el href queda como respaldo sin JS. */
+  /* On the home page it opens in a drawer; the href is the no-JS fallback. */
   drawer?: boolean
 }
 
@@ -30,7 +30,7 @@ const { data } = entry
     transition: border-color 220ms ease;
   }
 
-  /* Al pasar, el borde discontinuo se enciende en el naranja de la página. */
+  /* On hover the dashed border lights up in the page orange. */
   .lab-card:hover :global(.lab-card__cover) {
     border-color: var(--page-accent);
   }

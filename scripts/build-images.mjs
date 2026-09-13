@@ -1,11 +1,10 @@
-// Genera todas las imágenes derivadas de `public/images` a partir de las
-// fuentes en `design/` (fuera de public y fuera de git: pesan ~20 MB).
-//
-//   node scripts/build-images.mjs            # todas las tareas
-//   node scripts/build-images.mjs hero og    # solo algunas
-//
-// sharp viene con Astro; se resuelve desde su paquete para no añadir una
-// dependencia propia.
+// Builds every derived image in `public/images` from the sources in `design/`,
+// which live outside public and outside git (~20 MB).
+// 
+//   node scripts/build-images.mjs            # every task
+//   node scripts/build-images.mjs hero og    # only some
+// 
+// sharp ships with Astro and is resolved from its package to avoid a dependency.
 import { createRequire } from "node:module"
 import { mkdirSync, statSync } from "node:fs"
 import { dirname } from "node:path"
@@ -20,21 +19,19 @@ const out = (path) => {
 const report = (path) => console.log(`  ${path}  ${(statSync(path).size / 1024).toFixed(0)} KB`)
 
 const tasks = {
-  // Bocetos del hero: máscara del trazo + halo pre-desenfocado, ambas como
-  // ALFA (trazo blanco sobre transparente). Safari ignora `mask-mode:
-  // luminance` con imágenes raster, así que la luminancia no es opción.
-  // 2000px de ancho bastan (el hero se ve a ≤1920 y el trazo es suave).
+  // Hero sketches: stroke mask plus a pre-blurred halo, both as ALPHA (white
+  // stroke on transparent). Safari ignores `mask-mode: luminance` on raster
+  // images, so luminance is not an option. 2000px wide is enough.
   async sketch() {
     const src = sharp("design/hero/sketch.png").resize({ width: 2000 })
     const { width, height } = await src.clone().metadata()
-    // Trazo: la imagen tal cual (blanco + alfa), WebP con pérdida en color y alfa casi intacto.
+    // Stroke: the image as-is, WebP lossy in colour with alpha nearly intact.
     await src.clone().webp({ quality: 60, alphaQuality: 90, effort: 6 })
       .toFile(out("public/images/home/bg-header-lineas-mask.webp"))
-    // Halo: el alfa del trazo desenfocado y reforzado, montado sobre blanco.
-    // A la mitad de resolución (ya va desenfocado) y con alfa SIN pérdida: la
-    // compresión con pérdida del alfa deja bandas en los degradados suaves.
-    // Dos pasadas a propósito: sharp aplica `linear` ANTES de `extractChannel`
-    // y `blur` si van en la misma cadena, y sobre un alfa 0/255 no hace nada.
+    // Halo: the stroke's alpha, blurred and strengthened over white. Half
+    // resolution (already blurred) with LOSSLESS alpha, since lossy alpha bands
+    // the soft gradients. Two passes on purpose: sharp applies `linear` before
+    // `extractChannel` and `blur` in one chain, which does nothing on a 0/255 alpha.
     const half = Math.round(width / 2)
     const blurred = await src.clone().extractChannel("alpha").blur(20).toBuffer()
     const alpha = await sharp(blurred).linear(3.2, 0).resize({ width: half }).toBuffer()
@@ -46,9 +43,8 @@ const tasks = {
     report("public/images/home/bg-header-lineas-glow.webp")
   },
 
-  // Gota líquida del foco: círculo con degradado radial arrugado por ruido,
-  // rasterizado una vez (un SVG con filtros como mask-image se re-rasteriza
-  // en cada frame y calienta la GPU).
+  // Liquid torch drop: a radial gradient circle wrinkled by noise, rasterised
+  // once (an SVG filter as mask-image re-rasterises every frame and heats the GPU).
   async torch() {
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' width='512' height='512'>
       <defs><radialGradient id='g'>
@@ -65,13 +61,13 @@ const tasks = {
     report("public/images/home/torch-blob.png")
   },
 
-  // Iconos de app a 256px (retina para tiles de hasta 96px) y grandes para
-  // el visor (≤1024px, sin ampliar). `contain` monta sobre blanco los que
-  // vienen recortados con alfa; `extract` recorta el lienzo sobrante.
+  // App icons at 256px (retina for tiles up to 96px) and large for the viewer
+  // (≤1024px, never upscaled). `contain` mounts alpha-cropped ones over white;
+  // `extract` trims the leftover canvas.
   async apps() {
     const icons = [
       { id: "huma", src: "design/apps/huma.jpg" },
-      // PNG pequeño: el grande se deja a 512 con vecino más próximo, ampliado por CSS.
+      // Small PNG: the large one stays at 512 with nearest neighbour, scaled by CSS.
       { id: "memory", src: "design/apps/memory.png", fit: "contain", background: "#dffcff", large: 512, kernel: "nearest" },
       { id: "ubrand", src: "design/apps/ubrand.png" },
       { id: "deliverycat", src: "design/apps/deliverycat.png", fit: "contain", background: "#fff" },
@@ -93,11 +89,11 @@ const tasks = {
         .webp({ quality: icon.kernel ? 90 : 84 }).toFile(large)
       report(large)
     }
-    // Logotipos de los juegos (con alfa) para la galería: miniatura y grande.
+    // Game logos (with alpha) for the gallery: thumbnail and full size.
     const marks = [
       { id: "relax-puzzle", src: "design/apps/relax-puzzle.png" },
       { id: "little-king-logo", src: "design/apps/little-king-logo.png" },
-      // Versión alternativa del icono de Trendy Music: solo como referencia en el caso.
+      // Alternate Trendy Music icon, reference only inside the case.
       { id: "trendy-music-alt", src: "design/apps/trendy-music-alt.png" },
     ]
     for (const mark of marks) {
@@ -110,8 +106,7 @@ const tasks = {
     }
   },
 
-  // Miniaturas del lienzo de ilustraciones (tiles de hasta 200px, 2×).
-  // Miniaturas (lienzo, drawer) y versiones grandes (visor, ≤1600px).
+  // Illustration canvas thumbnails (tiles up to 200px, 2×).
   async illustrations() {
     const sources = ["pic_1.jpg", "pic_2.jpg", "pic_3.jpg", "pic_4.jpg", "pic_5.jpg", "pic_6.png"]
     for (const [index, file] of sources.entries()) {
@@ -126,7 +121,7 @@ const tasks = {
     }
   },
 
-  // Retrato del lienzo de fotografía: miniatura y grande para el visor.
+  // Photography canvas portrait: thumbnail and full size for the viewer.
   async photos() {
     await sharp("design/photos/landing-path.jpg").resize({ width: 480 }).webp({ quality: 78 })
       .toFile(out("public/images/photos/landing-path.webp"))
@@ -136,14 +131,14 @@ const tasks = {
     report("public/images/photos/large/landing-path.webp")
   },
 
-  // Foto del hero: a sangre, 2000px bastan (la original son 2731).
+  // Hero photo: full bleed, 2000px is enough (the original is 2731).
   async hero() {
     await sharp("design/hero/background.jpg").resize({ width: 2000 }).webp({ quality: 72, effort: 6 })
       .toFile(out("public/images/home/bg-header.webp"))
     report("public/images/home/bg-header.webp")
   },
 
-  // Tren: paisaje y vagón (este con alfa en las ventanas).
+  // Train: landscape and carriage, the latter with alpha in the windows.
   async scenery() {
     await sharp("design/scenery/landscape.jpg").resize({ width: 2000 }).webp({ quality: 72, effort: 6 })
       .toFile(out("public/images/home/fondo.webp"))
@@ -153,14 +148,14 @@ const tasks = {
     report("public/images/home/vagones.webp")
   },
 
-  // Fondo de la tarjeta Resume del bento (se ve a ~340px; 800 para retina).
+  // Resume card background in the bento (seen at ~340px; 800 for retina).
   async bento() {
     await sharp("design/bento/resume.jpg").resize({ width: 800 }).webp({ quality: 75 })
       .toFile(out("public/images/bento/resume.webp"))
     report("public/images/bento/resume.webp")
   },
 
-  // Imagen Open Graph: JPEG, que WebP no lo leen todas las redes.
+  // Open Graph image: JPEG, since not every network reads WebP.
   async og() {
     await sharp("design/og/cover.jpg").resize({ width: 1200 }).jpeg({ quality: 78, mozjpeg: true })
       .toFile(out("public/images/cover.jpg"))

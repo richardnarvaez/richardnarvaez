@@ -1,6 +1,6 @@
 import type { RetroUiToneVariant } from "./notch.sprites"
 
-// Tonos retro de 8 bits que suenan al alimentar al pet.
+// Retro 8-bit tones played when the pet is fed.
 let retroUiAudioContext: AudioContext | null = null
 
 export function closeNotchAudio() {

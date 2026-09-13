@@ -1,12 +1,10 @@
 ---
-// Drawer inferior a pantalla completa: un panel que sube desde el borde de la
-// ventana, con asa para arrastrar y cerrar, botón de cierre, scrim sobre toda
-// la página y cuerpo con scroll. La apertura, el foco y el arrastre los
-// gestiona el script de SectionWork; este componente solo aporta marcado y
-// estilo. Va fijo y por encima de la barra del nombre y del notch (z 40).
+// Full-screen bottom drawer: a panel rising from the window edge, with a grip to
+// drag it closed, a close button, a page-wide scrim and a scrolling body.
+// Opening, focus and drag live in the SectionWork script; this is markup only.
 interface Props {
   id: string
-  /** id del encabezado que da nombre al diálogo. */
+  /* id of the heading naming the dialog. */
   labelledby: string
   class?: string
 }
@@ -80,7 +78,7 @@ const { id, labelledby, class: className } = Astro.props
     translate: 0 0;
   }
 
-  /* Mientras se arrastra el asa, panel y scrim siguen al dedo sin transición. */
+  /* While the grip is dragged, panel and scrim follow the finger without transition. */
   .drawer.is-dragging .drawer__panel,
   .drawer.is-dragging .drawer__scrim {
     transition: none;
@@ -99,7 +97,7 @@ const { id, labelledby, class: className } = Astro.props
     height: 2.6rem;
     margin-bottom: -2.6rem;
     border-radius: 1.4rem 1.4rem 0 0;
-    /* Solo el alto del asa: nada de cola extra, que se leía como una sombra sobre las imágenes. */
+    /* Grip height only: any extra tail read as a shadow over the images. */
     background: linear-gradient(180deg, var(--surface-raised) 0%, var(--surface-raised) 45%, transparent 100%);
     cursor: grab;
     touch-action: none;
