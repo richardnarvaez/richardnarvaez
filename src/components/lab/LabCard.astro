@@ -2,7 +2,7 @@
 // Showcase card: just the 4:3 cover, with kind, figure and title inside. The
 // summary lives in the link's accessible name and on the page.
 import LabCover from "./LabCover.astro"
-import { hrefOf, type LabEntry } from "./lab"
+import { caseOf, hrefOf, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
@@ -12,9 +12,11 @@ interface Props {
 
 const { entry, drawer = false } = Astro.props
 const { data } = entry
+// A prototype that is a Work case links there: its story is the case, not a stub.
+const study = await caseOf(entry)
 ---
 
-<a class="lab-card" href={hrefOf(entry)} data-open={drawer ? `lab:${entry.id}` : undefined} aria-label={`${data.title}. ${data.summary}`}>
+<a class="lab-card" href={study ? `/work/${study.id}` : hrefOf(entry)} data-open={drawer ? `lab:${entry.id}` : undefined} aria-label={`${data.title}. ${data.summary}`}>
   <LabCover entry={entry} class="lab-card__cover" />
 </a>
 

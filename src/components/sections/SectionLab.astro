@@ -6,10 +6,15 @@ import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
 import LabCard from "../lab/LabCard.astro"
 import LabEntry from "../lab/LabEntry.astro"
-import { labEntries, pickFeatured } from "../lab/lab"
+import CaseStudy from "../case/CaseStudy.astro"
+import { caseOf, hrefOf, labEntries, pickFeatured } from "../lab/lab"
 
 const entries = await labEntries()
 const featured = pickFeatured(entries, 6)
+// Prototypes that are a Work case read from that case: one MDX, not two.
+const studies = new Map(
+  await Promise.all(featured.map(async (entry) => [entry.id, await caseOf(entry)] as const)),
+)
 ---
 
 <BlueprintSection id="lab" class="lab" label="04 — lab" ariaLabelledby="lab-title">
@@ -41,14 +46,23 @@ const featured = pickFeatured(entries, 6)
 
     {/* Drawers: one per highlight, fixed full screen. */}
     {
-      featured.map((entry) => (
-        <WorkDrawer id={`drawer-lab-${entry.id}`} labelledby={`lab-${entry.id}-title`}>
-          <LabEntry entry={entry} headingLevel="h2" titleId={`lab-${entry.id}-title`} />
-          <p class="lab__fullpage">
-            <a class="btn btn--ghost btn--sm" href={`/lab/${entry.id}`}>Open as a page</a>
-          </p>
-        </WorkDrawer>
-      ))
+      featured.map((entry) => {
+        const study = studies.get(entry.id)
+        return (
+          <WorkDrawer id={`drawer-lab-${entry.id}`} labelledby={`lab-${entry.id}-title`}>
+            {study ? (
+              <CaseStudy entry={study} headingLevel="h2" titleId={`lab-${entry.id}-title`} />
+            ) : (
+              <LabEntry entry={entry} headingLevel="h2" titleId={`lab-${entry.id}-title`} />
+            )}
+            <p class="lab__fullpage">
+              <a class="btn btn--ghost btn--sm" href={study ? `/work/${study.id}` : hrefOf(entry)}>
+                Open as a page
+              </a>
+            </p>
+          </WorkDrawer>
+        )
+      })
     }
   </div>
 </BlueprintSection>

@@ -1,5 +1,5 @@
 // Lab collection helpers, shared by the section, the cards and the pages.
-import { getCollection, type CollectionEntry } from "astro:content"
+import { getCollection, getEntry, type CollectionEntry } from "astro:content"
 
 export type LabEntry = CollectionEntry<"lab">
 export type LabKind = LabEntry["data"]["kind"]
@@ -40,6 +40,17 @@ export const isUnsolved = (entry: LabEntry) => entry.data.status === "unsolved"
 
 /* Every entry has its own page; the statement and source list are linked inside. */
 export const hrefOf = (entry: LabEntry) => `/lab/${entry.id}`
+
+/*
+  A prototype that is already a Work case has no story of its own: the card, the
+  drawer and the link all point at the case, so there is one MDX and not two.
+  A draft case has no page, so those keep their Lab entry.
+*/
+export async function caseOf(entry: LabEntry) {
+  if (!entry.data.app) return undefined
+  const study = await getEntry("work", entry.data.app)
+  return study && !study.data.draft ? study : undefined
+}
 
 /*
   Visible entries, drafts included in development. Solved or in progress before

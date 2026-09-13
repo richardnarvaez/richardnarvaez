@@ -2,12 +2,14 @@
 // Own page for each Lab entry. Linkable and indexable.
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import LabEntry from "../../components/lab/LabEntry.astro"
-import { labEntries } from "../../components/lab/lab"
+import { caseOf, labEntries } from "../../components/lab/lab"
 import { siteName } from "../../site.config"
 
 export async function getStaticPaths() {
   const entries = await labEntries()
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+  // Entries that are a Work case are read at /work/<case>, so they get no page here.
+  const own = await Promise.all(entries.map(async (entry) => (await caseOf(entry)) ? undefined : entry))
+  return own.filter((entry) => entry !== undefined).map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
 }
 
 const { entry } = Astro.props
