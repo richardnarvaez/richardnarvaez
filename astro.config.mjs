@@ -12,9 +12,16 @@ export default defineConfig({
   // Casos de estudio en MDX (src/content/work): texto + componentes propios.
   integrations: [mdx()],
   vite: {
-    // El plugin de Tailwind v4 se tipa contra otra versión de Vite; el cast
-    // evita el falso positivo de ts(2322) sin desactivar @ts-check.
-    // El editor de posiciones solo se activa en `serve` (ver el plugin).
-    plugins: [/** @type {any} */ (tailwindcss()), /** @type {any} */ (diagramLayoutEditor())]
+    // Tailwind v4's plugin types against another Vite version; the cast avoids
+    // the false ts(2322) without turning off @ts-check.
+    // The position editor only runs on `serve` (see the plugin).
+    plugins: [/** @type {any} */ (tailwindcss()), /** @type {any} */ (diagramLayoutEditor())],
+    build: {
+      // Vite 8 minifies CSS with Lightning CSS, which folds animation-timeline
+      // into the `animation` shorthand. That syntax was dropped from the spec,
+      // so browsers reject the whole declaration and every scroll-driven
+      // animation dies in the build. esbuild leaves the longhand alone.
+      cssMinify: 'esbuild'
+    }
   }
 });
