@@ -71,6 +71,8 @@ const lab = defineCollection({
     app: z.string().optional(),
     /** Own square icon for prototypes with no Work case. */
     icon: z.string().optional(),
+    /** Blueprint drawing for a prototype with no icon, instead of the blank device. */
+    figure: z.enum(["brain", "globe", "input"]).optional(),
     /** Prototypes: where the live product and its code live, in another repo. */
     link: z.url().optional(),
     repo: z.url().optional(),
