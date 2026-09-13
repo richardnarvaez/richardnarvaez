@@ -1283,6 +1283,7 @@ const links = appNodes.flatMap((node) =>
 
   .diagram.has-focus .chip-node:not(.is-lit) {
     opacity: 0.35;
+    filter: grayscale(1) blur(1.6px);
   }
 
   .chip-node.is-lit {
@@ -1296,11 +1297,18 @@ const links = appNodes.flatMap((node) =>
   .node {
     transition:
       scale 260ms var(--ease-out),
-      opacity 220ms ease;
+      opacity 220ms ease,
+      filter 260ms ease;
   }
 
+  /*
+    Lo ajeno se desenfoca además de apagarse: da profundidad y separa lo
+    señalado del resto. Corto a propósito, 1.6px, que el objetivo es
+    alejarlo, no borrarlo.
+  */
   .diagram.has-focus .node:not(.is-lit) {
     opacity: 0.4;
+    filter: blur(1.6px);
   }
 
   .node__name {
