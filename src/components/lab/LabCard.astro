@@ -14,9 +14,10 @@ const { entry, drawer = false } = Astro.props
 const { data } = entry
 // A prototype that is a Work case links there: its story is the case, not a stub.
 const study = await caseOf(entry)
+const label = study ? `${study.data.name}. ${study.data.tagline}` : `${data.title}. ${data.summary}`
 ---
 
-<a class="lab-card" href={study ? `/work/${study.id}` : hrefOf(entry)} data-open={drawer ? `lab:${entry.id}` : undefined} aria-label={`${data.title}. ${data.summary}`}>
+<a class="lab-card" href={study ? `/work/${study.id}` : hrefOf(entry)} data-open={drawer ? `lab:${entry.id}` : undefined} aria-label={label}>
   <LabCover entry={entry} class="lab-card__cover" />
 </a>
 
