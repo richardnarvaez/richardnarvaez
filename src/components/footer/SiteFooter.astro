@@ -1,6 +1,6 @@
 ---
 import FooterSignature from "./FooterSignature.astro"
-import { projectVersionLabel } from "../../site.config"
+import { projectVersionLabel, socialLinks, figmaTemplate } from "../../site.config"
 
 interface Props {
   compact?: boolean
@@ -9,8 +9,8 @@ interface Props {
 const { compact = false } = Astro.props
 const Tag = compact ? "div" : "footer"
 const currentYear = new Date().getFullYear()
-// El componente puede renderizarse dos veces en la misma página (variante
-// compacta dentro del hero); los ids internos deben ser únicos por variante.
+// The component can render twice on one page, the compact variant inside the
+// hero, so internal ids must be unique per variant.
 const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
 ---
 
@@ -18,7 +18,7 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
   class:list={[
     compact
       ? "w-fit min-w-[18rem] max-w-[26rem] px-5 py-6 sm:px-7"
-      : "px-5 pb-28 pt-40 sm:px-8",
+      : "px-5 pb-28 pt-28 sm:px-8",
   ]}
   style={compact ? "background: transparent;" : "background: var(--page-accent-surface);"}
 >
@@ -38,7 +38,12 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
     </div>
   </div>
 
-  {/* pt-40 / pb-28 del footer dejan el mismo aire visual sobre VINUEZA que bajo el copyright (y sitio para el dock); mt-40 repite ese mismo aire entre VINUEZA y la etiqueta. */}
+  {/*
+    pt-28 / pb-28 dejan el mismo aire visual arriba y abajo. Antes era pt-40,
+    ajustado cuando debajo del copyright no había nada más; la nota de
+    atribución añadió ~85px abajo y desequilibró el bloque. mt-40 mantiene el
+    aire entre VINUEZA y la etiqueta.
+  */}
   <div class:list={[compact ? "mt-7 flex flex-col items-center justify-center gap-2.5" : "mt-40 flex flex-col items-center justify-center gap-2.5"]}>
     <div class:list={[
       compact
@@ -99,11 +104,52 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
     <div class:list={[compact ? "mt-3 text-xs font-medium leading-none text-white/42" : "mt-3 text-xs font-medium leading-none text-white/30"]}>
       © richard vinueza - {currentYear} · {projectVersionLabel}
     </div>
+
+    {
+      /* Full footer only: the compact variant lives inside the hero. */
+      !compact && (
+        <p class="footer-note">
+          Photography, icons and illustrations are my own work. Only the train carriage and
+          the mountain behind it were generated with AI. The site grew out of my own{" "}
+          <a href={figmaTemplate} target="_blank" rel="noreferrer noopener">Figma template</a>,
+          which the latest updates have long outgrown. The code is open on{" "}
+          <a href={socialLinks.github} target="_blank" rel="noreferrer noopener">GitHub</a>, so
+          take it as inspiration for your own.
+        </p>
+      )
+    }
   </div>
   </div>
 </Tag>
 
 <style>
+  /*
+    Credit, not body copy: the width keeps it to four lines and the colour, not
+    the size, brings the volume down.
+  */
+  .footer-note {
+    max-width: 30rem;
+    margin: 0.9rem auto 0;
+    text-align: center;
+    font-size: var(--fs-2xs);
+    line-height: 1.55;
+    text-wrap: pretty;
+    color: rgb(var(--text-rgb) / 0.42);
+  }
+
+  .footer-note a {
+    color: rgb(var(--text-rgb) / 0.6);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: rgb(var(--text-rgb) / 0.3);
+    transition: color 200ms ease, text-decoration-color 200ms ease;
+  }
+
+  .footer-note a:hover {
+    color: #fff;
+    text-decoration-color: var(--page-accent);
+  }
+
   /*
     Entrada de la firma ligada al scroll — el mismo blur+fade+scale que tenía
     como fase final de la coreografía del hero, ahora en CSS puro: cero JS.
@@ -121,13 +167,18 @@ const flagClipId = compact ? "footer-flag-ec-compact" : "footer-flag-ec"
     }
   }
 
-  /* Apellido a gran escala detrás de la firma, casi al límite de lo legible. */
+  /* Surname at scale behind the signature, nearly past legibility. */
   .footer-wordmark {
     position: absolute;
     left: 50%;
     top: 50%;
     z-index: 0;
-    transform: translate(-50%, -50%);
+    /*
+      Centrado óptico, no de caja: letter-spacing añade su hueco también tras la
+      última letra y eso cuenta en el ancho. Se compensa medio tracking, en em
+      para que escale con el tamaño de fuente.
+    */
+    transform: translate(calc(-50% + 0.02em), -50%);
     font-family: var(--font-bellota);
     font-size: clamp(4rem, 17vw, 13rem);
     font-weight: 700;
