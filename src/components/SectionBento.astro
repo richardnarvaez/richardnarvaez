@@ -1,17 +1,16 @@
 ---
 import BlueprintSection from "./layout/BlueprintSection.astro"
-import { socialLinks } from "../site.config"
+import SectionHeader from "./layout/SectionHeader.astro"
+import { socialLinks, figmaTemplate } from "../site.config"
 import GradualBlur from "./ui/GradualBlur.astro"
 import ToolMarquee from "./ui/ToolMarquee.astro"
 
 const resumeHref =
   "https://drive.google.com/file/d/1-6_qXA48htfG1dpM7xDRBNnVHXKSGRi_mw3PMFu7Szc/view"
-const figmaHref = "https://www.figma.com/community/file/1270173776891030529"
 const humaHref = "https://huma.darkpixl.com"
 
-// Cinta de herramientas del bento: tres filas, en sentidos alternos.
-// Herramientas que destacan hoy, más que lenguajes. Los wordmarks (aws,
-// stripe, next) ocupan dos huecos.
+// Bento tool marquee: three rows running in alternating directions. Tools that
+// matter today rather than languages; the wide wordmarks take two slots.
 const toolRows = [
   ["claude-code", "stripe", "docker", "vercel", "next", "railway"],
   ["aws", "codex", "figma", "github", "cursor", "strapi"],
@@ -22,9 +21,19 @@ const toolRows = [
 
 ---
 
-{/* El nombre y el rol viven en la sección de perfil, justo encima. */}
-<BlueprintSection id="shortcuts" class="section-bento" label="02 — shortcuts & work" ariaLabel="Shortcuts">
+{/* Name and role live in the profile section, right above. */}
+<BlueprintSection
+  id="shortcuts"
+  class="section-bento"
+  label="02 — shortcuts"
+  ariaLabelledby="shortcuts-title"
+>
   <div class="py-14">
+    <SectionHeader
+      claim="The short way in."
+      context="Résumé, the apps on the stores, the toolkit I actually use, and the Figma template a thousand people are using."
+      titleId="shortcuts-title"
+    />
 
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     <!-- Resume -->
@@ -76,7 +85,7 @@ const toolRows = [
         height="540"
         class="absolute top-0 size-full scale-105 object-cover transition-all duration-500 ease-out group-hover:scale-110 group-hover:blur-sm"
       />
-      {/* Como en la tarjeta del CV: la foto nítida arriba, desenfoque progresivo bajo el contenido y desenfoque total al hacer hover. */}
+      {/* As in the CV card: sharp photo on top, progressive blur under the content. */}
       <GradualBlur position="bottom" height="78%" strength={1} divCount={5} curve="bezier" exponential />
       
       <div
@@ -142,13 +151,13 @@ const toolRows = [
       <!-- En móvil y tablet van lado a lado; en escritorio apiladas: auto + 1fr,
            la fila de Photography mide lo suyo y Gallery absorbe el resto. -->
       <div class="grid grid-cols-2 gap-4 lg:grid-cols-1 lg:grid-rows-[auto_1fr]">
-        {/* Abre el drawer de galería ya filtrado en fotos (lo enruta el script de SectionWork). */}
+        {/* Opens the gallery drawer already filtered to photos, routed by the SectionWork script. */}
         <button
           type="button"
           class="bento-card group relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-3xl border-0 bg-(--surface-2) p-0 text-center text-inherit"
           data-open="gallery:photo"
         >
-          {/* Cámara a líneas, grande, algo girada y recortada, en el mismo gris tenue que el logo de Figma de al lado. */}
+          {/* Line-art camera, large, rotated and cropped, in the same faint grey as the Figma logo. */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -157,7 +166,7 @@ const toolRows = [
             stroke-width="1.2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="absolute -right-6 -top-14 size-64 -rotate-12 text-black/10 transition-colors duration-500 group-hover:text-black/20"
+            class="absolute -right-6 -top-14 size-64 -rotate-12 text-black/10 transition duration-500 group-hover:scale-95 group-hover:text-black/20"
             aria-hidden="true"
           >
             <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
@@ -185,7 +194,7 @@ const toolRows = [
         <a
           target="_blank"
           rel="noreferrer noopener"
-          href={figmaHref}
+          href={figmaTemplate}
           class="bento-card group relative flex items-center overflow-hidden rounded-3xl border-2 border-dashed border-[#FF512F]/50 p-6 font-bold"
         >
           <div>
@@ -301,7 +310,7 @@ const toolRows = [
     --ghost-h: 9rem;
 
     margin-bottom: calc(var(--ghost-h) * -0.6);
-    /* El fundido arranca en el borde superior y ya no queda nada al 55%. */
+    /* The fade starts at the top edge and is gone by 55%. */
     -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 55%);
     mask-image: linear-gradient(to bottom, #000 0%, transparent 55%);
   }
@@ -309,7 +318,7 @@ const toolRows = [
   .bento-ghost {
     height: var(--ghost-h);
     border-radius: 1.5rem;
-    /* Un 10% menos que --line-tint (0.3): se distinguen de las tarjetas activas. */
+    /* 10% below --line-tint so they read apart from the active cards. */
     border: 2px dashed rgba(139, 126, 210, 0.2);
   }
 
@@ -321,7 +330,7 @@ const toolRows = [
     top: 30%;
     left: -30%;
     width: 160%;
-    /* Pivote en el centro de la tarjeta: la caja mide 160% y está centrada. */
+    /* Pivot at the card centre: the box is 160% and centred. */
     transform-origin: center;
   }
 </style>

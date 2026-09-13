@@ -1,7 +1,6 @@
 ---
-// 03 — Lab: vitrina de seis entradas (las destacadas y las más recientes).
-// Cada tarjeta abre su MDX en un drawer, con enlace a la página propia; la
-// lista completa es una página, /lab.
+// Lab showcase: six entries, the featured ones plus the most recent. Each card
+// opens its MDX in a drawer; the full list is a page at /lab.
 import BlueprintSection from "../layout/BlueprintSection.astro"
 import SectionHeader from "../layout/SectionHeader.astro"
 import WorkDrawer from "../work/WorkDrawer.astro"
@@ -13,13 +12,14 @@ const entries = await labEntries()
 const featured = pickFeatured(entries, 6)
 ---
 
-<BlueprintSection id="lab" class="lab" label="03 — lab" ariaLabelledby="lab-title">
+<BlueprintSection id="lab" class="lab" label="04 — lab" ariaLabelledby="lab-title">
   <div class="lab__body">
-    <SectionHeader title="Lab" titleId="lab-title">
-      Prototypes built for real, and behind them the system design and the
-      interview exercises, solved step by step in my own words. Teaching is
-      learning twice.
-    </SectionHeader>
+    <SectionHeader
+      claim="Teaching is learning twice."
+      badge="In development"
+      context="Prototypes built for real, and behind them the system design and the interview exercises, solved step by step in my own words."
+      titleId="lab-title"
+    />
 
     {
       featured.length > 0 ? (
@@ -33,13 +33,13 @@ const featured = pickFeatured(entries, 6)
       entries.length > 0 && (
         <div class="lab__actions">
           <a class="btn btn--ghost" href="/lab">
-            See all <span class="lab__count font-jetbrains">{entries.length}</span>
+            See all <span class="lab__count num">{entries.length}</span>
           </a>
         </div>
       )
     }
 
-    {/* Drawers: uno por destacado, fijos a pantalla completa. */}
+    {/* Drawers: one per highlight, fixed full screen. */}
     {
       featured.map((entry) => (
         <WorkDrawer id={`drawer-lab-${entry.id}`} labelledby={`lab-${entry.id}-title`}>
@@ -73,7 +73,7 @@ const featured = pickFeatured(entries, 6)
       return true
     }
 
-    // Las tarjetas abren el drawer; sin JS (o sin drawer) siguen su href.
+    // Cards open the drawer; without JS they follow their href.
     root.addEventListener("click", (event) => {
       const card = (event.target as HTMLElement).closest<HTMLElement>('[data-open^="lab:"]')
       if (!card) return
@@ -81,7 +81,7 @@ const featured = pickFeatured(entries, 6)
       if (openEntry(slug, card)) event.preventDefault()
     })
 
-    // Enlace profundo: /#lab/slug abre la entrada, al cargar o al cambiar el hash.
+    // Deep link: /#lab/slug opens the entry, on load or on hash change.
     const openFromHash = () => {
       const match = location.hash.match(/^#lab\/([\w-]+)$/)
       if (!match) return
@@ -102,11 +102,10 @@ const featured = pickFeatured(entries, 6)
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
-    margin-top: 2.5rem;
   }
 
   .lab__empty {
-    margin: 2.5rem 0 0;
+    margin: 0;
     text-align: center;
     color: rgb(var(--text-rgb) / 0.5);
   }

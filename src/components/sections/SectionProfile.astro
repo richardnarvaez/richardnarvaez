@@ -6,7 +6,7 @@ import BrandMark from "../icons/BrandMark.astro"
 import LaurelAward from "../icons/LaurelAward.astro"
 import { siteName, socialLinks } from "../../site.config"
 
-// Los seis logos vienen de IconsBusiness.tsx (rama v1), no son redibujos.
+// The six logos come from the v1 branch; they are not redraws.
 const certifications = ["google", "aws", "harvard", "hackerrank", "cisco", "linkedin"] as const
 
 const awards = [
@@ -17,7 +17,7 @@ const awards = [
 ---
 
 <BlueprintSection id="profile" class="profile" label="01 — profile" ariaLabelledby="profile-name">
-  {/* Solo Américas + Europa/África por ahora: sin Asia hasta que haya viaje. */}
+  {/* Americas plus Europe/Africa for now: no Asia until there is a trip. */}
   <div class="profile__map" aria-hidden="true">
     <WorldDotMap lonMin={-125} lonMax={40} latMin={-56} latMax={75} />
   </div>
@@ -38,7 +38,7 @@ const awards = [
 
     <h2 class="profile__name" id="profile-name">{siteName}</h2>
 
-    <ul class="profile__meta font-jetbrains">
+    <ul class="profile__meta label">
       <li>
         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
           <rect x="2" y="4" width="20" height="13" rx="2"></rect>
@@ -55,10 +55,16 @@ const awards = [
       </li>
     </ul>
 
+    {/*
+      Dos tonos, como los titulares de sección: la afirmación en contraste
+      pleno y el contexto atenuado. Es una sola frase, no un titular con
+      letra pequeña debajo.
+    */}
     <p class="profile__bio">
-      Software Engineer with 5+ years of professional experience and 12+ years
-      programming. Passionate about traveling and naturally curious. Currently,
-      I am focused on becoming a great leader and continuing to share.
+      <span class="profile__bio-claim">I build products end to end — design, code, ship.</span>
+      <span class="profile__bio-context">
+        Twelve years programming, five of them professional, across different countries.
+      </span>
     </p>
 
     <h3 class="profile__eyebrow">Certifications &amp; rewards</h3>
@@ -94,7 +100,7 @@ const awards = [
           <LaurelAward>
             <p class="award__title">{award.title}</p>
             <p class="award__detail">{award.detail}</p>
-            <span class="award__scope font-jetbrains">{award.scope}</span>
+            <span class="award__scope label">{award.scope}</span>
           </LaurelAward>
         </li>
       ))
@@ -120,7 +126,7 @@ const awards = [
     sube con margen negativo para que el avatar quede a caballo de la línea
     discontinua, como un sello; el mapa no sube: sigue anclado al marco.
   */
-  /* :global porque la sección la pinta BlueprintSection, con su propio ámbito. */
+  /* :global because BlueprintSection renders the section, with its own scope. */
   :global(#profile) {
     margin-top: 1rem;
   }
@@ -144,7 +150,7 @@ const awards = [
     pointer-events: none;
   }
 
-  /* En móvil queda detrás del texto: más tenue para no competir con él. */
+  /* On mobile it sits behind the text, so it goes fainter. */
   @media (max-width: 640px) {
     .profile__map {
       width: 90%;
@@ -159,7 +165,7 @@ const awards = [
     flex-direction: column;
     align-items: center;
     text-align: center;
-    /* Mitad del avatar por encima de la línea del marco. */
+    /* Half the avatar sits above the frame line. */
     margin-top: calc(var(--avatar-size) / -2);
   }
 
@@ -275,17 +281,36 @@ const awards = [
     gap: 0.4rem;
   }
 
-  /* Aclaración en tono más bajo: permiso de trabajo en las tres regiones. */
+  /* Quieter note: work permit in all three regions. */
   .profile__meta-note {
     color: rgb(var(--text-rgb) / 0.55); /* ≥ 4.5:1 sobre el fondo */
   }
 
+  /*
+    El bloque del perfil es un retrato, no una cabecera de sección: se queda
+    centrado. Los dos tonos siguen funcionando porque la frase ahora cabe en
+    dos líneas.
+  */
   .profile__bio {
-    max-width: 40rem;
+    max-width: 34rem;
     margin: 1.9rem 0 0;
     font-size: 1.02rem;
-    line-height: 1.65;
-    color: rgb(var(--text-rgb) / 0.78);
+    line-height: 1.6;
+    text-wrap: balance;
+  }
+
+  .profile__bio-claim,
+  .profile__bio-context {
+    display: block;
+  }
+
+  .profile__bio-claim {
+    font-weight: 600;
+    color: rgb(var(--text-rgb) / 0.95);
+  }
+
+  .profile__bio-context {
+    color: rgb(var(--text-rgb) / 0.6);
   }
 
   .profile__eyebrow {
@@ -309,7 +334,7 @@ const awards = [
     list-style: none;
   }
 
-  /* --brand-mark-size lo consume BrandMark; el color baja por currentColor. */
+  /* BrandMark consumes --brand-mark-size; colour rides currentColor. */
   .profile__cert {
     --brand-mark-size: 2.2rem;
     display: flex;
