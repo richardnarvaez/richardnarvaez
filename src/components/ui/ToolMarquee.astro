@@ -1,25 +1,21 @@
 ---
-// Cinta infinita de baldosas con logos de herramientas: sustituye al PNG
-// inclinado del bento. Varias filas que se desplazan en bucle, en sentidos
-// alternos y a velocidades distintas.
-//
-// Bucle sin costura y sin JavaScript: cada fila repite su juego de baldosas
-// REPEATS veces y la animación traslada exactamente un juego (100% / REPEATS).
-// El hueco entre baldosas va como margen de cada una (no como `gap` de la
-// fila) para que el ancho del juego lo incluya y el salto de vuelta coincida.
-//
-// Solo se anima `translate`: composición en GPU, sin repintados.
+// Infinite marquee of tool logos, replacing the tilted PNG in the bento.
+// 
+// Seamless loop without JavaScript: each row repeats its set REPEATS times and
+// the animation travels exactly one set. The gap rides as each tile's margin,
+// not the row's `gap`, so the set width includes it and the wrap lines up.
+// Only `translate` animates, so it composites on the GPU.
 import { toolLogoById } from "../../data/tool-logos"
 
 interface Props {
-  /** Filas: listas de ids de `toolLogos`. */
+  /* Rows: lists of `toolLogos` ids. */
   rows: string[][]
   class?: string
 }
 
 const { rows, class: className } = Astro.props
 const REPEATS = 3
-// Duraciones distintas por fila para que no se lean como una sola pieza.
+// Different durations per row so they do not read as one piece.
 const DURATIONS_S = [46, 58, 52, 64]
 
 const resolved = rows.map((ids) =>
@@ -52,8 +48,8 @@ const resolved = rows.map((ids) =>
 
 <style>
   /*
-    La caja ocupa el ancho que le den (el contenedor decide el pivote de la
-    rotación); las filas desbordan por la derecha con su ancho máximo.
+    The box takes the width it is given; rows overflow and are clipped by the
+    container, which is what makes the loop read as endless.
   */
   .tool-marquee {
     --tile: 3.75rem;
@@ -78,14 +74,14 @@ const resolved = rows.map((ids) =>
     animation-direction: reverse;
   }
 
-  /* Un juego = 1/3 del ancho de la fila (ver REPEATS). */
+  /* One set = 1/3 of the row width (see REPEATS). */
   @keyframes toolMarquee {
     to {
       translate: calc(-100% / 3) 0;
     }
   }
 
-  /* Baldosa blanca plana, esquinas al 22% como un icono de app. */
+  /* Flat white tile, corners at 22% like an app icon. */
   .tool-marquee__tile {
     display: grid;
     place-items: center;
@@ -97,7 +93,7 @@ const resolved = rows.map((ids) =>
     background: #fff;
   }
 
-  /* Wordmarks apaisados (AWS, Stripe, Next.js): dos huecos de ancho. */
+  /* Wide wordmarks (AWS, Stripe, Next.js) take two slots. */
   .tool-marquee__tile--wide {
     width: calc(var(--tile) * 2 + var(--gap));
     border-radius: 0.85rem;

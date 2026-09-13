@@ -1,6 +1,6 @@
 ---
-// Página propia de cada caso: la misma pieza que se abre en el drawer del
-// Mac, a página completa. Enlazable, indexable y accesible sin JavaScript.
+// Own page for each case: the same piece the Mac drawer opens, full width.
+// Linkable, indexable and usable without JavaScript.
 import { getCollection } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import CaseStudy from "../../components/case/CaseStudy.astro"
@@ -22,7 +22,7 @@ const { entry } = Astro.props
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
       Back to work
     </a>
-    <span class="case-page__handle font-jetbrains">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
+    <span class="case-page__handle label">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
   </header>
 
   <main id="content" class="case-page">

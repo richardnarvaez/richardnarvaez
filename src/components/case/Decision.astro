@@ -1,6 +1,6 @@
 ---
-// Decisión técnica o de producto, para leer en diagonal: qué se decidió, por
-// qué, y qué se sacrificó. Tres líneas, sin párrafos.
+// A technical or product decision, skimmable: what was decided, why, and what
+// it cost. Three lines, no paragraphs.
 interface Props {
   title: string
   why: string
@@ -14,13 +14,13 @@ const { title, why, tradeoff } = Astro.props
   <h4 class="decision__title">{title}</h4>
   <dl class="decision__body">
     <div class="decision__row">
-      <dt class="font-jetbrains">why</dt>
+      <dt class="label">why</dt>
       <dd>{why}</dd>
     </div>
     {
       tradeoff && (
         <div class="decision__row">
-          <dt class="font-jetbrains">cost</dt>
+          <dt class="label">cost</dt>
           <dd>{tradeoff}</dd>
         </div>
       )

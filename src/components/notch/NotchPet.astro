@@ -1,12 +1,7 @@
 ---
-// PET DEL NOTCH — código conservado, no montado en ninguna página.
-//
-// Para revivirlo: importar este componente en un layout/página. El módulo de
-// movimiento (./notch.motion.ts) es autocontenido — solo depende de gsap.
-//
-// El panel desplegable conserva el mecanismo de expansión (es lo que revela
-// el rail de comida), pero ya no lleva enlaces sociales: esos viven ahora en
-// el bento y en la sección de perfil.
+// Notch pet. Kept on purpose but not mounted anywhere: to bring it back,
+// import this component from a layout or page. The motion module
+// (./notch.motion.ts) is self-contained and only needs gsap.
 import { projectVersionLabel } from "../../site.config"
 
 const notchIdleRows = [
@@ -43,7 +38,7 @@ function buildSprite(rows: readonly string[]) {
   };
 }
 
-// Paleta LED por tono ("0" = apagado) para los sprites de comida del pet.
+// LED palette by tone ("0" = off) for the pet food sprites.
 const animalToneColors: Record<string, string> = {
   "1": "#38bdf8",
   "2": "#7dd3fc",
@@ -237,7 +232,7 @@ const contactBoardAnimals = foodItems.map((item) => ({
             >
               <div class="flex w-full flex-col items-center gap-[0.7rem]">
                 <div
-                  class="inline-flex items-center gap-[0.32rem] rounded-full bg-black/18 px-[0.7rem] py-[0.38rem] font-jetbrains text-[0.42rem] font-medium tracking-[0.1em] text-white/58 backdrop-blur-[2px] md:gap-[0.38rem] md:px-[0.9rem] md:py-[0.46rem] md:text-[0.48rem]"
+                  class="inline-flex items-center gap-[0.32rem] rounded-full bg-black/18 px-[0.7rem] py-[0.38rem] text-[0.42rem] font-medium tracking-[0.1em] text-white/58 backdrop-blur-[2px] md:gap-[0.38rem] md:px-[0.9rem] md:py-[0.46rem] md:text-[0.48rem]"
                 >
                   <span class="text-white/42">Version</span>
                   <span class="text-white/82">{projectVersionLabel}</span>
@@ -269,10 +264,6 @@ const contactBoardAnimals = foodItems.map((item) => ({
     --hero-device-croc-pixel-size: 2px;
     --hero-device-croc-pixel-gap: 1px;
     --hero-device-contact-trigger-padding-x: 0.58rem;
-
-  .font-jetbrains {
-    font-family: var(--font-jetbrains);
-  }
 
   .hero-device-frame {
     position: absolute;

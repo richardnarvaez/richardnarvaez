@@ -1,14 +1,13 @@
 ---
-// Un caso completo: cabecera (icono, nombre, tagline, rol, periodo, enlaces),
-// métricas y el cuerpo MDX. Se usa igual en la página /work/[slug] y dentro
-// del drawer del Mac, por eso no trae layout ni fondo propio.
+// Case study: header with icon, meta, metrics and the MDX body. Used both on
+// /work/[slug] and inside the Mac drawer, so it brings no layout of its own.
 import { render, type CollectionEntry } from "astro:content"
 
 interface Props {
   entry: CollectionEntry<"work">
-  /** Nivel del título: h1 en la página propia, h2 dentro del drawer. */
+  /* Heading level: h1 on its own page, h2 inside the drawer. */
   headingLevel?: "h1" | "h2"
-  /** id del título, para que el drawer lo referencie con aria-labelledby. */
+  /* Title id, for the drawer's aria-labelledby. */
   titleId?: string
 }
 
@@ -29,7 +28,7 @@ const Heading = headingLevel
       <p class="case__tagline">{data.tagline}</p>
     </div>
 
-    <dl class="case__meta font-jetbrains">
+    <dl class="case__meta label">
       <div><dt>role</dt><dd>{data.role}</dd></div>
       <div><dt>period</dt><dd>{data.period}</dd></div>
       {data.platform && <div><dt>platform</dt><dd>{data.platform}</dd></div>}
@@ -152,7 +151,7 @@ const Heading = headingLevel
     margin-top: 0.6rem;
   }
 
-  /* ── Métricas ────────────────────────────────────────────────────────── */
+  /* ── Metrics ───────────────────────────────────────────────────────── */
   .case__metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
@@ -187,7 +186,7 @@ const Heading = headingLevel
     color: rgb(var(--text-rgb) / 0.5);
   }
 
-  /* ── Cuerpo MDX: tipografía para leer rápido ─────────────────────────── */
+  /* ── MDX body: type set for quick reading ──────────────────────────── */
   .case__body {
     margin-top: 2rem;
     font-size: 1rem;
@@ -219,7 +218,7 @@ const Heading = headingLevel
     color: #fff;
   }
 
-  /* Tailwind quita las viñetas por defecto: aquí el texto es de lectura y las quiere. */
+  /* Tailwind drops list markers by default; reading text wants them. */
   .case__body :global(ul) {
     list-style: disc;
   }

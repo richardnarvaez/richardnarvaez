@@ -1,16 +1,14 @@
 ---
-// Esquema de cajas y flechas en SVG, en el lenguaje del plano: trazo en la
-// tinta de los rieles, esquinas casi rectas, el naranja solo para lo que
-// falla o manda. Se escribe como datos desde el MDX, con la misma API que
-// usa el panel del laboratorio (repo lab), así los diagramas coinciden en
-// los dos sitios.
-//
+// SVG box-and-arrow schematic in the blueprint language: rail-coloured stroke,
+// near-square corners, orange only for what fails or drives.
+// 
+// Written as data from the MDX, with the same API the lab panel uses, so the
+// diagrams match in both places. The canvas is 640 wide and `label` takes \n.
+// 
 //   <Schematic height={150} boxes={[{ x, y, w, h, label, hot?, dashed? }]}
 //              arrows={[{ x1, y1, x2, y2, label?, hot?, dashed? }]}
 //              fans={[{ x1, y1, x2, y2, n, spread }]}
 //              notes={[{ x, y, text, hot?, anchor? }]} caption="…" />
-//
-// El lienzo mide 640 de ancho; `label` admite saltos de línea con "\n".
 interface Box {
   x: number
   y: number
@@ -28,7 +26,7 @@ interface Arrow {
   label?: string
   hot?: boolean
   dashed?: boolean
-  /** Desplaza la etiqueta en vertical (para flechas verticales). */
+  /* Shifts the label vertically, for vertical arrows. */
   dy?: number
 }
 interface Fan {
@@ -111,7 +109,7 @@ const uid = Math.random().toString(36).slice(2, 8)
     display: block;
     width: 100%;
     height: auto;
-    font-family: var(--font-jetbrains);
+    font-family: var(--font-mono);
   }
 
   .schematic__box {

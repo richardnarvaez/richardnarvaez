@@ -1,14 +1,6 @@
 ---
-// Portada 4:3 de una entrada del Lab, en el lenguaje del plano técnico del
-// resto de la página: superficie violeta lisa, borde discontinuo, esquinas
-// rectas con marcadores, trazos en la tinta de los rieles y el
-// naranja de la página solo como acento. Si la entrada trae `cover`, va la
-// imagen; si no, se compone aquí desde el frontmatter, distinta por tipo:
-// el ejercicio dibuja una estructura de celdas con su idea clave y la
-// complejidad, el system design un esquema de cajas conectadas con sus
-// etiquetas, el prototipo el alambre de un dispositivo. El título no va
-// dentro: lo pone la tarjeta debajo, una sola vez. Todo son trazos:
-// nada de rellenos de color.
+// 4:3 cover for a Lab entry, in the blueprint language of the rest of the page.
+// Composed from the frontmatter when the entry brings no image.
 import { getEntry } from "astro:content"
 import GradualBlur from "../ui/GradualBlur.astro"
 import { isUnsolved, KIND_LABEL, type LabEntry } from "./lab"
@@ -16,19 +8,19 @@ import { isUnsolved, KIND_LABEL, type LabEntry } from "./lab"
 interface Props {
   entry: LabEntry
   class?: string
-  /** Sin desenfoque ni despliegue al pasar: para listas largas (el drawer), donde pesarían. */
+  /* No hover blur or expand: for long lists, where they would cost. */
   fade?: boolean
 }
 
 const { entry, class: className, fade = true } = Astro.props
 const { data } = entry
-// Prototipo que es la misma app que un caso de Work: comparte icono y color.
+// Prototype that is the same app as a Work case: shares icon and colour.
 const app = data.app ? await getEntry("work", data.app) : undefined
 const icon = data.icon ?? app?.data.icon
 const tint = app?.data.tint
 const boxes = (data.tags.length >= 3 ? data.tags.slice(0, 3) : ["Client", "Service", "Store"]).map((t) => t.slice(0, 12))
 const device = data.shots[0]?.frame === "phone" ? "phone" : "web"
-// Celdas del ejercicio: una fila indexada, con una marcada en naranja.
+// Exercise cells: an indexed row with one marked in orange.
 const cells = 7
 const hot = 4
 ---
@@ -44,7 +36,7 @@ const hot = 4
       <img class="cover__img" src={data.cover} alt="" loading="lazy" decoding="async" />
     ) : (
       <>
-        <span class="cover__kind font-jetbrains">
+        <span class="cover__kind label">
           {KIND_LABEL[data.kind]}
           {data.difficulty && <span class="cover__level">· {data.difficulty}</span>}
           {isUnsolved(entry) && <span class="cover__todo">· to solve</span>}
@@ -56,7 +48,7 @@ const hot = 4
               {Array.from({ length: cells }, (_, i) => (
                 <>
                   <rect x={8 + i * 44} y="30" width="36" height="36" rx="2" stroke={i === hot ? "var(--page-accent)" : "var(--ink)"} stroke-width={i === hot ? 1.5 : 1} fill={i === hot ? "rgb(var(--accent-rgb) / 0.12)" : "none"} />
-                  <text x={26 + i * 44} y="20" text-anchor="middle" fill="var(--ink-text)" font-size="9" font-family="var(--font-jetbrains)">
+                  <text x={26 + i * 44} y="20" text-anchor="middle" fill="var(--ink-text)" font-size="9" font-family="var(--font-mono)">
                     {i}
                   </text>
                 </>
@@ -78,7 +70,7 @@ const hot = 4
               {boxes.map((label, i) => (
                 <>
                   <rect x={10 + i * 108} y="30" width="90" height="48" rx="2" stroke={i === 1 ? "var(--page-accent)" : "var(--ink)"} stroke-width={i === 1 ? 1.5 : 1} fill={i === 1 ? "rgb(var(--accent-rgb) / 0.1)" : "none"} />
-                  <text x={55 + i * 108} y="58" text-anchor="middle" fill="var(--ink-text)" font-size="11" font-family="var(--font-jetbrains)">
+                  <text x={55 + i * 108} y="58" text-anchor="middle" fill="var(--ink-text)" font-size="11" font-family="var(--font-mono)">
                     {label}
                   </text>
                   {i < boxes.length - 1 && <path d={`M${100 + i * 108} 54 H${116 + i * 108}`} stroke="var(--ink)" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#lab-arrow-s)" />}
@@ -107,8 +99,7 @@ const hot = 4
           </>
         )}
 
-        {/* Pie: el título siempre; al pasar suben el resumen y los chips sobre
-            un desenfoque progresivo que crece desde abajo (solo blur). */}
+        {/* Footer: always the title; summary and chips rise over it on hover. */}
         {fade && <GradualBlur position="bottom" height="42%" strength={1.4} divCount={5} curve="ease-in" zIndex={1} class="cover__fade" />}
         <div class="cover__foot">
           <span class="cover__title">{data.title}</span>
@@ -116,7 +107,7 @@ const hot = 4
             <div class="cover__more-inner">
               <span class="cover__summary">{data.summary}</span>
               {data.complexity && (
-                <span class="cover__chips font-jetbrains">
+                <span class="cover__chips label">
                   <span>time {data.complexity.time}</span>
                   <span>space {data.complexity.space}</span>
                 </span>
@@ -139,16 +130,16 @@ const hot = 4
     grid-template-rows: auto 1fr;
     gap: 0.6rem;
     aspect-ratio: 4 / 3;
-    /* Abajo queda sitio para el título, que va en el pie absoluto. */
+    /* Room at the bottom for the title, which sits in the absolute footer. */
     padding: 0.85rem 0.95rem 3rem;
     overflow: hidden;
-    /* Esquinas rectas, como las secciones del plano: los marcadores piden ángulo, no radio. */
+    /* Square corners like the blueprint sections: markers need an angle, not a radius. */
     border: 1px dashed var(--line-tint);
     background: var(--surface-2);
     color: #fff;
   }
 
-  /* Marcadores de esquina, como los de las secciones. */
+  /* Corner markers, same as the sections. */
   .cover__mark {
     position: absolute;
     width: 5px;
@@ -205,12 +196,12 @@ const hot = 4
     min-height: 3.2rem;
   }
 
-  /* Desenfoque del borde inferior: crece al pasar el puntero (altura, no opacidad). */
+  /* Bottom-edge blur, growing on hover by height rather than opacity. */
   .cover :global(.cover__fade) {
     transition: height 380ms var(--ease-out);
   }
 
-  /* El componente fija su alto con --gb-size en línea: aquí se pisa la propiedad, no la variable. */
+  /* The component sets its height inline, so override the property, not the var. */
   .cover:hover :global(.cover__fade) {
     height: 92%;
   }
@@ -237,9 +228,8 @@ const hot = 4
   }
 
   /*
-    Lo extra se despliega en alto (0fr → 1fr) bajo el título. El borde que
-    recorta se difumina con una máscara y el texto entra con opacidad y un
-    leve desplazamiento, así aparece en vez de asomar cortado.
+    Extra content expands by height (0fr → 1fr) under the title. The clipping edge
+    is softened with a mask so the text does not cut mid-line.
   */
   .cover__more {
     display: grid;
@@ -303,7 +293,7 @@ const hot = 4
     border: 1px solid var(--line-tint);
   }
 
-  /* Prototipo con app: el mismo icono que en el diagrama de Work, mismo radio y sombra. */
+  /* Prototype with an app: same icon, radius and shadow as the Work diagram. */
   .cover__app {
     align-self: center;
     justify-self: center;
@@ -326,7 +316,7 @@ const hot = 4
     object-fit: cover;
   }
 
-  /* Prototipo: alambre de dispositivo, solo trazo. */
+  /* Prototype: device wireframe, stroke only. */
   .cover__device {
     align-self: center;
     justify-self: center;

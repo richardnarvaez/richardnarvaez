@@ -1,10 +1,10 @@
-// Utilidades de la colección Lab compartidas por sección, tarjetas y páginas.
+// Lab collection helpers, shared by the section, the cards and the pages.
 import { getCollection, type CollectionEntry } from "astro:content"
 
 export type LabEntry = CollectionEntry<"lab">
 export type LabKind = LabEntry["data"]["kind"]
 
-/** Orden de los tipos en filtros, índice y destacados: los prototipos primero, que son la mezcla de los otros dos. */
+/* Kind order in filters, index and highlights: prototypes first, being the mix. */
 export const KINDS: LabKind[] = ["prototype", "system", "exercise"]
 
 export const KIND_LABEL: Record<LabKind, string> = {
@@ -13,7 +13,7 @@ export const KIND_LABEL: Record<LabKind, string> = {
   exercise: "Exercise",
 }
 
-/** Color plano de portada por tipo, si la entrada no trae el suyo. */
+/* Flat cover colour per kind, when the entry brings none. */
 export const KIND_ACCENT: Record<LabKind, string> = {
   system: "#1f4d7a",
   exercise: "#3b2f7a",
@@ -32,13 +32,19 @@ export const STATUS_LABEL: Record<LabEntry["data"]["status"], string> = {
   unsolved: "To solve",
 }
 
-/** Pendiente de resolver: tiene página igual (con el enunciado enlazado dentro), pero no entra en destacados. */
+/*
+  Unsolved: still gets a page, with the statement linked inside, but never
+  appears in the highlights.
+*/
 export const isUnsolved = (entry: LabEntry) => entry.data.status === "unsolved"
 
-/** Toda entrada tiene página propia; el enunciado y la lista de origen se enlazan dentro. */
+/* Every entry has its own page; the statement and source list are linked inside. */
 export const hrefOf = (entry: LabEntry) => `/lab/${entry.id}`
 
-/** Entradas visibles: en desarrollo también los borradores. Lo resuelto o en marcha antes que lo pendiente; dentro, por `order` y fecha. */
+/*
+  Visible entries, drafts included in development. Solved or in progress before
+  pending; within that, by `order` and date.
+*/
 export async function labEntries(): Promise<LabEntry[]> {
   const all = await getCollection("lab", ({ data }) => import.meta.env.DEV || !data.draft)
   return all.sort(
@@ -49,7 +55,10 @@ export async function labEntries(): Promise<LabEntry[]> {
   )
 }
 
-/** Destacados primero; el resto por tipo (prototipos antes) y fecha, hasta `count`. Lo pendiente nunca. */
+/*
+  Featured first, then by kind (prototypes ahead) and date, up to `count`.
+  Pending entries never make it.
+*/
 export function pickFeatured(entries: LabEntry[], count: number): LabEntry[] {
   const pool = entries.filter((e) => !isUnsolved(e))
   const rank = (e: LabEntry) => KINDS.indexOf(e.data.kind)

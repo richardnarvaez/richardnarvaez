@@ -1,15 +1,15 @@
 ---
-// Una entrada del Lab a página completa: cabecera con tipo, dificultad,
-// fuente y fecha, complejidad si la hay, tira de capturas en su proporción
-// nativa a alto fijo, y el cuerpo MDX con la misma tipografía que los casos.
+// A Lab entry at full width: header with kind, difficulty, source and date,
+// complexity when present, a fixed-height strip of screenshots at native ratio,
+// and the MDX body in the same type as the cases.
 import { render } from "astro:content"
 import { formatDate, KIND_LABEL, STATUS_LABEL, type LabEntry } from "./lab"
 
 interface Props {
   entry: LabEntry
-  /** h1 en la página propia, h2 dentro del drawer. */
+  /* h1 on its own page, h2 inside the drawer. */
   headingLevel?: "h1" | "h2"
-  /** id del título, para que el drawer lo referencie con aria-labelledby. */
+  /* Title id, for the drawer's aria-labelledby. */
   titleId?: string
 }
 
@@ -21,7 +21,7 @@ const Heading = headingLevel
 
 <article class="lab-entry">
   <header class="lab-entry__head">
-    <p class="lab-entry__meta font-jetbrains">
+    <p class="lab-entry__meta label">
       <span class="lab-entry__kind">{KIND_LABEL[data.kind]}</span>
       {data.difficulty && <span>{data.difficulty}</span>}
       <span>{STATUS_LABEL[data.status]}</span>
@@ -29,7 +29,7 @@ const Heading = headingLevel
     </p>
     <Heading class="lab-entry__title" id={titleId}>{data.title}</Heading>
     <p class="lab-entry__summary">{data.summary}</p>
-    <dl class="lab-entry__facts font-jetbrains">
+    <dl class="lab-entry__facts label">
       {data.source && <div><dt>source</dt><dd>{data.source}</dd></div>}
       {data.stack.length > 0 && <div><dt>stack</dt><dd>{data.stack.join(" · ")}</dd></div>}
       {data.tags.length > 0 && <div><dt>tags</dt><dd>{data.tags.join(" · ")}</dd></div>}
@@ -178,7 +178,8 @@ const Heading = headingLevel
   }
 
   .lab-entry__metric-value {
-    font-family: var(--font-jetbrains);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
@@ -259,7 +260,7 @@ const Heading = headingLevel
     color: #fff;
   }
 
-  /* Tailwind quita las viñetas por defecto: aquí el texto es de lectura y las quiere. */
+  /* Tailwind drops list markers by default; reading text wants them. */
   .lab-entry__body :global(ul) {
     list-style: disc;
   }
@@ -286,7 +287,7 @@ const Heading = headingLevel
   }
 
   .lab-entry__body :global(code) {
-    font-family: var(--font-jetbrains);
+    font-family: var(--font-mono);
     font-size: 0.86em;
     padding: 0.1em 0.35em;
     border-radius: 0.35rem;

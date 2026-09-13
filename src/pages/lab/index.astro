@@ -1,14 +1,17 @@
 ---
-// Índice del Lab: todas las entradas como tarjetas, agrupadas por tipo.
-// Misma lista que el drawer del home, pero como página enlazable.
+// Lab index: every entry as a card, grouped by kind. Same list as the home
+// drawer, but as a linkable page.
+// 
+// Per kind: cards for what is solved or in progress and, in the same group, the
+// pending list. Solving one changes its state and moves it up to the cards.
 import BaseLayout from "../../layouts/BaseLayout.astro"
 import LabCard from "../../components/lab/LabCard.astro"
 import { hrefOf, isUnsolved, KIND_LABEL, KINDS, labEntries } from "../../components/lab/lab"
 import { siteName } from "../../site.config"
 
 const all = await labEntries()
-// Por tipo: tarjetas para lo resuelto o en marcha y, en el mismo grupo, la
-// lista de lo pendiente. Al resolver uno cambia de estado y sube solo a las tarjetas.
+// Per kind: cards for what is solved or in progress and, in the same group, the
+// pending list. Solving one changes its state and moves it up to the cards.
 const groups = KINDS.map((kind) => {
   const items = all.filter((e) => e.data.kind === kind)
   return { kind, done: items.filter((e) => !isUnsolved(e)), todo: items.filter(isUnsolved) }
@@ -23,7 +26,7 @@ const groups = KINDS.map((kind) => {
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
       Back home
     </a>
-    <span class="lab-index__handle font-jetbrains">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
+    <span class="lab-index__handle label">{siteName.toLowerCase().replace(/\s+/g, ".")}</span>
   </header>
 
   <main id="content" class="lab-index">
@@ -33,7 +36,7 @@ const groups = KINDS.map((kind) => {
     {
       groups.map((group) => (
         <section class="lab-index__group" aria-labelledby={`lab-${group.kind}`}>
-          <h2 class="lab-index__kind font-jetbrains" id={`lab-${group.kind}`}>
+          <h2 class="lab-index__kind label" id={`lab-${group.kind}`}>
             {KIND_LABEL[group.kind]}s <span>{group.done.length + group.todo.length}</span>
             {group.todo.length > 0 && <em>{group.done.length} solved · {group.todo.length} to solve</em>}
           </h2>
@@ -45,8 +48,8 @@ const groups = KINDS.map((kind) => {
                   <a class="todo__link" href={hrefOf(entry)}>
                     <span class:list={["todo__level", `todo__level--${entry.data.difficulty ?? "medium"}`]} aria-label={entry.data.difficulty} />
                     <span class="todo__title">{entry.data.title}</span>
-                    <span class="todo__meta font-jetbrains">{entry.data.tags.slice(0, 3).join(" · ")}</span>
-                    <span class="todo__source font-jetbrains">{entry.data.source?.replace(" · LeetCode", "")}</span>
+                    <span class="todo__meta label">{entry.data.tags.slice(0, 3).join(" · ")}</span>
+                    <span class="todo__source label">{entry.data.source?.replace(" · LeetCode", "")}</span>
                   </a>
                 </li>
               ))}
@@ -152,7 +155,7 @@ const groups = KINDS.map((kind) => {
     gap: 1.5rem 1.25rem;
   }
 
-  /* ── Lista de estudio ───────────────────────────────────────────────── */
+  /* ── Study list ────────────────────────────────────────────────────── */
   .todo {
     display: grid;
     margin: 0;
@@ -160,7 +163,7 @@ const groups = KINDS.map((kind) => {
     list-style: none;
   }
 
-  /* Tras las tarjetas del mismo grupo, la lista respira un poco y se separa con su propia línea. */
+  /* After the cards in the same group, the list breathes and gets its own line. */
   .todo--after-grid {
     margin-top: 2rem;
     border-top: 1px dashed var(--bp-line);

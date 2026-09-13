@@ -1,8 +1,7 @@
 ---
-// Diagrama de flujo/arquitectura a partir de una lista de pasos. Cajas con
-// etiqueta y nota, unidas por conectores discontinuos con punta de flecha,
-// en el lenguaje de plano del sitio. Horizontal por defecto; en vertical
-// para pilas (cliente → backend → servicios) y siempre en móvil.
+// Flow or architecture diagram from a list of steps. Boxes with label and note,
+// joined by dashed arrows in the site's blueprint language. Horizontal by
+// default; vertical for stacks, and always vertical on mobile.
 interface Step {
   label: string
   note?: string
@@ -23,7 +22,7 @@ const { steps, direction = "horizontal", class: className } = Astro.props
       steps.map((step, i) => (
         <li class="flow__step">
           <div class="flow__node">
-            <span class="flow__index font-jetbrains">{String(i + 1).padStart(2, "0")}</span>
+            <span class="flow__index num">{String(i + 1).padStart(2, "0")}</span>
             <span class="flow__label">{step.label}</span>
             {step.note && <span class="flow__note">{step.note}</span>}
           </div>
@@ -84,7 +83,7 @@ const { steps, direction = "horizontal", class: className } = Astro.props
     color: rgb(var(--text-rgb) / 0.62);
   }
 
-  /* Conector: línea discontinua con punta, del mismo violeta que los rieles. */
+  /* Connector: dashed line with an arrowhead, in the same violet as the rails. */
   .flow__link {
     position: relative;
     flex: none;
