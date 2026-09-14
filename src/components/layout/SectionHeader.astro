@@ -90,7 +90,12 @@ const hasContext = Boolean(context) || Astro.slots.has("default")
   }
 
   .section-header__context {
-    max-width: 46ch;
+    /*
+      rem and not ch: ch is the width of the "0" glyph, 1.34x the average
+      letter in Manrope, so the 46ch this used to say measured out at 111
+      characters a line. 30rem lands at ~65, inside the 45-75 that reads well.
+    */
+    max-width: 30rem;
     margin: var(--space-2) 0 0;
     font-size: calc(var(--title-size) * 0.72);
     line-height: var(--lh-body);
