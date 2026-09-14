@@ -46,8 +46,12 @@ const hasContext = Boolean(context) || Astro.slots.has("default")
       step can never drift again.
     */
     --title-size: var(--fs-2xl);
-    /* The air below the header lives here, not in each section. */
-    margin-block-end: var(--space-4);
+    /*
+      The air below the header lives here, not in each section, and it scales
+      with the title for the same reason the gap above the context does: a
+      fixed 40px shrank against a title that clamps up to 40px.
+    */
+    margin-block-end: max(var(--space-4), calc(var(--title-size) * 1.4));
     text-align: left;
   }
 
