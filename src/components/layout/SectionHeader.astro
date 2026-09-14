@@ -91,7 +91,12 @@ const hasContext = Boolean(context) || Astro.slots.has("default")
 
   .section-header__context {
     max-width: 46ch;
-    margin: var(--space-2) 0 0;
+    /*
+      Tied to the title, not a fixed 16px: the title clamps from 28 to 40px, so
+      a fixed gap went from 0.57em on a phone down to 0.40em on a desktop, and
+      the pair read tightest exactly where the type was biggest.
+    */
+    margin: calc(var(--title-size) * 0.6) 0 0;
     font-size: calc(var(--title-size) * 0.72);
     line-height: var(--lh-body);
     text-wrap: pretty;
