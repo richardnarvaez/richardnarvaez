@@ -46,12 +46,8 @@ const hasContext = Boolean(context) || Astro.slots.has("default")
       step can never drift again.
     */
     --title-size: var(--fs-2xl);
-    /*
-      The air below the header lives here, not in each section, and it scales
-      with the title for the same reason the gap above the context does: a
-      fixed 40px shrank against a title that clamps up to 40px.
-    */
-    margin-block-end: max(var(--space-4), calc(var(--title-size) * 1.4));
+    /* The air below the header lives here, not in each section. */
+    margin-block-end: var(--space-4);
     text-align: left;
   }
 
@@ -95,12 +91,7 @@ const hasContext = Boolean(context) || Astro.slots.has("default")
 
   .section-header__context {
     max-width: 46ch;
-    /*
-      Tied to the title, not a fixed 16px: the title clamps from 28 to 40px, so
-      a fixed gap went from 0.57em on a phone down to 0.40em on a desktop, and
-      the pair read tightest exactly where the type was biggest.
-    */
-    margin: calc(var(--title-size) * 0.6) 0 0;
+    margin: var(--space-2) 0 0;
     font-size: calc(var(--title-size) * 0.72);
     line-height: var(--lh-body);
     text-wrap: pretty;
