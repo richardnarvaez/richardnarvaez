@@ -515,8 +515,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   /* No longer text but a component: normal cursor, no selection. */
   .hero__line--human {
-    /* How far the dimmed letters drop: HUMAN must still read. */
-    --hero-dim: 0.3;
+    /* How far the dimmed letters drop under the torch: the AI is what reads. */
+    --hero-dim: 0.15;
     /*
       The light over the word is wider than over the sketches: the blobs have very
       soft edges and a letter needs more coverage to read as lit.
