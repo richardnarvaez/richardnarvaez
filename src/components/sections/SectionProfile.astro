@@ -69,15 +69,29 @@ const awards = [
 
     <h3 class="profile__eyebrow">Certifications &amp; rewards</h3>
 
-    <ul class="profile__certs">
-      {
-        certifications.map((name) => (
-          <li class="profile__cert">
-            <BrandMark name={name} class="profile__cert-mark" />
-          </li>
-        ))
-      }
-    </ul>
+    <div class="profile__certs">
+      <div class="profile__certs-rail">
+        <ul class="profile__certs-set">
+          {
+            certifications.map((name) => (
+              <li class="profile__cert">
+                <BrandMark name={name} class="profile__cert-mark" />
+              </li>
+            ))
+          }
+        </ul>
+        {/* Second copy: only reached when the row scrolls, and never read out. */}
+        <ul class="profile__certs-set profile__certs-set--clone" aria-hidden="true">
+          {
+            certifications.map((name) => (
+              <li class="profile__cert">
+                <BrandMark name={name} class="profile__cert-mark" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
 
     <div class="profile__actions">
       <a class="btn btn--solid" href={socialLinks.linkedin} target="_blank" rel="noreferrer noopener">
@@ -128,7 +142,8 @@ const awards = [
   */
   /* :global because BlueprintSection renders the section, with its own scope. */
   :global(#profile) {
-    margin-top: 1rem;
+    /* Air after the hero: the frame must not start the moment the screen ends. */
+    margin-top: clamp(3rem, 9vh, 6.5rem);
   }
 
   .profile__map {
@@ -165,8 +180,8 @@ const awards = [
     flex-direction: column;
     align-items: center;
     text-align: center;
-    /* Half the avatar sits above the frame line. */
-    margin-top: calc(var(--avatar-size) / -2);
+    /* A third of the avatar sits above the frame line, like a stamp on the edge. */
+    margin-top: calc(var(--avatar-size) / -3);
   }
 
   /*
@@ -323,15 +338,80 @@ const awards = [
     color: rgb(var(--text-rgb) / 0.72);
   }
 
+  /*
+    The six marks fit on one line down to 467px and then wrap, which left a
+    stray second row. Below that they run as a loop instead: two identical sets
+    on a rail, faded at both ends so nothing is ever cut mid-mark.
+  */
   .profile__certs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 1.4rem 2.6rem;
+    --certs-gap: 2.6rem;
+
+    width: 100%;
     margin: 1.9rem 0 0;
+  }
+
+  .profile__certs-rail {
+    display: flex;
+    justify-content: center;
+    gap: var(--certs-gap);
+  }
+
+  .profile__certs-set {
+    display: flex;
+    align-items: center;
+    gap: var(--certs-gap);
+    margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* Wide enough for one line: the copy would just be six marks too many. */
+  .profile__certs-set--clone {
+    display: none;
+  }
+
+  /* 30rem, not 29.2: it turns into a loop just before the row would wrap. */
+  @media (max-width: 30rem) {
+    .profile__certs {
+      overflow: hidden;
+      /* Ends faded into the page, so a mark leaves instead of being clipped. */
+      mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    }
+
+    .profile__certs-rail {
+      width: max-content;
+      justify-content: flex-start;
+      animation: certsLoop 18s linear infinite;
+    }
+
+    .profile__certs-set--clone {
+      display: flex;
+    }
+  }
+
+  /*
+    The rail is two sets plus one gap, so -50% lands half a gap short of the
+    copy. The extra half gap is what makes the seam invisible.
+  */
+  @keyframes certsLoop {
+    to {
+      transform: translateX(calc(-50% - var(--certs-gap) / 2));
+    }
+  }
+
+  /* No loop when motion is reduced: the row scrolls by hand instead. */
+  @media (prefers-reduced-motion: reduce) {
+    .profile__certs {
+      overflow-x: auto;
+    }
+
+    .profile__certs-rail {
+      animation: none;
+    }
+
+    .profile__certs-set--clone {
+      display: none;
+    }
   }
 
   /* BrandMark consumes --brand-mark-size; colour rides currentColor. */

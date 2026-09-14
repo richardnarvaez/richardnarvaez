@@ -88,16 +88,18 @@ const featured = featuredIds.map((id) => gallery.find((g) => g.id === id)).filte
     padding-block: 0 var(--section-y);
   }
 
-  /* Lo renderiza SectionHeader y lleva su scope: solo se alcanza con :global. */
+  /* Rendered by SectionHeader, so it carries that scope: only :global reaches it. */
   :global(.gallery-section__header) {
     position: relative;
     z-index: 1;
     /*
-      El tirón es proporcional, no fijo: el tren mide 566px en escritorio y ~195 en
-      móvil, así que un valor en píxeles daría solapes muy distintos. 9vw mantiene
-      el ~17% de la escena, y el tope lo congela cuando la escena deja de crecer.
+      The pull is proportional, not fixed: the train is 566px on desktop and
+      ~195 on mobile, so a px value would overlap very differently. 9vw holds
+      ~17% of the scene, and the cap freezes it once the scene stops growing.
+      The extra 12px is slack: the scene's height is fractional and travels on
+      scroll, and without it a hairline of page showed through under the train.
     */
-    margin-block-start: calc(min(9vw, var(--space-6)) * -1);
+    margin-block-start: calc((min(9vw, var(--space-6)) + 12px) * -1);
   }
 
   /* Columnas y no grid: cada pieza conserva su alto natural y la columna se

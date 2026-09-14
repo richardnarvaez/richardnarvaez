@@ -241,7 +241,13 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     display: flex;
     font-family: var(--font-bellota);
     align-items: center;
-    min-height: min(88svh, 46rem);
+    /*
+      svh, never dvh: on iPhone the dynamic viewport grows as the URL bar
+      collapses and the whole hero would resize mid-scroll. svh is the small
+      viewport, the one with the bar showing, so it fills the first screen and
+      then never moves.
+    */
+    min-height: 100svh;
     overflow: hidden;
     isolation: isolate;
   }
