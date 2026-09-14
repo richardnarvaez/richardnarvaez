@@ -250,6 +250,12 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     min-height: 100svh;
     overflow: hidden;
     isolation: isolate;
+    /*
+      The page colour, not transparent: 100svh is fractional on most phones and
+      the clip antialiased the last row of the photo and the blur layers into a
+      hairline. Same fix the train scene carries.
+    */
+    background: var(--page-accent-surface);
   }
 
   .hero__bg {
@@ -288,7 +294,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
   .hero__fade {
     position: absolute;
     inset: auto 0 0;
-    height: 45%;
+    /* Of the hero, so it grew with it: 45% was 387px once the hero filled the screen. */
+    height: 22.5%;
     z-index: 0;
     pointer-events: none;
     background: linear-gradient(
