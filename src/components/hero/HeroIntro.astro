@@ -515,8 +515,14 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   /* No longer text but a component: normal cursor, no selection. */
   .hero__line--human {
-    /* How far the dimmed letters drop under the torch: the AI is what reads. */
+    /*
+      Two steps, because the torch mask has a very soft falloff: it only half
+      removes the base over H, U and M, so dimming the AI layer alone changed
+      almost nothing. The base steps back while the hero is lit, and the AI
+      layer under the light goes further down. The A and the I never dim.
+    */
     --hero-dim: 0.15;
+    --hero-dim-base: 0.32;
     /*
       The light over the word is wider than over the sketches: the blobs have very
       soft edges and a letter needs more coverage to read as lit.
@@ -534,6 +540,15 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   .hero.is-lit .hero__line--human {
     --torch-scale: 1;
+  }
+
+  /* Only the three letters the AI does not use. */
+  .hero.is-lit .hero__human--base .hero__letter:not(.hero__letter--keep):not(.hero__letter--swap) {
+    opacity: var(--hero-dim-base);
+  }
+
+  .hero__human--base .hero__letter {
+    transition: opacity 480ms ease;
   }
 
   .hero__human {
