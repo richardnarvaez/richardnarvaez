@@ -605,13 +605,6 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     Two identical layers: the base is clipped and the AI layer shows through.
     Masks are in hero coordinates so both stay in register.
   */
-  /* The selection's tilt. The cursor reads it inverted, so it stays upright. */
-  @property --sel-rot {
-    syntax: "<angle>";
-    inherits: true;
-    initial-value: -10deg;
-  }
-
   /* The permanent light over "AI": grows from 0 once the take is over. */
   @property --ai-reveal {
     syntax: "<number>";
@@ -690,6 +683,21 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     inset: 0;
     text-align: left;
     color: #fff;
+    /*
+      Faded in with the rest: the I is the one part of the AI layer the plain
+      copy does not cover, and from load its top peeked out beside the N.
+    */
+    opacity: 0;
+    animation: heroAiIn var(--rest) var(--rest-ease) var(--rest-at) both;
+  }
+
+  @keyframes heroAiIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /*
@@ -803,11 +811,16 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       `transform`, so it does not clash with the drag animation.
     */
     transform-origin: left center;
-    rotate: var(--sel-rot);
+    /*
+      Animated as `rotate` itself, not through a variable: WebKit does not
+      re-resolve individual transform properties when the custom property they
+      read animates, and in Safari the box stayed tilted while the cursor turned.
+    */
+    rotate: -10deg;
     user-select: none;
     /*
       Two animations on different properties: the entrance animates `opacity`
-      and the drag animates `translate` and --sel-rot, so neither overwrites the
+      and the drag animates `translate` and `rotate`, so neither overwrites the
       other. The drag and the cursor share start and length so their keyframe
       percentages line up.
     */
@@ -818,13 +831,13 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   /*
     Once the take is over the box is yours. The animation comes off so the drag
-    can drive `translate`; --sel-rot stays straight, which is where the take
+    can drive `translate`; `rotate` stays straight, which is where the take
     left it, so nothing moves at the handover.
   */
   .hero.is-done .hero__selection {
     --dx: 0px;
     --dy: 0px;
-    --sel-rot: 0deg;
+    rotate: 0deg;
     animation: none;
     translate: var(--dx) var(--dy);
     cursor: grab;
@@ -872,6 +885,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     animation still owns, and springs back on the box's curve so it never moves.
   */
   .hero.is-done .hero__cursor {
+    rotate: 0deg;
     transform: translate(calc(-1 * var(--dx)), calc(-1 * var(--dy)));
     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -924,7 +938,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     align-items: flex-start;
     /* Undoes the parent's rotation: in Figma the cursor and label do not rotate. */
     transform-origin: top left;
-    rotate: calc(-1 * var(--sel-rot));
+    rotate: 10deg;
     /* Where it arrives from: below right, like a hand coming in from the corner. */
     --cursor-from: 7rem 4rem;
     /* Where it wanders while the selection waits, and the slow drift once there. */
@@ -1032,22 +1046,22 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     0%,
     10% {
       translate: 0 0;
-      --sel-rot: -10deg;
+      rotate: -10deg;
     }
     16.92%,
     80.77% {
       translate: 1.7rem 0.9rem;
-      --sel-rot: -10deg;
+      rotate: -10deg;
     }
     87.69%,
     91.54% {
       translate: 1.7rem 0.9rem;
-      --sel-rot: 0deg;
+      rotate: 0deg;
     }
     98.46%,
     100% {
       translate: 0 0;
-      --sel-rot: 0deg;
+      rotate: 0deg;
     }
   }
 
@@ -1087,6 +1101,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     0% {
       opacity: 0;
       translate: var(--cursor-from);
+      rotate: 10deg;
       animation-timing-function: var(--ease-out);
     }
     /* Gripped through the whole drag: any offset here would read as a slip. */
@@ -1108,13 +1123,19 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       translate: var(--cursor-idle);
     }
     /* From thinking straight to the handle, arriving as it appears: one trip, not two. */
-    80.77%,
+    /* On the handle while the box turns, un-turning with it so it stays upright. */
+    80.77% {
+      translate: 1.1rem 0.95rem;
+      rotate: 10deg;
+    }
     87.69% {
       translate: 1.1rem 0.95rem;
+      rotate: 0deg;
     }
     90%,
     100% {
       translate: 0.55rem 0.45rem;
+      rotate: 0deg;
     }
   }
 
@@ -1133,12 +1154,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       opacity: 1;
       transform: none;
       translate: none;
+      /* The take ends straight, so the still version starts straight. */
+      rotate: 0deg;
       clip-path: none;
-    }
-
-    /* The take ends straight, so the still version starts straight. */
-    .hero__selection {
-      --sel-rot: 0deg;
     }
 
     /* And it ends with the light on "AI", so the still version has it on. */
@@ -1149,6 +1167,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     .hero__human--plain {
       animation: none;
       opacity: 0;
+    }
+
+    .hero__human--ai .hero__letter--swap::before {
+      animation: none;
+      opacity: 1;
     }
 
     .hero__selection-rotate {
