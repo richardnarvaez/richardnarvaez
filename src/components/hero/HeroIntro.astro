@@ -135,12 +135,60 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       for (const ms of SWAPS_MS) setTimeout(swap, ms)
     })
 
-    // Once the take is over the word is clickable and cycles through the rest.
+    // Once the take is over the word is yours: a click cycles it, and with a
+    // pointer you can pick the selection up. It follows the hand, and on release
+    // springs back to the ghost left at its spot; the word swaps when it lands.
     // Pointer only, on purpose: the h1 already reads the sentence to assistive
     // tech, and a focusable control inside an aria-hidden span would be worse.
     const handOver = () => {
       selection.closest(".hero")?.classList.add("is-done")
-      selection.addEventListener("click", swap)
+
+      let dragged = false
+      selection.addEventListener("click", () => {
+        if (!dragged) swap()
+      })
+      if (!matchMedia("(hover: hover)").matches) return
+
+      let from: { x: number; y: number } | null = null
+      const moveTo = (dx: number, dy: number) => {
+        selection.style.setProperty("--dx", `${dx}px`)
+        selection.style.setProperty("--dy", `${dy}px`)
+      }
+      selection.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return
+        from = { x: event.clientX, y: event.clientY }
+        // Capture can throw if the pointer went away between events; the drag still works.
+        try {
+          selection.setPointerCapture(event.pointerId)
+        } catch {}
+        selection.classList.add("is-dragging")
+        event.preventDefault()
+      })
+      selection.addEventListener("pointermove", (event) => {
+        if (!from) return
+        const dx = event.clientX - from.x
+        const dy = event.clientY - from.y
+        // Under 4px it is a click, and the click handler takes it.
+        if (Math.hypot(dx, dy) > 4) dragged = true
+        moveTo(dx, dy)
+      })
+      const release = () => {
+        if (!from) return
+        from = null
+        selection.classList.remove("is-dragging")
+        if (dragged) selection.classList.add("is-returning")
+        moveTo(0, 0)
+        // The click that follows a real drag must not swap too.
+        setTimeout(() => (dragged = false), 0)
+      }
+      selection.addEventListener("pointerup", release)
+      selection.addEventListener("pointercancel", release)
+      selection.addEventListener("transitionend", (event) => {
+        if (event.propertyName !== "translate" || event.pseudoElement) return
+        if (!selection.classList.contains("is-returning")) return
+        selection.classList.remove("is-returning")
+        swap()
+      })
     }
     selection.addEventListener("animationend", (event: AnimationEvent) => {
       if (event.animationName.includes("heroDrag")) handOver()
@@ -715,9 +763,74 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       heroDrag var(--take) ease-in-out var(--take-at) both;
   }
 
-  /* Once the take is over, the word is yours: click it to try the others. */
+  /*
+    Once the take is over the box is yours. The animation comes off so the drag
+    can drive `translate`; --sel-rot stays straight, which is where the take
+    left it, so nothing moves at the handover.
+  */
   .hero.is-done .hero__selection {
-    cursor: pointer;
+    --dx: 0px;
+    --dy: 0px;
+    --sel-rot: 0deg;
+    animation: none;
+    translate: var(--dx) var(--dy);
+    cursor: grab;
+    /* The spring: overshoots once and settles. */
+    transition: translate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hero.is-done .hero__selection.is-dragging {
+    z-index: 1;
+    cursor: grabbing;
+    transition: none;
+  }
+
+  /*
+    The ghost: the box's outline left at its spot. It counter-translates by the
+    drag, so it stays put while the box moves, and it springs on the same curve
+    as the box so the two cancel out all the way back.
+  */
+  .hero.is-done .hero__selection::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border: 2px solid var(--figma-select);
+    opacity: 0;
+    pointer-events: none;
+    translate: calc(-1 * var(--dx)) calc(-1 * var(--dy));
+    transition:
+      opacity 0.2s ease,
+      translate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hero.is-done .hero__selection.is-dragging::before {
+    transition: opacity 0.2s ease;
+  }
+
+  .hero.is-done .hero__selection.is-dragging::before,
+  .hero.is-done .hero__selection.is-returning::before {
+    opacity: 0.22;
+  }
+
+  /*
+    The collaborator's cursor stays where they left it: it counter-translates
+    by the drag in `transform`, which composes after the `translate` the take
+    animation still owns, and springs back on the box's curve so it never moves.
+  */
+  .hero.is-done .hero__cursor {
+    transform: translate(calc(-1 * var(--dx)), calc(-1 * var(--dy)));
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .hero.is-done .is-dragging .hero__cursor {
+    transition: none;
+  }
+
+  /* No pointer, no drag: the tap still cycles the word. */
+  @media (hover: none) {
+    .hero.is-done .hero__selection {
+      cursor: pointer;
+    }
   }
 
   .hero__handle {
