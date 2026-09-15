@@ -731,6 +731,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     rotate: calc(-1 * var(--sel-rot));
     /* Where it arrives from: below right, like a hand coming in from the corner. */
     --cursor-from: 7rem 4rem;
+    /* Where it wanders while the selection waits, and the slow drift once there. */
+    --cursor-away: 5rem 3.4rem;
+    --cursor-idle: 5.6rem 2.9rem;
     animation: heroCursorPath 12s ease-in-out calc(var(--enter) + 0.9s) both;
   }
 
@@ -828,7 +831,12 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     }
   }
 
-  /* Same clock as heroDrag: comes in, then steps just outside the corner. */
+  /*
+    Same clock as heroDrag. Comes in, steps just outside the corner once the
+    selection lands, then lets go: wanders off for the middle of the wait,
+    drifting the way an idle hand does while its owner looks at the canvas,
+    and is back on the corner before the selection moves again.
+  */
   @keyframes heroCursorPath {
     0% {
       opacity: 0;
@@ -841,6 +849,17 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       translate: 0 0;
     }
     18.33%,
+    28.33% {
+      translate: 0.55rem 0.45rem;
+    }
+    38.33% {
+      translate: var(--cursor-away);
+    }
+    58.33%,
+    65% {
+      translate: var(--cursor-idle);
+    }
+    76.67%,
     100% {
       translate: 0.55rem 0.45rem;
     }
@@ -917,6 +936,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       left: -0.3rem;
       top: calc(100% - 0.7rem);
       --cursor-from: -4rem 3rem;
+      --cursor-away: -3.5rem 3rem;
+      --cursor-idle: -3rem 3.4rem;
     }
 
     .hero__cursor-label {
