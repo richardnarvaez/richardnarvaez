@@ -1047,7 +1047,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     just outside the corner once the selection has landed, then lets go:
     wanders off for the middle of the wait,
     drifting the way an idle hand does while its owner looks at the canvas,
-    and is back on the corner before the selection moves again.
+    then goes straight to the rotation handle as it appears.
   */
   @keyframes heroCursorPath {
     0% {
@@ -1070,13 +1070,10 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       translate: var(--cursor-away);
     }
     53.85%,
-    60% {
+    71.54% {
       translate: var(--cursor-idle);
     }
-    70.77%,
-    78.46% {
-      translate: 0.55rem 0.45rem;
-    }
+    /* From thinking straight to the handle, arriving as it appears: one trip, not two. */
     80.77%,
     87.69% {
       translate: 1.1rem 0.95rem;
