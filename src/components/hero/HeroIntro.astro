@@ -794,7 +794,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     content: "";
     position: absolute;
     inset: -2px;
-    border: 2px solid var(--figma-select);
+    /* Grey, not the selection blue: it is where the box was, not a second box. */
+    border: 2px solid rgb(var(--text-rgb));
     opacity: 0;
     pointer-events: none;
     translate: calc(-1 * var(--dx)) calc(-1 * var(--dy));
