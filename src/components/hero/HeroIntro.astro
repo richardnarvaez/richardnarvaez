@@ -77,6 +77,13 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
         <span class="hero__human hero__human--ai">
           <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter hero__letter--keep">A</span><span class="hero__letter hero__letter--swap" data-alt="I"><span class="hero__glyph">N</span></span>
         </span>
+        {/*
+          Plain HUMAN on top. It fades out over the rest, so every letter dims
+          continuously instead of flipping when the light's edge sweeps past.
+        */}
+        <span class="hero__human hero__human--plain">
+          <span class="hero__letter">H</span><span class="hero__letter">U</span><span class="hero__letter">M</span><span class="hero__letter">A</span><span class="hero__letter"><span class="hero__glyph">N</span></span>
+        </span>
       </span>
 
       <span class="hero__selection" aria-hidden="true">
@@ -322,7 +329,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     --take: 13s;
     --take-at: calc(var(--enter) + 0.9s);
     /* The rest: a beat after the take, the cursor goes on hold and the light comes up, together. */
-    --rest: 1s;
+    --rest: 1.6s;
+    --rest-ease: cubic-bezier(0.45, 0, 0.2, 1);
     --rest-at: calc(var(--take-at) + var(--take) + 0.8s);
 
     position: relative;
@@ -635,16 +643,22 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* heroRise is the line's entrance; the reveal joins it once the take ends. */
     animation:
       heroRise 0.9s var(--ease-out) calc(var(--enter) + 0.16s) both,
-      heroAiReveal var(--rest) var(--ease-out) var(--rest-at) both;
+      heroAiReveal var(--rest) var(--rest-ease) var(--rest-at) both;
   }
 
   .hero__human {
     display: block;
   }
 
-  .hero__human--ai {
+  .hero__human--ai,
+  .hero__human--plain {
     position: absolute;
     inset: 0;
+  }
+
+  .hero__human--plain {
+    pointer-events: none;
+    animation: heroPlainOut var(--rest) var(--rest-ease) var(--rest-at) both;
   }
 
   .hero__letter,
@@ -723,12 +737,28 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     mask-composite: exclude, add, add, add, add;
   }
 
+  /*
+    Scaling from 0 could never dim smoothly: the blob is too small to touch a
+    letter for most of the way and then its saturated core sweeps them in a
+    third of a second. So the light is already at three quarters behind the
+    plain copy and only blooms the rest, while the copy fading out is what
+    actually dims the letters, continuously.
+  */
   @keyframes heroAiReveal {
     from {
-      --ai-reveal: 0;
+      --ai-reveal: 0.75;
     }
     to {
       --ai-reveal: 1;
+    }
+  }
+
+  @keyframes heroPlainOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
     }
   }
 
@@ -908,7 +938,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     */
     animation:
       heroCursorPath var(--take) ease-in-out var(--take-at) both,
-      heroCursorHold var(--rest) var(--ease-out) var(--rest-at) both;
+      heroCursorHold var(--rest) var(--rest-ease) var(--rest-at) both;
   }
 
   .hero__cursor :global(.hero__cursor-arrow) {
@@ -1114,6 +1144,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* And it ends with the light on "AI", so the still version has it on. */
     .hero__line--human {
       --ai-reveal: 1;
+    }
+
+    .hero__human--plain {
+      animation: none;
+      opacity: 0;
     }
 
     .hero__selection-rotate {
