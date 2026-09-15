@@ -236,6 +236,12 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* Sketch parallax against the photo, written by the script. */
     --px: 0px;
     --py: 0px;
+    /*
+      The words wait for the photo. It used to be background, photo and text all
+      at once on the first frame, which read as a flash rather than an entrance.
+      Every delay below is measured from here, so the cadence is one number.
+    */
+    --enter: 0.6s;
 
     position: relative;
     display: flex;
@@ -268,9 +274,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.28;
+    opacity: 0;
     transform: scale(1.06);
-    animation: heroBgSettle 1.6s var(--ease-out) forwards;
+    animation: heroBgSettle 1.2s var(--ease-out) forwards;
   }
 
   /* Fades the photo into the background, top and bottom, symmetrically. */
@@ -331,7 +337,10 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     pointer-events: none;
     /* Same settle as the background photo, so they do not drift apart on entry. */
     transform: scale(1.06);
-    animation: heroSketchSettle 1.6s var(--ease-out) forwards;
+    opacity: 0;
+    animation:
+      heroSketchSettle 1.4s var(--ease-out) forwards,
+      heroSketchIn 1s var(--ease-out) 0.2s forwards;
   }
 
   .hero__sketch-base,
@@ -469,7 +478,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     letter-spacing: 0.32em;
     text-transform: uppercase;
     color: rgb(var(--text-rgb) / 0.5);
-    animation: heroRise 0.7s var(--ease-out) both;
+    animation: heroRise 0.7s var(--ease-out) var(--enter) both;
   }
 
   .hero__title {
@@ -484,14 +493,14 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   .hero__line {
     display: block;
-    animation: heroRise 0.9s var(--ease-out) both;
+    animation: heroRise 0.9s var(--ease-out) var(--enter) both;
   }
 
   .hero__line--creative {
     font-size: clamp(2.4rem, 7vw, 4.6rem);
     font-weight: 300;
     color: rgba(255, 255, 255, 0.92);
-    animation-delay: 0.08s;
+    animation-delay: calc(var(--enter) + 0.08s);
   }
 
   .hero__line--human {
@@ -499,7 +508,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #fff;
-    animation-delay: 0.16s;
+    animation-delay: calc(var(--enter) + 0.16s);
   }
 
   /*
@@ -626,7 +635,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     font-size: clamp(2rem, 6vw, 4rem);
     font-weight: 300;
     color: var(--page-accent);
-    animation-delay: 0.24s;
+    animation-delay: calc(var(--enter) + 0.24s);
     white-space: nowrap;
   }
 
@@ -669,8 +678,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       and the drag animates `translate`, so neither overwrites the other.
     */
     animation:
-      heroSelect 0.5s var(--ease-out) 0.55s both,
-      heroDrag 7.5s ease-in-out 1.6s infinite;
+      heroSelect 0.5s var(--ease-out) calc(var(--enter) + 0.55s) both,
+      heroDrag 7.5s ease-in-out calc(var(--enter) + 1.6s) infinite;
   }
 
   .hero__handle {
@@ -711,7 +720,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* Undoes the parent's rotation: in Figma the cursor and label do not rotate. */
     transform-origin: top left;
     rotate: 10deg;
-    animation: heroCursorIn 0.6s var(--ease-out) 0.75s both;
+    animation: heroCursorIn 0.6s var(--ease-out) calc(var(--enter) + 0.75s) both;
   }
 
   .hero__cursor :global(.hero__cursor-arrow) {
@@ -746,6 +755,15 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     to {
       transform: scale(1);
       opacity: 0.32;
+    }
+  }
+
+  @keyframes heroSketchIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
     }
   }
 
@@ -821,6 +839,13 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       opacity: 1;
       transform: none;
       clip-path: none;
+    }
+
+    /* Born visible: it now fades in, and without this it would stay at 0. */
+    .hero__sketch {
+      animation: none;
+      opacity: 1;
+      transform: none;
     }
   }
 
