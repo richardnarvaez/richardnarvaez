@@ -1043,8 +1043,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
   }
 
   /*
-    Same clock as heroDrag. Comes in, steps just outside the corner once the
-    selection lands, then lets go: wanders off for the middle of the wait,
+    Same clock as heroDrag. Comes in, rides the drag without slipping, steps
+    just outside the corner once the selection has landed, then lets go:
+    wanders off for the middle of the wait,
     drifting the way an idle hand does while its owner looks at the canvas,
     and is back on the corner before the selection moves again.
   */
@@ -1054,12 +1055,14 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       translate: var(--cursor-from);
       animation-timing-function: var(--ease-out);
     }
+    /* Gripped through the whole drag: any offset here would read as a slip. */
     7.69%,
-    10% {
+    16.92% {
       opacity: 1;
       translate: 0 0;
     }
-    16.92%,
+    /* Landed: only now does it let go and step just outside the corner. */
+    20.77%,
     26.15% {
       translate: 0.55rem 0.45rem;
     }
