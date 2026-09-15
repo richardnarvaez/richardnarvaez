@@ -321,6 +321,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* The take: drag, cursor path, handle and the final AI reveal run on this clock. */
     --take: 13s;
     --take-at: calc(var(--enter) + 0.9s);
+    /* The rest: a beat after the take, the cursor goes on hold and the light comes up, together. */
+    --rest: 1s;
+    --rest-at: calc(var(--take-at) + var(--take) + 0.8s);
 
     position: relative;
     display: flex;
@@ -632,7 +635,7 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* heroRise is the line's entrance; the reveal joins it once the take ends. */
     animation:
       heroRise 0.9s var(--ease-out) calc(var(--enter) + 0.16s) both,
-      heroAiReveal 1.2s var(--ease-out) calc(var(--take-at) + var(--take)) both;
+      heroAiReveal var(--rest) var(--ease-out) var(--rest-at) both;
   }
 
   .hero__human {
@@ -900,11 +903,12 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /*
       Two animations on different properties: the path moves it, and once the
       take is over and nobody has touched it for a moment, the hold drains the
-      colour, the way a collaborator's cursor goes idle.
+      colour, the way a collaborator's cursor goes idle. It shares the rest's
+      clock with the light over "AI", so the two happen as one beat.
     */
     animation:
       heroCursorPath var(--take) ease-in-out var(--take-at) both,
-      heroCursorHold 0.7s ease-in-out calc(var(--take-at) + var(--take) + 0.8s) both;
+      heroCursorHold var(--rest) var(--ease-out) var(--rest-at) both;
   }
 
   .hero__cursor :global(.hero__cursor-arrow) {
