@@ -1,88 +1,124 @@
 {
   "concentric": {
     "app:mobile-games": [
-      -26,
-      -164
-    ],
-    "stack:AWS": [
-      -30,
-      -51
-    ],
-    "app:hmi": [
-      -118,
-      151
-    ],
-    "stack:Swift": [
-      -131,
-      -218
-    ],
-    "stack:React Native": [
-      54,
-      -222
-    ],
-    "app:huma": [
-      102,
-      -114
-    ],
-    "stack:Convex": [
-      215,
-      -216
-    ],
-    "stack:Next.js": [
-      108,
-      98
-    ],
-    "app:ubrand": [
-      174,
-      177
-    ],
-    "app:thelist": [
-      246,
-      35
-    ],
-    "stack:Stripe": [
-      371,
-      73
-    ],
-    "stack:Strapi": [
-      294,
-      154
-    ],
-    "stack:SendGrid": [
-      -49,
-      283
-    ],
-    "stack:Kotlin": [
-      -231,
+      314,
       164
     ],
+    "stack:AWS": [
+      -31,
+      -69
+    ],
+    "app:hmi": [
+      -49,
+      229
+    ],
+    "stack:Swift": [
+      -209,
+      -207
+    ],
+    "stack:React Native": [
+      -43,
+      -210
+    ],
+    "app:huma": [
+      -122,
+      97
+    ],
+    "stack:Convex": [
+      136,
+      -205
+    ],
+    "stack:Next.js": [
+      87,
+      -60
+    ],
+    "app:ubrand": [
+      212,
+      240
+    ],
+    "app:thelist": [
+      194,
+      119
+    ],
+    "stack:Stripe": [
+      361,
+      -15
+    ],
+    "stack:Strapi": [
+      318,
+      41
+    ],
+    "stack:SendGrid": [
+      195,
+      -145
+    ],
+    "stack:Kotlin": [
+      -249,
+      -13
+    ],
     "stack:Node.js": [
-      -84,
-      68
+      -232,
+      -91
     ],
     "stack:TypeScript": [
-      -99,
-      1
+      -132,
+      -30
     ],
     "stack:Postgres": [
-      66,
-      44
+      -134,
+      -133
     ],
     "app:deliverycat": [
-      7,
-      166
+      61,
+      227
     ],
     "stack:Cloudflare": [
-      374,
-      -34
+      329,
+      -97
     ],
     "stack:Python": [
-      359,
-      -168
+      302,
+      -178
     ],
     "app:trendy-music": [
-      -218,
-      -109
+      13,
+      105
+    ],
+    "stack:Railway": [
+      32,
+      -142
+    ],
+    "app:memory": [
+      -207,
+      215
+    ],
+    "app:zodiac": [
+      -270,
+      113
+    ],
+    "stack:React": [
+      22,
+      -7
+    ],
+    "stack:Directus": [
+      203,
+      -56
+    ],
+    "stack:Google Cloud": [
+      -333,
+      -156
+    ],
+    "stack:Unity": [
+      200,
+      4
+    ],
+    "stack:Firebase": [
+      -349,
+      -86
+    ],
+    "stack:Java": [
+      -367,
+      23
     ]
   }
 }
