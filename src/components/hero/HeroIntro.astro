@@ -134,6 +134,19 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       if (!event.animationName.includes("heroDrag")) return
       for (const ms of SWAPS_MS) setTimeout(swap, ms)
     })
+
+    // Once the take is over the word is clickable and cycles through the rest.
+    // Pointer only, on purpose: the h1 already reads the sentence to assistive
+    // tech, and a focusable control inside an aria-hidden span would be worse.
+    const handOver = () => {
+      selection.closest(".hero")?.classList.add("is-done")
+      selection.addEventListener("click", swap)
+    }
+    selection.addEventListener("animationend", (event: AnimationEvent) => {
+      if (event.animationName.includes("heroDrag")) handOver()
+    })
+    // No take with reduced motion, so nothing to wait for.
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) handOver()
   }
 
   // The variables live on .hero: both the sketches and HUMAN read them.
@@ -687,8 +700,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     */
     transform-origin: left center;
     rotate: var(--sel-rot);
+    user-select: none;
     /*
-      Two animations on different properties: the entrance animates `transform`
+      Two animations on different properties: the entrance animates `opacity`
       and the drag animates `translate` and --sel-rot, so neither overwrites the
       other. The drag and the cursor share start and length so their keyframe
       percentages line up.
@@ -699,6 +713,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     animation:
       heroSelect 0.5s var(--ease-out) calc(var(--enter) + 0.55s) both,
       heroDrag var(--take) ease-in-out var(--take-at) both;
+  }
+
+  /* Once the take is over, the word is yours: click it to try the others. */
+  .hero.is-done .hero__selection {
+    cursor: pointer;
   }
 
   .hero__handle {
@@ -827,11 +846,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
   @keyframes heroSelect {
     from {
       opacity: 0;
-      transform: scaleX(0.94);
     }
     to {
       opacity: 1;
-      transform: scaleX(1);
     }
   }
 
