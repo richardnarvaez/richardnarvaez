@@ -744,7 +744,14 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* Where it wanders while the selection waits, and the slow drift once there. */
     --cursor-away: 5rem 3.4rem;
     --cursor-idle: 5.6rem 2.9rem;
-    animation: heroCursorPath var(--take) ease-in-out var(--take-at) both;
+    /*
+      Two animations on different properties: the path moves it, and once the
+      take is over and nobody has touched it for a moment, the hold drains the
+      colour, the way a collaborator's cursor goes idle.
+    */
+    animation:
+      heroCursorPath var(--take) ease-in-out var(--take-at) both,
+      heroCursorHold 0.7s ease-in-out calc(var(--take-at) + var(--take) + 0.8s) both;
   }
 
   .hero__cursor :global(.hero__cursor-arrow) {
@@ -859,6 +866,15 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     }
   }
 
+  @keyframes heroCursorHold {
+    from {
+      filter: grayscale(0);
+    }
+    to {
+      filter: grayscale(1);
+    }
+  }
+
   /* The handle shows a beat before the turn and is gone a beat after. */
   @keyframes heroRotateHint {
     0%,
@@ -943,6 +959,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     .hero__selection-rotate {
       animation: none;
       opacity: 0;
+    }
+
+    /* The take ends on hold, so the still version is on hold. */
+    .hero__cursor {
+      filter: grayscale(1);
     }
 
     /* Born visible: it now fades in, and without this it would stay at 0. */
