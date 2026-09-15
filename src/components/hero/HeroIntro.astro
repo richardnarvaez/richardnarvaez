@@ -197,13 +197,31 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) handOver()
   }
 
+  // Where "AI" sits inside the word, in the word's own coordinates: the fixed
+  // reveal blob grows from there. Measured on every device, since it does not
+  // depend on the pointer.
+  const wordLine = document.querySelector<HTMLElement>(".hero__line--human")
+  const wordBase = wordLine?.querySelector<HTMLElement>(".hero__human--base")
+  const letterA = wordBase?.querySelector<HTMLElement>(".hero__letter--keep")
+  const letterN = wordBase?.querySelector<HTMLElement>(".hero__letter--swap")
+  if (wordLine && wordBase && letterA && letterN) {
+    const centreAI = () => {
+      const box = wordBase.getBoundingClientRect()
+      const a = letterA.getBoundingClientRect()
+      const n = letterN.getBoundingClientRect()
+      wordLine.style.setProperty("--ax", `${((a.left + n.right) / 2 - box.left).toFixed(1)}px`)
+      wordLine.style.setProperty("--ay", `${((a.top + a.bottom) / 2 - box.top).toFixed(1)}px`)
+    }
+    document.fonts.ready.then(centreAI)
+    addEventListener("resize", centreAI)
+  }
+
   // The variables live on .hero: both the sketches and HUMAN read them.
   const hero = document.querySelector<HTMLElement>(".hero")
-  const human = hero?.querySelector<HTMLElement>(".hero__line--human")
   const wantsMotion =
     matchMedia("(hover: hover)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches
 
-  if (hero && human && wantsMotion) {
+  if (hero && wantsMotion) {
     // Three blobs with different inertias: the main one and two that lag behind.
     const blobs = [
       { ease: 0.14, x: 0, y: 0, vx: "--tx", vy: "--ty" },
@@ -247,19 +265,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       if (!frame) frame = requestAnimationFrame(tick)
     }
 
-    // Where the word sits inside the hero, so its masks share the torch's
-    // coordinate system.
-    const locate = () => {
-      const box = hero.getBoundingClientRect()
-      const word = human.getBoundingClientRect()
-      human.style.setProperty("--wx", `${(word.left - box.left).toFixed(1)}px`)
-      human.style.setProperty("--wy", `${(word.top - box.top).toFixed(1)}px`)
-    }
-
     hero.addEventListener("pointerenter", (event) => {
       if (event.pointerType === "touch") return
       aim(event)
-      locate()
       // Born right under the pointer, without sliding in from the last position.
       for (const b of blobs) {
         b.x = targetX
@@ -310,6 +318,9 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       Every delay below is measured from here, so the cadence is one number.
     */
     --enter: 0.6s;
+    /* The take: drag, cursor path, handle and the final AI reveal run on this clock. */
+    --take: 13s;
+    --take-at: calc(var(--enter) + 0.9s);
 
     position: relative;
     display: flex;
@@ -576,7 +587,6 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #fff;
-    animation-delay: calc(var(--enter) + 0.16s);
   }
 
   /*
@@ -591,7 +601,8 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     initial-value: -10deg;
   }
 
-  @property --torch-scale {
+  /* The permanent light over "AI": grows from 0 once the take is over. */
+  @property --ai-reveal {
     syntax: "<number>";
     inherits: true;
     initial-value: 0;
@@ -599,25 +610,29 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
 
   /* No longer text but a component: normal cursor, no selection. */
   .hero__line--human {
-    /* How far the dimmed letters drop under the torch: the AI is what reads. */
+    /* How far H, U and M drop under the light. The A and the I never dim. */
     --hero-dim: 0.08;
     /*
       The light over the word is wider than over the sketches: the blobs have very
       soft edges and a letter needs more coverage to read as lit.
     */
     --word-light: 1.75;
-    --wx: 0px;
-    --wy: 0px;
-    --torch-scale: 0;
+    /*
+      The light over "AI": the torch as it was over the word, only it no longer
+      follows the pointer. It grows from the centre of "AI" once the take is
+      over and stays, so both readings share the screen: HUMAN fading in from
+      the left, AI lit on the right. Centred by the script.
+    */
+    --ax: 0px;
+    --ay: 0px;
 
     position: relative;
     cursor: default;
     user-select: none;
-    transition: --torch-scale 480ms ease;
-  }
-
-  .hero.is-lit .hero__line--human {
-    --torch-scale: 1;
+    /* heroRise is the line's entrance; the reveal joins it once the take ends. */
+    animation:
+      heroRise 0.9s var(--ease-out) calc(var(--enter) + 0.16s) both,
+      heroAiReveal 1.2s var(--ease-out) calc(var(--take-at) + var(--take)) both;
   }
 
   .hero__human {
@@ -627,7 +642,6 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
   .hero__human--ai {
     position: absolute;
     inset: 0;
-    display: none;
   }
 
   .hero__letter,
@@ -661,48 +675,57 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     color: #fff;
   }
 
-  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    .hero__human--ai {
-      display: block;
+  /*
+    The torch's four blobs, concentric on "AI" and scaled by --ai-reveal. Four
+    and not one on purpose: the PNG is soft, and a single copy never reaches
+    full alpha, so the base leaked through as a ghost N. Stacked with `add`
+    the centre saturates and the edge still falls off softly. It works on
+    every device, mouse or not: the AI layer shows through the light and the
+    base is cut where it falls, so the two layers always add up to one word.
+  */
+  .hero__human--base,
+  .hero__human--ai {
+    --l1: calc(var(--blob-1) * var(--word-light) * var(--ai-reveal));
+    --l2: calc(var(--blob-2) * var(--word-light) * var(--ai-reveal));
+    --l3: calc(var(--blob-3) * var(--word-light) * var(--ai-reveal));
+    --l4: calc(var(--blob-4) * var(--word-light) * var(--ai-reveal));
+    --c1: calc(var(--ax) - var(--l1) / 2) calc(var(--ay) - var(--l1) / 2);
+    --c2: calc(var(--ax) - var(--l2) / 2) calc(var(--ay) - var(--l2) / 2);
+    --c3: calc(var(--ax) - var(--l3) / 2) calc(var(--ay) - var(--l3) / 2);
+    --c4: calc(var(--ax) - var(--l4) / 2) calc(var(--ay) - var(--l4) / 2);
+
+    mask-repeat: no-repeat;
+  }
+
+  .hero__human--ai {
+    mask-image: var(--blob), var(--blob), var(--blob), var(--blob);
+    mask-size:
+      var(--l1) var(--l1),
+      var(--l2) var(--l2),
+      var(--l3) var(--l3),
+      var(--l4) var(--l4);
+    mask-position: var(--c1), var(--c2), var(--c3), var(--c4);
+  }
+
+  /* Base: the whole text MINUS the union of the blobs (exclude = XOR). */
+  .hero__human--base {
+    mask-image: linear-gradient(#000, #000), var(--blob), var(--blob), var(--blob), var(--blob);
+    mask-size:
+      auto,
+      var(--l1) var(--l1),
+      var(--l2) var(--l2),
+      var(--l3) var(--l3),
+      var(--l4) var(--l4);
+    mask-position: 0 0, var(--c1), var(--c2), var(--c3), var(--c4);
+    mask-composite: exclude, add, add, add, add;
+  }
+
+  @keyframes heroAiReveal {
+    from {
+      --ai-reveal: 0;
     }
-
-    /* The four blobs, scaled by --torch-scale and centred on each focus. */
-    .hero__human--base,
-    .hero__human--ai {
-      --b1: calc(var(--blob-1) * var(--word-light) * var(--torch-scale));
-      --b2: calc(var(--blob-2) * var(--word-light) * var(--torch-scale));
-      --b3: calc(var(--blob-3) * var(--word-light) * var(--torch-scale));
-      --b4: calc(var(--blob-4) * var(--word-light) * var(--torch-scale));
-      --p1: calc(var(--tx) - var(--wx) - var(--b1) / 2) calc(var(--ty) - var(--wy) - var(--b1) / 2);
-      --p2: calc(var(--tx2) - var(--wx) - var(--b2) / 2) calc(var(--ty2) - var(--wy) - var(--b2) / 2);
-      --p3: calc(var(--tx3) - var(--wx) - var(--b3) / 2) calc(var(--ty3) - var(--wy) - var(--b3) / 2);
-      --p4: calc(var(--tx4) - var(--wx) - var(--b4) / 2) calc(var(--ty4) - var(--wy) - var(--b4) / 2);
-
-      mask-repeat: no-repeat;
-      will-change: mask-position;
-    }
-
-    .hero__human--ai {
-      mask-image: var(--blob), var(--blob), var(--blob), var(--blob);
-      mask-size:
-        var(--b1) var(--b1),
-        var(--b2) var(--b2),
-        var(--b3) var(--b3),
-        var(--b4) var(--b4);
-      mask-position: var(--p1), var(--p2), var(--p3), var(--p4);
-    }
-
-    /* Base: the whole text MINUS the union of the blobs (exclude = XOR). */
-    .hero__human--base {
-      mask-image: linear-gradient(#000, #000), var(--blob), var(--blob), var(--blob), var(--blob);
-      mask-size:
-        auto,
-        var(--b1) var(--b1),
-        var(--b2) var(--b2),
-        var(--b3) var(--b3),
-        var(--b4) var(--b4);
-      mask-position: 0 0, var(--p1), var(--p2), var(--p3), var(--p4);
-      mask-composite: exclude, add, add, add, add;
+    to {
+      --ai-reveal: 1;
     }
   }
 
@@ -755,9 +778,6 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
       other. The drag and the cursor share start and length so their keyframe
       percentages line up.
     */
-    /* The take: drag, cursor path and the arrow/rotate swap all run on this clock. */
-    --take: 13s;
-    --take-at: calc(var(--enter) + 0.9s);
     animation:
       heroSelect 0.5s var(--ease-out) calc(var(--enter) + 0.55s) both,
       heroDrag var(--take) ease-in-out var(--take-at) both;
@@ -1085,6 +1105,11 @@ const words = ["thinking...", "building...", "drawing..."].map((word) => [...wor
     /* The take ends straight, so the still version starts straight. */
     .hero__selection {
       --sel-rot: 0deg;
+    }
+
+    /* And it ends with the light on "AI", so the still version has it on. */
+    .hero__line--human {
+      --ai-reveal: 1;
     }
 
     .hero__selection-rotate {
